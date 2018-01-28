@@ -1,0 +1,1343 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "AWS CloudFormation Template to setup Artifactory Enterprise.",
+
+  "Parameters" : {
+
+    "InstanceType" : {
+      "Description" : "Artifactory EC2 instance type",
+      "Type" : "String",
+      "Default" : "m4.xlarge",
+      "AllowedValues" : [ "t1.micro","m1.small","m1.medium","m1.large","m1.xlarge","m2.xlarge","m2.2xlarge","m2.4xlarge","m3.xlarge","m3.2xlarge", "m4.xlarge", "c1.medium","c1.xlarge","cc1.4xlarge","cc2.8xlarge","cg1.4xlarge"],
+      "ConstraintDescription" : "must be a valid EC2 instance type."
+    },
+
+    "ExtraJavaOptions":{
+      "Description": "Setting Java Memory Parameters for Artifactory",
+      "Default" : "-server -Xms2g -Xmx14g -Xss256k -XX:+UseG1GC -XX:OnOutOfMemoryError=\\\\\\\"kill -9 %p\\\\\\\"",
+      "Type" : "String"
+    },
+
+    "InstanceStorage":{
+      "Description": "Artifactory instances storage size in (Gb)",
+      "Type": "Number",
+      "Default" : "250",
+      "MinValue": "250",
+      "ConstraintDescription" : "must be more then 250 Gb."
+    },
+
+    "SecondaryNodeCount": {
+      "Description" : "Number of Artifactory Secondary instances to launch",
+      "Type" : "Number",
+      "Default" : "0",
+      "MinValue" : "0",
+      "MaxValue": "9"
+    },
+
+    "KeyName": {
+      "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instances",
+      "Type": "AWS::EC2::KeyPair::KeyName",
+      "ConstraintDescription" : "must be the name of an existing EC2 KeyPair."
+    },
+
+    "MasterKey": {
+      "NoEcho": "true",
+      "Description" : "Master key for Artifactory cluster. Generate master.key using command '$openssl rand -hex 16'",
+      "Type": "String",
+      "MinLength": "1",
+      "MaxLength": "64",
+      "AllowedPattern" : "[a-zA-Z0-9][a-zA-Z0-9]*",
+      "Default": "1ce2be4490ca2c662cb79636cf9b7b8e"
+    },
+
+    "ArtifactoryVersion": {
+      "Description": "Artifactory version to deploy",
+      "Type": "String",
+      "Default": "5.8.1"
+    },
+
+    "ArtifactoryLicense1": {
+      "Description": "Artifactory Enterprise License. Providing one license is mandatory",
+      "Type": "String"
+    },
+
+    "ArtifactoryLicense2": {
+      "Description": "Artifactory Enterprise License",
+      "Type": "String"
+    },
+
+    "ArtifactoryLicense3": {
+      "Description": "Artifactory Enterprise License",
+      "Type": "String"
+    },
+
+    "ArtifactoryLicense4": {
+      "Description": "Artifactory Enterprise License",
+      "Type": "String"
+    },
+
+    "ArtifactoryLicense5": {
+      "Description": "Artifactory Enterprise License",
+      "Type": "String"
+    },
+
+    "Certificate": {
+      "Description": "To use Artifactory as docker registry you need to provide wild card valid Certificate. Provide your SSL Certificate.",
+      "Type": "String",
+      "Default": "-----BEGIN CERTIFICATE----- MIIFhzCCA2+gAwIBAgIJALC4r5BQWZE4MA0GCSqGSIb3DQEBCwUAMFoxCzAJBgNV BAYTAlVTMRMwEQYDVQQIDApDYWxpZm9ybmlhMRMwEQYDVQQHDApTYW50YUNsYXJh MQswCQYDVQQKDAJJVDEUMBIGA1UEAwwLKi5sb2NhbGhvc3QwHhcNMTgwMTE3MTk0 NjI4WhcNMTkwMTA4MTk0NjI4WjBaMQswCQYDVQQGEwJVUzETMBEGA1UECAwKQ2Fs aWZvcm5pYTETMBEGA1UEBwwKU2FudGFDbGFyYTELMAkGA1UECgwCSVQxFDASBgNV BAMMCyoubG9jYWxob3N0MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA 7KfOWDQlov8cMa8r/lcJqiWZaH9myQC74Vbe0HXsntQbcvljkjG2P7ebm5dd9Bzc sauNOJpbKf5AhFK1iwJUAkciGc1LR4k8wfWmQM3NPS8hrqrtH20zqNpdFRpNYjja JofwccPNm030GhhZkZ95TpruvmswMDwspl3jfqdcc/eiQsHcKyGnV2a+UAeoqe7J mHhmhRy1MLqAjF5U1GrUYUONA+22iRDJb4c9B91QoWvsnXpdA9NKV/mmA3/rIdx6 Ld2IPRdrIw2K5sAnXsh3bx2oCSvSfussf0x+4XDrnsaHVfjwvfNL8ECOuac2Oi/E WOp9528gOohpFAuwEt63Vl5p8/CC9m0HJDTZBKm2l5eD1kdPIj4PvP9Sn9CxGXKQ E1bxWoFxGX8EyRW0b0NK31N7b8JPZ1SoFNiB5amOMNLvR26a7cQrKumTuJeYK9Ja JaxhMXM7R0DA0Ev8ZG2xmyCygox+1KPSmJOIEpT70BFbj3rKLNqP22ET+zvPuh+2 DdgyrpHFeYkGWjMbWPjK7wJsD2zM8ccoJQfepPz8I4rT0JfrKAQgCGuGOggneaNJ KTVGNOFbj5AXdZ/Q+GvNommyRdq4J7EnqY6L+P25fo5qZ6UZ/iS0tPcvxgn0Fdhs pUPbQyQIDZyxZd3Q1lUIE38ol8P66mS2zbzf8EeOCoUCAwEAAaNQME4wHQYDVR0O BBYEFETAQM/5P7XJ8kevHFj6BPndQOFaMB8GA1UdIwQYMBaAFETAQM/5P7XJ8kev HFj6BPndQOFaMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQELBQADggIBAJ1TepKv LWYhFmVQcgZwZf/qt1a1cohzJSm6da9RCnnAWC7WC/U117bgSomtrH1v0OysHFhB zBBUeBqI7+OmzAX8dhj+roKkcnFUM/IwlK1eueIIA//CWvEf/o0XExilVS2yCc9d PTpOQBXwk9QinxK36kHdBiGxa7dW0JPnOEEmuMgGORKeLy4J6Ik8iSeFY1SZVcOI +6WWvoKciPlmIeccC+6YVmkeBwhP2o5r5w/UAaO2hSnGvmm4UIj/VJv4VQu7xTUp cIfFz5NtIr80DbqcyPiEMS2ETJ4L/kO4MS5FfeEXyQuXCzmiIDVY6tE3C7+kZmK4 JzPLuWm9ndQoyQySOGfQqvlUR1+YxUdvmu3LrOS5dOA354Q36wHa4wEGUoHU/7GV fYQmmmDSDaNSpXW5PFey6scFyDBS/yYJ0H9EjYb/11HeWYj8Yv5xTWj8nhzJONC8 D6Y5ydlU4PifM2pOf88pTYpmogNwLJWXbql5I9cvMa8APo4yLVqcISU5ynsvFke+ Non+T0mHpJai/hrA9NK+s6EGC1dAX58jy61h6FhOPI1d4s/mov/KMa2t3SfZp5SF 81aR6dHvO56teiK5M1xMkrqG75zh3TMFJJLRFe9XxeB4JeN76URB3mgADOUqkBxd ibSgVqfKwOw4IujEcqMUc5mqSnbLY1Dv+oby -----END CERTIFICATE-----"
+    },
+
+    "CertificateKey": {
+      "Description": "Provide your SSL Certificate key",
+      "Type": "String",
+      "Default": "-----BEGIN PRIVATE KEY----- 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 S+j1+iUKGGhwVmhqh75q5do3+VF3XlAh -----END PRIVATE KEY-----"
+    },
+
+    "CertificateDomain":{
+      "Description": "Provide your Certificate Domain Name. For e.g jfrog.team for certificate with *.jfrog.team",
+      "Type": "String",
+      "Default": "artifactory"
+    },
+
+    "ArtifactoryServerName":{
+      "Description": "Provide artifactory server name to be used in Nginx. e.g artifactory for artifactory.jfrog.team",
+      "Type": "String",
+      "Default": "artifactory"
+    },
+
+    "DBName": {
+      "Default": "artdb",
+      "Description" : "MySQL database name",
+      "Type": "String",
+      "MinLength": "1",
+      "MaxLength": "64",
+      "AllowedPattern" : "[a-zA-Z][a-zA-Z0-9]*",
+      "ConstraintDescription" : "must begin with a letter and contain only alphanumeric characters."
+    },
+
+    "DBUser": {
+      "NoEcho": "true",
+      "Default": "artifactory",
+      "Description" : "Username for MySQL database access",
+      "Type": "String",
+      "MinLength": "1",
+      "MaxLength": "16",
+      "AllowedPattern" : "[a-zA-Z][a-zA-Z0-9]*",
+      "ConstraintDescription" : "must begin with a letter and contain only alphanumeric characters."
+    },
+
+    "DBPassword": {
+      "NoEcho": "true",
+      "Default": "password",
+      "Description" : "Password for MySQL database access",
+      "Type": "String",
+      "MinLength": "8",
+      "MaxLength": "41",
+      "AllowedPattern" : "[a-zA-Z0-9]*",
+      "ConstraintDescription" : "must contain only alphanumeric characters."
+    },
+
+    "DBAllocatedStorage": {
+      "Default": "5",
+      "Description" : "The size of the database (Gb)",
+      "Type": "Number",
+      "MinValue": "5",
+      "MaxValue": "1024",
+      "ConstraintDescription" : "must be between 5 and 1024Gb."
+    },
+
+    "DBInstanceClass": {
+      "Description" : "The database instance type",
+      "Type": "String",
+      "Default": "db.t2.small",
+      "AllowedValues" : [ "db.t1.micro", "db.m1.small", "db.m1.medium", "db.m1.large", "db.m1.xlarge", "db.m2.xlarge", "db.m2.2xlarge", "db.m2.4xlarge", "db.m3.medium", "db.m3.large", "db.m3.xlarge", "db.m3.2xlarge", "db.m4.large", "db.m4.xlarge", "db.m4.2xlarge", "db.m4.4xlarge", "db.m4.10xlarge", "db.r3.large", "db.r3.xlarge", "db.r3.2xlarge", "db.r3.4xlarge", "db.r3.8xlarge", "db.m2.xlarge", "db.m2.2xlarge", "db.m2.4xlarge", "db.cr1.8xlarge", "db.t2.micro", "db.t2.small", "db.t2.medium", "db.t2.large"],
+      "ConstraintDescription" : "must select a valid database instance type."
+    },
+
+    "MultiAZDatabase": {
+      "Default": "false",
+      "Description" : "Create a Multi-AZ MySQL Amazon RDS database instance",
+      "Type": "String",
+      "AllowedValues" : [ "true", "false" ],
+      "ConstraintDescription" : "must be either true or false."
+    },
+
+    "SSHLocation" : {
+      "Description" : " The IP address range that can be used to SSH to the EC2 instances",
+      "Type": "String",
+      "MinLength": "9",
+      "MaxLength": "18",
+      "Default": "0.0.0.0/0",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+      "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+    }
+  },
+
+  "Mappings" : {
+    "AWSInstanceType2Arch" : {
+      "t1.micro"    : { "Arch" : "PV64"   },
+      "t2.nano"     : { "Arch" : "HVM64"  },
+      "t2.micro"    : { "Arch" : "HVM64"  },
+      "t2.small"    : { "Arch" : "HVM64"  },
+      "t2.medium"   : { "Arch" : "HVM64"  },
+      "t2.large"    : { "Arch" : "HVM64"  },
+      "m1.small"    : { "Arch" : "PV64"   },
+      "m1.medium"   : { "Arch" : "PV64"   },
+      "m1.large"    : { "Arch" : "PV64"   },
+      "m1.xlarge"   : { "Arch" : "PV64"   },
+      "m2.xlarge"   : { "Arch" : "PV64"   },
+      "m2.2xlarge"  : { "Arch" : "PV64"   },
+      "m2.4xlarge"  : { "Arch" : "PV64"   },
+      "m3.medium"   : { "Arch" : "HVM64"  },
+      "m3.large"    : { "Arch" : "HVM64"  },
+      "m3.xlarge"   : { "Arch" : "HVM64"  },
+      "m3.2xlarge"  : { "Arch" : "HVM64"  },
+      "m4.large"    : { "Arch" : "HVM64"  },
+      "m4.xlarge"   : { "Arch" : "HVM64"  },
+      "m4.2xlarge"  : { "Arch" : "HVM64"  },
+      "m4.4xlarge"  : { "Arch" : "HVM64"  },
+      "m4.10xlarge" : { "Arch" : "HVM64"  },
+      "c1.medium"   : { "Arch" : "PV64"   },
+      "c1.xlarge"   : { "Arch" : "PV64"   },
+      "c3.large"    : { "Arch" : "HVM64"  },
+      "c3.xlarge"   : { "Arch" : "HVM64"  },
+      "c3.2xlarge"  : { "Arch" : "HVM64"  },
+      "c3.4xlarge"  : { "Arch" : "HVM64"  },
+      "c3.8xlarge"  : { "Arch" : "HVM64"  },
+      "c4.large"    : { "Arch" : "HVM64"  },
+      "c4.xlarge"   : { "Arch" : "HVM64"  },
+      "c4.2xlarge"  : { "Arch" : "HVM64"  },
+      "c4.4xlarge"  : { "Arch" : "HVM64"  },
+      "c4.8xlarge"  : { "Arch" : "HVM64"  },
+      "g2.2xlarge"  : { "Arch" : "HVMG2"  },
+      "g2.8xlarge"  : { "Arch" : "HVMG2"  },
+      "r3.large"    : { "Arch" : "HVM64"  },
+      "r3.xlarge"   : { "Arch" : "HVM64"  },
+      "r3.2xlarge"  : { "Arch" : "HVM64"  },
+      "r3.4xlarge"  : { "Arch" : "HVM64"  },
+      "r3.8xlarge"  : { "Arch" : "HVM64"  },
+      "i2.xlarge"   : { "Arch" : "HVM64"  },
+      "i2.2xlarge"  : { "Arch" : "HVM64"  },
+      "i2.4xlarge"  : { "Arch" : "HVM64"  },
+      "i2.8xlarge"  : { "Arch" : "HVM64"  },
+      "d2.xlarge"   : { "Arch" : "HVM64"  },
+      "d2.2xlarge"  : { "Arch" : "HVM64"  },
+      "d2.4xlarge"  : { "Arch" : "HVM64"  },
+      "d2.8xlarge"  : { "Arch" : "HVM64"  },
+      "hi1.4xlarge" : { "Arch" : "HVM64"  },
+      "hs1.8xlarge" : { "Arch" : "HVM64"  },
+      "cr1.8xlarge" : { "Arch" : "HVM64"  },
+      "cc2.8xlarge" : { "Arch" : "HVM64"  }
+    },
+
+    "AWSRegionArch2AMI" : {
+      "us-east-1"        : {"PV64" : "ami-2a69aa47", "HVM64" : "ami-6869aa05", "HVMG2" : "ami-61e27177"},
+      "us-west-2"        : {"PV64" : "ami-7f77b31f", "HVM64" : "ami-7172b611", "HVMG2" : "ami-60aa3700"},
+      "us-west-1"        : {"PV64" : "ami-a2490dc2", "HVM64" : "ami-31490d51", "HVMG2" : "ami-4b694d2b"},
+      "eu-west-1"        : {"PV64" : "ami-4cdd453f", "HVM64" : "ami-f9dd458a", "HVMG2" : "ami-2955524f"},
+      "eu-west-2"        : {"PV64" : "NOT_SUPPORTED", "HVM64" : "ami-886369ec", "HVMG2" : "NOT_SUPPORTED"},
+      "eu-central-1"     : {"PV64" : "ami-6527cf0a", "HVM64" : "ami-ea26ce85", "HVMG2" : "ami-81ac71ee"},
+      "ap-northeast-1"   : {"PV64" : "ami-3e42b65f", "HVM64" : "ami-374db956", "HVMG2" : "ami-46220c21"},
+      "ap-northeast-2"   : {"PV64" : "NOT_SUPPORTED", "HVM64" : "ami-2b408b45", "HVMG2" : "NOT_SUPPORTED"},
+      "ap-southeast-1"   : {"PV64" : "ami-df9e4cbc", "HVM64" : "ami-a59b49c6", "HVMG2" : "ami-c212aba1"},
+      "ap-southeast-2"   : {"PV64" : "ami-63351d00", "HVM64" : "ami-dc361ebf", "HVMG2" : "ami-0ad2db69"},
+      "ap-south-1"       : {"PV64" : "NOT_SUPPORTED", "HVM64" : "ami-ffbdd790", "HVMG2" : "ami-ca3042a5"},
+      "us-east-2"        : {"PV64" : "NOT_SUPPORTED", "HVM64" : "ami-f6035893", "HVMG2" : "NOT_SUPPORTED"},
+      "ca-central-1"     : {"PV64" : "NOT_SUPPORTED", "HVM64" : "ami-730ebd17", "HVMG2" : "NOT_SUPPORTED"},
+      "sa-east-1"        : {"PV64" : "ami-1ad34676", "HVM64" : "ami-6dd04501", "HVMG2" : "NOT_SUPPORTED"},
+      "cn-north-1"       : {"PV64" : "ami-77559f1a", "HVM64" : "ami-8e6aa0e3", "HVMG2" : "NOT_SUPPORTED"}
+    }
+  },
+
+  "Resources" : {
+
+    "IAMUser": {
+      "Type": "AWS::IAM::User"
+    },
+
+    "IAMAcessKey": {
+      "Type": "AWS::IAM::AccessKey",
+      "Properties": { "UserName": { "Ref": "IAMUser" } }
+    },
+
+    "S3Bucket" : {
+      "Type": "AWS::S3::Bucket",
+      "Properties": { "AccessControl": "Private"}
+    },
+
+    "IAMPolicy": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyName": "S3BucketPermissions",
+        "PolicyDocument" : {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Sid": "S3BucketPermissions",
+              "Effect": "Allow",
+              "Action": ["s3:*"],
+              "Resource": [
+                { "Fn::Join": [ "", [ "arn:aws:s3:::", { "Ref": "S3Bucket" } ] ] },
+                { "Fn::Join": [ "", [ "arn:aws:s3:::", { "Ref": "S3Bucket" }, "/*" ] ] }
+              ]
+            }
+          ]
+        },
+        "Users": [ { "Ref": "IAMUser" } ]
+      }
+    },
+
+    "VPC" : {
+      "Type" : "AWS::EC2::VPC",
+      "Properties" : {
+        "CidrBlock" : "10.0.0.0/16",
+        "Tags" : [
+          {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} },
+          {"Key" : "Network", "Value" : "Public" }
+        ]
+      }
+    },
+
+    "PublicSubnet1" : {
+      "Type" : "AWS::EC2::Subnet",
+      "Properties" : {
+        "VpcId" : { "Ref" : "VPC" },
+        "CidrBlock" : "10.0.1.0/24",
+        "MapPublicIpOnLaunch" :"true",
+        "AvailabilityZone" : {
+          "Fn::Select" : [ "0", { "Fn::GetAZs" : "" } ]
+        },
+        "Tags" : [
+          {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} },
+          {"Key" : "Network", "Value" : "Public" }
+        ]
+      }
+    },
+
+    "PublicSubnet2" : {
+      "Type" : "AWS::EC2::Subnet",
+      "Properties" : {
+        "VpcId" : { "Ref" : "VPC" },
+        "CidrBlock" : "10.0.2.0/24",
+        "MapPublicIpOnLaunch" :"true",
+        "AvailabilityZone" : {
+          "Fn::Select" : [ "1", { "Fn::GetAZs" : "" } ]
+        },
+        "Tags" : [
+          {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} },
+          {"Key" : "Network", "Value" : "Public" }
+        ]
+      }
+    },
+
+    "InternetGateway" : {
+      "Type" : "AWS::EC2::InternetGateway",
+      "Properties" : {
+        "Tags" : [
+          {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} },
+          {"Key" : "Network", "Value" : "Public" }
+        ]
+      }
+    },
+
+    "AttachGateway" : {
+      "Type" : "AWS::EC2::VPCGatewayAttachment",
+      "Properties" : {
+        "VpcId" : { "Ref" : "VPC" },
+        "InternetGatewayId" : { "Ref" : "InternetGateway" }
+      }
+    },
+
+    "PublicRouteTable" : {
+      "Type" : "AWS::EC2::RouteTable",
+      "Properties" : {
+        "VpcId" : {"Ref" : "VPC"},
+        "Tags" : [
+          {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} },
+          {"Key" : "Network", "Value" : "Public" }
+        ]
+      }
+    },
+
+    "PublicRoute" : {
+      "Type" : "AWS::EC2::Route",
+      "DependsOn" : "AttachGateway",
+      "Properties" : {
+        "RouteTableId" : { "Ref" : "PublicRouteTable" },
+        "DestinationCidrBlock" : "0.0.0.0/0",
+        "GatewayId" : { "Ref" : "InternetGateway" }
+      }
+    },
+
+    "PublicSubnetRouteTableAssociation1" : {
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "PublicSubnet1" },
+        "RouteTableId" : { "Ref" : "PublicRouteTable" }
+      }
+    },
+
+    "PublicSubnetRouteTableAssociation2" : {
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "PublicSubnet2" },
+        "RouteTableId" : { "Ref" : "PublicRouteTable" }
+      }
+    },
+
+
+    "PublicNetworkAcl" : {
+      "Type" : "AWS::EC2::NetworkAcl",
+      "Properties" : {
+        "VpcId" : {"Ref" : "VPC"},
+        "Tags" : [
+          {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} },
+          {"Key" : "Network", "Value" : "Public" }
+        ]
+      }
+    },
+
+    "InboundHTTPPublicNetworkAclEntry" : {
+      "Type" : "AWS::EC2::NetworkAclEntry",
+      "Properties" : {
+        "NetworkAclId" : {"Ref" : "PublicNetworkAcl"},
+        "RuleNumber" : "100",
+        "Protocol" : "6",
+        "RuleAction" : "allow",
+        "Egress" : "false",
+        "CidrBlock" : "0.0.0.0/0",
+        "PortRange" : {"From" : "0", "To" : "65535"}
+      }
+    },
+
+    "InboundDynamicPortsPublicNetworkAclEntry" : {
+      "Type" : "AWS::EC2::NetworkAclEntry",
+      "Properties" : {
+        "NetworkAclId" : {"Ref" : "PublicNetworkAcl"},
+        "RuleNumber" : "101",
+        "Protocol" : "6",
+        "RuleAction" : "allow",
+        "Egress" : "false",
+        "CidrBlock" : "0.0.0.0/0",
+        "PortRange" : {"From" : "0", "To" : "65535"}
+      }
+    },
+
+    "OutboundHTTPPublicNetworkAclEntry" : {
+      "Type" : "AWS::EC2::NetworkAclEntry",
+      "Properties" : {
+        "NetworkAclId" : {"Ref" : "PublicNetworkAcl"},
+        "RuleNumber" : "100",
+        "Protocol" : "6",
+        "RuleAction" : "allow",
+        "Egress" : "true",
+        "CidrBlock" : "0.0.0.0/0",
+        "PortRange" : {"From" : "0", "To" : "65535"}
+      }
+    },
+
+    "OutBoundDynamicPortPublicNetworkAclEntry" : {
+      "Type" : "AWS::EC2::NetworkAclEntry",
+      "Properties" : {
+        "NetworkAclId" : {"Ref" : "PublicNetworkAcl"},
+        "RuleNumber" : "101",
+        "Protocol" : "6",
+        "RuleAction" : "allow",
+        "Egress" : "true",
+        "CidrBlock" : "0.0.0.0/0",
+        "PortRange" : {"From" : "0", "To" : "65535"}
+      }
+    },
+
+    "PublicSubnetNetworkAclAssociation1" : {
+      "Type" : "AWS::EC2::SubnetNetworkAclAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "PublicSubnet1" },
+        "NetworkAclId" : { "Ref" : "PublicNetworkAcl" }
+      }
+    },
+
+    "PublicSubnetNetworkAclAssociation2" : {
+      "Type" : "AWS::EC2::SubnetNetworkAclAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "PublicSubnet2" },
+        "NetworkAclId" : { "Ref" : "PublicNetworkAcl" }
+      }
+    },
+
+    "PrivateSubnet" : {
+      "Type" : "AWS::EC2::Subnet",
+      "Properties" : {
+        "VpcId" : { "Ref" : "VPC" },
+        "CidrBlock" : "10.0.3.0/24",
+        "AvailabilityZone" : {
+          "Fn::Select" : [ "1", { "Fn::GetAZs" : "" } ]
+        },
+        "Tags" : [
+          {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} },
+          {"Key" : "Network", "Value" : "Private" }
+        ]
+      }
+    },
+
+    "PrivateRouteTable" : {
+      "Type" : "AWS::EC2::RouteTable",
+      "Properties" : {
+        "VpcId" : {"Ref" : "VPC"},
+        "Tags" : [
+          {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} },
+          {"Key" : "Network", "Value" : "Private" }
+        ]
+      }
+    },
+
+    "PrivateSubnetRouteTableAssociation" : {
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "PrivateSubnet" },
+        "RouteTableId" : { "Ref" : "PrivateRouteTable" }
+      }
+    },
+
+    "PrivateNetworkAcl" : {
+      "Type" : "AWS::EC2::NetworkAcl",
+      "Properties" : {
+        "VpcId" : {"Ref" : "VPC"},
+        "Tags" : [
+          {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} },
+          {"Key" : "Network", "Value" : "Private" }
+        ]
+      }
+    },
+
+    "InboundPrivateNetworkAclEntry" : {
+      "Type" : "AWS::EC2::NetworkAclEntry",
+      "Properties" : {
+        "NetworkAclId" : {"Ref" : "PrivateNetworkAcl"},
+        "RuleNumber" : "100",
+        "Protocol" : "6",
+        "RuleAction" : "allow",
+        "Egress" : "false",
+        "CidrBlock" : "0.0.0.0/0",
+        "PortRange" : {"From" : "0", "To" : "65535"}
+      }
+    },
+
+    "OutBoundPrivateNetworkAclEntry" : {
+      "Type" : "AWS::EC2::NetworkAclEntry",
+      "Properties" : {
+        "NetworkAclId" : {"Ref" : "PrivateNetworkAcl"},
+        "RuleNumber" : "100",
+        "Protocol" : "6",
+        "RuleAction" : "allow",
+        "Egress" : "true",
+        "CidrBlock" : "0.0.0.0/0",
+        "PortRange" : {"From" : "0", "To" : "65535"}
+      }
+    },
+
+    "PrivateSubnetNetworkAclAssociation" : {
+      "Type" : "AWS::EC2::SubnetNetworkAclAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "PrivateSubnet" },
+        "NetworkAclId" : { "Ref" : "PrivateNetworkAcl" }
+      }
+    },
+
+    "ElasticLoadBalancer" : {
+      "Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
+      "Properties" : {
+        "SecurityGroups" : [ { "Ref" : "ArtifactorySecurityGroup" } ],
+        "Subnets" : [ { "Ref" : "PublicSubnet1" }, { "Ref" : "PublicSubnet2" } ],
+        "AppCookieStickinessPolicy" :
+        [ {
+          "PolicyName" : "HTTPSCookieStickinessPolicy",
+          "CookieName" : "connect.sid"
+        } ],
+        "Listeners" : [ {
+          "LoadBalancerPort" : "80",
+          "InstancePort" : "80",
+          "InstanceProtocol": "HTTP",
+          "Protocol" : "HTTP"
+        },
+          {
+            "Protocol": "TCP",
+            "InstanceProtocol": "TCP",
+            "LoadBalancerPort": "443",
+            "InstancePort": "443"
+          } ],
+        "HealthCheck" : {
+          "Target" : { "Fn::Join" : [ "", ["HTTP:80/artifactory/webapp/#/login"]]},
+          "HealthyThreshold" : "3",
+          "UnhealthyThreshold" : "3",
+          "Interval" : "30",
+          "Timeout" : "15"
+        }
+      }
+    },
+
+    "PrimaryGroup" : {
+      "Type" : "AWS::AutoScaling::AutoScalingGroup",
+      "Properties" : {
+        "AvailabilityZones" : [{ "Fn::GetAtt" : [ "PublicSubnet1", "AvailabilityZone" ] },{ "Fn::GetAtt" : [ "PublicSubnet2", "AvailabilityZone" ] }],
+        "VPCZoneIdentifier" : [{ "Ref" : "PublicSubnet1" }, { "Ref" : "PublicSubnet2" }],
+        "LaunchConfigurationName" : { "Ref" : "PrimaryLaunchConfig" },
+        "MinSize" : "1",
+        "MaxSize" : "2",
+        "DesiredCapacity" : "1",
+        "LoadBalancerNames" : [ { "Ref" : "ElasticLoadBalancer" } ],
+        "HealthCheckGracePeriod" : "480",
+        "HealthCheckType" : "ELB"
+      },
+      "UpdatePolicy": {
+        "AutoScalingRollingUpdate": {
+          "MinInstancesInService": "0",
+          "MaxBatchSize": "1",
+          "PauseTime": "PT7M"
+        }
+      }
+    },
+
+    "PrimaryLaunchConfig": {
+      "Type" : "AWS::AutoScaling::LaunchConfiguration",
+      "Metadata" : {
+        "Comment1" : "Configure the bootstrap helpers to install the Artifactory Server",
+
+        "AWS::CloudFormation::Init" : {
+          "config" : {
+            "packages" : {
+              "yum" : {
+                "wget" : [],
+                "curl" : []
+              }
+            },
+
+            "files" : {
+
+              "/etc/nginx/nginx.conf" : {
+                "content" : { "Fn::Join" : ["", [
+                  "#user  nobody;\n",
+                  "worker_processes  1;\n",
+                  "error_log  /var/log/nginx/error.log  info;\n",
+                  "#pid        logs/nginx.pid;\n",
+                  "events {\n",
+                  "    worker_connections  1024;\n",
+                  "}\n",
+                  "http {\n",
+                  "    include       mime.types;\n",
+                  "    include    /etc/nginx/conf.d/*.conf;\n",
+                  "    default_type  application/octet-stream;\n",
+                  "    log_format  main  '$remote_addr - $remote_user [$time_local] \"$request\" '\n",
+                  "'$status $body_bytes_sent \"$http_referer\" '\n",
+                  "'\"$http_user_agent\" \"$http_x_forwarded_for\"';\n",
+                  "    access_log  /var/log/nginx/access.log  main;\n",
+                  "   sendfile        on;\n",
+                  "    #tcp_nopush     on;\n",
+                  "   #keepalive_timeout  0;\n",
+                  "    keepalive_timeout  65;\n",
+                  "}\n"
+                ]]},
+                "mode"   : "000755",
+                "owner"  : "root",
+                "group"  : "root"
+              },
+
+              "/var/opt/jfrog/artifactory/etc/db.properties" : {
+                "content" : { "Fn::Join" : ["", [
+                  "type=mysql\n",
+                  "driver=com.mysql.jdbc.Driver\n",
+                  "url=jdbc:mysql://", {"Fn::GetAtt" : ["MySQLDatabase", "Endpoint.Address"]},":3306/", { "Ref" : "DBName" },"?characterEncoding=UTF-8&elideSetAutoCommits=true\n",
+                  "username=", {"Ref" : "DBUser"}, "\n",
+                  "password=", {"Ref" : "DBPassword"}, "\n"
+                ]]},
+                "mode"   : "000755",
+                "owner"  : "artifactory",
+                "group"  : "artifactory"
+              },
+
+              "/var/opt/jfrog/artifactory/etc/binarystore.xml" : {
+                "content" : { "Fn::Join" : ["", [
+                  "<config version=\"2\">\n",
+                  "<chain> <!--template=\"cluster-s3\"-->\n",
+                  "<provider id=\"cache-fs-eventual-s3\" type=\"cache-fs\">\n",
+                  "<provider id=\"sharding-cluster-eventual-s3\" type=\"sharding-cluster\">\n",
+                  "<sub-provider id=\"eventual-cluster-s3\" type=\"eventual-cluster\">\n",
+                  "<provider id=\"retry-s3\" type=\"retry\">\n",
+                  "<provider id=\"s3\" type=\"s3\"/>\n",
+                  "</provider>\n",
+                  "</sub-provider>\n",
+                  "<dynamic-provider id=\"remote-s3\" type=\"remote\"/>\n",
+                  "</provider>\n",
+                  "</provider>\n",
+                  "</chain> \n",
+                  "\n",
+                  "<provider id=\"sharding-cluster-eventual-s3\" type=\"sharding-cluster\">\n",
+                  "<readBehavior>crossNetworkStrategy</readBehavior>\n",
+                  "<writeBehavior>crossNetworkStrategy</writeBehavior>\n",
+                  "<redundancy>2</redundancy>\n",
+                  "<lenientLimit>1</lenientLimit>\n",
+                  "<property name=\"zones\" value=\"local,remote\"/>\n",
+                  "</provider>\n",
+                  "\n",
+                  "<provider id=\"remote-s3\" type=\"remote\">\n",
+                  "    <zone>remote</zone>\n",
+                  "</provider>\n",
+                  "\n",
+                  "<provider id=\"eventual-cluster-s3\" type=\"eventual-cluster\">\n",
+                  "    <zone>local</zone>\n",
+                  "</provider>\n",
+                  "\n",
+                  "<provider id=\"s3\" type=\"s3\">\n",
+                  "<endpoint>",{ "Fn::Join": [ "", [ "s3.dualstack.", { "Ref": "AWS::Region" }, ".amazonaws.com" ] ] },"</endpoint>\n",
+                  "<identity>", {"Ref" : "IAMAcessKey"}, "</identity>\n",
+                  "<credential>", { "Fn::GetAtt": [ "IAMAcessKey", "SecretAccessKey" ] }, "</credential>\n",
+                  "<bucketName>", { "Ref": "S3Bucket" }, "</bucketName>\n",
+                  "</provider>\n",
+                  "</config>\n"
+                ]]},
+                "mode"   : "000755",
+                "owner"  : "artifactory",
+                "group"  : "artifactory"
+              },
+
+              "/var/opt/jfrog/artifactory/etc/ha-node.properties" : {
+                "content" : { "Fn::Join" : ["", [
+                  "node.id=art1\n",
+                  "artifactory.ha.data.dir=/var/opt/jfrog/artifactory/data\n",
+                  "context.url=http://127.0.0.1:8081/artifactory\n",
+                  "membership.port=10001\n",
+                  "hazelcast.interface=172.25.0.3\n",
+                  "primary=true\n"
+                ]]},
+                "mode"   : "000755",
+                "owner"  : "artifactory",
+                "group"  : "artifactory"
+              },
+
+              "/var/opt/jfrog/artifactory/etc/security/master.key" : {
+                "content" : { "Fn::Join" : ["", [
+                  {"Ref" : "MasterKey"}
+                ]]},
+                "mode"   : "000755",
+                "owner"  : "artifactory",
+                "group"  : "artifactory"
+              },
+
+              "/etc/pki/tls/certs/result.pem" : {
+                "content" : { "Fn::Join" : ["", [
+                  {"Ref" : "Certificate"}
+                ]]},
+                "mode"   : "000777",
+                "owner"  : "root",
+                "group"  : "root"
+              },
+
+              "/etc/pki/tls/private/result.key" : {
+                "content" : { "Fn::Join" : ["", [
+                  {"Ref" : "CertificateKey"}
+                ]]},
+                "mode"   : "000777",
+                "owner"  : "root",
+                "group"  : "root"
+              },
+
+              "/var/opt/jfrog/artifactory/etc/plugins/inactiveServerCleaner.groovy" : {
+                "content" : { "Fn::Join" : ["", [
+                  "import org.artifactory.state.ArtifactoryServerState\n",
+                  "import org.artifactory.storage.db.servers.service.ArtifactoryServersCommonService\n",
+                  "import org.artifactory.common.ConstantValues\n",
+                  "import org.slf4j.Logger\n",
+                  "import java.util.concurrent.TimeUnit\n",
+
+                  "jobs {\n",
+                  "    clean(cron: \"0 0/1 * * * ?\") {\n",
+                  "        def artifactoryServersCommonService = ctx.beanForType(ArtifactoryServersCommonService)\n",
+                  "        def artifactoryInactiveServerCleaner = new ArtifactoryInactiveServersCleaner(artifactoryServersCommonService, log)\n",
+                  "        artifactoryInactiveServerCleaner.cleanInactiveArtifactoryServers()\n",
+                  "    }\n",
+                  "}\n",
+
+                  "public class ArtifactoryInactiveServersCleaner {\n",
+
+                  "    private ArtifactoryServersCommonService artifactoryServersCommonService\n",
+                  "    private Logger log\n",
+
+                  "    ArtifactoryInactiveServersCleaner(ArtifactoryServersCommonService artifactoryServersCommonService, Logger log) {\n",
+                  "        this.artifactoryServersCommonService = artifactoryServersCommonService\n",
+                  "        this.log = log\n",
+                  "    }\n",
+
+                  "    def cleanInactiveArtifactoryServers() {\n",
+                  "        List<String> allMembers = artifactoryServersCommonService.getAllArtifactoryServers()\n",
+                  "        for (member in allMembers) {\n",
+                  "            def heartbeat = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - member.getLastHeartbeat())\n",
+                  "            def noheartbeat = heartbeat > ConstantValues.haHeartbeatStaleIntervalSecs.getInt()\n",
+                  "            if (member.getServerState() == ArtifactoryServerState.UNAVAILABLE || noheartbeat) {\n",
+                  "                log.info \"Running inactive artifactory servers cleaning task, found ${member.serverId} inactive servers to remove\"\n",
+                  "                artifactoryServersCommonService.removeServer(member.serverId)\n",
+                  "            }\n",
+                  "        }\n",
+                  "    }\n",
+                  "}\n"
+                ]]},
+                "mode"   : "000777",
+                "owner"  : "artifactory",
+                "group"  : "artifactory"
+              },
+
+              "/var/opt/jfrog/artifactory/etc/artifactory.cluster.license" : {
+                "content" : { "Fn::Join" : ["", [
+                  "", { "Ref" : "ArtifactoryLicense1" }, "\n",
+                  "\n",
+                  "", { "Ref" : "ArtifactoryLicense2" }, "\n",
+                  "\n",
+                  "", { "Ref" : "ArtifactoryLicense3" }, "\n",
+                  "\n",
+                  "", { "Ref" : "ArtifactoryLicense4" }, "\n",
+                  "\n",
+                  "", { "Ref" : "ArtifactoryLicense5" }, "\n"
+                ]]},
+                "mode"   : "000755",
+                "owner"  : "artifactory",
+                "group"  : "artifactory"
+              },
+
+              "/etc/nginx/conf.d/artifactory.conf" : {
+                "content" : { "Fn::Join" : ["", [
+                  "ssl_certificate      /etc/pki/tls/certs/cert.pem;\n",
+                  "ssl_certificate_key  /etc/pki/tls/private/cert.key;\n",
+                  "ssl_session_cache shared:SSL:1m;\n",
+                  "ssl_prefer_server_ciphers   on;\n",
+                  "## server configuration\n",
+                  "server {\n",
+                  "  listen 443 ssl;\n",
+                  "  listen 80 ;\n",
+                  "  server_name ",{ "Ref" : "ArtifactoryServerName" },".",{ "Ref" : "CertificateDomain" }," ~(?<repo>.+)\\.",{ "Ref" : "CertificateDomain" },";\n",
+                  "  if ($http_x_forwarded_proto = '') {\n",
+                  "    set $http_x_forwarded_proto  $scheme;\n",
+                  "  }\n",
+                  "  ## Application specific logs\n",
+                  "  ## access_log /var/log/nginx/artifactory-access.log timing;\n",
+                  "  ## error_log /var/log/nginx/artifactory-error.log;\n",
+                  "  rewrite ^/$ /artifactory/webapp/ redirect;\n",
+                  "  rewrite ^/artifactory/?(/webapp)?$ /artifactory/webapp/ redirect;\n",
+                  "  rewrite ^/(v1|v2)/(.*) /artifactory/api/docker/$repo/$1/$2;\n",
+                  "  chunked_transfer_encoding on;\n",
+                  "  client_max_body_size 0;\n",
+                  "  location /artifactory/ {\n",
+                  "    proxy_read_timeout  900;\n",
+                  "    proxy_pass_header   Server;\n",
+                  "    proxy_cookie_path   ~*^/.* /;\n",
+                  "    proxy_pass          http://127.0.0.1:8081/artifactory/;\n",
+                  "    proxy_set_header    X-Artifactory-Override-Base-Url $http_x_forwarded_proto://$host:$server_port/artifactory;\n",
+                  "    proxy_set_header    X-Forwarded-Port  $server_port;\n",
+                  "    proxy_set_header    X-Forwarded-Proto $http_x_forwarded_proto;\n",
+                  "    proxy_set_header    Host              $http_host;\n",
+                  "    proxy_set_header    X-Forwarded-For   $proxy_add_x_forwarded_for;\n",
+                  "  }\n",
+                  "}\n",
+                  "\n"
+                ]]},
+                "mode"   : "000755",
+                "owner"  : "root",
+                "group"  : "root"
+              },
+
+              "/etc/cfn/cfn-hup.conf" : {
+                "content" : { "Fn::Join" : ["", [
+                  "[main]\n",
+                  "stack=", { "Ref" : "AWS::StackId" }, "\n",
+                  "region=", { "Ref" : "AWS::Region" }, "\n"
+                ]]},
+                "mode"    : "000400",
+                "owner"   : "root",
+                "group"   : "root"
+              },
+
+              "/etc/cfn/hooks.d/cfn-auto-reloader.conf" : {
+                "content": { "Fn::Join" : ["", [
+                  "[cfn-auto-reloader-hook]\n",
+                  "triggers=post.update\n",
+                  "path=Resources.PrimaryLaunchConfig.Metadata.AWS::CloudFormation::Init\n",
+                  "action=/opt/aws/bin/cfn-init -v ",
+                  "         --stack ", { "Ref" : "AWS::StackName" },
+                  "         --resource PrimaryLaunchConfig ",
+                  "         --region ", { "Ref" : "AWS::Region" }, "\n",
+                  "runas=root\n"
+                ]]}
+              }
+            },
+
+            "commands" : {
+              "set_artifactory_node_id" : {
+                "command" : { "Fn::Join" : ["", ["sed -i -e \"s/art1/art-$(date +%s$RANDOM)/\" /var/opt/jfrog/artifactory/etc/ha-node.properties"]]}
+              },
+              "set_artifactory_context" : {
+                "command" : { "Fn::Join" : ["", ["sed -i -e \"s/127.0.0.1/$(curl http://169.254.169.254/latest/meta-data/public-ipv4)/\" /var/opt/jfrog/artifactory/etc/ha-node.properties"]]}
+              },
+              "set_hazelcast_interface" : {
+                "command" : { "Fn::Join" : ["", ["sed -i -e \"s/172.25.0.3/$(curl http://169.254.169.254/latest/meta-data/local-ipv4)/\" /var/opt/jfrog/artifactory/etc/ha-node.properties"]]}
+              },
+              "allow_ping_anonymous" : {
+                "command" : { "Fn::Join" : ["", ["echo \"artifactory.ping.allowUnauthenticated=true\" >> /var/opt/jfrog/artifactory/etc/artifactory.system.properties"]]}
+              },
+              "set_extra_java_options" : {
+                "command" : { "Fn::Join" : ["", ["echo \"export JAVA_OPTIONS=", "\\\"", { "Ref" : "ExtraJavaOptions" }, "\\\"", "\" >> /var/opt/jfrog/artifactory/etc/default"]]}
+              },
+              "set_permissions" : {
+                "command" : { "Fn::Join" : ["", ["chown artifactory:artifactory -R /var/opt/jfrog/artifactory/etc/* && chown artifactory:artifactory -R /var/opt/jfrog/artifactory/*  && chown artifactory:artifactory -R /var/opt/jfrog/artifactory/etc/security"]]}
+              },
+              "generate_self_signed_cert" : {
+                "command" : { "Fn::Join" : ["", ["openssl req -nodes -x509 -newkey rsa:4096 -keyout /etc/pki/tls/private/example.key -out /etc/pki/tls/certs/example.pem -days 356 -subj \"/C=US/ST=California/L=SantaClara/O=IT/CN=*.localhost\""]]}
+              },
+              "format_ssl_certificate" : {
+                "command" : { "Fn::Join" : ["", ["cat /etc/pki/tls/certs/result.pem | sed 's/CERTIFICATE----- /CERTIFICATE-----\\n/g' | sed 's/-----END/\\n-----END/' > temp.pem | mv -f temp.pem /etc/pki/tls/certs/cert.pem"]]}
+              },
+              "format_ssl_certificate_key" : {
+                "command" : { "Fn::Join" : ["", ["cat /etc/pki/tls/private/result.key | sed 's/KEY----- /KEY-----\\n/g' | sed 's/-----END/\\n-----END/'  > temp.key | mv -f temp.key /etc/pki/tls/private/cert.key"]]}
+              }
+            },
+
+            "services" : {
+              "sysvinit" : {
+                "artifactory"  : { "enabled" : "true", "ensureRunning" : "true" },
+                "nginx" : { "enabled" : "true", "ensureRunning" : "true"},
+                "cfn-hup" : { "enabled" : "true", "ensureRunning" : "true",
+                  "files" : ["/etc/cfn/cfn-hup.conf", "/etc/cfn/hooks.d/cfn-auto-reloader.conf"]}
+              }
+            }
+          }
+        }
+      },
+      "Properties": {
+        "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
+          { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "InstanceType" }, "Arch" ] } ] },
+        "InstanceType" : { "Ref" : "InstanceType" },
+        "SecurityGroups" : [ {"Ref" : "ArtifactorySecurityGroup"} ],
+        "KeyName" : { "Ref" : "KeyName" },
+        "BlockDeviceMappings" : [
+          {
+            "DeviceName" : "/dev/xvda",
+            "Ebs" : { "VolumeSize" : { "Ref" : "InstanceStorage" }, "VolumeType" : "gp2", "DeleteOnTermination" : "true"}
+          }
+        ],
+        "UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
+          "#!/bin/bash -xe\n",
+          "yum update -y aws-cfn-bootstrap\n",
+
+          "yum install -y java-1.8.0>> /tmp/yum-java8.log 2>&1\n",
+
+          "alternatives --set java /usr/lib/jvm/jre-1.8.0-openjdk.x86_64/bin/java\n",
+
+          "yum -y remove java-1.7.0-openjdk>> /tmp/yum-java7.log 2>&1\n",
+
+          "##Install Artifactory\n",
+          "wget https://bintray.com/jfrog/artifactory-pro-rpms/rpm -O bintray-jfrog-artifactory-pro-rpms.repo\n",
+          "mv bintray-jfrog-artifactory-pro-rpms.repo /etc/yum.repos.d/\n",
+          "sleep 10\n",
+          "yum install -y jfrog-artifactory-pro-", { "Ref": "ArtifactoryVersion" }, ">> /tmp/yum-artifactory.log 2>&1\n",
+          "yum install -y nginx>> /tmp/yum-nginx.log 2>&1\n",
+          "curl -L -o  /opt/jfrog/artifactory/tomcat/lib/mysql-connector-java-5.1.38.jar https://bintray.com/artifact/download/bintray/jcenter/mysql/mysql-connector-java/5.1.38/mysql-connector-java-5.1.38.jar\n",
+
+          "# Install the files and packages from the metadata\n",
+          "/opt/aws/bin/cfn-init -v ",
+          "         --stack ", { "Ref" : "AWS::StackName" },
+          "         --resource PrimaryLaunchConfig ",
+          "         --region ", { "Ref" : "AWS::Region" }, "\n",
+
+          "# Signal the status from cfn-init\n",
+          "/opt/aws/bin/cfn-signal -e $? ",
+          "         --stack ", { "Ref" : "AWS::StackName" },
+          "         --resource PrimaryGroup ",
+          "         --region ", { "Ref" : "AWS::Region" }, "\n"
+        ]]}}
+      }
+    },
+
+    "SecondaryGroup" : {
+      "Type" : "AWS::AutoScaling::AutoScalingGroup",
+      "Properties" : {
+        "AvailabilityZones" : [{ "Fn::GetAtt" : [ "PublicSubnet1", "AvailabilityZone" ] },{ "Fn::GetAtt" : [ "PublicSubnet2", "AvailabilityZone" ] }],
+        "VPCZoneIdentifier" : [{ "Ref" : "PublicSubnet1" }, { "Ref" : "PublicSubnet2" }],
+        "LaunchConfigurationName" : { "Ref" : "SecondaryLaunchConfig" },
+        "MinSize" : "0",
+        "MaxSize" : "9",
+        "DesiredCapacity" : { "Ref" : "SecondaryNodeCount" },
+        "LoadBalancerNames" : [ { "Ref" : "ElasticLoadBalancer" } ],
+        "HealthCheckGracePeriod" : "480",
+        "HealthCheckType" : "ELB"
+      },
+      "UpdatePolicy": {
+        "AutoScalingRollingUpdate": {
+          "MinInstancesInService": "1",
+          "MaxBatchSize": "1",
+          "PauseTime": "PT7M"
+        }
+      }
+    },
+
+    "SecondaryLaunchConfig": {
+      "Type" : "AWS::AutoScaling::LaunchConfiguration",
+      "Metadata" : {
+        "Comment1" : "Configure the bootstrap helpers to install the Artifactory Secondary Server",
+
+        "AWS::CloudFormation::Init" : {
+          "config" : {
+            "packages" : {
+              "yum" : {
+                "wget" : [],
+                "curl" : []
+              }
+            },
+
+            "files" : {
+
+              "/etc/nginx/nginx.conf" : {
+                "content" : { "Fn::Join" : ["", [
+                  "#user  nobody;\n",
+                  "worker_processes  1;\n",
+                  "error_log  /var/log/nginx/error.log  info;\n",
+                  "#pid        logs/nginx.pid;\n",
+                  "events {\n",
+                  "    worker_connections  1024;\n",
+                  "}\n",
+                  "http {\n",
+                  "    include       mime.types;\n",
+                  "    include    /etc/nginx/conf.d/*.conf;\n",
+                  "    default_type  application/octet-stream;\n",
+                  "    log_format  main  '$remote_addr - $remote_user [$time_local] \"$request\" '\n",
+                  "'$status $body_bytes_sent \"$http_referer\" '\n",
+                  "'\"$http_user_agent\" \"$http_x_forwarded_for\"';\n",
+                  "    access_log  /var/log/nginx/access.log  main;\n",
+                  "   sendfile        on;\n",
+                  "    #tcp_nopush     on;\n",
+                  "   #keepalive_timeout  0;\n",
+                  "    keepalive_timeout  65;\n",
+                  "}\n"
+                ]]},
+                "mode"   : "000755",
+                "owner"  : "root",
+                "group"  : "root"
+              },
+
+              "/var/opt/jfrog/artifactory/etc/db.properties" : {
+                "content" : { "Fn::Join" : ["", [
+                  "type=mysql\n",
+                  "driver=com.mysql.jdbc.Driver\n",
+                  "url=jdbc:mysql://", {"Fn::GetAtt" : ["MySQLDatabase", "Endpoint.Address"]},":3306/", { "Ref" : "DBName" },"?characterEncoding=UTF-8&elideSetAutoCommits=true\n",
+                  "username=", {"Ref" : "DBUser"}, "\n",
+                  "password=", {"Ref" : "DBPassword"}, "\n"
+                ]]},
+                "mode"   : "000755",
+                "owner"  : "artifactory",
+                "group"  : "artifactory"
+              },
+
+              "/var/opt/jfrog/artifactory/etc/binarystore.xml" : {
+                "content" : { "Fn::Join" : ["", [
+                  "<config version=\"2\">\n",
+                  "<chain> <!--template=\"cluster-s3\"-->\n",
+                  "<provider id=\"cache-fs-eventual-s3\" type=\"cache-fs\">\n",
+                  "<provider id=\"sharding-cluster-eventual-s3\" type=\"sharding-cluster\">\n",
+                  "<sub-provider id=\"eventual-cluster-s3\" type=\"eventual-cluster\">\n",
+                  "<provider id=\"retry-s3\" type=\"retry\">\n",
+                  "<provider id=\"s3\" type=\"s3\"/>\n",
+                  "</provider>\n",
+                  "</sub-provider>\n",
+                  "<dynamic-provider id=\"remote-s3\" type=\"remote\"/>\n",
+                  "</provider>\n",
+                  "</provider>\n",
+                  "</chain> \n",
+                  "\n",
+                  "<provider id=\"sharding-cluster-eventual-s3\" type=\"sharding-cluster\">\n",
+                  "<readBehavior>crossNetworkStrategy</readBehavior>\n",
+                  "<writeBehavior>crossNetworkStrategy</writeBehavior>\n",
+                  "<redundancy>2</redundancy>\n",
+                  "<lenientLimit>1</lenientLimit>\n",
+                  "<property name=\"zones\" value=\"local,remote\"/>\n",
+                  "</provider>\n",
+                  "\n",
+                  "<provider id=\"remote-s3\" type=\"remote\">\n",
+                  "    <zone>remote</zone>\n",
+                  "</provider>\n",
+                  "\n",
+                  "<provider id=\"eventual-cluster-s3\" type=\"eventual-cluster\">\n",
+                  "    <zone>local</zone>\n",
+                  "</provider>\n",
+                  "\n",
+                  "<provider id=\"s3\" type=\"s3\">\n",
+                  "<endpoint>",{ "Fn::Join": [ "", [ "s3.dualstack.", { "Ref": "AWS::Region" }, ".amazonaws.com" ] ] },"</endpoint>\n",
+                  "<identity>", {"Ref" : "IAMAcessKey"}, "</identity>\n",
+                  "<credential>", { "Fn::GetAtt": [ "IAMAcessKey", "SecretAccessKey" ] }, "</credential>\n",
+                  "<bucketName>", { "Ref": "S3Bucket" }, "</bucketName>\n",
+                  "</provider>\n",
+                  "</config>\n"
+                ]]},
+                "mode"   : "000755",
+                "owner"  : "artifactory",
+                "group"  : "artifactory"
+              },
+
+              "/var/opt/jfrog/artifactory/etc/ha-node.properties" : {
+                "content" : { "Fn::Join" : ["", [
+                  "node.id=art1\n",
+                  "artifactory.ha.data.dir=/var/opt/jfrog/artifactory/data\n",
+                  "context.url=http://127.0.0.1:8081/artifactory\n",
+                  "membership.port=10001\n",
+                  "hazelcast.interface=172.25.0.3\n",
+                  "primary=false\n"
+                ]]},
+                "mode"   : "000755",
+                "owner"  : "artifactory",
+                "group"  : "artifactory"
+              },
+
+              "/var/opt/jfrog/artifactory/etc/security/master.key" : {
+                "content" : { "Fn::Join" : ["", [
+                  {"Ref" : "MasterKey"}
+                ]]},
+                "mode"   : "000755",
+                "owner"  : "artifactory",
+                "group"  : "artifactory"
+              },
+
+              "/etc/pki/tls/certs/result.pem" : {
+                "content" : { "Fn::Join" : ["", [
+                  {"Ref" : "Certificate"}
+                ]]},
+                "mode"   : "000777",
+                "owner"  : "root",
+                "group"  : "root"
+              },
+
+              "/etc/pki/tls/private/result.key" : {
+                "content" : { "Fn::Join" : ["", [
+                  {"Ref" : "CertificateKey"}
+                ]]},
+                "mode"   : "000777",
+                "owner"  : "root",
+                "group"  : "root"
+              },
+
+              "/var/opt/jfrog/artifactory/etc/artifactory.cluster.license" : {
+                "content" : { "Fn::Join" : ["", [
+                  "", { "Ref" : "ArtifactoryLicense1" }, "\n",
+                  "\n",
+                  "", { "Ref" : "ArtifactoryLicense2" }, "\n",
+                  "\n",
+                  "", { "Ref" : "ArtifactoryLicense3" }, "\n",
+                  "\n",
+                  "", { "Ref" : "ArtifactoryLicense4" }, "\n",
+                  "\n",
+                  "", { "Ref" : "ArtifactoryLicense5" }, "\n"
+                ]]},
+                "mode"   : "000755",
+                "owner"  : "artifactory",
+                "group"  : "artifactory"
+              },
+
+              "/etc/nginx/conf.d/artifactory.conf" : {
+                "content" : { "Fn::Join" : ["", [
+                  "ssl_certificate      /etc/pki/tls/certs/cert.pem;\n",
+                  "ssl_certificate_key  /etc/pki/tls/private/cert.key;\n",
+                  "ssl_session_cache shared:SSL:1m;\n",
+                  "ssl_prefer_server_ciphers   on;\n",
+                  "## server configuration\n",
+                  "server {\n",
+                  "  listen 443 ssl;\n",
+                  "  listen 80 ;\n",
+                  "  server_name ",{ "Ref" : "ArtifactoryServerName" },".",{ "Ref" : "CertificateDomain" }," ~(?<repo>.+)\\.",{ "Ref" : "CertificateDomain" },";\n",
+                  "  if ($http_x_forwarded_proto = '') {\n",
+                  "    set $http_x_forwarded_proto  $scheme;\n",
+                  "  }\n",
+                  "  ## Application specific logs\n",
+                  "  ## access_log /var/log/nginx/artifactory-access.log timing;\n",
+                  "  ## error_log /var/log/nginx/artifactory-error.log;\n",
+                  "  rewrite ^/$ /artifactory/webapp/ redirect;\n",
+                  "  rewrite ^/artifactory/?(/webapp)?$ /artifactory/webapp/ redirect;\n",
+                  "  rewrite ^/(v1|v2)/(.*) /artifactory/api/docker/$repo/$1/$2;\n",
+                  "  chunked_transfer_encoding on;\n",
+                  "  client_max_body_size 0;\n",
+                  "  location /artifactory/ {\n",
+                  "    proxy_read_timeout  900;\n",
+                  "    proxy_pass_header   Server;\n",
+                  "    proxy_cookie_path   ~*^/.* /;\n",
+                  "    proxy_pass          http://127.0.0.1:8081/artifactory/;\n",
+                  "    proxy_set_header    X-Artifactory-Override-Base-Url $http_x_forwarded_proto://$host:$server_port/artifactory;\n",
+                  "    proxy_set_header    X-Forwarded-Port  $server_port;\n",
+                  "    proxy_set_header    X-Forwarded-Proto $http_x_forwarded_proto;\n",
+                  "    proxy_set_header    Host              $http_host;\n",
+                  "    proxy_set_header    X-Forwarded-For   $proxy_add_x_forwarded_for;\n",
+                  "  }\n",
+                  "}\n",
+                  "\n"
+                ]]},
+                "mode"   : "000755",
+                "owner"  : "root",
+                "group"  : "root"
+              },
+
+              "/etc/cfn/cfn-hup.conf" : {
+                "content" : { "Fn::Join" : ["", [
+                  "[main]\n",
+                  "stack=", { "Ref" : "AWS::StackId" }, "\n",
+                  "region=", { "Ref" : "AWS::Region" }, "\n"
+                ]]},
+                "mode"    : "000400",
+                "owner"   : "root",
+                "group"   : "root"
+              },
+
+              "/etc/cfn/hooks.d/cfn-auto-reloader.conf" : {
+                "content": { "Fn::Join" : ["", [
+                  "[cfn-auto-reloader-hook]\n",
+                  "triggers=post.update\n",
+                  "path=Resources.SecondaryLaunchConfig.Metadata.AWS::CloudFormation::Init\n",
+                  "action=/opt/aws/bin/cfn-init -v ",
+                  "         --stack ", { "Ref" : "AWS::StackName" },
+                  "         --resource SecondaryLaunchConfig ",
+                  "         --region ", { "Ref" : "AWS::Region" }, "\n",
+                  "runas=root\n"
+                ]]}
+              }
+            },
+
+            "commands" : {
+              "set_artifactory_node_id" : {
+                "command" : { "Fn::Join" : ["", ["sed -i -e \"s/art1/art-$(date +%s$RANDOM)/\" /var/opt/jfrog/artifactory/etc/ha-node.properties"]]}
+              },
+              "set_artifactory_context" : {
+                "command" : { "Fn::Join" : ["", ["sed -i -e \"s/127.0.0.1/$(curl http://169.254.169.254/latest/meta-data/public-ipv4)/\" /var/opt/jfrog/artifactory/etc/ha-node.properties"]]}
+              },
+              "set_hazelcast_interface" : {
+                "command" : { "Fn::Join" : ["", ["sed -i -e \"s/172.25.0.3/$(curl http://169.254.169.254/latest/meta-data/local-ipv4)/\" /var/opt/jfrog/artifactory/etc/ha-node.properties"]]}
+              },
+              "allow_ping_anonymous" : {
+                "command" : { "Fn::Join" : ["", ["echo \"artifactory.ping.allowUnauthenticated=true\" >> /var/opt/jfrog/artifactory/etc/artifactory.system.properties"]]}
+              },
+              "set_extra_java_options" : {
+                "command" : { "Fn::Join" : ["", ["echo \"export JAVA_OPTIONS=", "\\\"", { "Ref" : "ExtraJavaOptions" }, "\\\"", "\" >> /var/opt/jfrog/artifactory/etc/default"]]}
+              },
+              "set_permissions" : {
+                "command" : { "Fn::Join" : ["", ["chown artifactory:artifactory -R /var/opt/jfrog/artifactory/*  && chown artifactory:artifactory -R /var/opt/jfrog/artifactory/etc/security"]]}
+              },
+              "generate_self_signed_cert" : {
+                "command" : { "Fn::Join" : ["", ["openssl req -nodes -x509 -newkey rsa:4096 -keyout /etc/pki/tls/private/example.key -out /etc/pki/tls/certs/example.pem -days 356 -subj \"/C=US/ST=California/L=SantaClara/O=IT/CN=*.localhost\""]]}
+              },
+              "format_ssl_certificate" : {
+                "command" : { "Fn::Join" : ["", ["cat /etc/pki/tls/certs/result.pem | sed 's/CERTIFICATE----- /CERTIFICATE-----\\n/g' | sed 's/-----END/\\n-----END/' > temp.pem | mv -f temp.pem /etc/pki/tls/certs/cert.pem"]]}
+              },
+              "format_ssl_certificate_key" : {
+                "command" : { "Fn::Join" : ["", ["cat /etc/pki/tls/private/result.key | sed 's/KEY----- /KEY-----\\n/g' | sed 's/-----END/\\n-----END/'  > temp.key | mv -f temp.key /etc/pki/tls/private/cert.key"]]}
+              },
+              "sleep_for_minute" : {
+                "command" : { "Fn::Join" : ["", ["sleep 120"]]}
+              }
+            },
+
+            "services" : {
+              "sysvinit" : {
+                "artifactory"  : { "enabled" : "true", "ensureRunning" : "true" },
+                "nginx" : { "enabled" : "true", "ensureRunning" : "true"},
+                "cfn-hup" : { "enabled" : "true", "ensureRunning" : "true",
+                  "files" : ["/etc/cfn/cfn-hup.conf", "/etc/cfn/hooks.d/cfn-auto-reloader.conf"]}
+              }
+            }
+          }
+        }
+      },
+      "Properties": {
+        "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
+          { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "InstanceType" }, "Arch" ] } ] },
+        "InstanceType" : { "Ref" : "InstanceType" },
+        "SecurityGroups" : [ {"Ref" : "ArtifactorySecurityGroup"} ],
+        "KeyName" : { "Ref" : "KeyName" },
+        "BlockDeviceMappings" : [
+          {
+            "DeviceName" : "/dev/xvda",
+            "Ebs" : { "VolumeSize" : { "Ref" : "InstanceStorage" }, "VolumeType" : "gp2", "DeleteOnTermination" : "true"}
+          }
+        ],
+        "UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
+          "#!/bin/bash -xe\n",
+          "yum update -y aws-cfn-bootstrap\n",
+
+          "yum install -y java-1.8.0>> /tmp/yum-java8.log 2>&1\n",
+
+          "alternatives --set java /usr/lib/jvm/jre-1.8.0-openjdk.x86_64/bin/java\n",
+
+          "yum -y remove java-1.7.0-openjdk>> /tmp/yum-java7.log 2>&1\n",
+
+          "##Install Artifactory\n",
+          "wget https://bintray.com/jfrog/artifactory-pro-rpms/rpm -O bintray-jfrog-artifactory-pro-rpms.repo\n",
+          "mv bintray-jfrog-artifactory-pro-rpms.repo /etc/yum.repos.d/\n",
+          "sleep 10\n",
+          "yum install -y jfrog-artifactory-pro-", { "Ref": "ArtifactoryVersion" }, ">> /tmp/yum-artifactory.log 2>&1\n",
+          "yum install -y nginx>> /tmp/yum-nginx.log 2>&1\n",
+          "curl -L -o  /opt/jfrog/artifactory/tomcat/lib/mysql-connector-java-5.1.38.jar https://bintray.com/artifact/download/bintray/jcenter/mysql/mysql-connector-java/5.1.38/mysql-connector-java-5.1.38.jar\n",
+
+          "# Install the files and packages from the metadata\n",
+          "/opt/aws/bin/cfn-init -v ",
+          "         --stack ", { "Ref" : "AWS::StackName" },
+          "         --resource SecondaryLaunchConfig ",
+          "         --region ", { "Ref" : "AWS::Region" }, "\n",
+
+          "# Signal the status from cfn-init\n",
+          "/opt/aws/bin/cfn-signal -e $? ",
+          "         --stack ", { "Ref" : "AWS::StackName" },
+          "         --resource SecondaryGroup ",
+          "         --region ", { "Ref" : "AWS::Region" }, "\n"
+        ]]}}
+      }
+    },
+
+
+    "ArtifactorySecurityGroup" : {
+      "Type" : "AWS::EC2::SecurityGroup",
+      "Properties" : {
+        "GroupDescription" : "Enable HTTP access via port 80 locked down to the ELB and SSH access",
+        "SecurityGroupIngress" : [
+          {"IpProtocol" : "tcp", "FromPort" : "80", "ToPort" : "80", "CidrIp" : "0.0.0.0/0"},
+          {"IpProtocol" : "tcp", "FromPort" : "443", "ToPort" : "443", "CidrIp" : "0.0.0.0/0"},
+          {"IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : { "Ref" : "SSHLocation"}},
+          {"IpProtocol" : "tcp", "FromPort" : "10001", "ToPort" : "10001", "CidrIp" : "0.0.0.0/0"},
+          {"IpProtocol" : "tcp", "FromPort" : "3306", "ToPort" : "3306", "CidrIp" : "0.0.0.0/0"},
+          {"IpProtocol" : "tcp", "FromPort" : "8081", "ToPort" : "8081", "CidrIp" : "0.0.0.0/0"}
+        ],
+        "VpcId" : { "Ref" : "VPC" }
+      }
+    },
+
+    "MyDBSubnetGroup" : {
+      "Type" : "AWS::RDS::DBSubnetGroup",
+      "Properties" : {
+        "DBSubnetGroupDescription" : "Subnets available for the RDS DB Instance",
+        "SubnetIds" : [{ "Ref" : "PrivateSubnet" },{ "Ref" : "PublicSubnet1" }, { "Ref" : "PublicSubnet2" }]
+      }
+    },
+
+    "MySQLDatabase": {
+      "Type": "AWS::RDS::DBInstance",
+      "Properties": {
+        "Engine" : "MySQL",
+        "EngineVersion" : "5.5",
+        "DBName" : { "Ref": "DBName" },
+        "MultiAZ" : { "Ref": "MultiAZDatabase" },
+        "MasterUsername": { "Ref": "DBUser" },
+        "MasterUserPassword": { "Ref" : "DBPassword" },
+        "DBInstanceClass": { "Ref" : "DBInstanceClass" },
+        "AllocatedStorage": { "Ref" : "DBAllocatedStorage" },
+        "DBSubnetGroupName" : { "Ref" : "MyDBSubnetGroup" },
+        "VPCSecurityGroups": [ { "Ref" : "ArtifactorySecurityGroup" } ]
+      }
+    }
+  },
+
+  "Outputs" : {
+    "URL" : {
+      "Description" : "URL of the Artifactory",
+      "Value" :  { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : [ "ElasticLoadBalancer", "DNSName" ]}]]}
+    }
+  }
+}
