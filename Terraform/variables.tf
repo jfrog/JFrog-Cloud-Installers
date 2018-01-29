@@ -47,7 +47,7 @@ variable "artifactory_instance_type" {
 
 variable "extra_java_options" {
   default = "-server -Xms2g -Xmx14g -Xss256k -XX:+UseG1GC -XX:OnOutOfMemoryError=\\\\\\\"kill -9 %p\\\\\\\""
-  description = "Setting Java Memory Parameters for Artifactory"
+  description = "Setting Java Memory Parameters for Artifactory. Learn about system requirements for Artifactory https://www.jfrog.com/confluence/display/RTF/System+Requirements#SystemRequirements-RecommendedHardware."
 }
 
 variable "bucket_name" {
