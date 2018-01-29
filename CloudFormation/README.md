@@ -16,7 +16,7 @@
 4. Mark on checkbox to allow CloudFormation to create IAM user for Artifactory to access S3 bucket.
 ![screenshot](images/4.png)
 
-5. Once Stack in deployed you will see Artifactory Load Balancer URL in output as showed in screenshot.
+5. Once Stack in deployed you will see Artifactory Load Balancer URL in output as showed in screenshot. It takes 7-10 minutes for Artifactory to start and attach instance to ELB.
 ![screenshot](images/5.png)
 
 6. Open Artifactory URL and you will be able to see Artifactory UI.

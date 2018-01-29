@@ -38,6 +38,7 @@
    It will take approximately 15 min to bring up cluster. 
    
    You will get ELB Url to access Artifactory.By default This template will start only 1 node in Artifactory cluster.
+   It takes 7-10 minutes for Artifactory to start and attach instance to ELB.
    ```
    Outputs:
    
