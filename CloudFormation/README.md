@@ -10,7 +10,7 @@
 ![screenshot](images/2.png)
 
 3. Provide required information like stack name, DBAllocatedStorage, DBInstanceClass, DBName, DBPassword,
-   DBUser, InstanceType, InstanceStorage, MasterKey, ArtifactoryVersion, KeyName, ArtifactoryLicense1-5, MultiAZDatabase, SSHLocation, Certificate, CertificateKey, SecondaryNodeCount. Then click next.
+   DBUser, InstanceType, InstanceStorage, MasterKey, ArtifactoryVersion, KeyName, ArtifactoryLicense1-5, MultiAZDatabase, SSHLocation, Certificate, CertificateKey, SecondaryNodeCount, ExtraJavaOptions. Then click next.
 ![screenshot](images/3.png)
 
 4. Mark on checkbox to allow CloudFormation to create IAM user for Artifactory to access S3 bucket.
@@ -52,8 +52,8 @@ considering you have SSL certificate for `*.jfrog.team`
 2. Pass your SSL Certificate Key in parameter `CertificateKey` as string
 3. Set `CertificateDomain` as `jfrog.team`
 4. Set `ArtifactoryServerName` as `artifactory` if you want to access artifactory with `https://artifactory.jfrog.team`
-5. Create Rout53 with entry `artifactory.jfrog.team` pointing to ELB value provided as output in CloudFormation Stack.
-6. Create Rout53 with entry `*.jfrog.team` pointing to ELB value provided as output in CloudFormation Stack.
+5. Create DNS for example Rout53 with entry `artifactory.jfrog.team` pointing to ELB value provided as output in CloudFormation Stack.
+6. Create DNS for example Route53 with entry `*.jfrog.team` pointing to ELB value provided as output in CloudFormation Stack.
 7. If you have virtual docker registry with name `docker-virtual` in artifactory. You can access it via `docker-virtual.jfrog.team`
    e.g ```docker pull docker-virtual.jfrog.team/nginx```
 

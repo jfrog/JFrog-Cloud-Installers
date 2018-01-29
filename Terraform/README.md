@@ -5,6 +5,7 @@
 * Basic knowledge to AWS
 * Pre created Keys
 * Basic knowledge of Artifactory
+* Learn about [system requirements for Artifactory](https://www.jfrog.com/confluence/display/RTF/System+Requirements#SystemRequirements-RecommendedHardware)
 
 ### Steps to Deploy Artifactory Enterprise using Terraform template
 
@@ -69,8 +70,8 @@ considering you have SSL certificate for `*.jfrog.team`
 2. Pass your SSL Certificate Key in variable `ssl_certificate_key` as string
 3. Set `certificate_domain` as `jfrog.team`
 4. Set `artifactory_server_name` as `artifactory` if you want to access artifactory with `https://artifactory.jfrog.team`
-5. Create Rout53 with entry `artifactory.jfrog.team` pointing to ELB value provided as output in CloudFormation Stack.
-6. Create Rout53 with entry `*.jfrog.team` pointing to ELB value provided as output in CloudFormation Stack.
+5. Create DNS for example Route53 with entry `artifactory.jfrog.team` pointing to ELB value provided as output in CloudFormation Stack.
+6. Create DNS for example Route53 with entry `*.jfrog.team` pointing to ELB value provided as output in CloudFormation Stack.
 7. If you have virtual docker registry with name `docker-virtual` in artifactory. You can access it via `docker-virtual.jfrog.team`
    e.g ```docker pull docker-virtual.jfrog.team/nginx```
 
