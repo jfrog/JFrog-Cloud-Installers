@@ -84,3 +84,5 @@ considering you have SSL certificate for `*.jfrog.team`
         
 2. You will see instances will get upgraded one by one. Depending on your cluster size it will take 20-30 minutes to update stack.
    
+### Use Artifactory as backend 
+To to store state as an artifact in a given repository of Artifactory follow documentation provided at [https://www.terraform.io/docs/backends/types/artifactory.html](https://www.terraform.io/docs/backends/types/artifactory.html)
