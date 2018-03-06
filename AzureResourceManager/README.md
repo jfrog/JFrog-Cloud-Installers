@@ -7,7 +7,7 @@
 <img src="http://armviz.io/visualizebutton.png"/>
 </a>
 
-This template can help you setup the Artifactory Enterprise environment to deploy [Artifactory](https://jfrog.com/artifactory) on Azure.
+This template can help you setup the [Artifactory Enterprise](https://jfrog.com/artifactory) on Azure.
 
 ## A. Deploy Artifactory Enterprise on Azure
 ![screenshot](images/HA_Diagram.png)
