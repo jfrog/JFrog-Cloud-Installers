@@ -15,14 +15,14 @@ This template can help you setup the [Artifactory Enterprise](https://jfrog.com/
 
 1. Click "Deploy to Azure" button. If you haven't got an Azure subscription, it will guide you on how to signup for a free trial.
 
-2. Enter a valid values to parameters. Atleast 1 license has to be provided.
+2. Enter a valid values to parameters. At least 1 license has to be provided.
 
 
 ![screenshot](images/Parameters.png)
 
 3. Click on Purchase to start deploying resources. It will deploy MsSQL database, Azure Blob storage container, VM installing Nginx and Artifactory and Load balancer.
 
-4. Once deployment it done. Copy FQDN from Output of deployment template.
+4. Once deployment is done. Copy FQDN from Output of deployment template.
 
 5. Access artifactory using FQDN. 
 
