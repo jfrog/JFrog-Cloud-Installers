@@ -34,7 +34,8 @@ This template can help you setup the [Artifactory Enterprise](https://jfrog.com/
 3. Use SSL Certificate with valid wild card to you artifactory as docker registry with subdomain method.
 4. Input values for 'adminUsername' and 'adminPassword' parameters needs to follow azure VM access rules.
 5. One primary node is configured automatically. And, Minimum 1 member node is expected for the Artifactory HA installation.
-6. This template provides support for max 5 licenses. To add more licenses, Edit the template (input fields, CustomScript sections) and install_artifactory.sh script. 
+6. This template provides support for max 5 licenses. To add more licenses, Edit the template (input fields, CustomScript sections) and install_artifactory.sh script.
+7. Refer to [System Requirements](https://www.jfrog.com/confluence/display/RTF/System+Requirements) for changing 'extraJavaOptions' input parameter value. 
 
 ### Steps to setup Artifactory as secure docker registry
 considering you have SSL certificate for `*.jfrog.team`
