@@ -240,7 +240,7 @@
     "osType": {
       "publisher": "Canonical",
       "offer": "UbuntuServer",
-      "sku": "14.04.2-LTS",
+      "sku": "[parameters('ubuntuOSVersion')]",
       "version": "latest"
     },
     "apiVersion": "2015-06-15",
