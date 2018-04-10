@@ -6,7 +6,7 @@ import org.slf4j.Logger
 import java.util.concurrent.TimeUnit
 
 jobs {
-    clean(cron: "0 * * * * ?") {
+    clean(interval: 60000, delay: 600000) {
         def artifactoryServersCommonService = ctx.beanForType(ArtifactoryServersCommonService)
         def artifactoryInactiveServerCleaner = new ArtifactoryInactiveServersCleaner(artifactoryServersCommonService, log)
         artifactoryInactiveServerCleaner.cleanInactiveArtifactoryServers()

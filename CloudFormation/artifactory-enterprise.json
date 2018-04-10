@@ -751,7 +751,7 @@
                   "import java.util.concurrent.TimeUnit\n",
 
                   "jobs {\n",
-                  "    clean(cron: \"0 * * * * ?\") {\n",
+                  "    clean(interval: 60000, delay: 600000) {\n",
                   "        def artifactoryServersCommonService = ctx.beanForType(ArtifactoryServersCommonService)\n",
                   "        def artifactoryInactiveServerCleaner = new ArtifactoryInactiveServersCleaner(artifactoryServersCommonService, log)\n",
                   "        artifactoryInactiveServerCleaner.cleanInactiveArtifactoryServers()\n",
