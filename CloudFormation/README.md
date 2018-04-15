@@ -10,9 +10,9 @@
 
 3. Provide the following required information: Stack name, DBAllocatedStorage, DBInstanceClass, DBName, DBPassword,
    DBUser, InstanceType, InstanceStorage, MasterKey, ArtifactoryVersion, KeyName, ArtifactoryLicense1-5, MultiAZDatabase, SSHLocation, Certificate, CertificateKey, SecondaryNodeCount, and ExtraJavaOptions.
+![screenshot](images/3.png)
 
 4. Click **Next**. 
-![screenshot](images/3.png)
 
 5. Select the check box to allow CloudFormation to create an IAM user for Artifactory to access S3 bucket.
 ![screenshot](images/4.png)
@@ -25,7 +25,7 @@
 ![screenshot](images/6.png)
     
 7. Verify that Artifactory is running in High Availability mode. In the Artifactory UI, navigate to to **Admin> High Availability**.
-![screenshot](images/7.png)
+![screenshot](images/8.png)
 
 8. Now let's add two more nodes to the Artifactory Enterprise cluster. 
    Go to CloudFormation UI in AWS console and select the newly deployed Artifactory Enterprise Stack. 
@@ -48,7 +48,7 @@
 ### Note: 
 1. This template only supports Artifactory version 5.8.x and above.
 2. Turn off daily backups. Read the [Documentation](https://www.jfrog.com/confluence/display/RTF/Managing+Backups).
-3. Use an SSL Certificate with a valid wild card to you Artifactory as a Docker registry using the  subdomain method.
+3. Use an SSL Certificate with a valid wild card to use Artifactory as a Docker registry using the  subdomain method.
 
 ### Steps to setup Artifactory as a secure Docker Registry
 Prerequisite:
