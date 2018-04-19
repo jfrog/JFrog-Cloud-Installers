@@ -48,6 +48,7 @@
 ### Note: 
 1. This template only supports Artifactory version 5.8.x and above.
 2. Turn off daily backups. Read the [Documentation](https://www.jfrog.com/confluence/display/RTF/Managing+Backups).
+   **Note**: In this template as default S3 is default filestore and data is persisted in S3. If you keep daily backups on disk space (default 250Gb) will get occupied quickly. 
 3. Use an SSL Certificate with a valid wild card to use Artifactory as a Docker registry using the  subdomain method.
 
 ### Steps to setup Artifactory as a secure Docker Registry
