@@ -54,7 +54,7 @@
     "ArtifactoryVersion": {
       "Description": "Artifactory version to deploy",
       "Type": "String",
-      "Default": "5.10.0"
+      "Default": "5.10.3"
     },
 
     "ArtifactoryLicense1": {
