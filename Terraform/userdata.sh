@@ -154,6 +154,21 @@ server {
 }
 EOF
 
+cat <<EOF >/etc/nginx/conf.d/replicator-nginx.conf
+## Artifactory replicator
+server {
+  listen         6061;
+  server_name    localhost;
+  client_max_body_size 0;
+  location / {
+    proxy_read_timeout  900;
+    proxy_pass_header   Server;
+    proxy_pass          http://localhost:6061;
+    proxy_http_version  1.1;
+  }
+}
+EOF
+
 cat /etc/pki/tls/certs/result.pem | sed 's/CERTIFICATE----- /CERTIFICATE-----\n/g' | sed 's/-----END/\n-----END/' > temp.pem
 mv -f temp.pem /etc/pki/tls/certs/cert.pem
 cat /etc/pki/tls/private/result.key | sed 's/KEY----- /KEY-----\n/g' | sed 's/-----END/\n-----END/'  > temp.key

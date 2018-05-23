@@ -851,6 +851,27 @@
                 "group"  : "root"
               },
 
+              "/etc/nginx/conf.d/replicator-nginx.conf" : {
+                "content" : { "Fn::Join" : ["", [
+                  "## Artifactory replicator\n",
+                  "server {\n",
+                  "  listen         6061;\n",
+                  "  server_name    localhost;\n",
+                  "  client_max_body_size 0;\n",
+                  "  location / {\n",
+                  "    proxy_read_timeout  900;\n",
+                  "    proxy_pass_header   Server;\n",
+                  "    proxy_pass          http://localhost:6061;\n",
+                  "    proxy_http_version  1.1;\n",
+                  "  }\n",
+                  "}\n",
+                  "\n"
+                ]]},
+                "mode"   : "000755",
+                "owner"  : "root",
+                "group"  : "root"
+              },
+
               "/etc/cfn/cfn-hup.conf" : {
                 "content" : { "Fn::Join" : ["", [
                   "[main]\n",
@@ -1185,6 +1206,27 @@
                 "group"  : "root"
               },
 
+              "/etc/nginx/conf.d/replicator-nginx.conf" : {
+                "content" : { "Fn::Join" : ["", [
+                  "## Artifactory replicator\n",
+                  "server {\n",
+                  "  listen         6061;\n",
+                  "  server_name    localhost;\n",
+                  "  client_max_body_size 0;\n",
+                  "  location / {\n",
+                  "    proxy_read_timeout  900;\n",
+                  "    proxy_pass_header   Server;\n",
+                  "    proxy_pass          http://localhost:6061;\n",
+                  "    proxy_http_version  1.1;\n",
+                  "  }\n",
+                  "}\n",
+                  "\n"
+                ]]},
+                "mode"   : "000755",
+                "owner"  : "root",
+                "group"  : "root"
+              },
+
               "/etc/cfn/cfn-hup.conf" : {
                 "content" : { "Fn::Join" : ["", [
                   "[main]\n",
@@ -1310,7 +1352,8 @@
           {"IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : { "Ref" : "SSHLocation"}},
           {"IpProtocol" : "tcp", "FromPort" : "10001", "ToPort" : "10001", "CidrIp" : "0.0.0.0/0"},
           {"IpProtocol" : "tcp", "FromPort" : "3306", "ToPort" : "3306", "CidrIp" : "0.0.0.0/0"},
-          {"IpProtocol" : "tcp", "FromPort" : "8081", "ToPort" : "8081", "CidrIp" : "0.0.0.0/0"}
+          {"IpProtocol" : "tcp", "FromPort" : "8081", "ToPort" : "8081", "CidrIp" : "0.0.0.0/0"},
+          {"IpProtocol" : "tcp", "FromPort" : "6061", "ToPort" : "6061", "CidrIp" : "0.0.0.0/0"}
         ],
         "VpcId" : { "Ref" : "VPC" }
       }

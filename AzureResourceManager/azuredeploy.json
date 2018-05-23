@@ -323,6 +323,20 @@
               "priority": 105,
               "direction": "Inbound"
             }
+          },
+          {
+            "name": "replicator-rule",
+            "properties": {
+              "description": "Allow HTTP",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "6061",
+              "sourceAddressPrefix": "Internet",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 105,
+              "direction": "Inbound"
+            }
           }
         ]
       },
