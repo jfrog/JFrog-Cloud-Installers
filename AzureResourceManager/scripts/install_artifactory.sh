@@ -114,6 +114,21 @@ server {
 }
 EOF
 
+cat <<EOF >/etc/nginx/conf.d/replicator-nginx.conf
+## Artifactory replicator
+server {
+  listen         6061;
+  server_name    localhost;
+  client_max_body_size 0;
+  location / {
+    proxy_read_timeout  900;
+    proxy_pass_header   Server;
+    proxy_pass          http://localhost:6061;
+    proxy_http_version  1.1;
+  }
+}
+EOF
+
 cat <<EOF >/var/opt/jfrog/artifactory/etc/artifactory.cluster.license
 ${ARTIFACTORY_LICENSE_1}
 

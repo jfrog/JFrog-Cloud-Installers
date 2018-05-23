@@ -154,6 +154,14 @@ resource "aws_security_group" "default" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  # HTTPS access from the VPC
+  ingress {
+    from_port   = 6061
+    to_port     = 6061
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   # HTTP access from the VPC
   ingress {
     from_port   = 8081
