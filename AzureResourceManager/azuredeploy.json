@@ -27,7 +27,7 @@
     },
     "artifactoryVersion": {
       "type": "string",
-      "defaultValue": "6.0.2",
+      "defaultValue": "6.1.0",
       "metadata": {
         "description": "Artifactory version to deploy. Supported from 5.8.0 and above."
       }
