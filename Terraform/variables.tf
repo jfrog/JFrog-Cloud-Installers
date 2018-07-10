@@ -14,10 +14,12 @@ variable "artifactory_version" {
 
 variable "artifactory_license_1" {
   description = "Artifactory Enterprise License"
+  default = ""
 }
 
 variable "artifactory_license_2" {
   description = "Artifactory Enterprise License"
+  default = ""
 }
 
 variable "artifactory_license_3" {
