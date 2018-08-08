@@ -6,11 +6,21 @@ import org.slf4j.Logger
 import java.util.concurrent.TimeUnit
 
 jobs {
-    clean(interval: 60000, delay: 600000) {
-        def artifactoryServersCommonService = ctx.beanForType(ArtifactoryServersCommonService)
-        def artifactoryInactiveServerCleaner = new ArtifactoryInactiveServersCleaner(artifactoryServersCommonService, log)
-        artifactoryInactiveServerCleaner.cleanInactiveArtifactoryServers()
+    clean(interval: 90000, delay: 900000) {
+        runCleanupHAInactiveServers()
     }
+}
+
+executions {
+    cleanHAInactiveServers() { params ->
+        runCleanupHAInactiveServers()
+    }
+}
+
+def runCleanupHAInactiveServers() {
+    def artifactoryServersCommonService = ctx.beanForType(ArtifactoryServersCommonService)
+    def artifactoryInactiveServerCleaner = new ArtifactoryInactiveServersCleaner(artifactoryServersCommonService, log)
+    artifactoryInactiveServerCleaner.cleanInactiveArtifactoryServers()
 }
 
 public class ArtifactoryInactiveServersCleaner {
@@ -29,10 +39,9 @@ public class ArtifactoryInactiveServersCleaner {
         for (member in allMembers) {
             def heartbeat = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - member.getLastHeartbeat())
             def noHeartbeat = heartbeat > ConstantValues.haHeartbeatStaleIntervalSecs.getInt()
-            if (member.getServerState() == ArtifactoryServerState.UNAVAILABLE || noHeartbeat) {
+            if (member.getServerState() == ArtifactoryServerState.UNAVAILABLE || ( noHeartbeat && member.getServerState() != ArtifactoryServerState.CONVERTING && member.getServerState() != ArtifactoryServerState.STARTING )) {
                 try {
-                    log.info "Running inactive artifactory servers cleaning task, found ${member.serverId} inactive servers to " +
-                            "remove"
+                    log.info "Inactive artifactory servers cleaning task found server ${member.serverId} to remove"
                     artifactoryServersCommonService.removeServer(member.serverId)
 
                 }catch (Exception e){
