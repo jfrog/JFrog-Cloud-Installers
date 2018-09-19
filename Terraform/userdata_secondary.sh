@@ -107,6 +107,24 @@ cat <<EOF >/etc/nginx/nginx.conf
 
   http {
     include       mime.types;
+    variables_hash_max_size 1024;
+    variables_hash_bucket_size 64;
+    server_names_hash_max_size 4096;
+    server_names_hash_bucket_size 128;
+    types_hash_max_size 2048;
+    types_hash_bucket_size 64;
+    proxy_read_timeout 2400s;
+    client_header_timeout 2400s;
+    client_body_timeout 2400s;
+    proxy_connect_timeout 75s;
+    proxy_send_timeout 2400s;
+    proxy_buffer_size 32k;
+    proxy_buffers 40 32k;
+    proxy_busy_buffers_size 64k;
+    proxy_temp_file_write_size 250m;
+    proxy_http_version 1.1;
+    client_body_buffer_size 128k;
+
     include    /etc/nginx/conf.d/*.conf;
     default_type  application/octet-stream;
     log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
@@ -142,7 +160,7 @@ server {
   chunked_transfer_encoding on;
   client_max_body_size 0;
   location /artifactory/ {
-    proxy_read_timeout  900;
+    proxy_read_timeout  2400;
     proxy_pass_header   Server;
     proxy_cookie_path   ~*^/.* /;
     proxy_pass          http://127.0.0.1:8081/artifactory/;
