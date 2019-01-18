@@ -25,7 +25,7 @@
     },
     "nodeCount": {
       "type": "int",
-      "defaultValue": 2,
+      "defaultValue": 1,
       "minValue": 1,
       "metadata": {
         "description": "Number of VM instances (100 or less) for member artifactory nodes. Minimum 1 node."
