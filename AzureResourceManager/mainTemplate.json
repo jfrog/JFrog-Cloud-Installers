@@ -194,7 +194,7 @@
       "metadata": {
         "description": "The base URI where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
       },
-      "defaultValue": "https://raw.githubusercontent.com/JFrogDev/JFrog-Cloud-Installers/refactoring/AzureResourceManager/"
+      "defaultValue": "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/artifactory-enterprise/"
     },
     "_artifactsLocationSasToken": {
       "type": "securestring",
@@ -226,7 +226,7 @@
     "httpsProbeName": "httpsProbe",
     "storageAccountName": "[concat(variables('namingInfix'), 'storage')]",
     "storageAccountEndpoint": "[concat('https://', variables('storageAccountName'), '.blob.core.windows.net/')]",
-    "storageAccountType": "Standard_LRS",
+    "storageAccountType": "[parameters('storageAccountType')]",
     "vmStorageAccountContainerName": "filestore",
     "azureSqlServerName": "[concat(variables('namingInfix'), 'sqlsrv')]",
     "DB_Name": "[parameters('DB_Name')]",
@@ -474,7 +474,7 @@
         "[concat('Microsoft.Network/publicIPAddresses/', variables('pipName'))]",
         "[concat('Microsoft.Network/publicIPAddresses/', variables('pipName'), '2')]"
       ],
-      "tags": {
+      "tags":{
         "displayName": "Load Balancer"
       },
       "properties": {
