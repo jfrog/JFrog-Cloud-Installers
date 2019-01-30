@@ -17,9 +17,6 @@ This template can help you setup the [Artifactory Enterprise](https://jfrog.com/
 
 2. Enter a valid values to parameters. At least 1 license has to be provided.
 
-
-![screenshot](images/Parameters.png)
-
 3. Click on Purchase to start deploying resources. It will deploy MsSQL database, Azure Blob storage container, VM installing Nginx and Artifactory and Load balancer.
 
 4. Once deployment is done. Copy FQDN from Output of deployment template.
@@ -73,7 +70,6 @@ Note: Use load balancer's NAT entries under Azure resources, to get the allocate
 
 ------
 #### Note:
-Supported locations: `East US 2`, `Central US`, `West Central US` and `West Europe`.  
 Please check the Azure region support for `Standard Sku` property in load balancer for this template to work properly.  
 Check for SQL server support on specified location. If SQL server is not available in the location, Use 'DB_Location' to specify the location with SQL server support.  
 
