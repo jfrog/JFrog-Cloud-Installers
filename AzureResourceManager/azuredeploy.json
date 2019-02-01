@@ -797,7 +797,7 @@
       "properties": {
         "name": "primary",
         "targetResourceUri": "[concat('/subscriptions/',subscription().subscriptionId, '/resourceGroups/',  resourceGroup().name, '/providers/Microsoft.Compute/virtualMachineScaleSets/', variables('scaleSetName'))]",
-        "enabled": false,
+        "enabled": true,
         "profiles": [
           {
             "name": "Profile1",
@@ -918,7 +918,7 @@
       "properties": {
         "name": "members",
         "targetResourceUri": "[concat('/subscriptions/',subscription().subscriptionId, '/resourceGroups/',  resourceGroup().name, '/providers/Microsoft.Compute/virtualMachineScaleSets/', concat(variables('scaleSetName'),'2'))]",
-        "enabled": false,
+        "enabled": true,
         "profiles": [
           {
             "name": "Profile1",
