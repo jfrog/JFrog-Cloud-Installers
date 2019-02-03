@@ -714,6 +714,7 @@
       },
       "properties": {
         "singlePlacementGroup": true,
+        "overprovision": "false",
         "upgradePolicy": {
           "mode": "Manual"
         },
@@ -787,31 +788,6 @@
       }
     },
     {
-      "type": "Microsoft.Insights/autoscaleSettings",
-      "apiVersion": "2015-04-01",
-      "name": "primary",
-      "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[concat('Microsoft.Compute/virtualMachineScaleSets/', variables('scaleSetName'))]"
-      ],
-      "properties": {
-        "name": "primary",
-        "targetResourceUri": "[concat('/subscriptions/',subscription().subscriptionId, '/resourceGroups/',  resourceGroup().name, '/providers/Microsoft.Compute/virtualMachineScaleSets/', variables('scaleSetName'))]",
-        "enabled": true,
-        "profiles": [
-          {
-            "name": "Profile1",
-            "capacity": {
-              "minimum": "1",
-              "maximum": "1",
-              "default": "1"
-            },
-            "rules": [ ]
-          }
-        ]
-      }
-    },
-    {
       "type": "Microsoft.Compute/virtualMachineScaleSets",
       "name": "[concat(variables('scaleSetName'),'2')]",
       "location": "[parameters('location')]",
@@ -835,6 +811,7 @@
       },
       "properties": {
         "singlePlacementGroup": true,
+        "overprovision": "false",
         "upgradePolicy": {
           "mode": "Manual"
         },
@@ -905,31 +882,6 @@
             ]
           }
         }
-      }
-    },
-    {
-      "type": "Microsoft.Insights/autoscaleSettings",
-      "apiVersion": "2015-04-01",
-      "name": "members",
-      "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[concat('Microsoft.Compute/virtualMachineScaleSets/', concat(variables('scaleSetName'),'2'))]"
-      ],
-      "properties": {
-        "name": "members",
-        "targetResourceUri": "[concat('/subscriptions/',subscription().subscriptionId, '/resourceGroups/',  resourceGroup().name, '/providers/Microsoft.Compute/virtualMachineScaleSets/', concat(variables('scaleSetName'),'2'))]",
-        "enabled": true,
-        "profiles": [
-          {
-            "name": "Profile1",
-            "capacity": {
-              "minimum": "0",
-              "maximum": "[parameters('nodeCount')]",
-              "default": "[parameters('nodeCount')]"
-            },
-            "rules": [ ]
-          }
-        ]
       }
     }
   ],
