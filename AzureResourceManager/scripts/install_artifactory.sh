@@ -122,7 +122,7 @@ ${ARTIFACTORY_LICENSE_4}
 ${ARTIFACTORY_LICENSE_5}
 EOF
 
-HOSTNAME=$(hostname -i)
+HOSTNAME=$(ip route get 8.8.8.8 | awk '{print $NF; exit}')
 
 if [ "${IS_PRIMARY}" = "true" ]; then
     NODE_NAME=art-primary
