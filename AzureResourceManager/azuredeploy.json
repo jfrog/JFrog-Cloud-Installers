@@ -827,12 +827,12 @@
       },
       "sku": {
         "name": "[parameters('vmSku')]",
-        "overprovision": "false",
         "tier": "Standard",
         "capacity": "[parameters('nodeCount')]"
       },
       "properties": {
         "singlePlacementGroup": true,
+        "overprovision": "false",
         "upgradePolicy": {
           "mode": "Manual"
         },
