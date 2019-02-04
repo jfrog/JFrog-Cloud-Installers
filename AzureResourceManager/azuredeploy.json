@@ -201,7 +201,7 @@
     "namingInfix": "[toLower(substring(concat(parameters('clusterName'), uniqueString(resourceGroup().id)), 0, 9))]",
     "addressPrefix": "10.0.0.0/16",
     "subnetPrimaryPrefix": "10.0.1.0/24",
-    "subnetMemberPrefix": "10.0.1.0/24",
+    "subnetMemberPrefix": "10.0.2.0/24",
     "virtualNetworkName": "[concat(variables('namingInfix'), 'vnet')]",
     "subnetPrimaryName": "[concat(variables('namingInfix'), 'primarySubnet')]",
     "subnetMemberName": "[concat(variables('namingInfix'), 'memberSubnet')]",
