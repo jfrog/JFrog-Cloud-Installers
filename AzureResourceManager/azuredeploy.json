@@ -38,7 +38,8 @@
       "allowedValues": [
         "6.6.0",
         "6.6.1",
-        "6.7.0"
+        "6.7.0",
+        "6.8.0"
       ],
       "metadata": {
         "description": "Artifactory-vm image version to deploy."
