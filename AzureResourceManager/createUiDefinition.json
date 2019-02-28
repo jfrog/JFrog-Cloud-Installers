@@ -78,14 +78,12 @@
             "label": "Virtual machine size",
             "toolTip": "The size of the virtual machine for Artifactory",
             "recommendedSizes": [
-              "Standard_A4"
+              "Standard_D8s_v3"
             ],
             "constraints": {
               "allowedSizes": [
                 "Standard_A4",
                 "Standard_A3",
-                "Standard_B4ms",
-                "Standard_B8ms",
                 "Standard_D4s_v3",
                 "Standard_D8s_v3",
                 "Standard_D16s_v3",
@@ -97,7 +95,12 @@
                 "Standard_D5_v2",
                 "Standard_A4_v2",
                 "Standard_A8_v2",
-                "Standard_DC4s"
+                "Standard_DC4s",
+                "Standard_E4s_v3",
+                "Standard_E8s_v3",
+                "Standard_E16s_v3",
+                "Standard_E20s_v3",
+                "Standard_E32s_v3"
               ]
             },
             "osPlatform": "Linux",
@@ -106,7 +109,7 @@
           {
             "name": "nodeCount",
             "type": "Microsoft.Common.DropDown",
-            "label": "Number of VM instances for member Artifactory nodes. Minimum 1 node.",
+            "label": "Number of additional VM instances for member Artifactory nodes. Minimum 1 node.(+1 primary = 2 node cluster)",
             "defaultValue": "2",
             "toolTip": "Number of Artifactory member nodes in cluster",
             "constraints": {
@@ -136,7 +139,7 @@
             "name": "artifactoryVersion",
             "type": "Microsoft.Common.DropDown",
             "label": "Artifactory-vm image version to deploy.",
-            "defaultValue": "6.6.1",
+            "defaultValue": "6.8.0",
             "toolTip": "",
             "constraints": {
               "allowedValues": [
@@ -147,6 +150,10 @@
                 {
                   "label": "6.7.0",
                   "value": "6.7.0"
+                },
+                {
+                  "label": "6.8.0",
+                  "value": "6.8.0"
                 }
               ],
               "required": true
