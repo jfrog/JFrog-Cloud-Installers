@@ -172,7 +172,8 @@ server {
 }
 EOF
 
-cat <<EOF > /var/opt/jfrog/artifactory/etc/info/installer-info.json
+mkdir -p /var/opt/jfrog/artifactory/etc/info
+cat <<EOF >/var/opt/jfrog/artifactory/etc/info/installer-info.json
 {
   "productId": "JFrogMysqlTerraformInstaller/1.0.0"
 }
