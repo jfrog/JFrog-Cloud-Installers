@@ -906,7 +906,7 @@
               "/var/opt/jfrog/artifactory/etc/info/installer-info.json" : {
                 "content" : { "Fn::Join" : ["", [
                   "{\n",
-                  "  \"productId\": \"JFrogInstaller_Azure_SQL/1.0.0\"\n",
+                  "  \"productId\": \"JFrogInstaller_Cloudformation_MySQL/1.0.0\"\n",
                   "}\n"
                 ]]},
                 "mode"   : "000755",
@@ -1268,7 +1268,7 @@
               "/var/opt/jfrog/artifactory/etc/info/installer-info.json" : {
                 "content" : { "Fn::Join" : ["", [
                   "{\n",
-                  "  \"productId\": \"JFrogInstaller_Azure_SQL/1.0.0\"\n",
+                  "  \"productId\": \"JFrogInstaller_Cloudformation_MySQL/1.0.0\"\n",
                   "}\n"
                 ]]},
                 "mode"   : "000755",
