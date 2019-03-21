@@ -209,6 +209,15 @@ cat <<EOF >/var/opt/jfrog/artifactory/etc/binarystore.xml
 </config>
 EOF
 
+# callhome metadata
+
+mkdir -p /var/opt/jfrog/artifactory/etc/info
+cat <<EOF >/var/opt/jfrog/artifactory/etc/info/installer-info.json
+{
+  "productId": "JFrogInstaller_Azure_SQL/1.0.0"
+}
+EOF
+
 HOSTNAME=$(hostname -i)
 sed -i -e "s/art1/art-$(date +%s$RANDOM)/" /var/opt/jfrog/artifactory/etc/ha-node.properties
 sed -i -e "s/127.0.0.1/$HOSTNAME/" /var/opt/jfrog/artifactory/etc/ha-node.properties

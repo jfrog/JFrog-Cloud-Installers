@@ -902,6 +902,16 @@
                   "         --region ", { "Ref" : "AWS::Region" }, "\n",
                   "runas=root\n"
                 ]]}
+              },
+              "/var/opt/jfrog/artifactory/etc/info/installer-info.json" : {
+                "content" : { "Fn::Join" : ["", [
+                  "{\n",
+                  "  \"productId\": \"JFrogInstaller_Azure_SQL/1.0.0\"\n",
+                  "}\n"
+                ]]},
+                "mode"   : "000755",
+                "owner"  : "artifactory",
+                "group"  : "artifactory"
               }
             },
 
@@ -1254,6 +1264,16 @@
                   "         --region ", { "Ref" : "AWS::Region" }, "\n",
                   "runas=root\n"
                 ]]}
+              },
+              "/var/opt/jfrog/artifactory/etc/info/installer-info.json" : {
+                "content" : { "Fn::Join" : ["", [
+                  "{\n",
+                  "  \"productId\": \"JFrogInstaller_Azure_SQL/1.0.0\"\n",
+                  "}\n"
+                ]]},
+                "mode"   : "000755",
+                "owner"  : "artifactory",
+                "group"  : "artifactory"
               }
             },
 
