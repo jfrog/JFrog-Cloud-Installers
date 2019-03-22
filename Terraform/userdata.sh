@@ -176,6 +176,11 @@ mkdir -p /var/opt/jfrog/artifactory/etc/info
 cat <<EOF >/var/opt/jfrog/artifactory/etc/info/installer-info.json
 {
   "productId": "JFrog_TerraformInstaller_Mysql/1.0.0"
+  "features": [
+  {
+    "featureId": "Artifactory/${artifactory_version}",
+    "attributes": {}
+  }
 }
 EOF
 

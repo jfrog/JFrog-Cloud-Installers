@@ -907,6 +907,11 @@
                 "content" : { "Fn::Join" : ["", [
                   "{\n",
                   "  \"productId\": \"JFrogInstaller_Cloudformation_MySQL/1.0.0\"\n",
+                  "  \"features\": [\n",
+                  "  {\n",
+                  "    \"featureId\": \"Artifactory/", { "Ref": "ArtifactoryVersion" }, "\"\n",
+                  "    \"attributes\": {}\n",
+                  "  }\n",
                   "}\n"
                 ]]},
                 "mode"   : "000755",
