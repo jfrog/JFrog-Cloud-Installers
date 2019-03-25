@@ -214,10 +214,10 @@ EOF
 mkdir -p /var/opt/jfrog/artifactory/etc/info
 cat <<EOF >/var/opt/jfrog/artifactory/etc/info/installer-info.json
 {
-  "productId": "JFrogInstaller_Azure_SQL/1.0.0"
+  "productId": "JFrogInstaller_ARM/1.0.0"
   "features": [
   {
-    "featureId": "Artifactory/${artifactoryVersion}"
+    "featureId": "SQLServer"
   }
 }
 EOF

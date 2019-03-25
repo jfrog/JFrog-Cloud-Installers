@@ -906,10 +906,10 @@
               "/var/opt/jfrog/artifactory/etc/info/installer-info.json" : {
                 "content" : { "Fn::Join" : ["", [
                   "{\n",
-                  "  \"productId\": \"JFrogInstaller_Cloudformation_MySQL/1.0.0\"\n",
+                  "  \"productId\": \"JFrogInstaller_Cloudformation/1.0.0\"\n",
                   "  \"features\": [\n",
                   "  {\n",
-                  "    \"featureId\": \"Artifactory/", { "Ref": "ArtifactoryVersion" }, "\"\n",
+                  "    \"featureId\": \"MySql/5.5\"\n",
                   "  }\n",
                   "}\n"
                 ]]},
@@ -1275,7 +1275,7 @@
                   "  \"productId\": \"JFrogInstaller_Cloudformation_MySQL/1.0.0\"\n",
                   "  \"features\": [\n",
                   "  {\n",
-                  "    \"featureId\": \"Artifactory/", { "Ref": "ArtifactoryVersion" }, "\"\n",
+                  "    \"featureId\": \"MySql/5.5\"\n",
                   "  }\n",
                   "}\n"
                 ]]},
