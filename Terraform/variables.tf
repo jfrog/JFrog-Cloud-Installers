@@ -9,7 +9,7 @@ variable "key_name" {
 
 variable "artifactory_version" {
   description = "Artifactory version to deploy"
-  default     = "6.2.0"
+  default     = "6.9.0"
 }
 
 variable "artifactory_license_1" {
