@@ -391,6 +391,7 @@ data "template_file" "init" {
     certificate_domain = "${var.certificate_domain}"
     artifactory_server_name = "${var.artifactory_server_name}"
     EXTRA_JAVA_OPTS = "${var.extra_java_options}"
+    ISPRIMARY = "true"
   }
 }
 
@@ -420,7 +421,7 @@ resource "aws_launch_configuration" "secondary" {
 }
 
 data "template_file" "secondary_init" {
-  template = "${file("userdata_secondary.sh")}"
+  template = "${file("userdata.sh")}"
 
   vars = {
     s3_bucket_name = "${aws_s3_bucket.b.id}"
@@ -443,5 +444,6 @@ data "template_file" "secondary_init" {
     certificate_domain = "${var.certificate_domain}"
     artifactory_server_name = "${var.artifactory_server_name}"
     EXTRA_JAVA_OPTS = "${var.extra_java_options}"
+    ISPRIMARY = "false"
   }
 }

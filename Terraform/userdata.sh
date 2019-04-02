@@ -84,7 +84,7 @@ cat <<EOF >/var/opt/jfrog/artifactory/etc/ha-node.properties
   context.url=http://127.0.0.1:8081/artifactory
   membership.port=10001
   hazelcast.interface=172.25.0.3
-  primary=true
+  primary=${ISPRIMARY}
 EOF
 
 cat <<EOF >/etc/pki/tls/certs/result.pem
@@ -172,6 +172,18 @@ server {
 }
 EOF
 
+mkdir -p /var/opt/jfrog/artifactory/etc/info
+cat <<EOF >/var/opt/jfrog/artifactory/etc/info/installer-info.json
+{
+  "productId": "JFrog_TerraformInstaller/1.0.0",
+  "features": [
+  {
+    "featureId": "MySql/5.5"
+  }
+  ]
+}
+EOF
+
 cat /etc/pki/tls/certs/result.pem | sed 's/CERTIFICATE----- /CERTIFICATE-----\n/g' | sed 's/-----END/\n-----END/' > temp.pem
 mv -f temp.pem /etc/pki/tls/certs/cert.pem
 cat /etc/pki/tls/private/result.key | sed 's/KEY----- /KEY-----\n/g' | sed 's/-----END/\n-----END/'  > temp.key
@@ -181,6 +193,6 @@ echo "export JAVA_OPTIONS=\"${EXTRA_JAVA_OPTS}\"" >> /var/opt/jfrog/artifactory/
 sed -i -e "s/art1/art-$(date +%s$RANDOM)/" /var/opt/jfrog/artifactory/etc/ha-node.properties
 sed -i -e "s/127.0.0.1/$(curl http://169.254.169.254/latest/meta-data/public-ipv4)/" /var/opt/jfrog/artifactory/etc/ha-node.properties
 sed -i -e "s/172.25.0.3/$(curl http://169.254.169.254/latest/meta-data/local-ipv4)/" /var/opt/jfrog/artifactory/etc/ha-node.properties
-chown artifactory:artifactory -R /var/opt/jfrog/artifactory/etc/*  && chown artifactory:artifactory -R /var/opt/jfrog/artifactory/*  && chown artifactory:artifactory -R /var/opt/jfrog/artifactory/etc/security
+chown artifactory:artifactory -R /var/opt/jfrog/artifactory/etc/* && chown artifactory:artifactory -R /var/opt/jfrog/artifactory/*  && chown artifactory:artifactory -R /var/opt/jfrog/artifactory/etc/security
 service artifactory start
 service nginx start
