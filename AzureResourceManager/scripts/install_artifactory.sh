@@ -15,30 +15,31 @@ ARTIFACTORY_LICENSE_3=$(cat /var/lib/cloud/instance/user-data.txt | grep "^LICEN
 ARTIFACTORY_LICENSE_4=$(cat /var/lib/cloud/instance/user-data.txt | grep "^LICENSE4=" | sed "s/LICENSE4=//")
 ARTIFACTORY_LICENSE_5=$(cat /var/lib/cloud/instance/user-data.txt | grep "^LICENSE5=" | sed "s/LICENSE5=//")
 
-UBUNTU_CODENAME=$(cat /etc/lsb-release | grep "^DISTRIB_CODENAME=" | sed "s/DISTRIB_CODENAME=//")
-
-export DEBIAN_FRONTEND=noninteractive
-
 # install the wget and curl
-apt-get update
-apt-get -y install wget curl>> /tmp/install-curl.log 2>&1
+yum -y install wget curl>> /tmp/install-curl.log 2>&1
 
-# install Java 8
-add-apt-repository -y ppa:webupd8team/java
-apt-get update
-echo "oracle-java8-installer shared/accepted-oracle-license-v1-1 select true" | debconf-set-selections
-apt-get install -y oracle-java8-installer>> /tmp/install-java8.log 2>&1
+#yum -y install java-1.8.0-openjdk
+yum -y install java-11-openjdk >> /tmp/install-java.log 2>&1
 
 #Generate Self-Signed Cert
 mkdir -p /etc/pki/tls/private/ /etc/pki/tls/certs/
 openssl req -nodes -x509 -newkey rsa:4096 -keyout /etc/pki/tls/private/example.key -out /etc/pki/tls/certs/example.pem -days 356 -subj "/C=US/ST=California/L=SantaClara/O=IT/CN=*.localhost"
 
-# install the MySQL stack
-echo "deb https://jfrog.bintray.com/artifactory-pro-debs ${UBUNTU_CODENAME} main" | tee -a /etc/apt/sources.list
-curl https://bintray.com/user/downloadSubjectPublicKey?username=jfrog | apt-key add -
-apt-get update
-apt-get -y install nginx>> /tmp/install-nginx.log 2>&1
-apt-get -y install jfrog-artifactory-pro=${ARTIFACTORY_VERSION} >> /tmp/install-artifactory.log 2>&1
+setenforce 0
+sed -i -e "s/SELINUX=.*/SELINUX=permissive/" /etc/sysconfig/selinux
+wget https://bintray.com/jfrog/artifactory-pro-rpms/rpm -O bintray-jfrog-artifactory-pro-rpms.repo
+mv bintray-jfrog-artifactory-pro-rpms.repo /etc/yum.repos.d/
+yum -y install jfrog-artifactory-pro-${ARTIFACTORY_VERSION} >> /tmp/install-artifactory.log 2>&1
+
+
+cat > /etc/yum.repos.d/nginx.repo <<EOF
+[nginx]
+name=nginx repo
+baseurl=http://nginx.org/packages/mainline/rhel/7/\$basearch/
+gpgcheck=0
+enabled=1
+EOF
+yum -y install nginx>> /tmp/install-nginx.log 2>&1
 
 #Install database drivers
 curl -L -o  /opt/jfrog/artifactory/tomcat/lib/mysql-connector-java-5.1.38.jar https://bintray.com/artifact/download/bintray/jcenter/mysql/mysql-connector-java/5.1.38/mysql-connector-java-5.1.38.jar
@@ -248,3 +249,4 @@ service artifactory start
 service nginx start
 nginx -s reload
 echo "INFO: Artifactory installation completed."
+

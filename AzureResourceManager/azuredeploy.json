@@ -52,16 +52,18 @@
         "description": "Admin password on all VMs. Follow conventions for azure VM admin password rules."
       }
     },
-    "ubuntuOSVersion": {
+    "rhelOSVersion": {
       "type": "string",
-      "defaultValue": "16.04.0-LTS",
-      "allowedValues": [
-        "12.04.5-LTS",
-        "14.04.2-LTS",
-        "16.04.0-LTS"
-      ],
+      "defaultValue": "",
       "metadata": {
-        "description": "The Ubuntu version for the VM."
+        "description": "The RHEL version for the VM."
+      }
+    },
+    "rhelOSsku": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The RHEL sku for the VM."
       }
     },
     "artifactoryLicense1": {
@@ -185,7 +187,7 @@
       "metadata": {
         "description": "The base URI where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
       },
-      "defaultValue": "https://raw.githubusercontent.com/JFrogDev/JFrog-Cloud-Installers/master/AzureResourceManager/"
+      "defaultValue": "https://raw.githubusercontent.com/JFrogDev/JFrog-Cloud-Installers/arm-rhel-rpm-vms/AzureResourceManager/"
     },
     "_artifactsLocationSasToken": {
       "type": "securestring",
@@ -237,10 +239,10 @@
     "artifactoryLicense4": "[parameters('artifactoryLicense4')]",
     "artifactoryLicense5": "[parameters('artifactoryLicense5')]",
     "osType": {
-      "publisher": "Canonical",
-      "offer": "UbuntuServer",
-      "sku": "[parameters('ubuntuOSVersion')]",
-      "version": "latest"
+      "publisher": "RedHat",
+      "offer": "RHEL",
+      "sku": "[parameters('rhelOSsku')]",
+      "version": "[parameters('rhelOSVersion')]"
     },
     "apiVersion": "2015-06-15",
     "imageReference": "[variables('osType')]",
