@@ -17,11 +17,23 @@
     "adminPassword": {
       "value": "GEN-PASSWORD"
     },
+    "artifactoryEdition": {
+      "value": "jfrog-artifactory-pro"
+    },
     "artifactoryVersion": {
-      "value": "6.2.0"
+      "value": "6.13.1"
     },
     "masterKey": {
       "value": "35767fa0164bac66b6cccb8880babefb"
+    },
+    "joinKey": {
+      "value": "08f74049607a3103e126e1c232c7a30c"
+    },
+    "privateRepoUsername": {
+      "value": ""
+    },
+    "privateRepoApiKey": {
+      "value": ""
     },
     "artifactoryLicense1": {
       "value": "GEN-UNIQUE"
