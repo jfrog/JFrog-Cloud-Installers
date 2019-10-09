@@ -5,6 +5,12 @@
     "vmSku": {
       "value": "Standard_A4"
     },
+    "rhelOSsku": {
+      "value": "7-RAW-CI"
+    },
+    "rhelOSVersion": {
+      "value": "7.6.2019072418"
+    },
     "clusterName": {
       "value": "GEN-UNIQUE"
     },
