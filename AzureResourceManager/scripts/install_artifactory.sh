@@ -44,8 +44,8 @@ description: solengha--jfrog-artifactory7-rpms
 baseurl=https://solengha.jfrog.io/solengha/artifactory-private-rpm/
 gpgcheck=0
 enabled=1
-username: "${PRIVATE_REPO_USERNAME}"
-password: "${PRIVATE_REPO_APIKEY}"
+username=${PRIVATE_REPO_USERNAME}
+password=${PRIVATE_REPO_APIKEY}
 EOF
 fi
 
