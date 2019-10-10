@@ -116,6 +116,8 @@ cat <<EOF >/etc/nginx/nginx.conf
     }
 EOF
 
+rm /etc/nginx/conf.d/default.conf
+
 cat <<EOF >/etc/nginx/conf.d/artifactory.conf
 ssl_certificate      /etc/pki/tls/certs/cert.pem;
 ssl_certificate_key  /etc/pki/tls/private/cert.key;
@@ -125,7 +127,7 @@ ssl_prefer_server_ciphers   on;
 server {
   listen 443 ssl;
   listen 80 ;
-  server_name ~(?<repo>.+)\\.${CERTIFICATE_DOMAIN} artifactory ${ARTIFACTORY_SERVER_NAME}.${CERTIFICATE_DOMAIN};
+  server_name ~(?<repo>.+)\\.${CERTIFICATE_DOMAIN} artifactory ${ARTIFACTORY_SERVER_NAME}.${CERTIFICATE_DOMAIN} ${CERTIFICATE_DOMAIN};
   if (\$http_x_forwarded_proto = '') {
     set \$http_x_forwarded_proto  \$scheme;
   }
@@ -134,14 +136,19 @@ server {
   ## error_log /var/log/nginx/artifactory-error.log;
   rewrite ^/$ /artifactory/webapp/ redirect;
   rewrite ^/artifactory/?(/webapp)?$ /artifactory/webapp/ redirect;
-  rewrite ^/(v1|v2)/(.*) /artifactory/api/docker/\$repo/\$1/\$2;
+  if ( \$repo != "" ) {
+        rewrite ^/(v1|v2)/(.*) /artifactory/api/docker/\$repo/\$1/\$2;
+  }
   chunked_transfer_encoding on;
   client_max_body_size 0;
-  location /artifactory/ {
+  location / {
     proxy_read_timeout  2400;
     proxy_pass_header   Server;
     proxy_cookie_path   ~*^/.* /;
-    proxy_pass          http://127.0.0.1:8081/artifactory/;
+	if ( \$request_uri ~ ^/artifactory/(.*)\$ ) {
+	  proxy_pass       http://127.0.0.1:8081/artifactory/\$1;
+	}
+    proxy_pass          http://127.0.0.1:8081/;
     proxy_set_header    X-Artifactory-Override-Base-Url
     \$http_x_forwarded_proto://\$host:\$server_port/artifactory;
     proxy_set_header    X-Forwarded-Port  \$server_port;
