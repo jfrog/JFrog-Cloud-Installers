@@ -1,3 +1,5 @@
+**This template is deprecated. We recommend using AWS Quickstarts for JFrog for [EC2](https://aws.amazon.com/quickstart/architecture/jfrog-artifactory-amazon-ec2/), [ECS](https://aws.amazon.com/quickstart/architecture/jfrog-artifactory-amazon-ecs/), or [EKS](https://aws.amazon.com/quickstart/architecture/jfrog-artifactory-amazon-eks/). You can also use the [CloudFormation temaplates created for QuickStarts](https://github.com/aws-quickstart/quickstart-jfrog-artifactory) as a foundation for your own.**
+
 # CloudFormation Template For JFrog Artifactory Enterprise
 
 ### Steps to Deploy Artifactory Enterprise using a CloudFormation template
