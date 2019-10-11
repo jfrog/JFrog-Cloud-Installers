@@ -894,7 +894,7 @@
   ],
   "outputs": {
     "fqdn": {
-      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses',concat(variables('pipName'),'2')),'2016-03-30').dnsSettings.fqdn]",
+      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses',concat(variables('pipName'))),'2016-03-30').dnsSettings.fqdn]",
       "type": "string"
     }
   }
