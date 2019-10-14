@@ -38,10 +38,10 @@ mv bintray-jfrog-artifactory-pro-rpms.repo /etc/yum.repos.d/
 if [ "PRIVATE_REPO_USERNAME" != "" ]; then
 echo "adding private repo"
 cat > /etc/yum.repos.d/solengha-jfrog-artifactory7-rpms.repo <<EOF
-[artifactory7]
-name: solengha--jfrog-artifactory7-rpms
-description: solengha--jfrog-artifactory7-rpms
-baseurl=https://solengha.jfrog.io/solengha/artifactory-private-rpm/
+[artifactory]
+name: solengha--jfrog-artifactory-rpm-private
+description: solengha--jfrog-artifactory-rpm-private
+baseurl=https://solengha.jfrog.io/solengha/artifactory-rpm-private/
 gpgcheck=0
 enabled=1
 username=${PRIVATE_REPO_USERNAME}
