@@ -22,8 +22,8 @@ PRIVATE_REPO_APIKEY=$(cat /var/lib/cloud/instance/user-data.txt | grep "^PRIVATE
 # install the wget and curl
 yum -y install wget curl>> /tmp/install-curl.log 2>&1
 
-#yum -y install java-1.8.0-openjdk
-yum -y install java-11-openjdk >> /tmp/install-java.log 2>&1
+yum -y install java-1.8.0-openjdk >> /tmp/install-java.log 2>&1
+#yum -y install java-11-openjdk >> /tmp/install-java.log 2>&1
 
 #Generate Self-Signed Cert
 mkdir -p /etc/pki/tls/private/ /etc/pki/tls/certs/
