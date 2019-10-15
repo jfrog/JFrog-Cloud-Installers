@@ -421,33 +421,6 @@
       }
     },
     {
-      "apiVersion": "[variables('apiVersion')]",
-      "type": "Microsoft.Network/networkInterfaces",
-      "name": "[concat(variables('nicName'),'2')]",
-      "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[concat('Microsoft.Network/publicIPAddresses/', variables('pipName'),'2')]",
-        "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
-        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgName'))]"
-      ],
-      "properties": {
-        "ipConfigurations": [
-          {
-            "name": "ipconfig1",
-            "properties": {
-              "privateIPAllocationMethod": "Dynamic",
-              "subnet": {
-                "id": "[concat(resourceId('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName')), '/subnets/', variables('subnetName'))]"
-              }
-            }
-          }
-        ],
-        "networkSecurityGroup": {
-          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgName'))]"
-        }
-      }
-    },
-    {
       "type": "Microsoft.Network/publicIPAddresses",
       "name": "[variables('pipName')]",
       "location": "[resourceGroup().location]",
@@ -463,21 +436,6 @@
       }
     },
     {
-      "type": "Microsoft.Network/publicIPAddresses",
-      "name": "[concat(variables('pipName'),'2')]",
-      "location": "[resourceGroup().location]",
-      "sku": {
-        "name": "Standard"
-      },
-      "apiVersion": "2017-08-01",
-      "properties": {
-        "publicIPAllocationMethod": "Static",
-        "dnsSettings": {
-          "domainNameLabel": "[concat(variables('namingInfix'),'2')]"
-        }
-      }
-    },
-    {
       "type": "Microsoft.Network/loadBalancers",
       "name": "[variables('lbName')]",
       "location": "[resourceGroup().location]",
@@ -486,8 +444,7 @@
         "name": "Standard"
       },
       "dependsOn": [
-        "[concat('Microsoft.Network/publicIPAddresses/', variables('pipName'))]",
-        "[concat('Microsoft.Network/publicIPAddresses/', variables('pipName'), '2')]"
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('pipName'))]"
       ],
       "tags": {
         "displayName": "Load Balancer"
@@ -501,22 +458,11 @@
                 "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('pipName'))]"
               }
             }
-          },
-          {
-            "name": "[concat(variables('feIpConfigName'),'2')]",
-            "properties": {
-              "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses', concat(variables('pipName'),'2'))]"
-              }
-            }
           }
         ],
         "backendAddressPools": [
           {
             "name": "[variables('bepoolName')]"
-          },
-          {
-            "name": "[concat(variables('bepoolName'),'2')]"
           }
         ],
         "inboundNatPools": [
@@ -529,18 +475,6 @@
               "protocol": "tcp",
               "frontendPortRangeStart": 10022,
               "frontendPortRangeEnd": 11022,
-              "backendPort": 22
-            }
-          },
-          {
-            "name": "[concat(variables('natPoolName'),'2')]",
-            "properties": {
-              "frontendIPConfiguration": {
-                "id": "[concat(variables('feIpConfigId'),'2')]"
-              },
-              "protocol": "tcp",
-              "frontendPortRangeStart": 20022,
-              "frontendPortRangeEnd": 21022,
               "backendPort": 22
             }
           }
@@ -585,46 +519,6 @@
                 "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('lbName')), '/probes/', variables('httpsProbeName'))]"
               }
             }
-          },
-          {
-            "name": "HTTPRule2",
-            "properties": {
-              "loadDistribution": "Default",
-              "frontendIPConfiguration": {
-                "id": "[concat(variables('feIpConfigId'),'2')]"
-              },
-              "backendAddressPool": {
-                "id": "[concat(variables('bepoolID'),'2')]"
-              },
-              "protocol": "Tcp",
-              "frontendPort": 80,
-              "backendPort": 80,
-              "enableFloatingIP": false,
-              "idleTimeoutInMinutes": 5,
-              "probe": {
-                "id": "[concat(variables('lbId'), '/probes/', variables('httpProbeName'),'2')]"
-              }
-            }
-          },
-          {
-            "name": "HTTPSRule2",
-            "properties": {
-              "loadDistribution": "Default",
-              "frontendIPConfiguration": {
-                "id": "[concat(variables('feIpConfigId'),'2')]"
-              },
-              "backendAddressPool": {
-                "id": "[concat(variables('bepoolID'),'2')]"
-              },
-              "protocol": "Tcp",
-              "frontendPort": 443,
-              "backendPort": 443,
-              "enableFloatingIP": false,
-              "idleTimeoutInMinutes": 5,
-              "probe": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('lbName')), '/probes/', variables('httpsProbeName'),'2')]"
-              }
-            }
           }
         ],
         "probes": [
@@ -640,25 +534,6 @@
           },
           {
             "name": "[variables('httpsProbeName')]",
-            "properties": {
-              "protocol": "Tcp",
-              "port": 443,
-              "intervalInSeconds": 60,
-              "numberOfProbes": 5
-            }
-          },
-          {
-            "name": "[concat(variables('httpProbeName'),'2')]",
-            "properties": {
-              "protocol": "Http",
-              "requestPath": "/artifactory/api/system/ping",
-              "port": 80,
-              "intervalInSeconds": 60,
-              "numberOfProbes": 5
-            }
-          },
-          {
-            "name": "[concat(variables('httpsProbeName'),'2')]",
             "properties": {
               "protocol": "Tcp",
               "port": 443,
@@ -803,7 +678,7 @@
   ],
   "outputs": {
     "fqdn": {
-      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses',concat(variables('pipName'),'2')),'2016-03-30').dnsSettings.fqdn]",
+      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses',variables('pipName')),'2016-03-30').dnsSettings.fqdn]",
       "type": "string"
     }
   }
