@@ -49,7 +49,7 @@
     },
     "joinKey": {
       "type": "string",
-      "defaultValue": "08f74049607a3103e126e1c232c7a30c",
+      "defaultValue": "abcdef1234567890abcdef1234567890",
       "metadata": {
         "description": "Join key for Artifactory cluster. Generate join.key using command '$openssl rand -hex 16'"
       },
