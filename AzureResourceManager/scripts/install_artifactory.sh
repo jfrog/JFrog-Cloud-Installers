@@ -9,7 +9,7 @@ STORAGE_ACCT_KEY=$(cat /var/lib/cloud/instance/user-data.txt | grep "^STO_ACT_KE
 ARTIFACTORY_EDITION=$(cat /var/lib/cloud/instance/user-data.txt | grep "^ARTIFACTORY_EDITION=" | sed "s/ARTIFACTORY_EDITION=//")
 ARTIFACTORY_VERSION=$(cat /var/lib/cloud/instance/user-data.txt | grep "^ARTIFACTORY_VERSION=" | sed "s/ARTIFACTORY_VERSION=//")
 MASTER_KEY=$(cat /var/lib/cloud/instance/user-data.txt | grep "^MASTER_KEY=" | sed "s/MASTER_KEY=//")
-JOIN_KEY=$(cat /var/lib/cloud/instance/user-data.txt | grep "^JOIN_KEY=" | sed "s/JOIN_KEY=//")
+JFROG_JOIN_KEY=$(cat /var/lib/cloud/instance/user-data.txt | grep "^JOIN_KEY=" | sed "s/JOIN_KEY=//")
 IS_PRIMARY=$(cat /var/lib/cloud/instance/user-data.txt | grep "^IS_PRIMARY=" | sed "s/IS_PRIMARY=//")
 ARTIFACTORY_LICENSE_1=$(cat /var/lib/cloud/instance/user-data.txt | grep "^LICENSE1=" | sed "s/LICENSE1=//")
 ARTIFACTORY_LICENSE_2=$(cat /var/lib/cloud/instance/user-data.txt | grep "^LICENSE2=" | sed "s/LICENSE2=//")
@@ -195,7 +195,7 @@ ${MASTER_KEY}
 EOF
 
 cat <<EOF >/var/opt/jfrog/artifactory/etc/security/join.key
-${JOIN_KEY}
+${JFROG_JOIN_KEY}
 EOF
 
 cat <<EOF >/var/opt/jfrog/artifactory/etc/binarystore.xml
