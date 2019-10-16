@@ -194,9 +194,9 @@ cat <<EOF >/var/opt/jfrog/artifactory/etc/security/master.key
 ${MASTER_KEY}
 EOF
 
-cat <<EOF >/var/opt/jfrog/artifactory/etc/security/join.key
-${JFROG_JOIN_KEY}
-EOF
+#cat <<EOF >/var/opt/jfrog/artifactory/etc/security/join.key
+#${JFROG_JOIN_KEY}
+#EOF
 
 cat <<EOF >/var/opt/jfrog/artifactory/etc/binarystore.xml
 <config version="2">
