@@ -526,7 +526,7 @@
             "name": "[variables('httpProbeName')]",
             "properties": {
               "protocol": "Http",
-              "requestPath": "/artifactory/api/system/ping",
+              "requestPath": "/artifactory/webapp/",
               "port": 80,
               "intervalInSeconds": 60,
               "numberOfProbes": 5

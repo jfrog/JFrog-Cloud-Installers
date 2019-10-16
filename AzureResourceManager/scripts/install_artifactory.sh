@@ -19,6 +19,10 @@ ARTIFACTORY_LICENSE_5=$(cat /var/lib/cloud/instance/user-data.txt | grep "^LICEN
 PRIVATE_REPO_USERNAME=$(cat /var/lib/cloud/instance/user-data.txt | grep "^PRIVATE_REPO_USERNAME=" | sed "s/PRIVATE_REPO_USERNAME=//")
 PRIVATE_REPO_APIKEY=$(cat /var/lib/cloud/instance/user-data.txt | grep "^PRIVATE_REPO_APIKEY=" | sed "s/PRIVATE_REPO_APIKEY=//")
 
+#disable firewalld, also disable selinux. Both block traffic from load balancer. 
+systemctl stop firewalld
+setenforce Permissive
+
 # install the wget and curl
 yum -y install wget curl>> /tmp/install-curl.log 2>&1
 
