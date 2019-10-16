@@ -184,6 +184,7 @@ hazelcast.interface=172.25.0.3
 primary=${IS_PRIMARY}
 EOF
 
+if [ "DB_URL" != "" ]; then
 cat <<EOF >/var/opt/jfrog/artifactory/etc/db.properties
 type=mssql
 driver=com.microsoft.sqlserver.jdbc.SQLServerDriver
@@ -191,6 +192,7 @@ url=${DB_URL};databaseName=${DB_NAME};sendStringParametersAsUnicode=false;applic
 username=${DB_USER}
 password=${DB_PASSWORD}
 EOF
+fi
 
 mkdir -p /var/opt/jfrog/artifactory/etc/security
 
@@ -198,9 +200,9 @@ cat <<EOF >/var/opt/jfrog/artifactory/etc/security/master.key
 ${MASTER_KEY}
 EOF
 
-#cat <<EOF >/var/opt/jfrog/artifactory/etc/security/join.key
-#${JFROG_JOIN_KEY}
-#EOF
+cat <<EOF >/var/opt/jfrog/artifactory/etc/security/join.key
+${JFROG_JOIN_KEY}
+EOF
 
 cat <<EOF >/var/opt/jfrog/artifactory/etc/binarystore.xml
 <config version="2">
