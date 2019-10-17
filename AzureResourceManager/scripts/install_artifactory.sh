@@ -175,6 +175,12 @@ ${ARTIFACTORY_LICENSE_4}
 ${ARTIFACTORY_LICENSE_5}
 EOF
 
+mkdir -p /var/opt/jfrog/artifactory/etc/security
+
+cat <<EOF >/var/opt/jfrog/artifactory/etc/security/master.key
+${MASTER_KEY}
+EOF
+
 # in case of JCR or OSS, use non-ha mode, also use derby
 # since we do not have jcr yet, and I am using pro to test it, I am adding pro here, 
 # eventually pro should be removed from following if statement
@@ -195,17 +201,11 @@ url=${DB_URL};databaseName=${DB_NAME};sendStringParametersAsUnicode=false;applic
 username=${DB_USER}
 password=${DB_PASSWORD}
 EOF
-fi
-
-mkdir -p /var/opt/jfrog/artifactory/etc/security
-
-cat <<EOF >/var/opt/jfrog/artifactory/etc/security/master.key
-${MASTER_KEY}
-EOF
 
 cat <<EOF >/var/opt/jfrog/artifactory/etc/security/join.key
 ${JFROG_JOIN_KEY}
 EOF
+fi
 
 cat <<EOF >/var/opt/jfrog/artifactory/etc/binarystore.xml
 <config version="2">
