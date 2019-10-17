@@ -184,7 +184,7 @@ hazelcast.interface=172.25.0.3
 primary=${IS_PRIMARY}
 EOF
 
-if [ "DB_URL" != "" ]; then
+if [ "${DB_NAME}" != "" ]; then
 cat <<EOF >/var/opt/jfrog/artifactory/etc/db.properties
 type=mssql
 driver=com.microsoft.sqlserver.jdbc.SQLServerDriver
@@ -247,15 +247,14 @@ cat <<EOF >/var/opt/jfrog/artifactory/etc/binarystore.xml
 EOF
 
 # callhome metadata
-
 mkdir -p /var/opt/jfrog/artifactory/etc/info
 cat <<EOF >/var/opt/jfrog/artifactory/etc/info/installer-info.json
 {
-  "productId": "JFrogInstaller_ARM/1.0.0",
+  "productId": "JFrogInstaller_Azure_MP_JCR/1.0.0",
   "features": [
-  {
-    "featureId": "SQLServer"
-  }
+    {
+      "featureId": "${ARTIFACTORY_EDITION}-${ARTIFACTORY_VERSION}"
+    }
   ]
 }
 EOF
