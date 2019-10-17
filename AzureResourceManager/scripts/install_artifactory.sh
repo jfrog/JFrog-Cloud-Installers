@@ -175,6 +175,10 @@ ${ARTIFACTORY_LICENSE_4}
 ${ARTIFACTORY_LICENSE_5}
 EOF
 
+# in case of JCR or OSS, use non-ha mode, also use derby
+# since we do not have jcr yet, and I am using pro to test it, I am adding pro here, 
+# eventually pro should be removed from following if statement
+if [[ "${ARTIFACTORY_EDITION}" != "jfrog-artifactory-pro" && "${ARTIFACTORY_EDITION}" != "jfrog-artifactory-jcr" && "${ARTIFACTORY_EDITION}" != "jfrog-artifactory-oss" ]]; then
 cat <<EOF >/var/opt/jfrog/artifactory/etc/ha-node.properties
 node.id=art1
 artifactory.ha.data.dir=/var/opt/jfrog/artifactory/data
@@ -184,7 +188,6 @@ hazelcast.interface=172.25.0.3
 primary=${IS_PRIMARY}
 EOF
 
-if [ "${DB_NAME}" != "" ]; then
 cat <<EOF >/var/opt/jfrog/artifactory/etc/db.properties
 type=mssql
 driver=com.microsoft.sqlserver.jdbc.SQLServerDriver
