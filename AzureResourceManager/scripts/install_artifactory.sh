@@ -181,10 +181,9 @@ cat <<EOF >/var/opt/jfrog/artifactory/etc/security/master.key
 ${MASTER_KEY}
 EOF
 
-# in case of JCR or OSS, use non-ha mode, also use derby
-# since we do not have jcr yet, and I am using pro to test it, I am adding pro here, 
-# eventually pro should be removed from following if statement
-if [[ "${ARTIFACTORY_EDITION}" != "jfrog-artifactory-pro" && "${ARTIFACTORY_EDITION}" != "jfrog-artifactory-jcr" && "${ARTIFACTORY_EDITION}" != "jfrog-artifactory-oss" ]]; then
+# in case of JCR or OSS, use non-ha mode, also use derby, also do not create binary store xml
+# begin HA specific setup
+if [[ "${ARTIFACTORY_EDITION}" != "jfrog-artifactory-jcr" && "${ARTIFACTORY_EDITION}" != "jfrog-artifactory-oss" ]]; then
 cat <<EOF >/var/opt/jfrog/artifactory/etc/ha-node.properties
 node.id=art1
 artifactory.ha.data.dir=/var/opt/jfrog/artifactory/data
@@ -205,7 +204,6 @@ EOF
 cat <<EOF >/var/opt/jfrog/artifactory/etc/security/join.key
 ${JFROG_JOIN_KEY}
 EOF
-fi
 
 cat <<EOF >/var/opt/jfrog/artifactory/etc/binarystore.xml
 <config version="2">
@@ -248,6 +246,8 @@ cat <<EOF >/var/opt/jfrog/artifactory/etc/binarystore.xml
     </provider>
 </config>
 EOF
+fi
+# end HA specific setup
 
 # callhome metadata
 mkdir -p /var/opt/jfrog/artifactory/etc/info

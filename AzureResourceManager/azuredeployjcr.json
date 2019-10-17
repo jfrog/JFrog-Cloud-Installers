@@ -27,7 +27,7 @@
     },
     "artifactoryEdition": {
       "type": "string",
-      "defaultValue": "jfrog-artifactory-pro",
+      "defaultValue": "jfrog-artifactory-oss",
       "metadata": {
         "description": "Artifactory edition to deploy. Supported editions are jfrog-artifactory-pro and jfrog-artifactory-jcr."
       }
