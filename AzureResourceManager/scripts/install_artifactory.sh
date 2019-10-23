@@ -122,6 +122,27 @@ EOF
 
 rm /etc/nginx/conf.d/default.conf
 
+cat <<EOF >/var/opt/jfrog/artifactory/etc/artifactory.cluster.license
+${ARTIFACTORY_LICENSE_1}
+
+${ARTIFACTORY_LICENSE_2}
+
+${ARTIFACTORY_LICENSE_3}
+
+${ARTIFACTORY_LICENSE_4}
+
+${ARTIFACTORY_LICENSE_5}
+EOF
+
+mkdir -p /var/opt/jfrog/artifactory/etc/security
+
+cat <<EOF >/var/opt/jfrog/artifactory/etc/security/master.key
+${MASTER_KEY}
+EOF
+
+# in case of JCR or OSS, use non-ha mode, also use derby, also do not create binary store xml
+if [[ "${ARTIFACTORY_EDITION}" != "jfrog-artifactory-jcr" && "${ARTIFACTORY_EDITION}" != "jfrog-artifactory-oss" ]]; then
+# begin HA specific setup
 cat <<EOF >/etc/nginx/conf.d/artifactory.conf
 ssl_certificate      /etc/pki/tls/certs/cert.pem;
 ssl_certificate_key  /etc/pki/tls/private/cert.key;
@@ -163,27 +184,6 @@ server {
 }
 EOF
 
-cat <<EOF >/var/opt/jfrog/artifactory/etc/artifactory.cluster.license
-${ARTIFACTORY_LICENSE_1}
-
-${ARTIFACTORY_LICENSE_2}
-
-${ARTIFACTORY_LICENSE_3}
-
-${ARTIFACTORY_LICENSE_4}
-
-${ARTIFACTORY_LICENSE_5}
-EOF
-
-mkdir -p /var/opt/jfrog/artifactory/etc/security
-
-cat <<EOF >/var/opt/jfrog/artifactory/etc/security/master.key
-${MASTER_KEY}
-EOF
-
-# in case of JCR or OSS, use non-ha mode, also use derby, also do not create binary store xml
-# begin HA specific setup
-if [[ "${ARTIFACTORY_EDITION}" != "jfrog-artifactory-jcr" && "${ARTIFACTORY_EDITION}" != "jfrog-artifactory-oss" ]]; then
 cat <<EOF >/var/opt/jfrog/artifactory/etc/ha-node.properties
 node.id=art1
 artifactory.ha.data.dir=/var/opt/jfrog/artifactory/data
@@ -246,8 +246,51 @@ cat <<EOF >/var/opt/jfrog/artifactory/etc/binarystore.xml
     </provider>
 </config>
 EOF
-fi
 # end HA specific setup
+
+else
+# begin JCR specific setup
+
+cat <<EOF >/etc/nginx/conf.d/artifactory.conf
+ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
+ssl_certificate      /etc/pki/tls/certs/cert.pem;
+ssl_certificate_key  /etc/pki/tls/private/cert.key;
+ssl_session_cache shared:SSL:1m;
+ssl_prefer_server_ciphers   on;
+## server configuration
+server {
+  listen 443 ssl;
+  listen 80 ;
+  server_name ~(?<repo>.+)\\.${CERTIFICATE_DOMAIN} artifactory ${ARTIFACTORY_SERVER_NAME}.${CERTIFICATE_DOMAIN} ${CERTIFICATE_DOMAIN};
+  if (\$http_x_forwarded_proto = '') {
+    set \$http_x_forwarded_proto  \$scheme;
+  }
+  ## Application specific logs
+  ## access_log /var/log/nginx/artifactory-access.log timing;
+  ## error_log /var/log/nginx/artifactory-error.log;
+  rewrite ^/$ /artifactory/webapp/ redirect;
+  rewrite ^/artifactory/?(/webapp)?$ /artifactory/webapp/ redirect;
+
+  rewrite ^/(v2)/(.*) /artifactory/\$1/\$2;
+
+  chunked_transfer_encoding on;
+  client_max_body_size 0;
+  location /artifactory/ {
+    proxy_read_timeout  900;
+    proxy_pass_header   Server;
+    proxy_cookie_path   ~*^/.* /;
+    proxy_pass          http://127.0.0.1:8081/;
+    proxy_set_header    X-Artifactory-Override-Base-Url \$http_x_forwarded_proto://127.0.0.1:8081/artifactory;
+    proxy_set_header    X-Forwarded-Port  \$server_port;
+    proxy_set_header    X-Forwarded-Proto \$http_x_forwarded_proto;
+    proxy_set_header    Host              \$http_host;
+    proxy_set_header    X-Forwarded-For   \$proxy_add_x_forwarded_for;
+   }
+}
+EOF
+
+# end JCR specific setup
+fi
 
 # callhome metadata
 mkdir -p /var/opt/jfrog/artifactory/etc/info
