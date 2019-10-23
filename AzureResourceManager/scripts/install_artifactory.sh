@@ -279,7 +279,7 @@ server {
     proxy_read_timeout  900;
     proxy_pass_header   Server;
     proxy_cookie_path   ~*^/.* /;
-    proxy_pass          http://127.0.0.1:8081/;
+    proxy_pass          http://127.0.0.1:8081/artifactory/;
     proxy_set_header    X-Artifactory-Override-Base-Url \$http_x_forwarded_proto://127.0.0.1:8081/artifactory;
     proxy_set_header    X-Forwarded-Port  \$server_port;
     proxy_set_header    X-Forwarded-Proto \$http_x_forwarded_proto;
