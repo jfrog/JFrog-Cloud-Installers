@@ -23,13 +23,6 @@ PRIVATE_REPO_APIKEY=$(cat /var/lib/cloud/instance/user-data.txt | grep "^PRIVATE
 systemctl stop firewalld
 setenforce Permissive
 
-# install the wget and curl
-
-yum -y install wget curl>> /tmp/install-curl.log 2>&1
-
-yum -y install java-1.8.0-openjdk >> /tmp/install-java.log 2>&1
-#yum -y install java-11-openjdk >> /tmp/install-java.log 2>&1
-
 #Generate Self-Signed Cert
 mkdir -p /etc/pki/tls/private/ /etc/pki/tls/certs/
 openssl req -nodes -x509 -newkey rsa:4096 -keyout /etc/pki/tls/private/example.key -out /etc/pki/tls/certs/example.pem -days 356 -subj "/C=US/ST=California/L=SantaClara/O=IT/CN=*.localhost"
@@ -38,37 +31,6 @@ setenforce 0
 sed -i -e "s/SELINUX=.*/SELINUX=permissive/" /etc/sysconfig/selinux
 wget https://bintray.com/jfrog/artifactory-pro-rpms/rpm -O bintray-jfrog-artifactory-pro-rpms.repo
 mv bintray-jfrog-artifactory-pro-rpms.repo /etc/yum.repos.d/
-
-#add private repo
-if [ "PRIVATE_REPO_USERNAME" != "" ]; then
-echo "adding private repo"
-cat > /etc/yum.repos.d/solengha-jfrog-artifactory7-rpms.repo <<EOF
-[artifactory]
-name: solengha--jfrog-artifactory-rpm-private
-description: solengha--jfrog-artifactory-rpm-private
-baseurl=https://solengha.jfrog.io/solengha/artifactory-rpm-private/
-gpgcheck=0
-enabled=1
-username=${PRIVATE_REPO_USERNAME}
-password=${PRIVATE_REPO_APIKEY}
-EOF
-fi
-
-yum -y install ${ARTIFACTORY_EDITION}-${ARTIFACTORY_VERSION} >> /tmp/install-artifactory.log 2>&1
-
-cat > /etc/yum.repos.d/nginx.repo <<EOF
-[nginx]
-name=nginx repo
-baseurl=http://nginx.org/packages/mainline/rhel/7/\$basearch/
-gpgcheck=0
-enabled=1
-EOF
-yum -y install nginx>> /tmp/install-nginx.log 2>&1
-
-#Install database drivers
-curl -L -o  /opt/jfrog/artifactory/tomcat/lib/mysql-connector-java-5.1.38.jar https://bintray.com/artifact/download/bintray/jcenter/mysql/mysql-connector-java/5.1.38/mysql-connector-java-5.1.38.jar
-curl -L -o  /opt/jfrog/artifactory/tomcat/lib/mssql-jdbc-6.2.1.jre8.jar https://bintray.com/artifact/download/bintray/jcenter/com/microsoft/sqlserver/mssql-jdbc/6.2.1.jre8/mssql-jdbc-6.2.1.jre8.jar
-curl -L -o  /opt/jfrog/artifactory/tomcat/lib/postgresql-9.4.1212.jar https://jdbc.postgresql.org/download/postgresql-9.4.1212.jar
 
 CERTIFICATE_DOMAIN=$(cat /var/lib/cloud/instance/user-data.txt | grep "^CERTIFICATE_DOMAIN=" | sed "s/CERTIFICATE_DOMAIN=//")
 [ -z "$CERTIFICATE_DOMAIN" ] && CERTIFICATE_DOMAIN=artifactory
@@ -123,17 +85,6 @@ EOF
 
 rm /etc/nginx/conf.d/default.conf
 
-cat <<EOF >/var/opt/jfrog/artifactory/etc/artifactory.cluster.license
-${ARTIFACTORY_LICENSE_1}
-
-${ARTIFACTORY_LICENSE_2}
-
-${ARTIFACTORY_LICENSE_3}
-
-${ARTIFACTORY_LICENSE_4}
-
-${ARTIFACTORY_LICENSE_5}
-EOF
 
 mkdir -p /var/opt/jfrog/artifactory/etc/security
 
@@ -142,114 +93,6 @@ ${MASTER_KEY}
 EOF
 
 # in case of JCR or OSS, use non-ha mode, also use derby, also do not create binary store xml
-if [[ "${ARTIFACTORY_EDITION}" != "jfrog-artifactory-jcr" && "${ARTIFACTORY_EDITION}" != "jfrog-artifactory-oss" ]]; then
-# begin HA specific setup
-cat <<EOF >/etc/nginx/conf.d/artifactory.conf
-ssl_certificate      /etc/pki/tls/certs/cert.pem;
-ssl_certificate_key  /etc/pki/tls/private/cert.key;
-ssl_session_cache shared:SSL:1m;
-ssl_prefer_server_ciphers   on;
-## server configuration
-server {
-  listen 443 ssl;
-  listen 80 ;
-  server_name ~(?<repo>.+)\\.${CERTIFICATE_DOMAIN} artifactory ${ARTIFACTORY_SERVER_NAME}.${CERTIFICATE_DOMAIN} ${CERTIFICATE_DOMAIN};
-  if (\$http_x_forwarded_proto = '') {
-    set \$http_x_forwarded_proto  \$scheme;
-  }
-  ## Application specific logs
-  ## access_log /var/log/nginx/artifactory-access.log timing;
-  ## error_log /var/log/nginx/artifactory-error.log;
-  rewrite ^/$ /artifactory/webapp/ redirect;
-  rewrite ^/artifactory/?(/webapp)?$ /artifactory/webapp/ redirect;
-  if ( \$repo != "" ) {
-        rewrite ^/(v1|v2)/(.*) /artifactory/api/docker/\$repo/\$1/\$2;
-  }
-  chunked_transfer_encoding on;
-  client_max_body_size 0;
-  location / {
-    proxy_read_timeout  2400;
-    proxy_pass_header   Server;
-    proxy_cookie_path   ~*^/.* /;
-	if ( \$request_uri ~ ^/artifactory/(.*)\$ ) {
-	  proxy_pass       http://127.0.0.1:8081/artifactory/\$1;
-	}
-    proxy_pass          http://127.0.0.1:8081/;
-    proxy_set_header    X-Artifactory-Override-Base-Url
-    \$http_x_forwarded_proto://\$host:\$server_port/artifactory;
-    proxy_set_header    X-Forwarded-Port  \$server_port;
-    proxy_set_header    X-Forwarded-Proto \$http_x_forwarded_proto;
-    proxy_set_header    Host              \$http_host;
-    proxy_set_header    X-Forwarded-For   \$proxy_add_x_forwarded_for;
-   }
-}
-EOF
-
-cat <<EOF >/var/opt/jfrog/artifactory/etc/ha-node.properties
-node.id=art1
-artifactory.ha.data.dir=/var/opt/jfrog/artifactory/data
-context.url=http://127.0.0.1:8081/artifactory
-membership.port=10001
-hazelcast.interface=172.25.0.3
-primary=${IS_PRIMARY}
-EOF
-
-cat <<EOF >/var/opt/jfrog/artifactory/etc/db.properties
-type=mssql
-driver=com.microsoft.sqlserver.jdbc.SQLServerDriver
-url=${DB_URL};databaseName=${DB_NAME};sendStringParametersAsUnicode=false;applicationName=Artifactory Binary Repository
-username=${DB_USER}
-password=${DB_PASSWORD}
-EOF
-
-cat <<EOF >/var/opt/jfrog/artifactory/etc/security/join.key
-${JFROG_JOIN_KEY}
-EOF
-
-cat <<EOF >/var/opt/jfrog/artifactory/etc/binarystore.xml
-<config version="2">
-    <chain>
-       <provider id="cache-fs-eventual-azure-blob-storage" type="cache-fs">
-           <provider id="sharding-cluster-eventual-azure-blob-storage" type="sharding-cluster">
-               <sub-provider id="eventual-cluster-azure-blob-storage" type="eventual-cluster">
-                   <provider id="retry-azure-blob-storage" type="retry">
-                       <provider id="azure-blob-storage" type="azure-blob-storage"/>
-                   </provider>
-               </sub-provider>
-               <dynamic-provider id="remote-azure-blob-storage" type="remote"/>
-           </provider>
-       </provider>
-   </chain>
-
-    <!-- cluster eventual Azure Blob Storage Service default chain -->
-    <provider id="sharding-cluster-eventual-azure-blob-storage" type="sharding-cluster">
-        <readBehavior>crossNetworkStrategy</readBehavior>
-        <writeBehavior>crossNetworkStrategy</writeBehavior>
-        <redundancy>2</redundancy>
-        <lenientLimit>1</lenientLimit>
-        <property name="zones" value="local,remote"/>
-    </provider>
-
-    <provider id="remote-azure-blob-storage" type="remote">
-        <zone>remote</zone>
-    </provider>
-
-    <provider id="eventual-cluster-azure-blob-storage" type="eventual-cluster">
-        <zone>local</zone>
-    </provider>
-
-    <!--cluster eventual template-->
-    <provider id="azure-blob-storage" type="azure-blob-storage">
-        <accountName>${STORAGE_ACCT}</accountName>
-        <accountKey>${STORAGE_ACCT_KEY}</accountKey>
-        <endpoint>https://${STORAGE_ACCT}.blob.core.windows.net/</endpoint>
-        <containerName>${STORAGE_CONTAINER}</containerName>
-    </provider>
-</config>
-EOF
-# end HA specific setup
-
-else
 # begin JCR specific setup
 
 cat <<EOF >/etc/nginx/conf.d/artifactory.conf
@@ -292,7 +135,7 @@ server {
 EOF
 
 # end JCR specific setup
-fi
+
 
 # callhome metadata
 mkdir -p /var/opt/jfrog/artifactory/etc/info
