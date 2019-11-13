@@ -24,6 +24,7 @@ systemctl stop firewalld
 setenforce Permissive
 
 # install the wget and curl
+
 yum -y install wget curl>> /tmp/install-curl.log 2>&1
 
 yum -y install java-1.8.0-openjdk >> /tmp/install-java.log 2>&1
