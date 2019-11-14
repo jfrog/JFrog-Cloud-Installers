@@ -24,7 +24,10 @@ systemctl stop firewalld
 setenforce Permissive
 
 # install the wget and curl
-apt -y install wget curl>> /tmp/install-curl.log 2>&1
+yum -y install wget curl>> /tmp/install-curl.log 2>&1
+
+yum -y install java-1.8.0-openjdk >> /tmp/install-java.log 2>&1
+#yum -y install java-11-openjdk >> /tmp/install-java.log 2>&1
 
 #Generate Self-Signed Cert
 mkdir -p /etc/pki/tls/private/ /etc/pki/tls/certs/
@@ -34,6 +37,32 @@ setenforce 0
 sed -i -e "s/SELINUX=.*/SELINUX=permissive/" /etc/sysconfig/selinux
 wget https://bintray.com/jfrog/artifactory-pro-rpms/rpm -O bintray-jfrog-artifactory-pro-rpms.repo
 mv bintray-jfrog-artifactory-pro-rpms.repo /etc/yum.repos.d/
+
+#add private repo
+if [ "PRIVATE_REPO_USERNAME" != "" ]; then
+echo "adding private repo"
+cat > /etc/yum.repos.d/solengha-jfrog-artifactory7-rpms.repo <<EOF
+[artifactory]
+name: solengha--jfrog-artifactory-rpm-private
+description: solengha--jfrog-artifactory-rpm-private
+baseurl=https://solengha.jfrog.io/solengha/artifactory-rpm-private/
+gpgcheck=0
+enabled=1
+username=${PRIVATE_REPO_USERNAME}
+password=${PRIVATE_REPO_APIKEY}
+EOF
+fi
+
+yum -y install ${ARTIFACTORY_EDITION}-${ARTIFACTORY_VERSION} >> /tmp/install-artifactory.log 2>&1
+
+cat > /etc/yum.repos.d/nginx.repo <<EOF
+[nginx]
+name=nginx repo
+baseurl=http://nginx.org/packages/mainline/rhel/7/\$basearch/
+gpgcheck=0
+enabled=1
+EOF
+yum -y install nginx>> /tmp/install-nginx.log 2>&1
 
 #Install database drivers
 curl -L -o  /opt/jfrog/artifactory/tomcat/lib/mysql-connector-java-5.1.38.jar https://bintray.com/artifact/download/bintray/jcenter/mysql/mysql-connector-java/5.1.38/mysql-connector-java-5.1.38.jar
@@ -177,7 +206,7 @@ server {
   chunked_transfer_encoding on;
   client_max_body_size 0;
   location /artifactory/ {
-    proxy_read_timeout  900;
+    proxy_read_timeout  2400;
     proxy_pass_header   Server;
     proxy_cookie_path   ~*^/.* /;
 
