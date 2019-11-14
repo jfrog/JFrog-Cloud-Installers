@@ -169,6 +169,50 @@
         "description": "Setting Java Memory Parameters for Artifactory. Learn about system requirements for Artifactory https://www.jfrog.com/confluence/display/RTF/System+Requirements#SystemRequirements-RecommendedHardware."
       }
     },
+    "DB_Admin_User": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "artifactory",
+      "metadata": {
+        "description": "Database Admin user name"
+      }
+    },
+    "DB_Admin_Password": {
+      "type": "securestring",
+      "minLength": 1,
+      "defaultValue": "jFrog123",
+      "metadata": {
+        "description": "Database Admin password"
+      }
+    },
+    "DB_Name": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "artdb",
+      "metadata": {
+        "description": "Database name"
+      }
+    },
+    "DB_Edition": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "Basic",
+      "allowedValues": [
+        "Basic",
+        "Standard",
+        "Premium"
+      ],
+      "metadata": {
+        "description": "Database Edition"
+      }
+    },
+    "DB_Location": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Database location. Default to resource group location if blank."
+      }
+    },
     "_artifactsLocation": {
       "type": "string",
       "metadata": {
@@ -208,6 +252,11 @@
     "storageAccountType": "Standard_LRS",
     "vmStorageAccountContainerName": "filestore",
     "azureSqlServerName": "[concat(variables('namingInfix'), 'sqlsrv')]",
+    "DB_Name": "[parameters('DB_Name')]",
+    "DB_Admin_User": "[parameters('DB_Admin_User')]",
+    "DB_Admin_Password": "[parameters('DB_Admin_Password')]",
+    "DB_Edition": "[parameters('DB_Edition')]",
+    "DB_Location": "[parameters('DB_Location')]",
     "artifactoryEdition": "[parameters('artifactoryEdition')]",
     "artifactoryVersion": "[parameters('artifactoryVersion')]",
     "masterKey": "[parameters('masterKey')]",
@@ -232,6 +281,8 @@
     },
     "apiVersion": "2015-06-15",
     "imageReference": "[variables('osType')]",
+    "dbTemplate": "azureDBDeploy.json",
+    "dbTemplateLocation": "[concat(parameters('_artifactsLocation'), 'nested', '/', variables('dbTemplate'))]",
     "nsgName": "[concat(variables('namingInfix'), 'nsg')]"
   },
   "resources": [
@@ -503,6 +554,38 @@
       }
     },
     {
+      "type": "Microsoft.Resources/deployments",
+      "name": "deploySQLDB",
+      "apiVersion": "2014-04-01",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('dbTemplateLocation')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "db_user": {
+            "value": "[parameters('DB_Admin_User')]"
+          },
+          "db_password": {
+            "value": "[parameters('DB_Admin_Password')]"
+          },
+          "db_server": {
+            "value": "[variables('azureSqlServerName')]"
+          },
+          "db_name": {
+            "value": "[parameters('DB_Name')]"
+          },
+          "db_edition": {
+            "value": "[parameters('DB_Edition')]"
+          },
+          "db_location": {
+            "value": "[parameters('DB_Location')]"
+          }
+        }
+      }
+    },
+    {
       "type": "Microsoft.Compute/virtualMachineScaleSets",
       "name": "[variables('scaleSetName')]",
       "location": "[resourceGroup().location]",
@@ -510,6 +593,7 @@
       "dependsOn": [
         "[concat('Microsoft.Network/loadBalancers/', variables('lbName'))]",
         "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
+        "[concat('Microsoft.Resources/deployments/', 'deploySQLDB')]",
         "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]"
       ],
       "sku": {
@@ -535,7 +619,7 @@
             "computerNamePrefix": "[variables('namingInfix')]",
             "adminUsername": "[parameters('adminUsername')]",
             "adminPassword": "[parameters('adminPassword')]",
-            "customData": "[base64(concat('#INSTALL SCRIPT INPUTS\nCERTIFICATE_KEY=',parameters('certificateKey'),'\nCERTIFICATE=', parameters('certificate'),'\nCERTIFICATE_DOMAIN=',parameters('certificateDomain'),'\nPRIVATE_REPO_USERNAME=',parameters('privateRepoUsername'),'\nPRIVATE_REPO_APIKEY=',parameters('privateRepoApiKey'),'\nARTIFACTORY_SERVER_NAME=',parameters('artifactoryServerName'),'\nEXTRA_JAVA_OPTS=',parameters('extraJavaOptions'),'\nSTO_ACT_NAME=',variables('storageAccountName'),'\nSTO_CTR_NAME=',variables('vmStorageAccountContainerName'),'\nSTO_ACT_KEY=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), variables('apiVersion')).key1,'\nARTIFACTORY_EDITION=',variables('artifactoryEdition'),'\nARTIFACTORY_VERSION=',variables('artifactoryVersion'),'\nMASTER_KEY=',variables('masterKey'),'\nJOIN_KEY=',variables('joinKey'),'\nIS_PRIMARY=','true','\nLICENSE1=',variables('artifactoryLicense1'),'\nLICENSE2=',variables('artifactoryLicense2'),'\nLICENSE3=',variables('artifactoryLicense3'),'\nLICENSE4=',variables('artifactoryLicense4'),'\nLICENSE5=',variables('artifactoryLicense5'),'\n'))]"
+            "customData": "[base64(concat('#INSTALL SCRIPT INPUTS\nCERTIFICATE_KEY=',parameters('certificateKey'),'\nCERTIFICATE=', parameters('certificate'),'\nCERTIFICATE_DOMAIN=',parameters('certificateDomain'),'\nPRIVATE_REPO_USERNAME=',parameters('privateRepoUsername'),'\nPRIVATE_REPO_APIKEY=',parameters('privateRepoApiKey'),'\nARTIFACTORY_SERVER_NAME=',parameters('artifactoryServerName'),'\nEXTRA_JAVA_OPTS=',parameters('extraJavaOptions'),'\nJDBC_STR=',reference('Microsoft.Resources/deployments/deploySQLDB').outputs.jdbcConnString.value,'\nDB_NAME=',variables('DB_Name'),'\nDB_ADMIN_USER=',variables('DB_Admin_User'),'\nDB_ADMIN_PASSWD=',variables('DB_Admin_Password'),'\nSTO_ACT_NAME=',variables('storageAccountName'),'\nSTO_CTR_NAME=',variables('vmStorageAccountContainerName'),'\nSTO_ACT_KEY=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), variables('apiVersion')).key1,'\nARTIFACTORY_EDITION=',variables('artifactoryEdition'),'\nARTIFACTORY_VERSION=',variables('artifactoryVersion'),'\nMASTER_KEY=',variables('masterKey'),'\nJOIN_KEY=',variables('joinKey'),'\nIS_PRIMARY=','true','\nLICENSE1=',variables('artifactoryLicense1'),'\nLICENSE2=',variables('artifactoryLicense2'),'\nLICENSE3=',variables('artifactoryLicense3'),'\nLICENSE4=',variables('artifactoryLicense4'),'\nLICENSE5=',variables('artifactoryLicense5'),'\n'))]"
           },
           "networkProfile": {
             "networkInterfaceConfigurations": [
