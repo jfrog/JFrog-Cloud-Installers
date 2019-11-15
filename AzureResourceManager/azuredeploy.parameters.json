@@ -3,7 +3,7 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "vmSku": {
-      "value": "Standard_A1_v2"
+      "value": "Standard_A2_v2"
     },
     "rhelOSsku": {
       "value": "7-RAW-CI"
@@ -13,9 +13,6 @@
     },
     "clusterName": {
       "value": "GEN-UNIQUE"
-    },
-    "nodeCount": {
-      "value": 1
     },
     "adminUsername": {
       "value": "GEN-UNIQUE"

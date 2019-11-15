@@ -1,76 +1,53 @@
-# Setup Artifactory Enterprise
+# Setup JFrog Container Registry
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FJFrogDev%2FJFrog-Cloud-Installers%2Fmaster%2FAzureResourceManager%2Fazuredeploy.json" target="_blank">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FJFrogDev%2FJFrog-Cloud-Installers%2Farm-jcr-non-ha%2FAzureResourceManager%2FmainTemplate.json" target="_blank">
 <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
-<a href="http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2FJFrogDev%2FJFrog-Cloud-Installers%2Fmaster%2FAzureResourceManager%2Fazuredeploy.json" target="_blank">
+<a href="http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2FJFrogDev%2FJFrog-Cloud-Installers%2Farm-jcr-non-ha%2FAzureResourceManager%2FmainTemplate.json" target="_blank">
 <img src="http://armviz.io/visualizebutton.png"/>
 </a>
 
-This template can help you setup the [Artifactory Enterprise](https://jfrog.com/artifactory) on Azure.
+This template can help you setup the [JFrog Container Registry](https://www.jfrog.com/confluence/display/JCR/Welcome+to+JFrog+Container+Registry) on Azure.
 
-## A. Deploy Artifactory Enterprise on Azure
-![screenshot](images/HA_Diagram.png)
+## A. Deploy JFrog Container Registry on Azure
 
+1. Click the "Deploy to Azure" button.
 
-1. Click "Deploy to Azure" button. If you haven't got an Azure subscription, it will guide you on how to signup for a free trial.
+2. Fill out the settings. Make sure to provide a valid SSL certificate. If using no certificate or one that is self-signed, see [Docker's documentation on client configuration](https://docs.docker.com/registry/insecure/).
 
-2. Enter a valid values to parameters. At least 1 license has to be provided.
-
-
-![screenshot](images/Parameters.png)
-
-3. Click on Purchase to start deploying resources. It will deploy MsSQL database, Azure Blob storage container, VM installing Nginx and Artifactory and Load balancer.
+3. Click on "Purchase" to start deploying resources. It will deploy:
+    * Microsoft SQL database
+    * Azure Blob storage service
+    * A VM with NGINX and JFrog Container Registry
+    * Azure Load Balancer
 
 4. Once deployment is done. Copy FQDN from Output of deployment template.
 
 5. Access artifactory using FQDN. 
 
-6. You will see specified artifactory member nodes in 'Admin ->  High Availability' page.
-
 ### Note: 
-1. This template only supports Artifactory version 5.8.x and above.
-2. Turn off daily backups.  Read Documentation provided [here](https://www.jfrog.com/confluence/display/RTF/Managing+Backups)
-3. Use SSL Certificate with valid wild card to you artifactory as docker registry with subdomain method.
-4. Input values for 'adminUsername' and 'adminPassword' parameters needs to follow azure VM access rules.
-5. One primary node is configured automatically. And, Minimum 1 member node is expected for the Artifactory HA installation.
-6. This template provides support for max 5 licenses. To add more licenses, Edit the template (input fields, CustomScript sections) and install_artifactory.sh script.
-7. Refer to [System Requirements](https://www.jfrog.com/confluence/display/RTF/System+Requirements) for changing 'extraJavaOptions' input parameter value. 
+1. Turn off daily backups.  Read Documentation provided [here](https://www.jfrog.com/confluence/display/RTF/Managing+Backups)
+2. Add an SSL Certificate to access Docker without using the insecure option
+3. Input values for 'adminUsername' and 'adminPassword' parameters needs to follow azure VM access rules.
+4. Refer to [System Requirements](https://www.jfrog.com/confluence/display/RTF/System+Requirements) for changing 'extraJavaOptions' input parameter value. 
 
 ### Steps to setup Artifactory as secure docker registry
-considering you have SSL certificate for `*.jfrog.team`
+You will need a valid SSL certificate for a domain name (for example, artifactory.jfrog.team)
 1. Pass your SSL Certificate in parameter `Certificate` as string
 2. Pass your SSL Certificate Key in parameter `CertificateKey` as string
-3. Set `CertificateDomain` as `jfrog.team`
-4. Set `ArtifactoryServerName` as `artifactory` if you want to access artifactory with `https://artifactory.jfrog.team`
-5. Create DNS record with entry `artifactory.jfrog.team` pointing to load balancer value provided as output in template deployment.
-6. Create DNS record with entry `*.jfrog.team` pointing to load balancer value provided as output in template deployment.
-7. If you have virtual docker registry with name `docker-virtual` in artifactory. You can access it via `docker-virtual.jfrog.team`
-   e.g ```docker pull docker-virtual.jfrog.team/nginx```
+3. Create DNS record with an entry that matches your domain name pointing to the load balancer value provided as output in template deployment.
+4. You should now be able to access any docker registry using the path method.
+    * Login: `docker login  [domain name]` in our example, that would be `docker login artifactory.jfrog.team`
+    * Pull/Push to a particular repository: `docker pull [domain name]/[repository name]/[image name]:[tag]`
+        * Example with our domain, pull from repository `docker-local`, the `latest` `busybox` image
+        * `docker pull artifactory.jfrog.team/docker-local/busybox:latest`
 
 ### Steps to upgrade Artifactory Version
 
-1. Login into Primary VM instance and sudo as root. Use the admin credentials provided in the install setup.  
+1. Login into the VM instance and sudo as root. Use the admin credentials provided in the install setup.  
 Note: Use load balancer's NAT entries under Azure resources, to get the allocated NAT port for accessing the VM instance.
 
-2. Stop nginx and artifactory services.
-    ```
-    service nginx stop
-    service artifactory stop
-    ```
-
-3. Upgrade artifactory with following apt-get install command.
-    ```
-    apt-get update
-    apt-get -y install jfrog-artifactory-pro=${ARTIFACTORY_VERSION}
-    ```
-4. Start artifactory and nginx services.
-    ```
-    service artifactory start
-    service nginx start
-    ```
-5. Repeat above steps for all member nodes.
-
+2. Upgrade artifactory with following [RPM instructions](https://www.jfrog.com/confluence/display/JCR/Upgrading+JFrog+Container+Registry#UpgradingJFrogContainerRegistry-RPMInstallation).
 ------
 #### Note:
 Supported locations: `East US 2`, `Central US`, `West Central US` and `West Europe`.  

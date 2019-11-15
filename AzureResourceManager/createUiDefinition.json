@@ -100,16 +100,13 @@
             "label": "Virtual machine size",
             "toolTip": "The size of the virtual machine for Artifactory",
             "recommendedSizes": [
-              "Standard_A1_v2"
+              "Standard_A2_v2"
             ],
             "constraints": {
               "allowedSizes": [
-                "Standard_A1_v2",
                 "Standard_A2_v2",
                 "Standard_D2s_v3",
-                "Standard_DS1_v2",
                 "Standard_DS2_v2",
-                "Standard_D1_v2",
                 "Standard_D2_v2",
                 "Standard_DC2s",
                 "Standard_E2s_v3"
