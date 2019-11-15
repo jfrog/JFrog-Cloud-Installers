@@ -55,6 +55,7 @@
             "label": "Private Repo username",
             "osPlatform": "Linux",
             "constraints": {
+              "required": false,
               "regex": "^[a-z0-9A-Z]{1,30}$",
               "validationMessage": "Only alphanumeric characters are allowed, and the value must be 1-30 characters long."
             },
@@ -66,6 +67,7 @@
             "label": "Private Repo api key",
             "osPlatform": "Linux",
             "constraints": {
+              "required": false,
               "regex": "^[a-z0-9A-Z]{1,100}$",
               "validationMessage": "Only alphanumeric characters are allowed, and the value must be 1-100 characters long."
             },
