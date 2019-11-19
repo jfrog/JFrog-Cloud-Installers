@@ -20,14 +20,14 @@
       "type": "string",
       "defaultValue": "jfrog-artifactory-jcr",
       "metadata": {
-        "description": "Artifactory edition to deploy. Supported editions are jfrog-artifactory-pro and jfrog-artifactory-jcr."
+        "description": "Artifactory edition to deploy. Supported edition is jfrog-artifactory-jcr."
       }
     },
     "artifactoryVersion": {
       "type": "string",
-      "defaultValue": "6.2.0",
+      "defaultValue": "6.15.0",
       "metadata": {
-        "description": "Artifactory -vm image version to deploy. Supported from 5.8.0 and above."
+        "description": "Artifactory -vm image version to deploy. Supported from 6.15.0 and above."
       }
     },
     "masterKey": {

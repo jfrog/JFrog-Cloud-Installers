@@ -222,7 +222,7 @@ EOF
 mkdir -p /var/opt/jfrog/artifactory/etc/info
 cat <<EOF >/var/opt/jfrog/artifactory/etc/info/installer-info.json
 {
-  "productId": "JFrogInstaller_Azure_MP_JCR",
+  "productId": "JFrogInstaller_AzureMP/${ARTIFACTORY_VERSION}",
   "features": [
     {
       "featureId": "ArtifactoryVersion/${ARTIFACTORY_EDITION}-${ARTIFACTORY_VERSION}"
@@ -258,5 +258,5 @@ sleep $((RANDOM % 120))
 service artifactory start
 service nginx start
 nginx -s reload
-echo "INFO: Artifactory installation completed."
+echo "INFO: Artifactory JCR installation completed."
 
