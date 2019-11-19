@@ -1,0 +1,70 @@
+[
+    {
+        "ParameterKey": "KeyPairName",
+        "ParameterValue": "$[taskcat_getkeypair]"
+    },
+    {
+        "ParameterKey": "RemoteAccessCIDR",
+        "ParameterValue": "10.0.0.0/16"
+    },
+    {
+        "ParameterKey": "AccessCIDR",
+        "ParameterValue": "10.0.0.0/16"
+    },
+    {
+        "ParameterKey": "AvailabilityZones",
+        "ParameterValue": "$[taskcat_genaz_3]"
+    },
+    {
+        "ParameterKey": "DatabasePassword",
+        "ParameterValue": "$[taskcat_genpass_8A]"
+    },
+    {
+        "ParameterKey": "QSS3BucketName",
+        "ParameterValue": "$[taskcat_autobucket]"
+    },
+    {
+        "ParameterKey": "QSS3KeyPrefix",
+        "ParameterValue": "quickstart-jfrog-artifactory/"
+    },
+    {
+        "ParameterKey": "SMLicensesName",
+        "ParameterValue": "jfrog-artifactory"
+    },
+    {
+        "ParameterKey": "DatabaseInstance",
+        "ParameterValue": "db.t3.medium"
+    },
+    {
+        "ParameterKey": "ArtifactoryVersion",
+        "ParameterValue": "6.15.0"
+    },
+    {
+        "ParameterKey": "CertificateDomain",
+        "ParameterValue": "localdomain"
+    },
+    {
+        "ParameterKey": "MasterKey",
+        "ParameterValue": "1ce2be4490ca2c662cb79636cf9b7b8e"
+    },
+    {
+        "ParameterKey": "Certificate",
+        "ParameterValue": "-----BEGIN CERTIFICATE-----\nMIIFaDCCA1ACCQD45dB5tZFvCDANBgkqhkiG9w0BAQsFADB2MQswCQYDVQQGEwJV\nUzELMAkGA1UECAwCQ0ExEjAQBgNVBAcMCVN1bm55dmFsZTEOMAwGA1UECgwFSkZy\nb2cxFDASBgNVBAsMC0FydGlmYWN0b3J5MSAwHgYDVQQDDBdhcnRpZmFjdG9yeS5s\nb2NhbGRvbWFpbjAeFw0xOTA3MjMyMzE4MjVaFw0yMDA3MjIyMzE4MjVaMHYxCzAJ\nBgNVBAYTAlVTMQswCQYDVQQIDAJDQTESMBAGA1UEBwwJU3Vubnl2YWxlMQ4wDAYD\nVQQKDAVKRnJvZzEUMBIGA1UECwwLQXJ0aWZhY3RvcnkxIDAeBgNVBAMMF2FydGlm\nYWN0b3J5LmxvY2FsZG9tYWluMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKC\nAgEA0b3OgTFKkNbXXHzPv3l9IqX7fFZcfS2ZMD4mBuNlGQ6kyyraeoKKiVdkOgQV\n/dwDxLeW6y+637J2KBiZTccHUS8/eC5ky9E6ECeFToCYsucUKRiWo9Uss6XS1N+Q\nKQHktCVYy+KFDkJIVEL6LFbUMLz0k1jOhI/FRveT8LQ9cZsfy8KIrCF92ErcdPSL\n02KO6RgaBjxRFtAw2ZdO07O9kcKBC5BpJdrEnJHalVJsJbZOqIuNjyKKp/8s9TtW\nEYhXAbz05RrdQ97Cse1a/rHR5EWL+ITRw3Q/mQUv/ilSrSxb+chtgGb0qdP7aV0h\nLOuxttQFFU2o62LHqnda6dWljxKpSYUz47ugCK0M4T2bRhy7lUgmZ3PcfZYLE2ue\nh1qIJfkDfi1WpbptJAs4MbgfTvF2FCAsh8tyFnl+TA5QBWLRcOF9y1qUAATa1JKX\nzKGf/5hExBRpuq371j4SLAb5qXYUuQqZiCe3O6qTx2Wo/jAOPV49wfK9D9fW5qmq\nND1Rpp8sKjlb2ixm7dhCWyWV+iGHpzX5tjBW35rikAisUoap47I1fNzYMiSTvbhv\n2+by2YY8jsiYRCRIAKzRbgOgDOXnYVtWFpLgUldMqWqo+X3LztYE8CxD0CQK5u12\nGxM5ztXKEaitCqUSjY34Gl4owukA9tzGnu09OuAYGkxVBO0CAwEAATANBgkqhkiG\n9w0BAQsFAAOCAgEATH4kyuKvZtq32b3I7yZ27Xp2yaxABs17g0jAzkv7o9GILo+3\ncVAJS2warQti+c+A2edjqEc97JXb6ul7/SHs7B9B0P4BZSUsI0byuPlQ45Kht891\njz3SF1o6jpKTniQPqsulMMshmYB6oY6CIyvKpaMaG3DypEXFmwEU7CdWr7oVISkn\npU6N6fI+V94Wzd1yHL8Jm/ixP4lqBAZqDhxNRq/Vok94wu2jvWwPIn2M+9myAiOs\nTSpcqLg8Vn70XkK5uuN1UXYU5QDo78GEZpOj7YfCxVjB43Ct/sEiu3iB0GzyEvq6\njlv07H9PyLjYeM7CuhZdgULBqEWbqNhO5XL/QJMYG06kXkT3GiWFP8pjnQRcJM4Z\nqQv8fOTDTuX5GumXKctXJwc7y9uywoIPwffEKlGuofWhihy8r/YXu2BgShDF3zYV\n1RAHVcWtPT5IqejpRZX5LdL4Hr2eCeUkcVCo7qqYLEwxFnQNG1nMrJJ2ewnlzPac\nJNNPRXgTDF3OkbON+3Wn/H0ndqIoqapHXSlkR54Stsk9yjHuaJ9TCANw2mxMDzf0\nRGw9ecirjpzQdP9jT/zK9X4kqFc0T3P6qN3X3s/OPPbroassRk/eqI/oMS6lNcQm\ny+SvRUrdtzKgmAfVE5yMLTVG0cZM4gWJ35DZHHqWnrbFEg7C0NLzoYc6yeQ=\n-----END CERTIFICATE-----"
+    },
+    {
+        "ParameterKey": "CertificateKey",
+        "ParameterValue": "-----BEGIN PRIVATE KEY-----\n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\n2YpoPnf204ak0AcDNZX257FnjRltUg==\n-----END PRIVATE KEY-----"
+    },
+    {
+        "ParameterKey": "CertificateDomain",
+        "ParameterValue": "localdomain"
+    },
+    {
+        "ParameterKey": "PrivateRepoUsername",
+        "ParameterValue": ""
+    },
+    {
+        "ParameterKey": "PrivateRepoApiKey",
+        "ParameterValue": ""
+    }
+]

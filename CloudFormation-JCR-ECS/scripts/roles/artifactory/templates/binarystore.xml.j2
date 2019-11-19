@@ -1,0 +1,38 @@
+<config version="2">
+    <chain>        <!--template="cluster-s3"-->
+        <provider id="cache-fs-eventual-s3" type="cache-fs">
+            <provider id="sharding-cluster-eventual-s3" type="sharding-cluster">
+                <sub-provider id="eventual-cluster-s3" type="eventual-cluster">
+                    <provider id="retry-s3" type="retry">
+                        <provider id="s3" type="s3"/>
+                    </provider>
+                </sub-provider>
+                <dynamic-provider id="remote-s3" type="remote"/>
+            </provider>
+        </provider>
+    </chain>
+
+    <provider id="sharding-cluster-eventual-s3" type="sharding-cluster">
+        <readBehavior>crossNetworkStrategy</readBehavior>
+        <writeBehavior>crossNetworkStrategy</writeBehavior>
+        <redundancy>2</redundancy>
+        <lenientLimit>1</lenientLimit>
+        <property name="zones" value="local,remote"/>
+    </provider>
+
+    <provider id="remote-s3" type="remote">
+        <zone>remote</zone>
+    </provider>
+
+    <provider id="eventual-cluster-s3" type="eventual-cluster">
+        <zone>local</zone>
+    </provider>
+
+    <provider id="s3" type="s3">
+        <endpoint>{{ s3_endpoint }}</endpoint>
+        <identity>{{ s3_access_key }}</identity>
+        <credential>{{  s3_access_secret_key }}</credential>
+        <bucketName>{{ s3_bucket }}</bucketName>
+        <property name="s3service.server-side-encryption" value="AES256"/>
+    </provider>
+</config>
