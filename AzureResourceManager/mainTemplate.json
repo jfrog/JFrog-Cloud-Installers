@@ -4,7 +4,7 @@
   "parameters": {
     "vmSku": {
       "type": "string",
-      "defaultValue": "Standard_A1_v2",
+      "defaultValue": "Standard_A2_v2",
       "metadata": {
         "description": "Size of VMs in the VM Scale Set."
       }
@@ -627,9 +627,9 @@
         }
       }
     },
-    { // add this resource to the resources section in the mainTemplate.json (do not add the entire file)
-      "apiVersion": "2018-02-01",
-      "name": "pid-04c1c376-5d4b-4771-9a7f-054f5910dcef", // use your generated GUID here
+    {
+      "apiVersion": "2015-01-01",
+      "name": "pid-04c1c376-5d4b-4771-9a7f-054f5910dcef",
       "type": "Microsoft.Resources/deployments",
       "properties": {
           "mode": "Incremental",

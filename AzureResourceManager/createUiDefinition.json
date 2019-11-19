@@ -107,11 +107,15 @@
             "constraints": {
               "allowedSizes": [
                 "Standard_A2_v2",
+                "Standard_A4_v2",
                 "Standard_D2s_v3",
+                "Standard_D4s_v3",
                 "Standard_DS2_v2",
+                "Standard_DS3_v2",
                 "Standard_D2_v2",
+                "Standard_D3_v2",
                 "Standard_DC2s",
-                "Standard_E2s_v3"
+                "Standard_DC4s"
               ]
             },
             "osPlatform": "Linux",
@@ -203,7 +207,7 @@
             "name": "extraJavaOptions",
             "type": "Microsoft.Common.TextBox",
             "label": "Setting Java Memory Parameters for Artifactory",
-            "defaultValue": "-server -Xms2g -Xmx12g -Xss256k -XX:+UseG1GC -XX:OnOutOfMemoryError=\\\"kill -9 %p\\\"",
+            "defaultValue": "-server -Xms512m -Xmx2g -Xss256k -XX:+UseG1GC -XX:OnOutOfMemoryError=\\\"kill -9 %p\\\"",
             "toolTip": "Setting Java Memory Parameters for Artifactory. Learn about system requirements for Artifactory https://www.jfrog.com/confluence/display/RTF/System+Requirements#SystemRequirements-RecommendedHardware.",
             "constraints": {
               "required": true,
