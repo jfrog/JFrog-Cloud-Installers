@@ -17,7 +17,7 @@ JFrog Container Registry can be installed into either an ECS or EKS cluster.
 To simply get up and running, you can try:
 
 ```docker run -d -p 8081:8081 <image-url>```
-After this, you can access the UI at <URL>:8081. The default username is 'admin'. See 'Getting or setting initial password' to find out how to get the initial password.
+After this, you can access the UI at \<URL\>:8081. The default username is 'admin'. See 'Getting or setting initial password' to find out how to get the initial password.
 
 ### Getting or setting initial password
 If no initial password is provided for the default user 'admin', one will be generated and saved to the container at '/var/opt/jfrog/artifactory/generated-pass.txt'. 
