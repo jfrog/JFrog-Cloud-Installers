@@ -1,10 +1,11 @@
 {
-  "$schema": "http://schema.management.azure.com/schemas/2019-08-01/deploymentTemplate.json#",
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "db_user": {
       "type": "string",
-      "minLength": 1
+      "minLength": 1,
+      "defaultValue": "artifactory"
     },
     "db_password": {
       "type": "securestring",
@@ -34,9 +35,9 @@
     }
   },
   "variables": {
-    "apiVersion": "2018-06-01-preview",
+    "apiVersion": "2015-05-01-preview",
     "rtdbCollation": "Latin1_General_100_CS_AS",
-    "db_location": "[parameters('db_location')]"
+    "db_location": "[if(equals(parameters('db_location'), ''), resourceGroup().location, parameters('db_location'))]"
   },
   "resources": [
     {
