@@ -252,8 +252,8 @@
     "artifactoryLicense5": "[parameters('artifactoryLicense5')]",
     "osType": {
       "publisher": "jfrog",
-      "offer": "artifactory-vm",
-      "sku": "artifactory-vm",
+      "offer": "[parameters('offerName')]",
+      "sku": "[parameters('sku')]",
       "version": "[parameters('artifactoryVersion')]"
     },
     "imageReference": "[variables('osType')]",
@@ -725,9 +725,9 @@
         "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]"
       ],
       "plan": {
-        "name": "artifactory-vm",
+        "name": "[parameters('offerName')]",
         "publisher": "jfrog",
-        "product": "artifactory-vm"
+        "product": "[parameters('sku')]"
       },
       "sku": {
         "name": "[parameters('vmSku')]",
@@ -822,9 +822,9 @@
         "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]"
       ],
       "plan": {
-        "name": "artifactory-vm",
+        "name": "[parameters('offerName')]",
         "publisher": "jfrog",
-        "product": "artifactory-vm"
+        "product": "[parameters('sku')]"
       },
       "sku": {
         "name": "[parameters('vmSku')]",

@@ -2,6 +2,15 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
+    "vmSku": {
+      "value": "Standard_A2_v2"
+    },
+    "rhelOSsku": {
+      "value": "7-RAW-CI"
+    },
+    "rhelOSVersion": {
+      "value": "7.6.2019072418"
+    },
     "clusterName": {
       "value": "GEN-UNIQUE"
     },
@@ -11,23 +20,29 @@
     "adminPassword": {
       "value": "GEN-PASSWORD"
     },
-    "DB_Admin_User": {
-      "value": "GEN-UNIQUE"
+    "artifactoryEdition": {
+      "value": "jfrog-artifactory-jcr"
     },
-    "DB_Admin_Password": {
-      "value": "GEN-PASSWORD"
+    "offerName": {
+      "value": "jfrogcontainerregistry-vm"
     },
-    "DB_Name": {
-      "value": "GEN-UNIQUE"
+    "sku": {
+      "value": "artifactory-jcr"
+    },
+    "artifactoryVersion": {
+      "value": "6.15.0"
     },
     "masterKey": {
       "value": "35767fa0164bac66b6cccb8880babefb"
     },
-    "artifactoryLicense1": {
-      "value": "GEN-UNIQUE"
+    "joinKey": {
+      "value": "abcdef1234567890abcdef1234567890"
     },
-    "artifactoryLicense2": {
-      "value": "GEN-UNIQUE"
+    "privateRepoUsername": {
+      "value": ""
+    },
+    "privateRepoApiKey": {
+      "value": ""
     }
   }
 }
