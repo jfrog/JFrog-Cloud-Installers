@@ -11,8 +11,6 @@ ARTIFACTORY_VERSION=$(cat /var/lib/cloud/instance/user-data.txt | grep "^ARTIFAC
 MASTER_KEY=$(cat /var/lib/cloud/instance/user-data.txt | grep "^MASTER_KEY=" | sed "s/MASTER_KEY=//")
 JFROG_JOIN_KEY=$(cat /var/lib/cloud/instance/user-data.txt | grep "^JOIN_KEY=" | sed "s/JOIN_KEY=//")
 IS_PRIMARY=$(cat /var/lib/cloud/instance/user-data.txt | grep "^IS_PRIMARY=" | sed "s/IS_PRIMARY=//")
-PRIVATE_REPO_USERNAME=$(cat /var/lib/cloud/instance/user-data.txt | grep "^PRIVATE_REPO_USERNAME=" | sed "s/PRIVATE_REPO_USERNAME=//")
-PRIVATE_REPO_APIKEY=$(cat /var/lib/cloud/instance/user-data.txt | grep "^PRIVATE_REPO_APIKEY=" | sed "s/PRIVATE_REPO_APIKEY=//")
 
 #disable firewalld, also disable selinux. Both block traffic from load balancer. 
 systemctl stop firewalld
@@ -32,21 +30,8 @@ setenforce 0
 sed -i -e "s/SELINUX=.*/SELINUX=permissive/" /etc/sysconfig/selinux
 wget https://bintray.com/jfrog/artifactory-pro-rpms/rpm -O bintray-jfrog-artifactory-pro-rpms.repo
 mv bintray-jfrog-artifactory-pro-rpms.repo /etc/yum.repos.d/
-
-#add private repo
-if [ "PRIVATE_REPO_USERNAME" != "" ]; then
-echo "adding private repo"
-cat > /etc/yum.repos.d/solengha-jfrog-artifactory7-rpms.repo <<EOF
-[artifactory]
-name: solengha--jfrog-artifactory-rpm-private
-description: solengha--jfrog-artifactory-rpm-private
-baseurl=https://solengha.jfrog.io/solengha/artifactory-rpm-private/
-gpgcheck=0
-enabled=1
-username=${PRIVATE_REPO_USERNAME}
-password=${PRIVATE_REPO_APIKEY}
-EOF
-fi
+wget https://bintray.com/jfrog/artifactory-rpms/rpm     -O bintray-jfrog-artifactory-rpms.repo;
+mv bintray-jfrog-artifactory-rpms.repo    /etc/yum.repos.d/
 
 yum -y install ${ARTIFACTORY_EDITION}-${ARTIFACTORY_VERSION} >> /tmp/install-artifactory.log 2>&1
 

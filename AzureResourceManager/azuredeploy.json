@@ -25,7 +25,7 @@
     },
     "artifactoryVersion": {
       "type": "string",
-      "defaultValue": "6.15.0",
+      "defaultValue": "6.16.0",
       "metadata": {
         "description": "Artifactory -vm image version to deploy. Supported from 6.15.0 and above."
       }

@@ -94,22 +94,6 @@
         "description": "Provide your Certificate Domain Name. For e.g jfrog.team for certificate with *.jfrog.team"
       }
     },
-    "privateRepoUsername": {
-      "type": "string",
-      "minLength": 0,
-      "defaultValue": "",
-      "metadata":  {
-        "description": "Username to include for private RPM repository"
-      }
-    },
-    "privateRepoApiKey": {
-      "type": "string",
-      "minLength": 0,
-      "defaultValue": "",
-      "metadata":  {
-        "description": "Api Key for private RPM repository"
-      }
-    },
     "artifactoryServerName": {
       "type": "string",
       "minLength": 1,
@@ -175,7 +159,7 @@
       "metadata": {
         "description": "The base URI where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
       },
-      "defaultValue": "https://raw.githubusercontent.com/JFrogDev/JFrog-Cloud-Installers/arm-rhel-rpm-vms/AzureResourceManager/"
+      "defaultValue": "https://raw.githubusercontent.com/jfrog/JFrog-Cloud-Installers/master/JFrogContainerRegistry/AzureResourceManager/"
     },
     "_artifactsLocationSasToken": {
       "type": "securestring",
@@ -221,8 +205,6 @@
     "certificate": "[parameters('certificate')]",
     "certificateKey": "[parameters('certificateKey')]",
     "certificateDomain": "[parameters('certificateDomain')]",
-    "privateRepoUsername": "[parameters('privateRepoUsername')]",
-    "privateRepoApiKey": "[parameters('privateRepoApiKey')]",
     "artifactoryServerName": "[parameters('artifactoryServerName')]",
     "extraJavaOptions": "[parameters('extraJavaOptions')]",
     "osType": {
@@ -571,7 +553,7 @@
             "computerNamePrefix": "[variables('namingInfix')]",
             "adminUsername": "[parameters('adminUsername')]",
             "adminPassword": "[parameters('adminPassword')]",
-            "customData": "[base64(concat('#INSTALL SCRIPT INPUTS\nCERTIFICATE_KEY=',parameters('certificateKey'),'\nCERTIFICATE=', parameters('certificate'),'\nCERTIFICATE_DOMAIN=',parameters('certificateDomain'),'\nPRIVATE_REPO_USERNAME=',parameters('privateRepoUsername'),'\nPRIVATE_REPO_APIKEY=',parameters('privateRepoApiKey'),'\nARTIFACTORY_SERVER_NAME=',parameters('artifactoryServerName'),'\nEXTRA_JAVA_OPTS=',parameters('extraJavaOptions'),'\nJDBC_STR=',reference('Microsoft.Resources/deployments/deploySQLDB').outputs.jdbcConnString.value,'\nDB_NAME=',variables('DB_Name'),'\nDB_ADMIN_USER=',variables('DB_Admin_User'),'\nDB_ADMIN_PASSWD=',variables('DB_Admin_Password'),'\nSTO_ACT_NAME=',variables('storageAccountName'),'\nSTO_CTR_NAME=',variables('vmStorageAccountContainerName'),'\nSTO_ACT_KEY=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), variables('apiVersion')).key1,'\nARTIFACTORY_EDITION=',variables('artifactoryEdition'),'\nARTIFACTORY_VERSION=',variables('artifactoryVersion'),'\nMASTER_KEY=',variables('masterKey'),'\nJOIN_KEY=',variables('joinKey'),'\nIS_PRIMARY=','true','\n'))]"
+            "customData": "[base64(concat('#INSTALL SCRIPT INPUTS\nCERTIFICATE_KEY=',parameters('certificateKey'),'\nCERTIFICATE=', parameters('certificate'),'\nCERTIFICATE_DOMAIN=',parameters('certificateDomain'),'\nARTIFACTORY_SERVER_NAME=',parameters('artifactoryServerName'),'\nEXTRA_JAVA_OPTS=',parameters('extraJavaOptions'),'\nJDBC_STR=',reference('Microsoft.Resources/deployments/deploySQLDB').outputs.jdbcConnString.value,'\nDB_NAME=',variables('DB_Name'),'\nDB_ADMIN_USER=',variables('DB_Admin_User'),'\nDB_ADMIN_PASSWD=',variables('DB_Admin_Password'),'\nSTO_ACT_NAME=',variables('storageAccountName'),'\nSTO_CTR_NAME=',variables('vmStorageAccountContainerName'),'\nSTO_ACT_KEY=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), variables('apiVersion')).key1,'\nARTIFACTORY_EDITION=',variables('artifactoryEdition'),'\nARTIFACTORY_VERSION=',variables('artifactoryVersion'),'\nMASTER_KEY=',variables('masterKey'),'\nJOIN_KEY=',variables('joinKey'),'\nIS_PRIMARY=','true','\n'))]"
           },
           "networkProfile": {
             "networkInterfaceConfigurations": [
