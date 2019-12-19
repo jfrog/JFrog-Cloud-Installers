@@ -245,11 +245,6 @@
     "certificateDomain": "[parameters('certificateDomain')]",
     "artifactoryServerName": "[parameters('artifactoryServerName')]",
     "extraJavaOptions": "[parameters('extraJavaOptions')]",
-    "artifactoryLicense1": "[parameters('artifactoryLicense1')]",
-    "artifactoryLicense2": "[parameters('artifactoryLicense2')]",
-    "artifactoryLicense3": "[parameters('artifactoryLicense3')]",
-    "artifactoryLicense4": "[parameters('artifactoryLicense4')]",
-    "artifactoryLicense5": "[parameters('artifactoryLicense5')]",
     "osType": {
       "publisher": "jfrog",
       "offer": "[parameters('offerName')]",

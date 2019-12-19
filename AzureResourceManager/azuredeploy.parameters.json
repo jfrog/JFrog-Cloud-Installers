@@ -11,6 +11,15 @@
     "adminPassword": {
       "value": "GEN-PASSWORD"
     },
+    "DB_Admin_User": {
+      "value": "GEN-UNIQUE"
+    },
+    "DB_Admin_Password": {
+      "value": "GEN-PASSWORD"
+    },
+    "DB_Name": {
+      "value": "GEN-UNIQUE"
+    },
     "artifactoryEdition": {
       "value": "jfrog-artifactory-jcr"
     },
