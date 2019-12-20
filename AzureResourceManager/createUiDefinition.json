@@ -78,62 +78,24 @@
             "label": "Virtual machine size",
             "toolTip": "The size of the virtual machine for Artifactory",
             "recommendedSizes": [
-              "Standard_D8s_v3"
+              "Standard_A2_v2"
             ],
             "constraints": {
               "allowedSizes": [
-                "Standard_A4",
-                "Standard_A3",
-                "Standard_D4s_v3",
-                "Standard_D8s_v3",
-                "Standard_D16s_v3",
-                "Standard_D32s_v3",
-                "Standard_DS3_v2",
-                "Standard_DS4_v2",
-                "Standard_D3_v2",
-                "Standard_D4_v2",
-                "Standard_D5_v2",
+                "Standard_A2_v2",
                 "Standard_A4_v2",
-                "Standard_A8_v2",
-                "Standard_DC4s",
-                "Standard_E4s_v3",
-                "Standard_E8s_v3",
-                "Standard_E16s_v3",
-                "Standard_E20s_v3",
-                "Standard_E32s_v3"
+                "Standard_D2s_v3",
+                "Standard_D4s_v3",
+                "Standard_DS2_v2",
+                "Standard_DS3_v2",
+                "Standard_D2_v2",
+                "Standard_D3_v2",
+                "Standard_DC2s",
+                "Standard_DC4s"
               ]
             },
             "osPlatform": "Linux",
             "count": 1
-          },
-          {
-            "name": "nodeCount",
-            "type": "Microsoft.Common.DropDown",
-            "label": "Number of additional VM instances for member Artifactory nodes. Minimum 1 node.(+1 primary = 2 node cluster)",
-            "defaultValue": "2",
-            "toolTip": "Number of Artifactory member nodes in cluster",
-            "constraints": {
-              "allowedValues": [
-                {
-                  "label": "1",
-                  "value": 1
-                },
-                {
-                  "label": "2",
-                  "value": 2
-                },
-                {
-                  "label": "3",
-                  "value": 3
-                },
-                {
-                  "label": "4",
-                  "value": 4
-                }
-              ],
-              "required": true
-            },
-            "visible": "true"
           },
           {
             "name": "artifactoryVersion",
@@ -228,7 +190,7 @@
             "name": "extraJavaOptions",
             "type": "Microsoft.Common.TextBox",
             "label": "Setting Java Memory Parameters for Artifactory",
-            "defaultValue": "-server -Xms2g -Xmx12g -Xss256k -XX:+UseG1GC -XX:OnOutOfMemoryError=\\\"kill -9 %p\\\"",
+            "defaultValue": "-server -Xms512m -Xmx2g -Xss256k -XX:+UseG1GC -XX:OnOutOfMemoryError=\\\"kill -9 %p\\\"",
             "toolTip": "Setting Java Memory Parameters for Artifactory. Learn about system requirements for Artifactory https://www.jfrog.com/confluence/display/RTF/System+Requirements#SystemRequirements-RecommendedHardware.",
             "constraints": {
               "required": true,
@@ -356,7 +318,6 @@
       "clusterName": "[steps('clusterConfig').clusterName]",
       "vmSku": "[steps('clusterConfig').vmSku]",
       "location": "[location()]",
-      "nodeCount": "[steps('clusterConfig').nodeCount]",
       "artifactoryVersion": "[steps('clusterConfig').artifactoryVersion]",
       "masterKey": "[steps('clusterConfig').masterKey]",
       "certificate": "[steps('clusterConfig').certificate]",
