@@ -154,6 +154,10 @@
                 {
                   "label": "6.8.0",
                   "value": "6.8.0"
+                },
+                {
+                  "label": "6.16.0",
+                  "value": "0.16.0"
                 }
               ],
               "required": true
@@ -170,61 +174,6 @@
               "required": true,
               "regex": "^[a-z0-9A-Z]{1,32}$",
               "validationMessage": "Only alphanumeric characters are allowed, and the value must be 1-32 characters long."
-            }
-          },
-          {
-            "name": "artifactoryLicense1",
-            "type": "Microsoft.Common.TextBox",
-            "label": "Artifactory Enterprise License.",
-            "toolTip": "Artifactory Enterprise License. Providing one license is mandatory",
-            "constraints": {
-              "required": true,
-              "regex": "^.{1,10000}",
-              "validationMessage": "Only Enterprise licenses are allowed."
-            }
-          },
-          {
-            "name": "artifactoryLicense2",
-            "type": "Microsoft.Common.TextBox",
-            "label": "Artifactory Enterprise License.",
-            "toolTip": "Artifactory Enterprise License. Providing one license is mandatory",
-            "constraints": {
-              "required": true,
-              "regex": "^.{1,10000}",
-              "validationMessage": "Only Enterprise licenses are allowed."
-            }
-          },
-          {
-            "name": "artifactoryLicense3",
-            "type": "Microsoft.Common.TextBox",
-            "label": "Artifactory Enterprise License.",
-            "toolTip": "Artifactory Enterprise License. Providing one license is mandatory",
-            "constraints": {
-              "required": false,
-              "regex": "^.{1,10000}",
-              "validationMessage": "Only Enterprise licenses are allowed."
-            }
-          },
-          {
-            "name": "artifactoryLicense4",
-            "type": "Microsoft.Common.TextBox",
-            "label": "Artifactory Enterprise License.",
-            "toolTip": "Artifactory Enterprise License. Providing one license is mandatory",
-            "constraints": {
-              "required": false,
-              "regex": "^.{1,10000}",
-              "validationMessage": "Only Enterprise licenses are allowed."
-            }
-          },
-          {
-            "name": "artifactoryLicense5",
-            "type": "Microsoft.Common.TextBox",
-            "label": "Artifactory Enterprise License.",
-            "toolTip": "Artifactory Enterprise License. Providing one license is mandatory",
-            "constraints": {
-              "required": false,
-              "regex": "^.{1,10000}",
-              "validationMessage": "Only Enterprise licenses are allowed."
             }
           },
           {
@@ -410,11 +359,6 @@
       "nodeCount": "[steps('clusterConfig').nodeCount]",
       "artifactoryVersion": "[steps('clusterConfig').artifactoryVersion]",
       "masterKey": "[steps('clusterConfig').masterKey]",
-      "artifactoryLicense1": "[steps('clusterConfig').artifactoryLicense1]",
-      "artifactoryLicense2": "[steps('clusterConfig').artifactoryLicense2]",
-      "artifactoryLicense3": "[steps('clusterConfig').artifactoryLicense3]",
-      "artifactoryLicense4": "[steps('clusterConfig').artifactoryLicense4]",
-      "artifactoryLicense5": "[steps('clusterConfig').artifactoryLicense5]",
       "certificate": "[steps('clusterConfig').certificate]",
       "certificateKey": "[steps('clusterConfig').certificateKey]",
       "certificateDomain": "[steps('clusterConfig').certificateDomain]",

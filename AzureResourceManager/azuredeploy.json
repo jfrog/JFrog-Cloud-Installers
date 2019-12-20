@@ -39,7 +39,9 @@
         "6.6.0",
         "6.6.1",
         "6.7.0",
-        "6.8.0"
+        "6.8.0",
+        "0.16.0",
+        "6.16.0"
       ],
       "metadata": {
         "description": "Artifactory-vm image version to deploy."
@@ -213,8 +215,8 @@
     "extraJavaOptions": "[parameters('extraJavaOptions')]",
     "osType": {
       "publisher": "jfrog",
-      "offer": "[parameters('offerName')]",
-      "sku": "[parameters('sku')]",
+      "offer": "jfrogcontainerregistry-vm",
+      "sku": "artifactory-jcr",
       "version": "[parameters('artifactoryVersion')]"
     },
     "imageReference": "[variables('osType')]",
@@ -686,9 +688,9 @@
         "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]"
       ],
       "plan": {
-        "name": "[parameters('offerName')]",
+        "offer": "jfrogcontainerregistry-vm",
         "publisher": "jfrog",
-        "product": "[parameters('sku')]"
+        "product": "artifactory-jcr"
       },
       "sku": {
         "name": "[parameters('vmSku')]",
@@ -783,9 +785,9 @@
         "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]"
       ],
       "plan": {
-        "name": "[parameters('offerName')]",
+        "offer": "jfrogcontainerregistry-vm",
         "publisher": "jfrog",
-        "product": "[parameters('sku')]"
+        "product": "artifactory-jcr"
       },
       "sku": {
         "name": "[parameters('vmSku')]",
