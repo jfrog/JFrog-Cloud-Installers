@@ -9,11 +9,7 @@ STORAGE_CONTAINER=$(cat /var/lib/cloud/instance/user-data.txt | grep "^STO_CTR_N
 STORAGE_ACCT_KEY=$(cat /var/lib/cloud/instance/user-data.txt | grep "^STO_ACT_KEY=" | sed "s/STO_ACT_KEY=//")
 MASTER_KEY=$(cat /var/lib/cloud/instance/user-data.txt | grep "^MASTER_KEY=" | sed "s/MASTER_KEY=//")
 IS_PRIMARY=$(cat /var/lib/cloud/instance/user-data.txt | grep "^IS_PRIMARY=" | sed "s/IS_PRIMARY=//")
-ARTIFACTORY_LICENSE_1=$(cat /var/lib/cloud/instance/user-data.txt | grep "^LICENSE1=" | sed "s/LICENSE1=//")
-ARTIFACTORY_LICENSE_2=$(cat /var/lib/cloud/instance/user-data.txt | grep "^LICENSE2=" | sed "s/LICENSE2=//")
-ARTIFACTORY_LICENSE_3=$(cat /var/lib/cloud/instance/user-data.txt | grep "^LICENSE3=" | sed "s/LICENSE3=//")
-ARTIFACTORY_LICENSE_4=$(cat /var/lib/cloud/instance/user-data.txt | grep "^LICENSE4=" | sed "s/LICENSE4=//")
-ARTIFACTORY_LICENSE_5=$(cat /var/lib/cloud/instance/user-data.txt | grep "^LICENSE5=" | sed "s/LICENSE5=//")
+
 
 UBUNTU_CODENAME=$(cat /etc/lsb-release | grep "^DISTRIB_CODENAME=" | sed "s/DISTRIB_CODENAME=//")
 
@@ -108,18 +104,6 @@ server {
     proxy_set_header    X-Forwarded-For   \$proxy_add_x_forwarded_for;
    }
 }
-EOF
-
-cat <<EOF >/var/opt/jfrog/artifactory/etc/artifactory.cluster.license
-${ARTIFACTORY_LICENSE_1}
-
-${ARTIFACTORY_LICENSE_2}
-
-${ARTIFACTORY_LICENSE_3}
-
-${ARTIFACTORY_LICENSE_4}
-
-${ARTIFACTORY_LICENSE_5}
 EOF
 
 HOSTNAME=$(ip route get 8.8.8.8 | awk '{print $NF; exit}')
