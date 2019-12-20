@@ -1,0 +1,13 @@
+global:
+  marketplace-ami: false
+  owner: quickstart-eng@amazon.com
+  qsname: quickstart-jfrog-artifactory
+  regions:
+    - us-west-2
+  reporting: true
+tests:
+  jfrog-artifactory-jcr6-eks:
+    parameter_input: jfrog-new-vpc-jcr6-eks.json
+    template_file: jfrog-jcr6-eks-master.template.yaml
+    regions:
+      - us-west-2
