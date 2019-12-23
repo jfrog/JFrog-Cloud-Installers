@@ -19,10 +19,6 @@ UBUNTU_CODENAME=$(cat /etc/lsb-release | grep "^DISTRIB_CODENAME=" | sed "s/DIST
 
 export DEBIAN_FRONTEND=noninteractive
 
-# install the wget and curl
-apt-get update
-apt-get -y install wget curl>> /tmp/install-curl.log 2>&1
-
 #Generate Self-Signed Cert
 mkdir -p /etc/pki/tls/private/ /etc/pki/tls/certs/
 openssl req -nodes -x509 -newkey rsa:4096 -keyout /etc/pki/tls/private/example.key -out /etc/pki/tls/certs/example.pem -days 356 -subj "/C=US/ST=California/L=SantaClara/O=IT/CN=*.localhost"
@@ -191,19 +187,6 @@ cat <<EOF >/var/opt/jfrog/artifactory/etc/binarystore.xml
 </config>
 EOF
 
-# callhome metadata
-
-mkdir -p /var/opt/jfrog/artifactory/etc/info
-cat <<EOF >/var/opt/jfrog/artifactory/etc/info/installer-info.json
-{
-  "productId": "JFrogInstaller_ARM/1.0.0",
-  "features": [
-  {
-    "featureId": "SQLServer"
-  }
-  ]
-}
-EOF
 
 HOSTNAME=$(hostname -i)
 sed -i -e "s/art1/art-$(date +%s$RANDOM)/" /var/opt/jfrog/artifactory/etc/ha-node.properties
