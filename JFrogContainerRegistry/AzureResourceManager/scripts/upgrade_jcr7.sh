@@ -238,7 +238,7 @@ rm /tmp/temp.key
 EXTRA_JAVA_OPTS=$(cat /var/lib/cloud/instance/user-data.txt | grep "^EXTRA_JAVA_OPTS=" | sed "s/EXTRA_JAVA_OPTS=//")
 [ -z "$EXTRA_JAVA_OPTS" ] && EXTRA_JAVA_OPTS='-server -Xms2g -Xmx6g -Xss256k -XX:+UseG1GC -XX:OnOutOfMemoryError="kill -9 %p"'
 echo "export JAVA_OPTIONS=\"${EXTRA_JAVA_OPTS}\"" >> /var/opt/jfrog/artifactory/etc/artifactory/default
-chown artifactory:artifactory -R /var/opt/jfrog/artifactory/*  && chown artifactory:artifactory -R /var/opt/jfrog/artifactory/etc/artifactory/security && chown artifactory:artifactory -R /var/opt/jfrog/artifactory/etc/* && chown -R artifactory:artifactory /opt/jfrog/artifactory/var
+chown artifactory:artifactory -R /var/opt/jfrog/artifactory/*  && chown artifactory:artifactory -R /var/opt/jfrog/artifactory/etc/artifactory/security && chown artifactory:artifactory -R /var/opt/jfrog/artifactory/etc/* && chown -R artifactory:artifactory /opt/jfrog/artifactory/var && chown -R artifactory:artifactory /var/opt/jfrog/artifactory
 
 # start Artifactory
 sleep $((RANDOM % 240))
