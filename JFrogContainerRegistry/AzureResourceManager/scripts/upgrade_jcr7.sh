@@ -10,11 +10,9 @@ STORAGE_ACCT_KEY=$(cat /var/lib/cloud/instance/user-data.txt | grep "^STO_ACT_KE
 MASTER_KEY=$(cat /var/lib/cloud/instance/user-data.txt | grep "^MASTER_KEY=" | sed "s/MASTER_KEY=//")
 IS_PRIMARY=$(cat /var/lib/cloud/instance/user-data.txt | grep "^IS_PRIMARY=" | sed "s/IS_PRIMARY=//")
 PRIVATE_REPO_USERNAME=$(cat /var/lib/cloud/instance/user-data.txt | grep "^PRIVATE_REPO_USERNAME=" | sed "s/PRIVATE_REPO_USERNAME=//")
-PRIVATE_REPO_APIKEY=$(cat /var/lib/cloud/instance/user-data.txt | grep "^PRIVATE_REPO_APIKEY=" | sed "s/PRIVATE_REPO_APIKEY=//")
+PRIVATE_REPO_APIKEY=$(cat /var/lib/cloud/instance/user-data.txt | grep "^KERMIT_RESOURCES_APIKEY=" | sed "s/KERMIT_RESOURCES_APIKEY=//")
 RT7_VERSION=$(cat /var/lib/cloud/instance/user-data.txt | grep "^RT7_VERSION=" | sed "s/RT7_VERSION=//")
 
-
-UBUNTU_CODENAME=$(cat /etc/lsb-release | grep "^DISTRIB_CODENAME=" | sed "s/DISTRIB_CODENAME=//")
 
 export DEBIAN_FRONTEND=noninteractive
 
@@ -22,15 +20,17 @@ export DEBIAN_FRONTEND=noninteractive
 mkdir -p /etc/pki/tls/private/ /etc/pki/tls/certs/
 openssl req -nodes -x509 -newkey rsa:4096 -keyout /etc/pki/tls/private/example.key -out /etc/pki/tls/certs/example.pem -days 356 -subj "/C=US/ST=California/L=SantaClara/O=IT/CN=*.localhost"
 
-# upgrade Artifactory JCR
-service artifactory start
-service artifactory stop
+# Remove installed JCR version from VHD and install JCR 7.x
+apt-get remove --purge jfrog-container-registry -y
+rm -rf /opt/jfrog/
+rm -rf /var/opt/jfrog/
 cd /tmp
 wget --user=$PRIVATE_REPO_USERNAME --password=$PRIVATE_REPO_APIKEY https://solengha.jfrog.io/solengha/artifactory-deb-private/jcr/jfrog-artifactory-jcr-$RT7_VERSION.deb
-dpkg -i jfrog-artifactory-jcr-7.0.0-m650.deb >> /tmp/artifactory7-install.log 2>&1
+dpkg -i jfrog-artifactory-jcr-$RT7_VERSION.deb >> /tmp/artifactory7-install.log 2>&1
 
 # Add callhome metadata (allow us to collect information)
 # Path to the file was changed during migration! Update the version
+mkdir -p /var/opt/jfrog/artifactory/etc/artifactory/info/
 cat <<EOF >/var/opt/jfrog/artifactory/etc/artifactory/info/installer-info.json
 {
   "productId": "JFrogInstaller_AzureVM_JCR/7.x",
@@ -42,13 +42,16 @@ cat <<EOF >/var/opt/jfrog/artifactory/etc/artifactory/info/installer-info.json
 }
 EOF
 
+# install MSSQL driver (note: tomcat path is different in JCR 7)
+curl --retry 5 -L -o /var/opt/jfrog/artifactory/bootstrap/artifactory/tomcat/lib/mssql-jdbc-7.4.1.jre11.jar https://bintray.com/artifact/download/bintray/jcenter/com/microsoft/sqlserver/mssql-jdbc/7.4.1.jre11/mssql-jdbc-7.4.1.jre11.jar >> /tmp/install-databse-driver.log 2>&1
+
 CERTIFICATE_DOMAIN=$(cat /var/lib/cloud/instance/user-data.txt | grep "^CERTIFICATE_DOMAIN=" | sed "s/CERTIFICATE_DOMAIN=//")
 [ -z "$CERTIFICATE_DOMAIN" ] && CERTIFICATE_DOMAIN=artifactory
 
 ARTIFACTORY_SERVER_NAME=$(cat /var/lib/cloud/instance/user-data.txt | grep "^ARTIFACTORY_SERVER_NAME=" | sed "s/ARTIFACTORY_SERVER_NAME=//")
 [ -z "$ARTIFACTORY_SERVER_NAME" ] && ARTIFACTORY_SERVER_NAME=artifactory
 
-#Configuring nginx
+#Configuring nginx (configuration is changed for JCR 7)
 rm /etc/nginx/sites-enabled/default
 
 cat <<EOF >/etc/nginx/nginx.conf
@@ -126,8 +129,22 @@ server {
     proxy_set_header    Host              \$http_host;
     proxy_set_header    X-Forwarded-For   \$proxy_add_x_forwarded_for;
    }
+   location / {
+      proxy_read_timeout  2400;
+      proxy_pass_header   Server;
+      proxy_cookie_path   ~*^/.* /;
+      proxy_pass          http://127.0.0.1:8082;
+      proxy_set_header    X-Artifactory-Override-Base-Url
+      $http_x_forwarded_proto://$host:$server_port/artifactory;
+      proxy_set_header    X-Forwarded-Port  $server_port;
+      proxy_set_header    X-Forwarded-Proto $http_x_forwarded_proto;
+      proxy_set_header    Host              $http_host;
+      proxy_set_header    X-Forwarded-For   $proxy_add_x_forwarded_for;
+   }
 }
 EOF
+
+# configure Artifactory
 
 HOSTNAME=$(ip route get 8.8.8.8 | awk '{print $NF; exit}')
 
@@ -137,7 +154,7 @@ else
     NODE_NAME=art-$(date +%s$RANDOM)
 fi
 
-cat <<EOF >/var/opt/jfrog/artifactory/etc/ha-node.properties
+cat <<EOF >/var/opt/jfrog/artifactory/etc/artifactory/ha-node.properties
 node.id=${NODE_NAME}
 artifactory.ha.data.dir=/var/opt/jfrog/artifactory/data
 context.url=http://${HOSTNAME}:8081/artifactory
@@ -147,7 +164,7 @@ hazelcast.interface=${HOSTNAME}
 primary=${IS_PRIMARY}
 EOF
 
-cat <<EOF >/var/opt/jfrog/artifactory/etc/db.properties
+cat <<EOF >/var/opt/jfrog/artifactory/etc/artifactory/db.properties
 type=mssql
 driver=com.microsoft.sqlserver.jdbc.SQLServerDriver
 url=${DB_URL};databaseName=${DB_NAME};sendStringParametersAsUnicode=false;applicationName=Artifactory Binary Repository
@@ -157,11 +174,11 @@ EOF
 
 mkdir -p /var/opt/jfrog/artifactory/etc/security
 
-cat <<EOF >/var/opt/jfrog/artifactory/etc/security/master.key
+cat <<EOF >/var/opt/jfrog/artifactory/etc/artifactory/security/master.key
 ${MASTER_KEY}
 EOF
 
-cat <<EOF >/var/opt/jfrog/artifactory/etc/binarystore.xml
+cat <<EOF >/var/opt/jfrog/artifactory/etc/artifactory/binarystore.xml
 <config version="2">
     <chain>
        <provider id="cache-fs-eventual-azure-blob-storage" type="cache-fs">
@@ -203,10 +220,12 @@ cat <<EOF >/var/opt/jfrog/artifactory/etc/binarystore.xml
 </config>
 EOF
 
+
+
 HOSTNAME=$(hostname -i)
-sed -i -e "s/art1/art-$(date +%s$RANDOM)/" /var/opt/jfrog/artifactory/etc/ha-node.properties
-sed -i -e "s/127.0.0.1/$HOSTNAME/" /var/opt/jfrog/artifactory/etc/ha-node.properties
-sed -i -e "s/172.25.0.3/$HOSTNAME/" /var/opt/jfrog/artifactory/etc/ha-node.properties
+sed -i -e "s/art1/art-$(date +%s$RANDOM)/" /var/opt/jfrog/artifactory/etc/artifactory/ha-node.properties
+sed -i -e "s/127.0.0.1/$HOSTNAME/" /var/opt/jfrog/artifactory/etc/artifactory/ha-node.properties
+sed -i -e "s/172.25.0.3/$HOSTNAME/" /var/opt/jfrog/artifactory/etc/artifactory/ha-node.properties
 
 cat /var/lib/cloud/instance/user-data.txt | grep "^CERTIFICATE=" | sed "s/CERTIFICATE=//" > /tmp/temp.pem
 cat /tmp/temp.pem | sed 's/CERTIFICATE----- /&\n/g' | sed 's/ -----END/\n-----END/g' | awk '{if($0 ~ /----/) {print;} else { gsub(/ /,"\n");print;}}' > /etc/pki/tls/certs/cert.pem
@@ -218,12 +237,12 @@ rm /tmp/temp.key
 
 EXTRA_JAVA_OPTS=$(cat /var/lib/cloud/instance/user-data.txt | grep "^EXTRA_JAVA_OPTS=" | sed "s/EXTRA_JAVA_OPTS=//")
 [ -z "$EXTRA_JAVA_OPTS" ] && EXTRA_JAVA_OPTS='-server -Xms2g -Xmx6g -Xss256k -XX:+UseG1GC -XX:OnOutOfMemoryError="kill -9 %p"'
-echo "export JAVA_OPTIONS=\"${EXTRA_JAVA_OPTS}\"" >> /var/opt/jfrog/artifactory/etc/default
-chown artifactory:artifactory -R /var/opt/jfrog/artifactory/*  && chown artifactory:artifactory -R /var/opt/jfrog/artifactory/etc/security && chown artifactory:artifactory -R /var/opt/jfrog/artifactory/etc/*
+echo "export JAVA_OPTIONS=\"${EXTRA_JAVA_OPTS}\"" >> /var/opt/jfrog/artifactory/etc/artifactory/default
+chown artifactory:artifactory -R /var/opt/jfrog/artifactory/*  && chown artifactory:artifactory -R /var/opt/jfrog/artifactory/etc/artifactory/security && chown artifactory:artifactory -R /var/opt/jfrog/artifactory/etc/*
 
 # start Artifactory
 sleep $((RANDOM % 240))
 service artifactory start
 service nginx start
 nginx -s reload
-echo "INFO: Artifactory installation completed." > /tmp/artifactory-install.log
+echo "INFO: Artifactory installation completed." > /tmp/artifactory7-install.log
