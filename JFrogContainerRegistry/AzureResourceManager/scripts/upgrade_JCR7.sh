@@ -9,8 +9,9 @@ STORAGE_CONTAINER=$(cat /var/lib/cloud/instance/user-data.txt | grep "^STO_CTR_N
 STORAGE_ACCT_KEY=$(cat /var/lib/cloud/instance/user-data.txt | grep "^STO_ACT_KEY=" | sed "s/STO_ACT_KEY=//")
 MASTER_KEY=$(cat /var/lib/cloud/instance/user-data.txt | grep "^MASTER_KEY=" | sed "s/MASTER_KEY=//")
 IS_PRIMARY=$(cat /var/lib/cloud/instance/user-data.txt | grep "^IS_PRIMARY=" | sed "s/IS_PRIMARY=//")
-
-
+PRIVATE_REPO_USERNAME=$(cat /var/lib/cloud/instance/user-data.txt | grep "^PRIVATE_REPO_USERNAME=" | sed "s/PRIVATE_REPO_USERNAME=//")
+PRIVATE_REPO_APIKEY=$(cat /var/lib/cloud/instance/user-data.txt | grep "^PRIVATE_REPO_APIKEY=" | sed "s/PRIVATE_REPO_APIKEY=//")
+RT7_VERSION=$(cat /var/lib/cloud/instance/user-data.txt | grep "^RT7_VERSION=" | sed "s/RT7_VERSION=//")
 
 
 UBUNTU_CODENAME=$(cat /etc/lsb-release | grep "^DISTRIB_CODENAME=" | sed "s/DISTRIB_CODENAME=//")
@@ -25,7 +26,7 @@ openssl req -nodes -x509 -newkey rsa:4096 -keyout /etc/pki/tls/private/example.k
 service artifactory start
 service artifactory stop
 cd /tmp
-wget --user=$USERNAME_SOLENGHA --password=$KERMIT_RESOURCES_APIKEY https://solengha.jfrog.io/solengha/artifactory-deb-private/jcr/jfrog-artifactory-jcr-$RT7_VERSION.deb
+wget --user=$PRIVATE_REPO_USERNAME --password=$PRIVATE_REPO_APIKEY https://solengha.jfrog.io/solengha/artifactory-deb-private/jcr/jfrog-artifactory-jcr-$RT7_VERSION.deb
 dpkg -i jfrog-artifactory-jcr-7.0.0-m650.deb >> /tmp/artifactory7-install.log 2>&1
 
 # Add callhome metadata (allow us to collect information)
