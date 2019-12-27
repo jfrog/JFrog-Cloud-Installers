@@ -42,9 +42,6 @@ cat <<EOF >/var/opt/jfrog/artifactory/etc/artifactory/info/installer-info.json
 }
 EOF
 
-# install MSSQL driver (note: tomcat path is different in JCR 7)
-curl --retry 5 -L -o /var/opt/jfrog/artifactory/bootstrap/artifactory/tomcat/lib/mssql-jdbc-7.4.1.jre11.jar https://bintray.com/artifact/download/bintray/jcenter/com/microsoft/sqlserver/mssql-jdbc/7.4.1.jre11/mssql-jdbc-7.4.1.jre11.jar >> /tmp/install-databse-driver.log 2>&1
-
 CERTIFICATE_DOMAIN=$(cat /var/lib/cloud/instance/user-data.txt | grep "^CERTIFICATE_DOMAIN=" | sed "s/CERTIFICATE_DOMAIN=//")
 [ -z "$CERTIFICATE_DOMAIN" ] && CERTIFICATE_DOMAIN=artifactory
 
@@ -221,6 +218,9 @@ cat <<EOF >/var/opt/jfrog/artifactory/etc/artifactory/binarystore.xml
 EOF
 
 
+# install MSSQL driver (note: tomcat path is different in JCR 7)
+curl --retry 5 -L -o /var/opt/jfrog/artifactory/bootstrap/artifactory/tomcat/lib/mssql-jdbc-7.4.1.jre11.jar https://bintray.com/artifact/download/bintray/jcenter/com/microsoft/sqlserver/mssql-jdbc/7.4.1.jre11/mssql-jdbc-7.4.1.jre11.jar >> /tmp/install-databse-driver.log 2>&1
+
 
 HOSTNAME=$(hostname -i)
 sed -i -e "s/art1/art-$(date +%s$RANDOM)/" /var/opt/jfrog/artifactory/etc/artifactory/ha-node.properties
@@ -238,11 +238,11 @@ rm /tmp/temp.key
 EXTRA_JAVA_OPTS=$(cat /var/lib/cloud/instance/user-data.txt | grep "^EXTRA_JAVA_OPTS=" | sed "s/EXTRA_JAVA_OPTS=//")
 [ -z "$EXTRA_JAVA_OPTS" ] && EXTRA_JAVA_OPTS='-server -Xms2g -Xmx6g -Xss256k -XX:+UseG1GC -XX:OnOutOfMemoryError="kill -9 %p"'
 echo "export JAVA_OPTIONS=\"${EXTRA_JAVA_OPTS}\"" >> /var/opt/jfrog/artifactory/etc/artifactory/default
-chown artifactory:artifactory -R /var/opt/jfrog/artifactory/*  && chown artifactory:artifactory -R /var/opt/jfrog/artifactory/etc/artifactory/security && chown artifactory:artifactory -R /var/opt/jfrog/artifactory/etc/*
+chown artifactory:artifactory -R /var/opt/jfrog/artifactory/*  && chown artifactory:artifactory -R /var/opt/jfrog/artifactory/etc/artifactory/security && chown artifactory:artifactory -R /var/opt/jfrog/artifactory/etc/* && chown -R artifactory:artifactory /opt/jfrog/artifactory/var
 
 # start Artifactory
 sleep $((RANDOM % 240))
 service artifactory start
 service nginx start
 nginx -s reload
-echo "INFO: Artifactory installation completed." > /tmp/artifactory7-install.log
+echo "INFO: Artifactory installation completed." > /tmp/artifactory-install.log
