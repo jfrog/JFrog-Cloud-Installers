@@ -119,8 +119,7 @@ server {
     proxy_pass_header   Server;
     proxy_cookie_path   ~*^/.* /;
     proxy_pass          http://127.0.0.1:8081/artifactory/;
-    proxy_set_header    X-Artifactory-Override-Base-Url
-    \$http_x_forwarded_proto://\$host:\$server_port/artifactory;
+    proxy_set_header    X-Artifactory-Override-Base-Url $http_x_forwarded_proto://\$host:\$server_port/artifactory;
     proxy_set_header    X-Forwarded-Port  \$server_port;
     proxy_set_header    X-Forwarded-Proto \$http_x_forwarded_proto;
     proxy_set_header    Host              \$http_host;
@@ -131,8 +130,7 @@ server {
       proxy_pass_header   Server;
       proxy_cookie_path   ~*^/.* /;
       proxy_pass          http://127.0.0.1:8082;
-      proxy_set_header    X-Artifactory-Override-Base-Url
-      $http_x_forwarded_proto://$host:$server_port/artifactory;
+      proxy_set_header    X-Artifactory-Override-Base-Url $http_x_forwarded_proto://$host:$server_port/artifactory;
       proxy_set_header    X-Forwarded-Port  $server_port;
       proxy_set_header    X-Forwarded-Proto $http_x_forwarded_proto;
       proxy_set_header    Host              $http_host;
@@ -151,7 +149,7 @@ else
     NODE_NAME=art-$(date +%s$RANDOM)
 fi
 
-cat <<EOF >/var/opt/jfrog/artifactory/etc/artifactory/ha-node.properties
+cat <<EOF >/var/opt/jfrog/artifactory/etc/ha-node.properties
 node.id=${NODE_NAME}
 artifactory.ha.data.dir=/var/opt/jfrog/artifactory/data
 context.url=http://${HOSTNAME}:8081/artifactory
@@ -161,7 +159,7 @@ hazelcast.interface=${HOSTNAME}
 primary=${IS_PRIMARY}
 EOF
 
-cat <<EOF >/var/opt/jfrog/artifactory/etc/artifactory/db.properties
+cat <<EOF >/var/opt/jfrog/artifactory/etc/db.properties
 type=mssql
 driver=com.microsoft.sqlserver.jdbc.SQLServerDriver
 url=${DB_URL};databaseName=${DB_NAME};sendStringParametersAsUnicode=false;applicationName=Artifactory Binary Repository
@@ -171,11 +169,11 @@ EOF
 
 mkdir -p /var/opt/jfrog/artifactory/etc/security
 
-cat <<EOF >/var/opt/jfrog/artifactory/etc/artifactory/security/master.key
+cat <<EOF >/var/opt/jfrog/artifactory/etc/security/master.key
 ${MASTER_KEY}
 EOF
 
-cat <<EOF >/var/opt/jfrog/artifactory/etc/artifactory/binarystore.xml
+cat <<EOF >/var/opt/jfrog/artifactory/etc/binarystore.xml
 <config version="2">
     <chain>
        <provider id="cache-fs-eventual-azure-blob-storage" type="cache-fs">
@@ -223,9 +221,9 @@ curl --retry 5 -L -o /var/opt/jfrog/artifactory/bootstrap/artifactory/tomcat/lib
 
 
 HOSTNAME=$(hostname -i)
-sed -i -e "s/art1/art-$(date +%s$RANDOM)/" /var/opt/jfrog/artifactory/etc/artifactory/ha-node.properties
-sed -i -e "s/127.0.0.1/$HOSTNAME/" /var/opt/jfrog/artifactory/etc/artifactory/ha-node.properties
-sed -i -e "s/172.25.0.3/$HOSTNAME/" /var/opt/jfrog/artifactory/etc/artifactory/ha-node.properties
+sed -i -e "s/art1/art-$(date +%s$RANDOM)/" /var/opt/jfrog/artifactory/etc/ha-node.properties
+sed -i -e "s/127.0.0.1/$HOSTNAME/" /var/opt/jfrog/artifactory/etc/ha-node.properties
+sed -i -e "s/172.25.0.3/$HOSTNAME/" /var/opt/jfrog/artifactory/etc/ha-node.properties
 
 cat /var/lib/cloud/instance/user-data.txt | grep "^CERTIFICATE=" | sed "s/CERTIFICATE=//" > /tmp/temp.pem
 cat /tmp/temp.pem | sed 's/CERTIFICATE----- /&\n/g' | sed 's/ -----END/\n-----END/g' | awk '{if($0 ~ /----/) {print;} else { gsub(/ /,"\n");print;}}' > /etc/pki/tls/certs/cert.pem
