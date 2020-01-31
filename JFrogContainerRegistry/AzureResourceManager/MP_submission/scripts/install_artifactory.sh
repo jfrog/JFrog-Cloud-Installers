@@ -4,16 +4,12 @@ DB_NAME=$(cat /var/lib/cloud/instance/user-data.txt | grep "^DB_NAME=" | sed "s/
 DB_USER=$(cat /var/lib/cloud/instance/user-data.txt | grep "^DB_ADMIN_USER=" | sed "s/DB_ADMIN_USER=//")
 DB_PASSWORD=$(cat /var/lib/cloud/instance/user-data.txt | grep "^DB_ADMIN_PASSWD=" | sed "s/DB_ADMIN_PASSWD=//")
 STORAGE_ACCT=$(cat /var/lib/cloud/instance/user-data.txt | grep "^STO_ACT_NAME=" | sed "s/STO_ACT_NAME=//")
+STORAGE_ACT_ENDPOINT=$(cat /var/lib/cloud/instance/user-data.txt | grep "^STO_ACT_ENDPOINT=" | sed "s/STO_ACT_ENDPOINT=//")
 STORAGE_CONTAINER=$(cat /var/lib/cloud/instance/user-data.txt | grep "^STO_CTR_NAME=" | sed "s/STO_CTR_NAME=//")
 STORAGE_ACCT_KEY=$(cat /var/lib/cloud/instance/user-data.txt | grep "^STO_ACT_KEY=" | sed "s/STO_ACT_KEY=//")
-ARTIFACTORY_VERSION=$(cat /var/lib/cloud/instance/user-data.txt | grep "^ARTIFACTORY_VERSION=" | sed "s/ARTIFACTORY_VERSION=//")
 MASTER_KEY=$(cat /var/lib/cloud/instance/user-data.txt | grep "^MASTER_KEY=" | sed "s/MASTER_KEY=//")
 IS_PRIMARY=$(cat /var/lib/cloud/instance/user-data.txt | grep "^IS_PRIMARY=" | sed "s/IS_PRIMARY=//")
-ARTIFACTORY_LICENSE_1=$(cat /var/lib/cloud/instance/user-data.txt | grep "^LICENSE1=" | sed "s/LICENSE1=//")
-ARTIFACTORY_LICENSE_2=$(cat /var/lib/cloud/instance/user-data.txt | grep "^LICENSE2=" | sed "s/LICENSE2=//")
-ARTIFACTORY_LICENSE_3=$(cat /var/lib/cloud/instance/user-data.txt | grep "^LICENSE3=" | sed "s/LICENSE3=//")
-ARTIFACTORY_LICENSE_4=$(cat /var/lib/cloud/instance/user-data.txt | grep "^LICENSE4=" | sed "s/LICENSE4=//")
-ARTIFACTORY_LICENSE_5=$(cat /var/lib/cloud/instance/user-data.txt | grep "^LICENSE5=" | sed "s/LICENSE5=//")
+
 
 UBUNTU_CODENAME=$(cat /etc/lsb-release | grep "^DISTRIB_CODENAME=" | sed "s/DISTRIB_CODENAME=//")
 
@@ -110,24 +106,21 @@ server {
 }
 EOF
 
-cat <<EOF >/var/opt/jfrog/artifactory/etc/artifactory.cluster.license
-${ARTIFACTORY_LICENSE_1}
+HOSTNAME=$(ip route get 8.8.8.8 | awk '{print $NF; exit}')
 
-${ARTIFACTORY_LICENSE_2}
-
-${ARTIFACTORY_LICENSE_3}
-
-${ARTIFACTORY_LICENSE_4}
-
-${ARTIFACTORY_LICENSE_5}
-EOF
+if [ "${IS_PRIMARY}" = "true" ]; then
+    NODE_NAME=art-primary
+else
+    NODE_NAME=art-$(date +%s$RANDOM)
+fi
 
 cat <<EOF >/var/opt/jfrog/artifactory/etc/ha-node.properties
-node.id=art1
+node.id=${NODE_NAME}
 artifactory.ha.data.dir=/var/opt/jfrog/artifactory/data
-context.url=http://127.0.0.1:8081/artifactory
+context.url=http://${HOSTNAME}:8081/artifactory
+access.context.url=http://${HOSTNAME}:8081/access
 membership.port=10001
-hazelcast.interface=172.25.0.3
+hazelcast.interface=${HOSTNAME}
 primary=${IS_PRIMARY}
 EOF
 
@@ -181,12 +174,11 @@ cat <<EOF >/var/opt/jfrog/artifactory/etc/binarystore.xml
     <provider id="azure-blob-storage" type="azure-blob-storage">
         <accountName>${STORAGE_ACCT}</accountName>
         <accountKey>${STORAGE_ACCT_KEY}</accountKey>
-        <endpoint>https://${STORAGE_ACCT}.blob.core.windows.net/</endpoint>
+        <endpoint>${STORAGE_ACT_ENDPOINT}</endpoint>
         <containerName>${STORAGE_CONTAINER}</containerName>
     </provider>
 </config>
 EOF
-
 
 HOSTNAME=$(hostname -i)
 sed -i -e "s/art1/art-$(date +%s$RANDOM)/" /var/opt/jfrog/artifactory/etc/ha-node.properties
@@ -207,8 +199,8 @@ echo "export JAVA_OPTIONS=\"${EXTRA_JAVA_OPTS}\"" >> /var/opt/jfrog/artifactory/
 chown artifactory:artifactory -R /var/opt/jfrog/artifactory/*  && chown artifactory:artifactory -R /var/opt/jfrog/artifactory/etc/security && chown artifactory:artifactory -R /var/opt/jfrog/artifactory/etc/*
 
 # start Artifactory
-sleep $((RANDOM % 120))
+sleep $((RANDOM % 240))
 service artifactory start
 service nginx start
 nginx -s reload
-echo "INFO: Artifactory installation completed."
+echo "INFO: Artifactory installation completed." > /tmp/artifactory-install.log

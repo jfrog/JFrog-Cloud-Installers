@@ -1,0 +1,26 @@
+---
+
+# Tasks for configuring NGINX for Artifactory
+- name: Ensure latest nginx is installed
+  package:
+    name: nginx
+    state: latest
+
+- name: Configure main NGINX conf file.
+  copy:
+    src: nginx.conf
+    dest: /etc/nginx/nginx.conf
+    owner: root
+    group: root
+    mode: '0755'
+  notify: restart nginx
+
+
+- name: Configure the Artifactory NGINX conf
+  template:
+    src: artifactory.conf.j2
+    dest: /etc/nginx/conf.d/artifactory.conf
+    owner: root
+    group: root
+    mode: '0755'
+  notify: restart nginx

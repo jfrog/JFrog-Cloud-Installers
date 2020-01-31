@@ -1,0 +1,9 @@
+{% if art_primary == True  %}
+node.id=primary
+{% else %}
+node.id={{ ansible_hostname }}
+{% endif %}
+artifactory.ha.data.dir=/var/opt/jfrog/artifactory/data
+context.url=http://{{ ansible_default_ipv4.address }}:8081/artifactory
+membership.port=0
+primary={{ art_primary }}

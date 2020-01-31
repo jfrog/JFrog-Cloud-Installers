@@ -1,0 +1,17 @@
+---
+# tasks file for quickstart-jfrog-artifactory/scripts/roles/artifactory
+
+
+- name: Configure an Instance to host Artifactory
+  include: "{{ item.name }}"
+  when: ecs_deployment == false
+  loop:
+    - name: install.yml
+    - name: configure.yml
+    - name: nginx-setup.yml
+
+- name: Configure ECS EC2 Node to host an Artifactory Container
+  include: configure_ecs.yml
+  when: ecs_deployment == true
+
+

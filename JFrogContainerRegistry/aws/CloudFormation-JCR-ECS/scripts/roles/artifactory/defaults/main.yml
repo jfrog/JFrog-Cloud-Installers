@@ -1,0 +1,50 @@
+---
+# defaults file for quickstart-jfrog-artifactory/scripts/roles/artifactory
+
+ecs_deployment: false
+
+db_type: mysql
+db_driver: com.mysql.jdbc.Driver
+db_ipaddr: 127.0.0.1
+db_name: artifactory
+db_user: artuser
+db_password: badpassword
+
+s3_endpoint: needs_to_be_passed
+s3_access_key: needs_to_be_passed
+s3_access_secret_key: needs_to_be_passed
+s3_bucket: needs_to_be_passed
+
+# Differences required for nginx as a container.
+artifactory_hostname: 127.0.0.1
+ssl_dir: /var/opt/jfrog/nginx/ssl
+key_dir: /etc/pki/tls/private
+nginx_user_id: 104
+nginx_group_id: 107
+
+certificate_key_file: /root/key
+certificate_file: /root/cert
+art_primary: true
+java_version: java-1.8.0
+extra_java_opts: -server -Xms2g -Xmx14g -Xss256k -XX:+UseG1GC
+java_mysql_driver:
+  url: https://bintray.com/artifact/download/bintray/jcenter/mysql/mysql-connector-java/5.1.38/mysql-connector-java-5.1.38.jar
+  dest: /opt/jfrog/artifactory/tomcat/lib/mysql-connector-java-5.1.38.jar
+  owner: artifactory
+  group: artifactory
+rds_cert:
+  url: https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem
+  dest: /root/rds-combined-ca-bundle.pem
+  owner: root
+  group: root
+  cert_alias: rds_ca
+import_rds: true
+
+
+
+# The Docker scripts handle this, so we do not need these variables when configuring
+# A docker system that will host
+artifactory_keystore_path: /etc/alternatives/jre_1.8.0/lib/security/cacerts
+artifactory_keystore_default: changeit
+artifactory_keystore_pass: needs_to_be_passed
+  

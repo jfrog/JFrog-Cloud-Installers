@@ -1,0 +1,100 @@
+---
+
+- name: Update Java
+  package:
+   name: "{{ java_version }}"
+   state: present
+
+- name: Configure Java
+  alternatives:
+    name: java
+    path: /usr/lib/jvm/jre-1.8.0-openjdk.x86_64/bin/java 
+
+- name: Download Java requirements such as jbdc for mysql Driver and the RDS CA certificate
+  get_url:
+    url: "{{ item.url }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+  loop:
+   - "{{ java_mysql_driver }}"
+   - "{{ rds_cert }}"
+
+- name: Import the RDS certificate into Java KeyStore
+  java_cert:
+    cert_path: "{{ rds_cert.dest }}"
+    cert_alias: "{{ rds_cert.cert_alias }}"
+    keystore_pass: "{{ artifactory_keystore_default }}" # Default JKS as you get from the Internet.
+    keystore_path: "{{ artifactory_keystore_path }}"
+  when: import_rds == true
+  register: r_java_cert
+  failed_when: "'Not found' in r_java_cert"
+
+- name: Change Keystore password
+  command: keytool -storepasswd -keystore {{ artifactory_keystore_path }} -storepass {{ artifactory_keystore_default }} -new {{ artifactory_keystore_pass }}
+  no_log: true
+  when: r_java_cert.rc == 0 
+
+- name: Configure Java
+  lineinfile:
+    path: /var/opt/jfrog/artifactory/etc/default
+    line: export JAVA_OPTIONS="$JAVA_OPTIONS {{ extra_java_opts }}"
+    create: yes
+
+- name: Configure Ping
+  lineinfile:
+    path: /var/opt/jfrog/artifactory/etc/artifactory.system.properties
+    line: artifactory.ping.allowUnauthenticated=true
+    create: yes
+
+- name: All File/Folders required for Artifactory configuration
+  file:
+      path: "{{ item.path }}"
+      state: "{{ item.state }}"
+      owner: artifactory
+      group: artifactory
+  loop:
+    - path: /var/opt/jfrog/artifactory/etc/security/
+      state: directory
+    - path: /var/opt/jfrog/artifactory/etc/plugins
+      state: directory
+    - path: /var/opt/jfrog/artifactory/etc/info
+      state: directory
+
+- name: Template of the properties and certs as requires for Artifactory
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: artifactory
+    group: artifactory
+    mode: '0664'
+  loop: 
+    - src: db.properties.j2
+      dest: /var/opt/jfrog/artifactory/etc/db.properties
+    - src: binarystore.xml.j2
+      dest: /var/opt/jfrog/artifactory/etc/binarystore.xml
+    - src: ha-node.properties.j2
+      dest: /var/opt/jfrog/artifactory/etc/ha-node.properties 
+    - src: master.key.j2
+      dest: /var/opt/jfrog/artifactory/etc/security/master.key
+    - src: certificate.pem.j2
+      dest: "{{ ssl_dir }}/cert.pem"
+    - src: certificate.key.j2
+      dest: "{{ key_dir }}/cert.key"
+    - src: artifactory.cluster.license.j2
+      dest: /var/opt/jfrog/artifactory/etc/artifactory.cluster.license
+
+- name: Copy all static files required for Artifactory
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: artifactory
+    group: artifactory
+    mode: "{{ item.mode }}"
+  loop:
+    - src: inactiveServerCleaner.groovy
+      dest: /var/opt/jfrog/artifactory/etc/plugins/inactiveServerCleaner.groovy
+      mode: '0660'
+    - src: installer-info.json
+      dest: /var/opt/jfrog/artifactory/etc/info/installer-info.json
+      mode: '0660'

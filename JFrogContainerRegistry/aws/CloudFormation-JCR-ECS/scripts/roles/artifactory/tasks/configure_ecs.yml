@@ -1,0 +1,83 @@
+---
+
+- name: All File/Folders required for Artifactory configuration
+  file:
+    path: "{{ item.path }}"
+    state: "{{ item.state }}"
+    owner: root
+    group: root
+  loop:
+    - path: /data/jfrog/artifactory/etc/         # Needs mapped to /artifactory_extra_conf
+      state: directory
+    - path: /data/jfrog/artifactory/tmp/plugins  # Needs mapped to /tmp/plugins
+      state: directory
+    - path: /data/jfrog/artifactory/java_certs   # Needs mapped to /artifactory_extra_certs
+      state: directory
+    - path: /data/jfrog/artifactory/plugins      # Needs mapped to /opt/jfrog/artifactory/tomcat/lib/
+      state: directory
+
+
+- name: Download Java requirements such as jbdc for mysql Driver and the RDS CA certificate
+  get_url:
+    url: "{{ item.url }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+  loop:
+   - "{{ java_mysql_driver }}"
+   - "{{ rds_cert }}"
+
+- name: Template of the properties as requires for Artifactory
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: '0664'
+  loop: 
+    - src: binarystore.xml.j2
+      dest: /data/jfrog/artifactory/etc/binarystore.xml
+    - src: artifactory.cluster.license.j2
+      dest: /data/jfrog/artifactory/etc/artifactory.cluster.license
+
+- name: All File/Folders required for Artifactory configuration
+  file:
+    path: "{{ item.path }}"
+    state: "{{ item.state }}"
+    owner: "{{ nginx_user_id }}"
+    group: "{{ nginx_group_id }}"
+  loop:
+    - path: /data/jfrog/nginx/ssl                # Mapped to /var/opt/jfrog/nginx
+      state: directory
+    - path: /data/jfrog/nginx/conf.d             # Mapped to /var/opt/jfrog/nginx
+      state: directory
+
+- name: Template nginx files as requires for Artifactory
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ nginx_user_id }}"
+    group: "{{ nginx_group_id }}"
+    mode: '0664'
+  loop: 
+    - src: certificate.pem.j2
+      dest: "{{ ssl_dir }}cert.pem"
+    - src: certificate.key.j2
+      dest: "{{ key_dir }}cert.key"
+    - src: artifactory.conf.j2
+      dest: /data/jfrog/nginx/conf.d/artifactory.conf
+
+- name: Copy all static files required for Artifactory
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: "{{ item.mode }}"
+  loop:
+    - src: inactiveServerCleaner.groovy
+      dest: /data/jfrog/artifactory/tmp/plugins/inactiveServerCleaner.groovy
+      mode: '0777'
+
+
+

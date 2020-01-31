@@ -34,14 +34,12 @@
     },
     "artifactoryVersion": {
       "type": "string",
-      "defaultValue": "7.0.4001",
+      "defaultValue": "6.6.1",
       "allowedValues": [
         "6.6.0",
         "6.6.1",
         "6.7.0",
-        "6.8.0",
-        "7.0.0717",
-        "7.0.4001"
+        "6.8.0"
       ],
       "metadata": {
         "description": "Artifactory-vm image version to deploy."
@@ -49,16 +47,10 @@
     },
     "masterKey": {
       "type": "string",
+      "defaultValue": "1ce2be4490ca2c662cb79636cf9b7b8e",
       "maxLength": 64,
       "metadata": {
         "description": "Master key for Artifactory cluster. Generate master.key using command '$openssl rand -hex 16'"
-      }
-    },
-    "joinKey": {
-      "type": "string",
-      "maxLength": 64,
-      "metadata": {
-        "description": "Join key for Artifactory cluster. Generate join.key using command '$openssl rand -hex 16'"
       }
     },
     "adminUsername": {
@@ -196,7 +188,7 @@
       "metadata": {
         "description": "The base URI where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
       },
-      "defaultValue": "https://raw.githubusercontent.com/JFrogDev/JFrog-Cloud-Installers/refactoring-rt7/AzureResourceManager/"
+      "defaultValue": "https://raw.githubusercontent.com/JFrogDev/JFrog-Cloud-Installers/refactoring/AzureResourceManager/"
     },
     "_artifactsLocationSasToken": {
       "type": "securestring",
@@ -248,7 +240,6 @@
     "DB_Edition": "[parameters('DB_Edition')]",
     "DB_Location": "[parameters('location')]",
     "masterKey": "[parameters('masterKey')]",
-    "joinKey": "[parameters('joinKey')]",
     "certificate": "[parameters('certificate')]",
     "certificateKey": "[parameters('certificateKey')]",
     "certificateDomain": "[parameters('certificateDomain')]",
@@ -262,7 +253,7 @@
     "osType": {
       "publisher": "jfrog",
       "offer": "artifactory-vm",
-      "sku": "artifactory-vm-private",
+      "sku": "artifactory-vm",
       "version": "[parameters('artifactoryVersion')]"
     },
     "imageReference": "[variables('osType')]",
@@ -734,7 +725,7 @@
         "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]"
       ],
       "plan": {
-        "name": "artifactory-vm-private",
+        "name": "artifactory-vm",
         "publisher": "jfrog",
         "product": "artifactory-vm"
       },
@@ -762,7 +753,7 @@
             "computerNamePrefix": "[variables('namingInfix')]",
             "adminUsername": "[parameters('adminUsername')]",
             "adminPassword": "[parameters('adminPassword')]",
-            "customData": "[base64(concat('#INSTALL SCRIPT INPUTS\nCERTIFICATE_KEY=',parameters('certificateKey'),'\nCERTIFICATE=', parameters('certificate'),'\nCERTIFICATE_DOMAIN=',parameters('certificateDomain'),'\nARTIFACTORY_SERVER_NAME=',parameters('artifactoryServerName'),'\nEXTRA_JAVA_OPTS=',parameters('extraJavaOptions'),'\nJDBC_STR=',reference('Microsoft.Resources/deployments/deploySQLDB').outputs.jdbcConnString.value,'\nDB_NAME=',variables('DB_Name'),'\nDB_ADMIN_USER=',variables('DB_Admin_User'),'\nDB_ADMIN_PASSWD=',variables('DB_Admin_Password'),'\nSTO_ACT_NAME=',variables('storageAccountName'),'\nSTO_ACT_ENDPOINT=',reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))).primaryEndpoints.blob,'\nSTO_CTR_NAME=',variables('vmStorageAccountContainerName'),'\nSTO_ACT_KEY=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2018-07-01').keys[0].value,'\nMASTER_KEY=',variables('masterKey'),'\nJOIN_KEY=',variables('joinKey'),'\nIS_PRIMARY=','true','\nLICENSE1=',variables('artifactoryLicense1'),'\nLICENSE2=',variables('artifactoryLicense2'),'\nLICENSE3=',variables('artifactoryLicense3'),'\nLICENSE4=',variables('artifactoryLicense4'),'\nLICENSE5=',variables('artifactoryLicense5'),'\n'))]"
+            "customData": "[base64(concat('#INSTALL SCRIPT INPUTS\nCERTIFICATE_KEY=',parameters('certificateKey'),'\nCERTIFICATE=', parameters('certificate'),'\nCERTIFICATE_DOMAIN=',parameters('certificateDomain'),'\nARTIFACTORY_SERVER_NAME=',parameters('artifactoryServerName'),'\nEXTRA_JAVA_OPTS=',parameters('extraJavaOptions'),'\nJDBC_STR=',reference('Microsoft.Resources/deployments/deploySQLDB').outputs.jdbcConnString.value,'\nDB_NAME=',variables('DB_Name'),'\nDB_ADMIN_USER=',variables('DB_Admin_User'),'\nDB_ADMIN_PASSWD=',variables('DB_Admin_Password'),'\nSTO_ACT_NAME=',variables('storageAccountName'),'\nSTO_ACT_ENDPOINT=',reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))).primaryEndpoints.blob,'\nSTO_CTR_NAME=',variables('vmStorageAccountContainerName'),'\nSTO_ACT_KEY=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2018-07-01').keys[0].value,'\nMASTER_KEY=',variables('masterKey'),'\nIS_PRIMARY=','true','\nLICENSE1=',variables('artifactoryLicense1'),'\nLICENSE2=',variables('artifactoryLicense2'),'\nLICENSE3=',variables('artifactoryLicense3'),'\nLICENSE4=',variables('artifactoryLicense4'),'\nLICENSE5=',variables('artifactoryLicense5'),'\n'))]"
           },
           "networkProfile": {
             "networkInterfaceConfigurations": [
@@ -805,11 +796,11 @@
                   "autoUpgradeMinorVersion": false,
                   "settings": {
                     "fileUris": [
-                      "[uri(parameters('_artifactsLocation'), concat('scripts/install_artifactory7.sh', parameters('_artifactsLocationSasToken')))]"
+                      "[uri(parameters('_artifactsLocation'), concat('scripts/install_artifactory.sh', parameters('_artifactsLocationSasToken')))]"
                     ]
                   },
                   "protectedSettings": {
-                    "commandToExecute": "sh install_artifactory7.sh"
+                    "commandToExecute": "sh install_artifactory.sh"
                   }
                 }
               }
@@ -831,7 +822,7 @@
         "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]"
       ],
       "plan": {
-        "name": "artifactory-vm-private",
+        "name": "artifactory-vm",
         "publisher": "jfrog",
         "product": "artifactory-vm"
       },
@@ -859,7 +850,7 @@
             "computerNamePrefix": "[variables('namingInfix')]",
             "adminUsername": "[parameters('adminUsername')]",
             "adminPassword": "[parameters('adminPassword')]",
-            "customData": "[base64(concat('#INSTALL SCRIPT INPUTS\nCERTIFICATE_KEY=',parameters('certificateKey'),'\nCERTIFICATE=', parameters('certificate'),'\nCERTIFICATE_DOMAIN=',parameters('certificateDomain'),'\nARTIFACTORY_SERVER_NAME=',parameters('artifactoryServerName'),'\nEXTRA_JAVA_OPTS=',parameters('extraJavaOptions'),'\nJDBC_STR=',reference('Microsoft.Resources/deployments/deploySQLDB').outputs.jdbcConnString.value,'\nDB_NAME=',variables('DB_Name'),'\nDB_ADMIN_USER=',variables('DB_Admin_User'),'\nDB_ADMIN_PASSWD=',variables('DB_Admin_Password'),'\nSTO_ACT_NAME=',variables('storageAccountName'),'\nSTO_ACT_ENDPOINT=',reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))).primaryEndpoints.blob,'\nSTO_CTR_NAME=',variables('vmStorageAccountContainerName'),'\nSTO_ACT_KEY=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2018-07-01').keys[0].value,'\nMASTER_KEY=',variables('masterKey'),'\nJOIN_KEY=',variables('joinKey'),'\nIS_PRIMARY=','false','\nLICENSE1=',variables('artifactoryLicense1'),'\nLICENSE2=',variables('artifactoryLicense2'),'\nLICENSE3=',variables('artifactoryLicense3'),'\nLICENSE4=',variables('artifactoryLicense4'),'\nLICENSE5=',variables('artifactoryLicense5'),'\n'))]"
+            "customData": "[base64(concat('#INSTALL SCRIPT INPUTS\nCERTIFICATE_KEY=',parameters('certificateKey'),'\nCERTIFICATE=', parameters('certificate'),'\nCERTIFICATE_DOMAIN=',parameters('certificateDomain'),'\nARTIFACTORY_SERVER_NAME=',parameters('artifactoryServerName'),'\nEXTRA_JAVA_OPTS=',parameters('extraJavaOptions'),'\nJDBC_STR=',reference('Microsoft.Resources/deployments/deploySQLDB').outputs.jdbcConnString.value,'\nDB_NAME=',variables('DB_Name'),'\nDB_ADMIN_USER=',variables('DB_Admin_User'),'\nDB_ADMIN_PASSWD=',variables('DB_Admin_Password'),'\nSTO_ACT_NAME=',variables('storageAccountName'),'\nSTO_ACT_ENDPOINT=',reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))).primaryEndpoints.blob,'\nSTO_CTR_NAME=',variables('vmStorageAccountContainerName'),'\nSTO_ACT_KEY=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2018-07-01').keys[0].value,'\nMASTER_KEY=',variables('masterKey'),'\nIS_PRIMARY=','false','\nLICENSE1=',variables('artifactoryLicense1'),'\nLICENSE2=',variables('artifactoryLicense2'),'\nLICENSE3=',variables('artifactoryLicense3'),'\nLICENSE4=',variables('artifactoryLicense4'),'\nLICENSE5=',variables('artifactoryLicense5'),'\n'))]"
           },
           "networkProfile": {
             "networkInterfaceConfigurations": [
@@ -881,7 +872,7 @@
                         ],
                         "loadBalancerInboundNatPools": [
                           {
-                            "id": "[resourceId('Microsoft.Network/loadBalancers/inboundNatPools', variables('lbName'), variables('natPoolMemberName'))]"
+                            "id":"[resourceId('Microsoft.Network/loadBalancers/inboundNatPools', variables('lbName'), variables('natPoolMemberName'))]"
                           }
                         ]
                       }
@@ -902,11 +893,11 @@
                   "autoUpgradeMinorVersion": false,
                   "settings": {
                     "fileUris": [
-                      "[uri(parameters('_artifactsLocation'), concat('scripts/install_artifactory7.sh', parameters('_artifactsLocationSasToken')))]"
+                      "[uri(parameters('_artifactsLocation'), concat('scripts/install_artifactory.sh', parameters('_artifactsLocationSasToken')))]"
                     ]
                   },
                   "protectedSettings": {
-                    "commandToExecute": "sh install_artifactory7.sh"
+                    "commandToExecute": "sh install_artifactory.sh"
                   }
                 }
               }
