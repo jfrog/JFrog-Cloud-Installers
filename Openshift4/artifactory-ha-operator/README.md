@@ -111,7 +111,7 @@ JFrog-Cloud-Installers/Openshift4/artifactory.cluster.license
 
 Paste your license keys into this file for HA configuration of multiple nodes.
 
-* License keys must be separated by two new lines. *
+* License keys must be separated by two new lines.
 
 Run: 
 
@@ -124,5 +124,6 @@ JFrog-Cloud-Installers/Openshift4/artifactory-ha-operator/setup.sh
 Run: 
 
 ```
+cd JFrog-Cloud-Installers/Openshift4/artifactory-ha-operator
 operator-sdk up local
 ```
