@@ -2,16 +2,3 @@ kind: Namespace
 apiVersion: v1
 metadata:
   name: jfrog-artifactory
-  selfLink: /api/v1/namespaces/jfrog-artifactory
-  uid: 402ec7e9-3ca2-11ea-bd94-0ef0e3c74fbe
-  resourceVersion: '523038'
-  creationTimestamp: '2020-01-21T23:03:34Z'
-  annotations:
-    openshift.io/sa.scc.mcs: 's0:c23,c2'
-    openshift.io/sa.scc.supplemental-groups: 1000510000/10000
-    openshift.io/sa.scc.uid-range: 1000510000/10000
-spec:
-  finalizers:
-    - kubernetes
-status:
-  phase: Active

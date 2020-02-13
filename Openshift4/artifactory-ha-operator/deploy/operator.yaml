@@ -16,7 +16,6 @@ spec:
       containers:
         - name: artifactory-ha-operator
           image: image-registry.openshift-image-registry.svc:5000/jfrog-artifactory/artifactory-ha
-          #image: ubuntu
           imagePullPolicy: IfNotPresent
           env:
             - name: WATCH_NAMESPACE

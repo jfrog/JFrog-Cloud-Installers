@@ -50,7 +50,7 @@ spec:
       path: null
     image:
       pullPolicy: IfNotPresent
-      repository: earlyaccess.jfrog.io/artifactory-pro
+      repository: image-registry.openshift-image-registry.svc:5000/jfrog-artifactory/artifactory-pro
     internalArtifactoryPort: 8081
     internalPort: 8082
     javaOpts: {}
@@ -759,7 +759,7 @@ spec:
       internalPort: 443
     image:
       pullPolicy: IfNotPresent
-      repository: earlyaccess.jfrog.io/nginx-artifactory-pro
+      repository: image-registry.openshift-image-registry.svc:5000/jfrog-artifactory/nginx-artifactory-pro
     labels: {}
     livenessProbe:
       enabled: true

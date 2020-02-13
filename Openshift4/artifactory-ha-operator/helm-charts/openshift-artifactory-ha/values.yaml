@@ -154,7 +154,7 @@ artifactory:
   name: artifactory-ha
   image:
     # repository: "docker.bintray.io/jfrog/artifactory-pro"
-    repository: "earlyaccess.jfrog.io/artifactory-pro"
+    repository: image-registry.openshift-image-registry.svc:5000/jfrog-artifactory/artifactory-pro
     # Note that by default we use appVersion to get image tag
     # version:
     pullPolicy: IfNotPresent
@@ -356,16 +356,16 @@ artifactory:
 
   ## Extra environment variables that can be used to tune Artifactory to your needs.
   ## Uncomment and set value as needed
-  #extraEnvironmentVariables: |
-  #  - name: JF_SHARED_DATABSE_USERNAME
-  #    value: "artifactory"
-  #  - name: JF_SHARED_DATABASE_PASSWORD
-  #    valueFrom:
-  #      secretKeyRef:
-  #        name: {{ .Release.Name }}-postgresql
-  #        key: postgresql-password
-  #   - name: POSTGRES_DB
-  #     value: "artifactory"
+  extraEnvironmentVariables: |
+    - name: JF_SHARED_DATABSE_USERNAME
+      value: "artifactory"
+    - name: JF_SHARED_DATABASE_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: {{ .Release.Name }}-postgresql
+          key: postgresql-password
+    - name: POSTGRES_DB
+      value: "artifactory"
 
   # TODO: Fix javaOpts for member nodes (currently uses primary settings for all nodes)
   systemYaml: |
@@ -1054,7 +1054,7 @@ nginx:
   gid: 107
   image:
     # repository: "docker.bintray.io/jfrog/nginx-artifactory-pro"
-    repository: "earlyaccess.jfrog.io/nginx-artifactory-pro"
+    repository: image-registry.openshift-image-registry.svc:5000/jfrog-artifactory/nginx-artifactory-pro
     # Note that by default we use appVersion to get image tag
     # version:
     pullPolicy: IfNotPresent
