@@ -38,7 +38,7 @@
             "osPlatform": "Linux",
             "constraints": {
               "required": true,
-              "customPasswordRegex": "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)[A-Za-z\\d]{12,}$",
+              "customPasswordRegex": "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{12,}$",
               "customValidationMessage": "The password must contain at least 12 characters, with at least 1 uppercase letter, 1 lowercase letter and 1 number."
             },
             "options": {
@@ -117,36 +117,51 @@
           },
           {
             "name": "masterKey",
-            "type": "Microsoft.Common.TextBox",
-            "label": "JFrog Container Registry master Key",
+            "type": "Microsoft.Common.PasswordBox",
+            "label": {
+              "password": "JFrog Container Registry master Key"
+            },
             "defaultValue": "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
             "toolTip": "Master key for JFrog Container Registry cluster. Generate master.key using command '$openssl rand -hex 16'",
             "constraints": {
               "required": true,
               "regex": "^[a-z0-9A-Z]{1,32}$",
               "validationMessage": "Only alphanumeric characters are allowed, and the value must be 1-32 characters long."
+            },
+            "options": {
+              "hideConfirmation": true
             }
           },
           {
             "name": "certificate",
-            "type": "Microsoft.Common.TextBox",
-            "label": "Provide your SSL Certificate.",
+            "type": "Microsoft.Common.PasswordBox",
+            "label": {
+              "password": "Provide your SSL Certificate."
+            },
             "toolTip": "To use JFrog Container Registry as docker registry you need to provide wild card valid Certificate. Provide your SSL Certificate.",
             "constraints": {
               "required": true,
               "regex": "^(-----BEGIN CERTIFICATE-----)(.+)(-----END CERTIFICATE-----)$",
               "validationMessage": "Provide SSL Certificate."
+            },
+            "options": {
+              "hideConfirmation": true
             }
           },
           {
             "name": "certificateKey",
-            "type": "Microsoft.Common.TextBox",
-            "label": "Provide your SSL Certificate key.",
+            "type": "Microsoft.Common.PasswordBox",
+            "label": {
+              "password": "Provide your SSL Certificate key."
+            },
             "toolTip": "Provide your SSL Certificate key",
             "constraints": {
               "required": true,
               "regex": "^(-----BEGIN PRIVATE KEY-----)(.+)(-----END PRIVATE KEY-----)$",
               "validationMessage": "Provide SSL Certificate Key."
+            },
+            "options": {
+              "hideConfirmation": true
             }
           },
           {
@@ -216,7 +231,7 @@
             "toolTip": "Admin password for the database",
             "constraints": {
               "required": true,
-              "regex": "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)[A-Za-z\\d]{12,}$",
+              "regex": "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{12,}$",
               "validationMessage": "The password must contain at least 12 characters, with at least 1 uppercase letter, 1 lowercase letter and 1 number."
             },
             "options": {
