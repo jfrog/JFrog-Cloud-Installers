@@ -119,7 +119,8 @@
             "name": "masterKey",
             "type": "Microsoft.Common.PasswordBox",
             "label": {
-              "password": "JFrog Container Registry master Key"
+              "password": "JFrog Container Registry master Key",
+              "confirmPassword": "Confirm master Key"
             },
             "defaultValue": "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
             "toolTip": "Master key for JFrog Container Registry cluster. Generate master.key using command '$openssl rand -hex 16'",
@@ -129,14 +130,15 @@
               "validationMessage": "Only alphanumeric characters are allowed, and the value must be 1-32 characters long."
             },
             "options": {
-              "hideConfirmation": true
+              "hideConfirmation": false
             }
           },
           {
             "name": "certificate",
             "type": "Microsoft.Common.PasswordBox",
             "label": {
-              "password": "Provide your SSL Certificate."
+              "password": "Provide your SSL Certificate.",
+              "confirmPassword": "Confirm SSL Certificate."
             },
             "toolTip": "To use JFrog Container Registry as docker registry you need to provide wild card valid Certificate. Provide your SSL Certificate.",
             "constraints": {
@@ -145,14 +147,15 @@
               "validationMessage": "Provide SSL Certificate."
             },
             "options": {
-              "hideConfirmation": true
+              "hideConfirmation": false
             }
           },
           {
             "name": "certificateKey",
             "type": "Microsoft.Common.PasswordBox",
             "label": {
-              "password": "Provide your SSL Certificate key."
+              "password": "Provide your SSL Certificate key.",
+              "confirmPassword": "Confirm SSL Certificate key."
             },
             "toolTip": "Provide your SSL Certificate key",
             "constraints": {
@@ -161,7 +164,7 @@
               "validationMessage": "Provide SSL Certificate Key."
             },
             "options": {
-              "hideConfirmation": true
+              "hideConfirmation": false
             }
           },
           {
