@@ -1,5 +1,7 @@
 # Setup Artifactory Enterprise
 
+*Note: This ARM template is no longer maintained.  Feel free to review this code for your own POC concepts, but we are not continuing to update it or add features. We recommend using the official [Marketplace offerrings](https://azuremarketplace.microsoft.com/en-us/marketplace/apps/jfrog.jfrog-artifactory-ha-arm-template)*.
+
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FJFrogDev%2FJFrog-Cloud-Installers%2Fmaster%2FAzureResourceManager%2Fazuredeploy.json" target="_blank">
 <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
