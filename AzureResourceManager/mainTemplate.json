@@ -34,12 +34,13 @@
     },
     "artifactoryVersion": {
       "type": "string",
-      "defaultValue": "6.6.1",
+      "defaultValue": "7.2.1",
       "allowedValues": [
         "6.6.0",
         "6.6.1",
         "6.7.0",
-        "6.8.0"
+        "6.8.0",
+        "7.2.1"
       ],
       "metadata": {
         "description": "Artifactory-vm image version to deploy."
