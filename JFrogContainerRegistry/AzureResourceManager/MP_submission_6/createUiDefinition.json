@@ -130,7 +130,7 @@
               "validationMessage": "Only alphanumeric characters are allowed, and the value must be 1-32 characters long."
             },
             "options": {
-              "hideConfirmation": false
+              "hideConfirmation": true
             }
           },
           {
@@ -147,7 +147,7 @@
               "validationMessage": "Provide SSL Certificate."
             },
             "options": {
-              "hideConfirmation": false
+              "hideConfirmation": true
             }
           },
           {
@@ -164,7 +164,7 @@
               "validationMessage": "Provide SSL Certificate Key."
             },
             "options": {
-              "hideConfirmation": false
+              "hideConfirmation": true
             }
           },
           {

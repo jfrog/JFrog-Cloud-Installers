@@ -263,7 +263,7 @@
     "osType": {
       "publisher": "jfrog",
       "offer": "artifactory-vm",
-      "sku": "artifactory-vm-private",
+      "sku": "artifactory-vm",
       "version": "[parameters('artifactoryVersion')]"
     },
     "imageReference": "[variables('osType')]",
@@ -735,7 +735,7 @@
         "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]"
       ],
       "plan": {
-        "name": "artifactory-vm-private",
+        "name": "artifactory-vm",
         "publisher": "jfrog",
         "product": "artifactory-vm"
       },
@@ -832,7 +832,7 @@
         "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]"
       ],
       "plan": {
-        "name": "artifactory-vm-private",
+        "name": "artifactory-vm",
         "publisher": "jfrog",
         "product": "artifactory-vm"
       },
