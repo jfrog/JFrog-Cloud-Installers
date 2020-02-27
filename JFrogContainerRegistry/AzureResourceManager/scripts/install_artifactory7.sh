@@ -165,7 +165,8 @@ cat <<EOF >/opt/jfrog/artifactory/var/etc/security/master.key
 ${MASTER_KEY}
 EOF
 
-cat <<EOF >/var/opt/jfrog/artifactory/etc/binarystore.xml
+# NOTE: Path is changed in Artifactory 7
+cat <<EOF >/var/opt/jfrog/artifactory/etc/artifactory/binarystore.xml
 <config version="1">
     <chain template="azure-blob-storage"/>
     <provider id="azure-blob-storage" type="azure-blob-storage">
