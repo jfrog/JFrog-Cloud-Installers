@@ -107,8 +107,8 @@
             "constraints": {
               "allowedValues": [
                 {
-                  "label": "6.16.0",
-                  "value": "0.16.0"
+                  "label": "7.2.1",
+                  "value": "7.2.1"
                 }
               ],
               "required": true

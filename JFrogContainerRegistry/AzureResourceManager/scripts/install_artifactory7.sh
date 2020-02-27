@@ -127,14 +127,7 @@ fi
 EXTRA_JAVA_OPTS=$(cat /var/lib/cloud/instance/user-data.txt | grep "^EXTRA_JAVA_OPTS=" | sed "s/EXTRA_JAVA_OPTS=//")
 sed -i -e "s/#extraJavaOpts: \"-Xms512m -Xmx2g\"/extraJavaOpts: ${EXTRA_JAVA_OPTS}/" /var/opt/jfrog/artifactory/etc/system.yaml
 
-# Node settings
-#sed -i -e 's/node/#node/' /var/opt/jfrog/artifactory/etc/system.yaml
-#HOSTNAME=$(hostname -i)
-#sed -i -e "s/#id: \"art1\"/id: \"art-$(date +%s$RANDOM)\"/" /var/opt/jfrog/artifactory/etc/system.yaml
-#sed -i -e "s/#ip:/ip: ${HOSTNAME}/" /var/opt/jfrog/artifactory/etc/system.yaml
-
 # Set MS SQL configuration
-#sed -i -e 's/database/#database/' /var/opt/jfrog/artifactory/etc/system.yaml
 cat <<EOF >>/var/opt/jfrog/artifactory/etc/system.yaml
     ## One of: mysql, oracle, mssql, postgresql, mariadb
     ## Default: Embedded derby
@@ -147,25 +140,13 @@ cat <<EOF >>/var/opt/jfrog/artifactory/etc/system.yaml
 
 EOF
 
-
-# Remove data folder with all Derby files (in case if Artifactory was started before),
-# On the first run Artifactory generate join key and puts it into Derby DB, which creates
-# a conflict if other DB is used
-#rm -rf /var/opt/jfrog/artifactory/data
-
-# Remove join key, it will be regenerated at the time of the first run of Artifactory
-#rm /var/opt/jfrog/artifactory/etc/security/join.key
-
-# Pass the master key from parameters
-#cat <<EOF >/var/opt/jfrog/artifactory/etc/security/master.key
-
 mkdir -p /var/opt/jfrog/artifactory/etc/security
 
 cat <<EOF >/opt/jfrog/artifactory/var/etc/security/master.key
 ${MASTER_KEY}
 EOF
 
-# NOTE: Path is changed in Artifactory 7
+# NOTE: Path is changed in Artifactory 7. Non-HA configuration
 cat <<EOF >/var/opt/jfrog/artifactory/etc/artifactory/binarystore.xml
 <config version="1">
     <chain template="azure-blob-storage"/>

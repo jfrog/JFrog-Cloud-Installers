@@ -11,8 +11,6 @@ MASTER_KEY=$(cat /var/lib/cloud/instance/user-data.txt | grep "^MASTER_KEY=" | s
 IS_PRIMARY=$(cat /var/lib/cloud/instance/user-data.txt | grep "^IS_PRIMARY=" | sed "s/IS_PRIMARY=//")
 
 
-UBUNTU_CODENAME=$(cat /etc/lsb-release | grep "^DISTRIB_CODENAME=" | sed "s/DISTRIB_CODENAME=//")
-
 export DEBIAN_FRONTEND=noninteractive
 
 #Generate Self-Signed Cert
@@ -88,7 +86,6 @@ server {
   ## error_log /var/log/nginx/artifactory-error.log;
   rewrite ^/$ /artifactory/webapp/ redirect;
   rewrite ^/artifactory/?(/webapp)?$ /artifactory/webapp/ redirect;
-  rewrite ^/(v1|v2)/(.*) /artifactory/api/docker/\$repo/\$1/\$2;
   chunked_transfer_encoding on;
   client_max_body_size 0;
   location /artifactory/ {
@@ -103,6 +100,18 @@ server {
     proxy_set_header    Host              \$http_host;
     proxy_set_header    X-Forwarded-For   \$proxy_add_x_forwarded_for;
    }
+      location / {
+      proxy_read_timeout  2400;
+      proxy_pass_header   Server;
+      proxy_cookie_path   ~*^/.* /;
+      proxy_pass          http://127.0.0.1:8082;
+      proxy_set_header    X-Artifactory-Override-Base-Url \$http_x_forwarded_proto://\$host:\$server_port/artifactory;
+      proxy_set_header    X-Forwarded-Port  \$server_port;
+      proxy_set_header    X-Forwarded-Proto \$http_x_forwarded_proto;
+      proxy_set_header    Host              \$http_host;
+      proxy_set_header    X-Forwarded-For   \$proxy_add_x_forwarded_for;
+   }
+
 }
 EOF
 
@@ -114,76 +123,41 @@ else
     NODE_NAME=art-$(date +%s$RANDOM)
 fi
 
-cat <<EOF >/var/opt/jfrog/artifactory/etc/ha-node.properties
-node.id=${NODE_NAME}
-artifactory.ha.data.dir=/var/opt/jfrog/artifactory/data
-context.url=http://${HOSTNAME}:8081/artifactory
-access.context.url=http://${HOSTNAME}:8081/access
-membership.port=10001
-hazelcast.interface=${HOSTNAME}
-primary=${IS_PRIMARY}
-EOF
+# Java options
+EXTRA_JAVA_OPTS=$(cat /var/lib/cloud/instance/user-data.txt | grep "^EXTRA_JAVA_OPTS=" | sed "s/EXTRA_JAVA_OPTS=//")
+sed -i -e "s/#extraJavaOpts: \"-Xms512m -Xmx2g\"/extraJavaOpts: ${EXTRA_JAVA_OPTS}/" /var/opt/jfrog/artifactory/etc/system.yaml
 
-cat <<EOF >/var/opt/jfrog/artifactory/etc/db.properties
-type=mssql
-driver=com.microsoft.sqlserver.jdbc.SQLServerDriver
-url=${DB_URL};databaseName=${DB_NAME};sendStringParametersAsUnicode=false;applicationName=Artifactory Binary Repository
-username=${DB_USER}
-password=${DB_PASSWORD}
+# Set MS SQL configuration
+cat <<EOF >>/var/opt/jfrog/artifactory/etc/system.yaml
+    ## One of: mysql, oracle, mssql, postgresql, mariadb
+    ## Default: Embedded derby
+    ## Example for mysql
+      type: mssql
+      driver: com.microsoft.sqlserver.jdbc.SQLServerDriver
+      url: ${DB_URL};databaseName=${DB_NAME};sendStringParametersAsUnicode=false;applicationName=Artifactory Binary Repository
+      username: ${DB_USER}
+      password: ${DB_PASSWORD}
+
 EOF
 
 mkdir -p /var/opt/jfrog/artifactory/etc/security
 
-cat <<EOF >/var/opt/jfrog/artifactory/etc/security/master.key
+cat <<EOF >/opt/jfrog/artifactory/var/etc/security/master.key
 ${MASTER_KEY}
 EOF
 
-cat <<EOF >/var/opt/jfrog/artifactory/etc/binarystore.xml
-<config version="2">
-    <chain>
-       <provider id="cache-fs-eventual-azure-blob-storage" type="cache-fs">
-           <provider id="sharding-cluster-eventual-azure-blob-storage" type="sharding-cluster">
-               <sub-provider id="eventual-cluster-azure-blob-storage" type="eventual-cluster">
-                   <provider id="retry-azure-blob-storage" type="retry">
-                       <provider id="azure-blob-storage" type="azure-blob-storage"/>
-                   </provider>
-               </sub-provider>
-               <dynamic-provider id="remote-azure-blob-storage" type="remote"/>
-           </provider>
-       </provider>
-   </chain>
-
-    <!-- cluster eventual Azure Blob Storage Service default chain -->
-    <provider id="sharding-cluster-eventual-azure-blob-storage" type="sharding-cluster">
-        <readBehavior>crossNetworkStrategy</readBehavior>
-        <writeBehavior>crossNetworkStrategy</writeBehavior>
-        <redundancy>2</redundancy>
-        <lenientLimit>1</lenientLimit>
-        <property name="zones" value="local,remote"/>
-    </provider>
-
-    <provider id="remote-azure-blob-storage" type="remote">
-        <zone>remote</zone>
-    </provider>
-
-    <provider id="eventual-cluster-azure-blob-storage" type="eventual-cluster">
-        <zone>local</zone>
-    </provider>
-
-    <!--cluster eventual template-->
+# NOTE: Path is changed in Artifactory 7. Non-HA configuration
+cat <<EOF >/var/opt/jfrog/artifactory/etc/artifactory/binarystore.xml
+<config version="1">
+    <chain template="azure-blob-storage"/>
     <provider id="azure-blob-storage" type="azure-blob-storage">
         <accountName>${STORAGE_ACCT}</accountName>
         <accountKey>${STORAGE_ACCT_KEY}</accountKey>
-        <endpoint>${STORAGE_ACT_ENDPOINT}</endpoint>
+        <endpoint>https://${STORAGE_ACCT}.blob.core.windows.net/</endpoint>
         <containerName>${STORAGE_CONTAINER}</containerName>
     </provider>
 </config>
 EOF
-
-HOSTNAME=$(hostname -i)
-sed -i -e "s/art1/art-$(date +%s$RANDOM)/" /var/opt/jfrog/artifactory/etc/ha-node.properties
-sed -i -e "s/127.0.0.1/$HOSTNAME/" /var/opt/jfrog/artifactory/etc/ha-node.properties
-sed -i -e "s/172.25.0.3/$HOSTNAME/" /var/opt/jfrog/artifactory/etc/ha-node.properties
 
 cat /var/lib/cloud/instance/user-data.txt | grep "^CERTIFICATE=" | sed "s/CERTIFICATE=//" > /tmp/temp.pem
 cat /tmp/temp.pem | sed 's/CERTIFICATE----- /&\n/g' | sed 's/ -----END/\n-----END/g' | awk '{if($0 ~ /----/) {print;} else { gsub(/ /,"\n");print;}}' > /etc/pki/tls/certs/cert.pem
@@ -193,9 +167,6 @@ cat /var/lib/cloud/instance/user-data.txt | grep "^CERTIFICATE_KEY=" | sed "s/CE
 cat /tmp/temp.key | sed 's/KEY----- /&\n/' | sed 's/ -----END/\n-----END/' | awk '{if($0 ~ /----/) {print;} else { gsub(/ /,"\n");print;}}' > /etc/pki/tls/private/cert.key
 rm /tmp/temp.key
 
-EXTRA_JAVA_OPTS=$(cat /var/lib/cloud/instance/user-data.txt | grep "^EXTRA_JAVA_OPTS=" | sed "s/EXTRA_JAVA_OPTS=//")
-[ -z "$EXTRA_JAVA_OPTS" ] && EXTRA_JAVA_OPTS='-server -Xms2g -Xmx6g -Xss256k -XX:+UseG1GC -XX:OnOutOfMemoryError="kill -9 %p"'
-echo "export JAVA_OPTIONS=\"${EXTRA_JAVA_OPTS}\"" >> /var/opt/jfrog/artifactory/etc/default
 chown artifactory:artifactory -R /var/opt/jfrog/artifactory/*  && chown artifactory:artifactory -R /var/opt/jfrog/artifactory/etc/security && chown artifactory:artifactory -R /var/opt/jfrog/artifactory/etc/*
 
 # start Artifactory
@@ -203,4 +174,4 @@ sleep $((RANDOM % 240))
 service artifactory start
 service nginx start
 nginx -s reload
-echo "INFO: Artifactory installation completed." > /tmp/artifactory-install.log
+echo "INFO: Artifactory installation completed." >> /tmp/artifactory-install.log
