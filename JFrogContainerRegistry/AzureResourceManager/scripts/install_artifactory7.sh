@@ -166,42 +166,12 @@ ${MASTER_KEY}
 EOF
 
 cat <<EOF >/var/opt/jfrog/artifactory/etc/binarystore.xml
-<config version="2">
-    <chain>
-       <provider id="cache-fs-eventual-azure-blob-storage" type="cache-fs">
-           <provider id="sharding-cluster-eventual-azure-blob-storage" type="sharding-cluster">
-               <sub-provider id="eventual-cluster-azure-blob-storage" type="eventual-cluster">
-                   <provider id="retry-azure-blob-storage" type="retry">
-                       <provider id="azure-blob-storage" type="azure-blob-storage"/>
-                   </provider>
-               </sub-provider>
-               <dynamic-provider id="remote-azure-blob-storage" type="remote"/>
-           </provider>
-       </provider>
-   </chain>
-
-    <!-- cluster eventual Azure Blob Storage Service default chain -->
-    <provider id="sharding-cluster-eventual-azure-blob-storage" type="sharding-cluster">
-        <readBehavior>crossNetworkStrategy</readBehavior>
-        <writeBehavior>crossNetworkStrategy</writeBehavior>
-        <redundancy>2</redundancy>
-        <lenientLimit>1</lenientLimit>
-        <property name="zones" value="local,remote"/>
-    </provider>
-
-    <provider id="remote-azure-blob-storage" type="remote">
-        <zone>remote</zone>
-    </provider>
-
-    <provider id="eventual-cluster-azure-blob-storage" type="eventual-cluster">
-        <zone>local</zone>
-    </provider>
-
-    <!--cluster eventual template-->
+<config version="1">
+    <chain template="azure-blob-storage"/>
     <provider id="azure-blob-storage" type="azure-blob-storage">
         <accountName>${STORAGE_ACCT}</accountName>
         <accountKey>${STORAGE_ACCT_KEY}</accountKey>
-        <endpoint>${STORAGE_ACT_ENDPOINT}</endpoint>
+        <endpoint>https://${STORAGE_ACCT}.blob.core.windows.net/</endpoint>
         <containerName>${STORAGE_CONTAINER}</containerName>
     </provider>
 </config>
