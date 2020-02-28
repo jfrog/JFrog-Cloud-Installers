@@ -160,7 +160,7 @@
             "toolTip": "Provide your SSL Certificate key",
             "constraints": {
               "required": true,
-              "regex": "^(-----BEGIN PRIVATE KEY-----)(.+)(-----END PRIVATE KEY-----)$",
+              "regex": "^(-----BEGIN)(.+)(PRIVATE KEY-----)(.+)(-----END)(.+)(PRIVATE KEY-----)$",
               "validationMessage": "Provide SSL Certificate Key."
             },
             "options": {
