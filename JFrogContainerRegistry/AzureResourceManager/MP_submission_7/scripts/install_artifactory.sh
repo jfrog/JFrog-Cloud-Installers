@@ -147,6 +147,7 @@ ${MASTER_KEY}
 EOF
 
 # NOTE: Path is changed in Artifactory 7. Non-HA configuration
+mkdir -p /var/opt/jfrog/artifactory/etc/artifactory
 cat <<EOF >/var/opt/jfrog/artifactory/etc/artifactory/binarystore.xml
 <config version="1">
     <chain template="azure-blob-storage"/>
