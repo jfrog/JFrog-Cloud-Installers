@@ -40,6 +40,7 @@
         "6.6.1",
         "6.7.0",
         "6.8.0",
+        "0.16.0",
         "7.0.0717",
         "7.0.4001",
         "7.2.1"
@@ -197,7 +198,7 @@
       "metadata": {
         "description": "The base URI where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
       },
-      "defaultValue": "https://raw.githubusercontent.com/JFrogDev/JFrog-Cloud-Installers/refactoring-rt7/AzureResourceManager/"
+      "defaultValue": "https://raw.githubusercontent.com/JFrogDev/JFrog-Cloud-Installers/refactoring-rt6-rt7/AzureResourceManager/"
     },
     "_artifactsLocationSasToken": {
       "type": "securestring",
@@ -903,11 +904,13 @@
                   "autoUpgradeMinorVersion": false,
                   "settings": {
                     "fileUris": [
-                      "[uri(parameters('_artifactsLocation'), concat('scripts/install_artifactory7.sh', parameters('_artifactsLocationSasToken')))]"
+                      "[uri(parameters('_artifactsLocation'), concat('scripts/install_artifactory.sh', parameters('_artifactsLocationSasToken')))]",
+                      "[uri(parameters('_artifactsLocation'), concat('scripts/install_artifactory7.sh', parameters('_artifactsLocationSasToken')))]",
+                      "[uri(parameters('_artifactsLocation'), concat('scripts/version_selector.sh', parameters('_artifactsLocationSasToken')))]"
                     ]
                   },
                   "protectedSettings": {
-                    "commandToExecute": "sh install_artifactory7.sh"
+                    "commandToExecute": "sh version_selector.sh"
                   }
                 }
               }
