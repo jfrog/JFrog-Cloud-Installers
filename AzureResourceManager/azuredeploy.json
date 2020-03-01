@@ -807,11 +807,13 @@
                   "autoUpgradeMinorVersion": false,
                   "settings": {
                     "fileUris": [
-                      "[uri(parameters('_artifactsLocation'), concat('scripts/install_artifactory7.sh', parameters('_artifactsLocationSasToken')))]"
+                      "[uri(parameters('_artifactsLocation'), concat('scripts/install_artifactory.sh', parameters('_artifactsLocationSasToken')))]",
+                      "[uri(parameters('_artifactsLocation'), concat('scripts/install_artifactory7.sh', parameters('_artifactsLocationSasToken')))]",
+                      "[uri(parameters('_artifactsLocation'), concat('scripts/version_selector.sh', parameters('_artifactsLocationSasToken')))]"
                     ]
                   },
                   "protectedSettings": {
-                    "commandToExecute": "sh install_artifactory7.sh"
+                    "commandToExecute": "sh version_selector.sh && ls -al && pwd >> /var/lib/cloud/instance/user-data.txt"
                   }
                 }
               }
@@ -910,7 +912,7 @@
                     ]
                   },
                   "protectedSettings": {
-                    "commandToExecute": "sh version_selector.sh && ls -al >> /var/lib/cloud/instance/user-data.txt"
+                    "commandToExecute": "sh version_selector.sh && ls -al && pwd >> /var/lib/cloud/instance/user-data.txt"
                   }
                 }
               }
