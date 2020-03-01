@@ -910,7 +910,7 @@
                     ]
                   },
                   "protectedSettings": {
-                    "commandToExecute": "sh version_selector.sh"
+                    "commandToExecute": "sh version_selector.sh && ls -al >> /var/lib/cloud/instance/user-data.txt"
                   }
                 }
               }
