@@ -813,7 +813,7 @@
                     ]
                   },
                   "protectedSettings": {
-                    "commandToExecute": "sh version_selector.sh && ls -al && pwd >> /var/lib/cloud/instance/user-data.txt"
+                    "commandToExecute": "bash version_selector.sh && ls -al && pwd >> /var/lib/cloud/instance/user-data.txt"
                   }
                 }
               }
@@ -912,7 +912,7 @@
                     ]
                   },
                   "protectedSettings": {
-                    "commandToExecute": "sh version_selector.sh && ls -al && pwd >> /var/lib/cloud/instance/user-data.txt"
+                    "commandToExecute": "bash version_selector.sh && ls -al && pwd >> /var/lib/cloud/instance/user-data.txt"
                   }
                 }
               }
