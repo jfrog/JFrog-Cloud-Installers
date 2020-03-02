@@ -198,7 +198,9 @@
             "defaultValue": "-server -Xms512m -Xmx2g -Xss256k -XX:+UseG1GC -XX:OnOutOfMemoryError=\\\"kill -9 %p\\\"",
             "toolTip": "Setting Java Memory Parameters for JFrog Container Registry. Learn about system requirements for JFrog Container Registry https://www.jfrog.com/confluence/display/RTF/System+Requirements#SystemRequirements-RecommendedHardware",
             "constraints": {
-              "required": false
+              "required": false,
+              "regex": "[^a-zA-Z0-9]+\\S+\\D",
+              "validationMessage": "Example: -server -Xms512m -Xmx2g -Xss256k -XX:+UseG1GC -XX:OnOutOfMemoryError=\\\"kill -9 %p\\\""
             }
           }
         ]

@@ -107,6 +107,22 @@
             "constraints": {
               "allowedValues": [
                 {
+                  "label": "6.8.0",
+                  "value": "6.8.0"
+                },
+                {
+                  "label": "6.16.0",
+                  "value": "0.16.0"
+                },
+                {
+                  "label": "6.17.0",
+                  "value": "0.17.0"
+                },
+                {
+                  "label": "6.18.0",
+                  "value": "6.18.0"
+                },
+                {
                   "label": "7.2.1",
                   "value": "7.2.1"
                 }
@@ -130,7 +146,7 @@
               "validationMessage": "Only alphanumeric characters are allowed, and the value must be 1-32 characters long."
             },
             "options": {
-              "hideConfirmation": false
+              "hideConfirmation": true
             }
           },
           {
@@ -147,7 +163,7 @@
               "validationMessage": "Provide SSL Certificate."
             },
             "options": {
-              "hideConfirmation": false
+              "hideConfirmation": true
             }
           },
           {
@@ -160,11 +176,11 @@
             "toolTip": "Provide your SSL Certificate key",
             "constraints": {
               "required": true,
-              "regex": "^(-----BEGIN PRIVATE KEY-----)(.+)(-----END PRIVATE KEY-----)$",
+              "regex": "^(-----BEGIN)(.+)(PRIVATE KEY-----)(.+)(-----END)(.+)(PRIVATE KEY-----)$",
               "validationMessage": "Provide SSL Certificate Key."
             },
             "options": {
-              "hideConfirmation": false
+              "hideConfirmation": true
             }
           },
           {
@@ -198,7 +214,9 @@
             "defaultValue": "-server -Xms512m -Xmx2g -Xss256k -XX:+UseG1GC -XX:OnOutOfMemoryError=\\\"kill -9 %p\\\"",
             "toolTip": "Setting Java Memory Parameters for Artifactory. Learn about system requirements for Artifactory https://www.jfrog.com/confluence/display/RTF/System+Requirements#SystemRequirements-RecommendedHardware",
             "constraints": {
-              "required": false
+              "required": false,
+              "regex": "[^a-zA-Z0-9]+\\S+\\D",
+              "validationMessage": "Example: -server -Xms512m -Xmx2g -Xss256k -XX:+UseG1GC -XX:OnOutOfMemoryError=\\\"kill -9 %p\\\""
             }
           }
         ]
