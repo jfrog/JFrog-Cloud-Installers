@@ -78,7 +78,7 @@
             "label": "Virtual machine size",
             "toolTip": "The size of the virtual machine for Artifactory",
             "recommendedSizes": [
-              "Standard_A2_v2"
+              "Standard_D8s_v3"
             ],
             "constraints": {
               "allowedSizes": [
@@ -87,7 +87,9 @@
                 "Standard_A4",
                 "Standard_D2s_v3",
                 "Standard_D4s_v3",
-                "Standard_DS2_v2",
+                "Standard_D8s_v3",
+                "Standard_D16s_v3",
+                "Standard_D32s_v3",
                 "Standard_DS3_v2",
                 "Standard_D2_v2",
                 "Standard_D3_v2",
@@ -99,11 +101,40 @@
             "count": 1
           },
           {
+            "name": "nodeCount",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Number of additional VM instances for member Artifactory nodes. Minimum 1 node.(+1 primary = 2 node cluster)",
+            "defaultValue": "2",
+            "toolTip": "Number of Artifactory member nodes in cluster",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "1",
+                  "value": 1
+                },
+                {
+                  "label": "2",
+                  "value": 2
+                },
+                {
+                  "label": "3",
+                  "value": 3
+                },
+                {
+                  "label": "4",
+                  "value": 4
+                }
+              ],
+              "required": true
+            },
+            "visible": "true"
+          },
+          {
             "name": "artifactoryVersion",
             "type": "Microsoft.Common.DropDown",
             "label": "Artifactory-vm image version to deploy.",
             "defaultValue": "7.2.1",
-            "toolTip": "",
+            "toolTip": "Version of Artifactory to deploy",
             "constraints": {
               "allowedValues": [
                 {
@@ -147,6 +178,61 @@
             },
             "options": {
               "hideConfirmation": true
+            }
+          },
+          {
+            "name": "artifactoryLicense1",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Artifactory Enterprise License.",
+            "toolTip": "Artifactory Enterprise License. Providing one license is mandatory",
+            "constraints": {
+              "required": true,
+              "regex": "^.{1,10000}",
+              "validationMessage": "Only Enterprise licenses are allowed."
+            }
+          },
+          {
+            "name": "artifactoryLicense2",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Artifactory Enterprise License.",
+            "toolTip": "Artifactory Enterprise License. Providing one license is mandatory",
+            "constraints": {
+              "required": true,
+              "regex": "^.{1,10000}",
+              "validationMessage": "Only Enterprise licenses are allowed."
+            }
+          },
+          {
+            "name": "artifactoryLicense3",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Artifactory Enterprise License.",
+            "toolTip": "Artifactory Enterprise License. Providing one license is mandatory",
+            "constraints": {
+              "required": false,
+              "regex": "^.{1,10000}",
+              "validationMessage": "Only Enterprise licenses are allowed."
+            }
+          },
+          {
+            "name": "artifactoryLicense4",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Artifactory Enterprise License.",
+            "toolTip": "Artifactory Enterprise License. Providing one license is mandatory",
+            "constraints": {
+              "required": false,
+              "regex": "^.{1,10000}",
+              "validationMessage": "Only Enterprise licenses are allowed."
+            }
+          },
+          {
+            "name": "artifactoryLicense5",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Artifactory Enterprise License.",
+            "toolTip": "Artifactory Enterprise License. Providing one license is mandatory",
+            "constraints": {
+              "required": false,
+              "regex": "^.{1,10000}",
+              "validationMessage": "Only Enterprise licenses are allowed."
             }
           },
           {
@@ -211,12 +297,12 @@
             "name": "extraJavaOptions",
             "type": "Microsoft.Common.TextBox",
             "label": "Setting Java Memory Parameters for Artifactory",
-            "defaultValue": "-server -Xms512m -Xmx2g -Xss256k -XX:+UseG1GC -XX:OnOutOfMemoryError=\\\"kill -9 %p\\\"",
-            "toolTip": "Setting Java Memory Parameters for Artifactory. Learn about system requirements for Artifactory https://www.jfrog.com/confluence/display/RTF/System+Requirements#SystemRequirements-RecommendedHardware",
+            "defaultValue": "-server -Xms2g -Xmx12g -Xss256k -XX:+UseG1GC -XX:OnOutOfMemoryError=\\\"kill -9 %p\\\"",
+            "toolTip": "Setting Java Memory Parameters for Artifactory. Learn about system requirements for Artifactory https://www.jfrog.com/confluence/display/RTF/System+Requirements#SystemRequirements-RecommendedHardware.",
             "constraints": {
               "required": false,
               "regex": "[^a-zA-Z0-9]+\\S+\\D",
-              "validationMessage": "Example: -server -Xms512m -Xmx2g -Xss256k -XX:+UseG1GC -XX:OnOutOfMemoryError=\\\"kill -9 %p\\\""
+              "validationMessage": "Example: -server -Xms2g -Xmx12g -Xss256k -XX:+UseG1GC -XX:OnOutOfMemoryError=\\\"kill -9 %p\\\""
             }
           }
         ]
@@ -331,8 +417,14 @@
       "clusterName": "[steps('clusterConfig').clusterName]",
       "vmSku": "[steps('clusterConfig').vmSku]",
       "location": "[location()]",
+      "nodeCount": "[steps('clusterConfig').nodeCount]",
       "artifactoryVersion": "[steps('clusterConfig').artifactoryVersion]",
       "masterKey": "[steps('clusterConfig').masterKey]",
+      "artifactoryLicense1": "[steps('clusterConfig').artifactoryLicense1]",
+      "artifactoryLicense2": "[steps('clusterConfig').artifactoryLicense2]",
+      "artifactoryLicense3": "[steps('clusterConfig').artifactoryLicense3]",
+      "artifactoryLicense4": "[steps('clusterConfig').artifactoryLicense4]",
+      "artifactoryLicense5": "[steps('clusterConfig').artifactoryLicense5]",
       "certificate": "[steps('clusterConfig').certificate]",
       "certificateKey": "[steps('clusterConfig').certificateKey]",
       "certificateDomain": "[steps('clusterConfig').certificateDomain]",

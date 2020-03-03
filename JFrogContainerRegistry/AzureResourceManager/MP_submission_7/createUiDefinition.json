@@ -103,7 +103,7 @@
             "type": "Microsoft.Common.DropDown",
             "label": "JFrog Container Registry-vm image version to deploy.",
             "defaultValue": "0.16.0",
-            "toolTip": "Version of JFrog Container Registry to dpeloy",
+            "toolTip": "Version of JFrog Container Registry to deploy",
             "constraints": {
               "allowedValues": [
                 {

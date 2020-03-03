@@ -227,7 +227,6 @@
     "bepoolMemberName": "[concat(variables('lbName'), 'memberBepool')]",
     "fepoolPrimaryName": "[concat(variables('lbName'), 'primaryFepool')]",
     "fepoolMemberName": "[concat(variables('lbName'), 'memberFepool')]",
-    "lbID": "[resourceId('Microsoft.Network/loadBalancers', variables('lbName'))]",
     "bepoolPrimaryID": "[resourceId('Microsoft.Network/loadBalancers/backendAddressPools', variables('lbName'), variables('bepoolPrimaryName'))]",
     "bepoolMemberID": "[resourceId('Microsoft.Network/loadBalancers/backendAddressPools', variables('lbName'), variables('bepoolMemberName'))]",
     "feIpConfigPrimaryName": "[concat(variables('fepoolPrimaryName'), 'primaryIpConfig')]",
@@ -278,7 +277,7 @@
   },
   "resources": [
     {
-      "apiVersion": "2018-02-01",
+      "apiVersion": "2019-05-01",
       "name": "pid-04c1c376-5d4b-4771-9a7f-054f5910dcef",
       "type": "Microsoft.Resources/deployments",
       "properties": {
