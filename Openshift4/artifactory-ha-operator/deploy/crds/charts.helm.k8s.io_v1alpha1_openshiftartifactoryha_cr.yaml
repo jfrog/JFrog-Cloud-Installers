@@ -748,6 +748,7 @@ spec:
     customArtifactoryConfigMap: null
     customConfigMap: null
     enabled: true
+    tlsSecretName: tls-ingress
     gid: 107
     http:
       enabled: true
