@@ -1,6 +1,6 @@
 dependencies:
-- name: postgresql
-  repository: https://kubernetes-charts.storage.googleapis.com/
-  version: 7.0.1
-digest: sha256:dcdafe9ab91ccf0e5883e2b5dd9ba13e82190b5e16e6dee6d39fd16a04123ce8
-generated: 2019-11-10T13:12:29.836238+02:00
+- name: artifactory-ha
+  repository: https://charts.jfrog.io/
+  version: 2.0.25
+digest: sha256:1de97dca862a0b7e74fc937fbeff231119071a00cea8e42f92adb87c59fa554c
+generated: "2020-03-09T12:41:44.126599-07:00"
