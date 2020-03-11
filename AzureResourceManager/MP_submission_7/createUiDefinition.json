@@ -169,7 +169,6 @@
               "password": "Artifactory master Key",
               "confirmPassword": "Confirm master Key"
             },
-            "defaultValue": "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
             "toolTip": "Master key for Artifactory cluster. Generate master.key using command '$openssl rand -hex 16'",
             "constraints": {
               "required": true,

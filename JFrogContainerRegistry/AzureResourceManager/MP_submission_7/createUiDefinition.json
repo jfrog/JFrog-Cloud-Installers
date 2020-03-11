@@ -122,7 +122,6 @@
               "password": "JFrog Container Registry master Key",
               "confirmPassword": "Confirm master Key"
             },
-            "defaultValue": "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
             "toolTip": "Master key for JFrog Container Registry cluster. Generate master.key using command '$openssl rand -hex 16'",
             "constraints": {
               "required": true,
