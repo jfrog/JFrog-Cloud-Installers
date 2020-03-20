@@ -760,7 +760,8 @@ spec:
       internalPort: 443
     image:
       pullPolicy: IfNotPresent
-      repository: image-registry.openshift-image-registry.svc:5000/jfrog-artifactory/nginx-artifactory-pro
+      #repository: image-registry.openshift-image-registry.svc:5000/jfrog-artifactory/nginx-artifactory-pro
+      repository: registry.redhat.io/rhel8/nginx-116
     labels: {}
     livenessProbe:
       enabled: true
@@ -819,7 +820,7 @@ spec:
         #tcp_nopush     on;
         keepalive_timeout  65;
         #gzip  on;
-        include /etc/nginx/conf.d/*.conf;
+        include {{ .Values.nginx.persistence.mountPath }}/conf.d/*.conf;
       }
     name: nginx
     nodeSelector: {}

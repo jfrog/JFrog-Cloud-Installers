@@ -583,7 +583,7 @@ metadata:
       ]
     capabilities: Basic Install
   name: artifactory-ha-operator.v1.0.0
-  namespace: placeholder
+  namespace: jfrog-artifactory
 spec:
   apiservicedefinitions: {}
   customresourcedefinitions: {}
@@ -728,6 +728,17 @@ spec:
           - patch
           - update
           - watch
+        serviceAccountName: artifactory-ha-operator
+      clusterPermissions:
+      - rules:
+        - apiGroups:
+          - security.openshift.io
+          resources:
+          - securitycontextconstraints
+          resourceNames:
+          - anyuid
+          verbs:
+          - use
         serviceAccountName: artifactory-ha-operator
     strategy: deployment
   installModes:

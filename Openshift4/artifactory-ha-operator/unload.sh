@@ -8,3 +8,9 @@ oc delete pods --all
 oc delete svc --all
 oc delete networkpolicies --all
 oc delete pvc --all
+oc delete PodDisruptionBudget --all
+for s in $(oc get secrets | grep artifactory | cut -f1 -d ' '); do
+    oc delete secret $s
+done
+oc delete serviceaccount artifactoryha-artifactory-ha
+oc delete role artifactoryha-artifactory-ha  

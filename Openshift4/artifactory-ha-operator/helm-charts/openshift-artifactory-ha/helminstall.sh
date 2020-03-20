@@ -3,8 +3,7 @@
 if [[ -z "$1" ]]
 then 
   echo "Skipping creation of persistent volume examples. Ensure there is available PVs 200Gi per node for HA." 
-else 
-  oc create -f pv-examples/ 
+else
   oc new-project jfrog-artifactory
   oc create serviceaccount svcaccount -n jfrog-artifactory
   oc adm policy add-scc-to-user privileged system:serviceaccount:jfrog-artifactory:svcaccount
@@ -25,6 +24,5 @@ fi
 
 # install via helm
 helm install artifactory-ha . \
-               --set nginx.tlsSecretName=tls-ingress \
-               --set artifactory-ha.artifactory.node.replicaCount=1 \
+               --set artifactory-ha.nginx.tlsSecretName=tls-ingress \
                --set artifactory-ha.artifactory.license.secret=artifactory-license,artifactory-ha.artifactory.license.dataKey=artifactory.cluster.license

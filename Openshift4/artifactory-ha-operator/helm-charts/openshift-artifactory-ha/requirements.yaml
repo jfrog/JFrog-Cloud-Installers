@@ -1,4 +1,4 @@
 dependencies:
   - name: artifactory-ha
-    version: 2.0.25
+    version: 2.0.31
     repository: https://charts.jfrog.io/
