@@ -62,12 +62,12 @@ do
   SUCCESS=false
   for i in {1..30}
   do
-        STATUS=$(curl -u admin:$ARTIFACTORY_PASSWORD http://localhost:8082/router/api/v1/system/health | jq .services[0].state)
-          if [ "$STATUS" == "\"HEALTHY\"" ]; then
-              echo "Build successful!"
-              SUCCESS=true
-              break
-          fi
+      STATUS=$(docker exec -it test-new-image curl -u admin:$ARTIFACTORY_PASSWORD http://localhost:8082/router/api/v1/system/health | jq .services[0].state)
+      if [ "$STATUS" == "\"HEALTHY\"" ]; then
+          echo "Build successful!"
+          SUCCESS=true
+          break
+      fi
       echo "Container is not up yet, waiting 10 seconds..."
       sleep 10
   done
