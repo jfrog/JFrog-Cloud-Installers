@@ -77,7 +77,6 @@ done
 
 if [ "$SUCCESS" = true ] ; then
   echo "Test Succeeded. Build succeeded."
-  docker push $BUILD_IMAGE_NAME:$VERSION
 else
   echo "Test failed. Build failed. Removing docker image"
 fi
