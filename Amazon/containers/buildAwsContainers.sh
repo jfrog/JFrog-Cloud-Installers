@@ -28,7 +28,7 @@ do
   #Create installer-info file
   if [ "$EDITION" == "artifactory-pro" ]
   then
-    cat <<"    EOF" > installer-info.json
+    cat <<EOF > installer-info.json
     {
       "productId": "CloudFormation_artifactory-ha/$VERSION",
       "features": [
@@ -37,9 +37,9 @@ do
         }
       ]
     }
-    EOF
+EOF
   else
-    cat <<"    EOF" > installer-info.json
+    cat <<EOF > installer-info.json
     {
       "productId": "CloudFormation_artifactory-jcr/$VERSION",
       "features": [
@@ -48,7 +48,7 @@ do
         }
       ]
     }
-    EOF
+EOF
   fi
   cat installer-info.json
 
