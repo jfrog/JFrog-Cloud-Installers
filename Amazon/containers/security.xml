@@ -1,0 +1,18 @@
+<security version="v8">
+<users>
+<user>
+<username>admin</username>
+<password></password>
+<salt>CAFEBABEEBABEFAC</salt>
+<admin>true</admin>
+<enabled>true</enabled>
+<updatableProfile>true</updatableProfile>
+<accountNonExpired>true</accountNonExpired>
+<credentialsNonExpired>true</credentialsNonExpired>
+<accountNonLocked>true</accountNonLocked>
+<realm>internal</realm>
+<transientUser>false</transientUser>
+<groups/>
+</user>
+</users>
+</security>

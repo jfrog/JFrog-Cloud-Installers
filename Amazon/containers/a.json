@@ -1,0 +1,27 @@
+{
+        "router": {
+                "node_id": "1dae71383ae3",
+                "state": "HEALTHY",
+                "message": "OK"
+        },
+        "services": [
+                {
+                        "service_id": "jfac@01e49jb08bm7051xb2rp9k1ed8",
+                        "node_id": "1dae71383ae3",
+                        "state": "UNHEALTHY_PEER",
+                        "message": "Service is healthy; there is at least one unhealthy service; there are missing services: jffe"
+                },
+                {
+                        "service_id": "jfmd@01e49jbpqfhn39k8z3kyvqepzh",
+                        "node_id": "1dae71383ae3",
+                        "state": "UNHEALTHY_PEER",
+                        "message": "Service is healthy; there is at least one unhealthy service; there are missing services: jffe"
+                },
+                {
+                        "service_id": "jfrt@01e49jcq7t96ag11tq25h60759",
+                        "node_id": "1dae71383ae3",
+                        "state": "UNHEALTHY",
+                        "message": "unexpected response status code: 503"
+                }
+        ]
+}

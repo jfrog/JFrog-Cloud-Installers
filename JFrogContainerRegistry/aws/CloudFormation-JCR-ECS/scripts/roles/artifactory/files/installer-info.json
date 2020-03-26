@@ -1,7 +1,0 @@
-{
-  "productId": "JFrogInstaller_Cloudformation/1.0.0",
-  "features": [
-  {
-    "featureId": "MySql/5.5"
-  }]
-}
