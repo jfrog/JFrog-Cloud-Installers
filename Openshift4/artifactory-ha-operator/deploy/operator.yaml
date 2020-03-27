@@ -15,7 +15,7 @@ spec:
       serviceAccountName: artifactory-ha-operator
       containers:
         - name: artifactory-ha-operator
-          image: image-registry.openshift-image-registry.svc:5000/jfrog-artifactory/artifactory-ha
+          image: quay.io/jfrog/artifactory-ha-operator
           imagePullPolicy: IfNotPresent
           env:
             - name: WATCH_NAMESPACE
@@ -28,3 +28,17 @@ spec:
                   fieldPath: metadata.name
             - name: OPERATOR_NAME
               value: "artifactory-ha-operator"
+            - name: RELATED_IMAGE_ARTIFACTORY_IMAGE_REPOSITORY
+              value: "quay.io/jfrog/artifactory-rh-pro"
+            - name: RELATED_IMAGE_NGINX_IMAGE_REPOSITORY
+              value: "quay.io/jfrog/nginx-artifactory-rh-pro"
+            - name: DATABASE_TYPE
+              value: "OVERRIDE"
+            - name: DATABASE_DRIVER
+              value: "OVERRIDE"
+            - name: DATABASE_URL
+              value: "OVERRIDE"
+            - name: DATABASE_USER
+              value: "OVERRIDE"
+            - name: DATABASE_PASSWORD
+              value: "OVERRIDE"

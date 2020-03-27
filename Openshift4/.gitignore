@@ -1,3 +1,4 @@
 artifactory.cluster.license
 jfrog.team.crt
 jfrog.team.key
+artifactory-ha-operator/helm-charts/openshift-artifactory-ha

@@ -1,7 +1,7 @@
 apiVersion: operators.coreos.com/v1alpha2
 kind: OperatorGroup
 metadata:
-  name: jfrog-group
+  name: jfrog-operator-group
   namespace: jfrog-artifactory
 spec:
   targetNamespaces:

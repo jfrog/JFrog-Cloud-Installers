@@ -10,7 +10,7 @@ objects:
     annotations:
       openshift.io/description: JFrog Artifactory
       openshift.io/display-name: jfrog-artifactory
-      openshift.io/requester: johnp@jfrog.com
+      openshift.io/requester: integrations@jfrog.com
     creationTimestamp: null
     name: jfrog-artifactory
   spec: {}

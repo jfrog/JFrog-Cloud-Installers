@@ -2,8 +2,22 @@
 # Requires one custom init container
 # to resolve the user id perm issue with redhat
 artifactory-ha:
+  ###################################
+  # EDIT TO YOUR DB CONFIGURATION
+  ###################################
+  database:
+    type: "OVERRIDE"
+    driver: "OVERRIDE"
+    url: "OVERRIDE"
+    user: "OVERRIDE"
+    password: "OVERRIDE"
+
+  ###################################
+  # DO NOT EDIT FURTHER
+  ###################################
   initContainerImage: registry.redhat.io/ubi8-minimal
   waitForDatabase: false
+  installerInfo: '{ "productId": "Openshift_artifactory-ha/{{ .Chart.Version }}", "features": [ { "featureId": "ArtifactoryVersion/{{ default .Chart.AppVersion .Values.artifactory.image.version }}" }, { "featureId": "{{ if .Values.postgresql.enabled }}postgresql{{ else }}{{ default \"derby\" .Values.database.type }}{{ end }}/0.0.0" }, { "featureId": "Platform/{{ default \"openshift\" .Values.installer.platform }}" }, { "featureId": "Partner/ACC-006983" }, { "featureId": "Channel/Openshift" } ] }'
   artifactory:
     ## Add custom init containers execution before predefined init containers
     customInitContainersBegin: |
@@ -26,6 +40,8 @@ artifactory-ha:
     node:
       waitForPrimaryStartup:
         enabled: false
+  postgresql:
+    enabled: false
   nginx:
     image:
       repository: "image-registry.openshift-image-registry.svc:5000/jfrog-artifactory/nginx-artifactory-pro"
