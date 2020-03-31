@@ -133,7 +133,7 @@ spec:
                 - name: OPERATOR_NAME
                   value: artifactory-ha-operator
                 - name: RELATED_IMAGE_ARTIFACTORY_IMAGE_REPOSITORY
-                  value: quay.io/jfrog/artifactory-rh-pro
+                  value: registry.connect.redhat.com/jfrog/artifactory-pro
                 - name: RELATED_IMAGE_NGINX_IMAGE_REPOSITORY
                   value: quay.io/jfrog/nginx-artifactory-rh-pro
                 - name: DATABASE_TYPE
