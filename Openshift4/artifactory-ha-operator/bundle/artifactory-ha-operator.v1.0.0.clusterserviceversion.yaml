@@ -133,9 +133,9 @@ spec:
                 - name: OPERATOR_NAME
                   value: artifactory-ha-operator
                 - name: RELATED_IMAGE_ARTIFACTORY_IMAGE_REPOSITORY
-                  value: registry.connect.redhat.com/jfrog/artifactory-pro
+                  value: registry.connect.redhat.com/jfrog/artifactory-pro:7.3.2
                 - name: RELATED_IMAGE_NGINX_IMAGE_REPOSITORY
-                  value: quay.io/jfrog/nginx-artifactory-rh-pro
+                  value: registry.redhat.io/rhel8/nginx-116:latest
                 - name: DATABASE_TYPE
                   value: OVERRIDE
                 - name: DATABASE_DRIVER
@@ -146,7 +146,7 @@ spec:
                   value: OVERRIDE
                 - name: DATABASE_PASSWORD
                   value: OVERRIDE
-                image: quay.io/jfrog/artifactory-ha-operator
+                image: registry.connect.redhat.com/jfrog/artifactory-operator:7.3.2
                 imagePullPolicy: IfNotPresent
                 name: artifactory-ha-operator
                 resources: {}
@@ -277,5 +277,4 @@ spec:
     - "rpm"
     - "yum"
   maturity: alpha
-  replaces: artifactory-ha-operator.v0.0.0
   version: 1.0.0
