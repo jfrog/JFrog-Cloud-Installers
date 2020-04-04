@@ -1,0 +1,18 @@
+addExtraJavaArgs
+setupFirstTimePass() {
+    # Create a unique password
+    if [ -z "$ARTIFACTORY_PASSWORD" ]; then
+        echo "INFO: Since ARTIFACTORY_PASSWORD environment is not set. We are generating our own random password."
+        ARTIFACTORY_PASSWORD=$(openssl rand -base64 32 | tr -dc A-Za-z0-9 | head -c 18)
+        echo "Generated ARTIFACTORY_PASSWORD is $ARTIFACTORY_PASSWORD"
+        echo $ARTIFACTORY_PASSWORD > /var/opt/jfrog/artifactory/generated-pass.txt
+    fi
+    SALTED_PASSWD=$(echo -n ${ARTIFACTORY_PASSWORD}{CAFEBABEEBABEFAC} | md5sum | cut -d ' ' -f1)
+    sed -i -e "s/<password></<password>$SALTED_PASSWD</g" /security_bootstrap/security.import.xml
+    cp /security_bootstrap/security.import.xml /var/opt/jfrog/artifactory/etc/artifactory/security/security.import.xml
+}
+# Set up first time password only on initial boot
+if [[ ! -f "/var/opt/jfrog/artifactory/init.boot.done" ]]; then
+    touch /var/opt/jfrog/artifactory/init.boot.done
+    setupFirstTimePass
+fi
