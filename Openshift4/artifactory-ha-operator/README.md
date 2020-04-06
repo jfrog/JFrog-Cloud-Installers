@@ -1,4 +1,5 @@
-# Artifactory HA Operator
+# JFrog Artifactory Enterprise Operator
+
 This code base is intended to deploy Artifactory HA as an operator to an Openshift4 cluster. You can run the operator either through the operator-sdk, operator.yaml, or the Operatorhub.
 
 Openshift OperatorHub has the latest official supported Cluster Service Version (CSV) for the OLM catalog.
@@ -19,7 +20,15 @@ Or run it locally using CodeReadyContainers.
 
 [Code Ready Container Installer](https://cloud.redhat.com/openshift/install/crc/installer-provisioned)
 
+Note if you are going to use CodeReadyContainers to test this Operator you will need to ensure:
+
+``` 
+ - create at least one Persistent volume of 200Gi per Artifactory node used in HA configuration
+```
+
 ###### Openshift 4 Command Line Tools
+
+Download and install the Openshift command line tool: oc
 
 [Getting Started with CLI](https://docs.openshift.com/container-platform/4.2/cli_reference/openshift_cli/getting-started-cli.html)
 
@@ -36,52 +45,23 @@ oc adm policy add-scc-to-user anyuid system:serviceaccount:jfrog-artifactory:art
 
 Where anyuid is the Security context constraint being applied to the service account artifactory-ha-operator in namespace jfrog-artifactory.
 
-If you run setup.sh these will be created on the cluster your kubectl or oc program is connected to.
+In addition to this the restricted scc policy will need to be changed to allow anyuid:
 
-###### Security Context Constraints - Hostpath
-
-Openshift does not have the hostpath plugin enabled by default.
-
-A security context constraint has been created for hostpath in deploy/hostpathscc.yaml
-
-You can apply the security context constraint and hostpath plugin patch via these commands:
-
-```
-oc apply -f deploy/hostpathscc.yaml
-oc patch securitycontextconstraints.security.openshift.io/hostpath --type=merge --patch='{"allowHostDirVolumePlugin": true}'
-oc adm policy add-scc-to-user hostpath system:serviceaccount:jfrog-artifactory:artifactory-ha-operator
+``` 
+oc patch scc restricted --patch '{"fsGroup":{"type":"RunAsAny"},"runAsUser":{"type":"RunAsAny"},"seLinuxContext":{"type":"RunAsAny"}}' --type=merge
 ```
 
-Or if you run setup.sh these will already be done.
+The privileged scc policy will need to be changed to include the artifactory-ha-operator as an admin account:
 
-###### Persistent Volumes
+```
+oc patch scc privileged --patch  '{"users":["system:admin","system:serviceaccount:openshift-infra:build-controller","system:serviceaccount:jfrog-artifactory:artifactory-ha-operator"]}' --type=merge
+```
+
+###### Persistent Volumes on Code Ready Containers
 
 Artifactory HA nodes by default request persistent volume claims 200 Gbs in size. 
 
 If your cluster does not already have existing persistent volumes that are 200Gi you will need to create new persistent volumes that are large enough to bound the claims to.
-
-Example persistent volumes can be found at:
-
-```
-helm-charts/openshift-artifactory-ha/pv-examples
-```
-
-If you create the five folders on each node:
-
-```
-mkdir -p /mnt/pv-data/pv0001-large
-mkdir -p /mnt/pv-data/pv0002-large
-mkdir -p /mnt/pv-data/pv0003-large
-mkdir -p /mnt/pv-data/pv0004-large
-mkdir -p /mnt/pv-data/pv0005-large
-```
-
-You can then apply the example persistent volumes to your cluster with:
-
-```
-oc apply -f helm-charts/openshift-artifactory-ha/pv-examples
-```
-
 
 ## Installation types
 ###### OLM Catalog
@@ -160,3 +140,5 @@ Please read [CONTRIBUTING.md](JFrog-Cloud-Installers/Openshift4/artifactory-ha-o
 We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/jfrog/JFrog-Cloud-Installers/tags).
 
 ## Contact
+
+Github Issues
