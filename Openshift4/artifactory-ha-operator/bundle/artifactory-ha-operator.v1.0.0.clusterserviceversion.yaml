@@ -31,7 +31,7 @@ metadata:
                 "user": "OVERRIDE"
               },
               "initContainerImage": "registry.redhat.io/ubi8-minimal",
-              "installerInfo": "{ \"productId\": \"Openshift_artifactory-ha/{{ .Chart.Version }}\", \"features\": [ { \"featureId\": \"ArtifactoryVersion/{{ default .Chart.AppVersion .Values.artifactory.image.version }}\" }, { \"featureId\": \"{{ if .Values.postgresql.enabled }}postgresql{{ else }}{{ default 'derby' .Values.database.type }}{{ end }}/0.0.0\" }, { \"featureId\": \"Platform/{{ default 'openshift' .Values.installer.platform }}\" }, { \"featureId\": \"Partner/ACC-006983\" }, { \"featureId\": \"Channel/Openshift\" } ] }",
+              "installerInfo": "{ \"productId\": \"Openshift_artifactory-ha/{{ .Chart.Version }}\", \"features\": [ { \"featureId\": \"ArtifactoryVersion/{{ default .Chart.AppVersion .Values.artifactory.image.version }}\" }, { \"featureId\": \"{{ if .Values.postgresql.enabled }}postgresql{{ else }}{{ default \"derby\" .Values.database.type }}{{ end }}/0.0.0\" }, { \"featureId\": \"Platform/{{ default 'openshift' .Values.installer.platform }}\" }, { \"featureId\": \"Partner/ACC-006983\" }, { \"featureId\": \"Channel/Openshift\" } ] }",
               "nginx": {
                 "http": {
                   "externalPort": 80,
