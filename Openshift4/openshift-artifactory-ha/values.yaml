@@ -5,19 +5,12 @@ artifactory-ha:
   ###################################
   # EDIT TO YOUR DB CONFIGURATION
   ###################################
-  #database:
-  #  type: "OVERRIDE"
-  #  driver: "OVERRIDE"
-  #  url: "OVERRIDE"
-  #  user: "postgres"
-  #  password: "OVERRIDE"
-
   database:
-    type: "postgresql"
-    driver: "org.postgresql.Driver"
-    url: "jdbc:postgresql://postgres-postgresql:5432/artifactory"
-    user: "artifactory"
-    password: "password"
+    type: "OVERRIDE"
+    driver: "OVERRIDE"
+    url: "OVERRIDE"
+    user: "postgres"
+    password: "OVERRIDE"
 
   ###################################
   # DO NOT EDIT FURTHER
