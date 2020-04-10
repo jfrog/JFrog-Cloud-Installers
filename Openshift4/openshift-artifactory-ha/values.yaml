@@ -5,19 +5,26 @@ artifactory-ha:
   ###################################
   # EDIT TO YOUR DB CONFIGURATION
   ###################################
+  #database:
+  #  type: "OVERRIDE"
+  #  driver: "OVERRIDE"
+  #  url: "OVERRIDE"
+  #  user: "postgres"
+  #  password: "OVERRIDE"
+
   database:
-    type: "OVERRIDE"
-    driver: "OVERRIDE"
-    url: "OVERRIDE"
-    user: "OVERRIDE"
-    password: "OVERRIDE"
+    type: "postgresql"
+    driver: "org.postgresql.Driver"
+    url: "jdbc:postgresql://postgres-postgresql:5432/artifactory"
+    user: "artifactory"
+    password: "password"
 
   ###################################
   # DO NOT EDIT FURTHER
   ###################################
   initContainerImage: registry.redhat.io/ubi8-minimal
   waitForDatabase: false
-  installerInfo: '{ "productId": "Openshift_artifactory-ha/{{ .Chart.Version }}", "features": [ { "featureId": "ArtifactoryVersion/{{ default .Chart.AppVersion .Values.artifactory.image.version }}" }, { "featureId": "{{ if .Values.postgresql.enabled }}postgresql{{ else }}{{ default \"derby\" .Values.database.type }}{{ end }}/0.0.0" }, { "featureId": "Platform/{{ default \"openshift\" .Values.installer.platform }}" }, { "featureId": "Partner/ACC-006983" }, { "featureId": "Channel/Openshift" } ] }'
+  installerInfo: '{ "productId": "Openshift_artifactory-ha/{{ .Chart.Version }}", "features": [ { "featureId": "ArtifactoryVersion/{{ default .Chart.AppVersion .Values.artifactory.image.version }}" }, { "featureId": "{{ if .Values.postgresql.enabled }}postgresql{{ else }}{{ .Values.database.type }}{{ end }}/0.0.0" }, { "featureId": "Platform/Openshift" }, { "featureId": "Partner/ACC-006983" }, { "featureId": "Channel/Openshift" } ] }'
   artifactory:
     ## Add custom init containers execution before predefined init containers
     customInitContainersBegin: |
@@ -36,15 +43,16 @@ artifactory-ha:
             name: volume
     ## Change to use RH UBI images
     image:
-      repository: "image-registry.openshift-image-registry.svc:5000/jfrog-artifactory/artifactory-pro"
+      repository: quay.io/jfrog/artifactory-rh-pro
     node:
       waitForPrimaryStartup:
         enabled: false
+    masterKey: FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
   postgresql:
     enabled: false
   nginx:
     image:
-      repository: "image-registry.openshift-image-registry.svc:5000/jfrog-artifactory/nginx-artifactory-pro"
+      repository: quay.io/jfrog/nginx-artifactory-rh-pro
     http:
       externalPort: 80
       internalPort: 8080
