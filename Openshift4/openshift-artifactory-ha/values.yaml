@@ -12,10 +12,6 @@ artifactory-ha:
     url: "OVERRIDE"
     user: "OVERRIDE"
     password: "OVERRIDE"
-
-  ###################################
-  # DO NOT EDIT FURTHER
-  ###################################
   initContainerImage: registry.redhat.io/ubi8-minimal
   waitForDatabase: false
   installerInfo: '{ "productId": "Openshift_artifactory-ha/{{ .Chart.Version }}", "features": [ { "featureId": "ArtifactoryVersion/{{ default .Chart.AppVersion .Values.artifactory.image.version }}" }, { "featureId": "{{ if .Values.postgresql.enabled }}postgresql{{ else }}{{ .Values.database.type }}{{ end }}/0.0.0" }, { "featureId": "Platform/Openshift" }, { "featureId": "Partner/ACC-006983" }, { "featureId": "Channel/Openshift" } ] }'
@@ -40,6 +36,7 @@ artifactory-ha:
       repository: registry.connect.redhat.com/jfrog/artifactory-pro
       version: 7.3.2
     node:
+      replicaCount: 2
       waitForPrimaryStartup:
         enabled: false
     masterKey: FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
@@ -49,6 +46,7 @@ artifactory-ha:
     image:
       repository: registry.redhat.io/rhel8/nginx-116
       version: latest
+    ## K8S secret name for the TLS secret to be used for SSL
     tlsSecretName: "OVERRIDE"
     http:
       externalPort: 80

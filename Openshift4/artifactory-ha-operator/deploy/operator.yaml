@@ -15,8 +15,8 @@ spec:
       serviceAccountName: artifactory-ha-operator
       containers:
         - name: artifactory-ha-operator
-          image: quay.io/jfrog/artifactory-ha-operator
-          imagePullPolicy: IfNotPresent
+          image: registry.connect.redhat.com/jfrog/artifactory-operator
+          imagePullPolicy: Always
           env:
             - name: WATCH_NAMESPACE
               valueFrom:
@@ -31,14 +31,4 @@ spec:
             - name: RELATED_IMAGE_ARTIFACTORY_IMAGE_REPOSITORY
               value: "registry.connect.redhat.com/jfrog/artifactory-pro"
             - name: RELATED_IMAGE_NGINX_IMAGE_REPOSITORY
-              value: "quay.io/jfrog/nginx-artifactory-rh-pro"
-            - name: DATABASE_TYPE
-              value: "OVERRIDE"
-            - name: DATABASE_DRIVER
-              value: "OVERRIDE"
-            - name: DATABASE_URL
-              value: "OVERRIDE"
-            - name: DATABASE_USER
-              value: "OVERRIDE"
-            - name: DATABASE_PASSWORD
-              value: "OVERRIDE"
+              value: "registry.redhat.io/rhel8/nginx-116"

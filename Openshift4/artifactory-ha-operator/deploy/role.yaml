@@ -5,95 +5,115 @@ metadata:
   name: artifactory-ha-operator
 rules:
 - apiGroups:
-  - ""
+    - ""
   resources:
-  - pods
-  - services
-  - services/finalizers
-  - endpoints
-  - persistentvolumeclaims
-  - events
-  - configmaps
-  - secrets
+    - pods
+    - services
+    - services/finalizers
+    - endpoints
+    - persistentvolumeclaims
+    - events
+    - configmaps
+    - secrets
+    - serviceaccounts
   verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
+    - create
+    - delete
+    - get
+    - list
+    - patch
+    - update
+    - watch
 - apiGroups:
-  - apps
+    - apps
   resources:
-  - deployments
-  - daemonsets
-  - replicasets
-  - statefulsets
+    - deployments
+    - daemonsets
+    - replicasets
+    - statefulsets
   verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
+    - create
+    - delete
+    - get
+    - list
+    - patch
+    - update
+    - watch
 - apiGroups:
-  - ""
+    - ""
   resources:
-  - namespaces
+    - namespaces
   verbs:
-  - get
+    - get
 - apiGroups:
-  - ""
-  resources:
-  - configmaps
-  - secrets
-  verbs:
-  - '*'
-- apiGroups:
-  - ""
-  resources:
-  - events
-  verbs:
-  - create
-- apiGroups:
-  - monitoring.coreos.com
-  resources:
-  - servicemonitors
-  verbs:
-  - get
-  - create
-- apiGroups:
-  - apps
+    - ""
   resourceNames:
-  - artifactory-ha-operator
+    - artifactory-ha-operator
   resources:
-  - deployments/finalizers
+    - '*'
   verbs:
-  - update
+    - '*'
 - apiGroups:
-  - ""
+    - ""
   resources:
-  - pods
+    - events
   verbs:
-  - get
+    - create
 - apiGroups:
-  - apps
+    - monitoring.coreos.com
   resources:
-  - replicasets
-  - deployments
+    - servicemonitors
   verbs:
-  - get
+    - get
+    - create
 - apiGroups:
-  - charts.helm.k8s.io
+    - apps
+  resourceNames:
+    - artifactory-ha-operator
   resources:
-  - '*'
+    - deployments/finalizers
   verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
+    - update
+- apiGroups:
+    - ""
+  resources:
+    - pods
+  verbs:
+    - get
+- apiGroups:
+    - apps
+  resources:
+    - replicasets
+    - deployments
+  verbs:
+    - get
+- apiGroups:
+    - charts.helm.k8s.io
+  resources:
+    - '*'
+  verbs:
+    - create
+    - delete
+    - get
+    - list
+    - patch
+    - update
+    - watch
+- apiGroups:
+    - networking.k8s.io
+  resources:
+    - '*'
+  verbs:
+    - '*'
+- apiGroups:
+    - policy
+  resources:
+    - '*'
+  verbs:
+    - '*'
+- apiGroups:
+    - 'rbac.authorization.k8s.io'
+  resources:
+    - '*'
+  verbs:
+    - '*'

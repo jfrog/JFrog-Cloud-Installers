@@ -4,16 +4,9 @@ metadata:
   name: openshiftartifactoryha
 spec:
   artifactory-ha:
-    database:
-      driver: OVERRIDE
-      password: OVERRIDE
-      type: OVERRIDE
-      url: OVERRIDE
-      user: OVERRIDE
     artifactory:
       customInitContainersBegin: |
         - name: "redhat-custom-setup"
-          #image: "{{ .Values.initContainerImage }}"
           image: {{ index .Values "initContainerImage" }}
           imagePullPolicy: "{{ .Values.artifactory.image.pullPolicy }}"
           command:
@@ -26,12 +19,20 @@ spec:
             - mountPath: "{{ .Values.artifactory.persistence.mountPath }}"
               name: volume
       image:
-        repository: quay.io/jfrog/artifactory-rh-pro
+        repository: registry.connect.redhat.com/jfrog/artifactory-pro
+        version: 7.3.2
+      masterKey: FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
       node:
         waitForPrimaryStartup:
           enabled: false
+    database:
+      driver: OVERRIDE
+      password: OVERRIDE
+      type: OVERRIDE
+      url: OVERRIDE
+      user: OVERRIDE
     initContainerImage: registry.redhat.io/ubi8-minimal
-    installerInfo: '{ "productId": "Openshift_artifactory-ha/{{ .Chart.Version }}", "features": [ { "featureId": "ArtifactoryVersion/{{ default .Chart.AppVersion .Values.artifactory.image.version }}" }, { "featureId": "{{ if .Values.postgresql.enabled }}postgresql{{ else }}{{ default \"derby\" .Values.database.type }}{{ end }}/0.0.0" }, { "featureId": "Platform/{{ default \"openshift\" .Values.installer.platform }}" }, { "featureId": "Partner/ACC-006983" }, { "featureId": "Channel/Openshift" } ] }'
+    installerInfo: '{ "productId": "Openshift_artifactory-ha/{{ .Chart.Version }}", "features": [ { "featureId": "ArtifactoryVersion/{{ default .Chart.AppVersion .Values.artifactory.image.version }}" }, { "featureId": "{{ if .Values.postgresql.enabled }}postgresql{{ else }}{{ .Values.database.type }}{{ end }}/0.0.0" }, { "featureId": "Platform/Openshift" }, { "featureId": "Partner/ACC-006983" }, { "featureId": "Channel/Openshift" } ] }'
     nginx:
       http:
         externalPort: 80
@@ -40,7 +41,8 @@ spec:
         externalPort: 443
         internalPort: 8443
       image:
-        repository: quay.io/jfrog/nginx-artifactory-rh-pro
+        repository: registry.redhat.io/rhel8/nginx-116
+        version: latest
       mainConf: |
         # Main Nginx configuration file
         worker_processes  4;
@@ -91,6 +93,7 @@ spec:
           #gzip  on;
           include {{ .Values.nginx.persistence.mountPath }}/conf.d/*.conf;
         }
+      tlsSecretName: OVERRIDE
     postgresql:
       enabled: false
     waitForDatabase: false

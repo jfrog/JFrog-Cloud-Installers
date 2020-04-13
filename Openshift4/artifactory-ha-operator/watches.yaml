@@ -6,8 +6,3 @@
   overrideValues:
     artifactory-ha.artifactory.image.repository: $RELATED_IMAGE_ARTIFACTORY_IMAGE_REPOSITORY
     artifactory-ha.nginx.image.repository: $RELATED_IMAGE_NGINX_IMAGE_REPOSITORY
-    artifactory-ha.database.type: $DATABASE_TYPE
-    artifactory-ha.database.driver: $DATABASE_DRIVER
-    artifactory-ha.database.url: $DATABASE_URL
-    artifactory-ha.database.user: $DATABASE_USER
-    artifactory-ha.database.password: $DATABASE_PASSWORD

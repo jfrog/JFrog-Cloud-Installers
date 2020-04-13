@@ -8,16 +8,19 @@ metadata:
           "apiVersion": "charts.helm.k8s.io/v1alpha1",
           "kind": "OpenshiftArtifactoryHa",
           "metadata": {
-            "name": "osartifactoryha"
+            "name": "openshiftartifactoryha"
           },
           "spec": {
             "artifactory-ha": {
               "artifactory": {
                 "customInitContainersBegin": "- name: \"redhat-custom-setup\"\n  image: {{ index .Values \"initContainerImage\" }}\n  imagePullPolicy: \"{{ .Values.artifactory.image.pullPolicy }}\"\n  command:\n    - 'sh'\n    - '-c'\n    - 'chown -R 1030:1030 {{ .Values.artifactory.persistence.mountPath }}'\n  securityContext:\n      runAsUser: 0\n  volumeMounts:\n    - mountPath: \"{{ .Values.artifactory.persistence.mountPath }}\"\n      name: volume\n",
                 "image": {
-                  "repository": "registry.connect.redhat.com/jfrog/artifactory-pro:7.3.2"
+                  "repository": "registry.connect.redhat.com/jfrog/artifactory-pro",
+                  "version": "7.3.2"
                 },
+                "masterKey": "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
                 "node": {
+                  "replicaCount": 2,
                   "waitForPrimaryStartup": {
                     "enabled": false
                   }
@@ -31,7 +34,7 @@ metadata:
                 "user": "OVERRIDE"
               },
               "initContainerImage": "registry.redhat.io/ubi8-minimal",
-              "installerInfo": "{ \"productId\": \"Openshift_artifactory-ha/{{ .Chart.Version }}\", \"features\": [ { \"featureId\": \"ArtifactoryVersion/{{ default .Chart.AppVersion .Values.artifactory.image.version }}\" }, { \"featureId\": \"{{ if .Values.postgresql.enabled }}postgresql{{ else }}{{ .Values.database.type }}{{ end }}/0.0.0\" }, { \"featureId\": \"Platform/openshift\" }, { \"featureId\": \"Partner/ACC-006983\" }, { \"featureId\": \"Channel/Openshift\" } ] }",
+              "installerInfo": "{ \"productId\": \"Openshift_artifactory-ha/{{ .Chart.Version }}\", \"features\": [ { \"featureId\": \"ArtifactoryVersion/{{ default .Chart.AppVersion .Values.artifactory.image.version }}\" }, { \"featureId\": \"{{ if .Values.postgresql.enabled }}postgresql{{ else }}{{ .Values.database.type }}{{ end }}/0.0.0\" }, { \"featureId\": \"Platform/Openshift\" }, { \"featureId\": \"Partner/ACC-006983\" }, { \"featureId\": \"Channel/Openshift\" } ] }",
               "nginx": {
                 "http": {
                   "externalPort": 80,
@@ -42,9 +45,11 @@ metadata:
                   "internalPort": 8443
                 },
                 "image": {
-                  "repository": "registry.redhat.io/rhel8/nginx-116:latest"
+                  "repository": "registry.redhat.io/rhel8/nginx-116",
+                  "version": "latest"
                 },
                 "mainConf": "# Main Nginx configuration file\nworker_processes  4;\nerror_log  {{ .Values.nginx.persistence.mountPath }}/logs//error.log warn;\npid        /tmp/nginx.pid;\nevents {\n  worker_connections  1024;\n}\nhttp {\n  include       /etc/nginx/mime.types;\n  default_type  application/octet-stream;\n  variables_hash_max_size 1024;\n  variables_hash_bucket_size 64;\n  server_names_hash_max_size 4096;\n  server_names_hash_bucket_size 128;\n  types_hash_max_size 2048;\n  types_hash_bucket_size 64;\n  proxy_read_timeout 2400s;\n  client_header_timeout 2400s;\n  client_body_timeout 2400s;\n  proxy_connect_timeout 75s;\n  proxy_send_timeout 2400s;\n  proxy_buffer_size 32k;\n  proxy_buffers 40 32k;\n  proxy_busy_buffers_size 64k;\n  proxy_temp_file_write_size 250m;\n  proxy_http_version 1.1;\n  client_body_buffer_size 128k;\n  log_format  main  '$remote_addr - $remote_user [$time_local] \"$request\" '\n  '$status $body_bytes_sent \"$http_referer\" '\n  '\"$http_user_agent\" \"$http_x_forwarded_for\"';\n  log_format timing 'ip = $remote_addr '\n  'user = \"$remote_user\" '\n  'local_time = \"$time_local\" '\n  'host = $host '\n  'request = \"$request\" '\n  'status = $status '\n  'bytes = $body_bytes_sent '\n  'upstream = \"$upstream_addr\" '\n  'upstream_time = $upstream_response_time '\n  'request_time = $request_time '\n  'referer = \"$http_referer\" '\n  'UA = \"$http_user_agent\"';\n  access_log  {{ .Values.nginx.persistence.mountPath }}/logs/access.log  timing;\n  sendfile        on;\n  #tcp_nopush     on;\n  keepalive_timeout  65;\n  #gzip  on;\n  include {{ .Values.nginx.persistence.mountPath }}/conf.d/*.conf;\n}\n"
+                "tlsSecretName": "OVERRIDE"
               },
               "postgresql": {
                 "enabled": false
@@ -56,8 +61,8 @@ metadata:
       ]
     capabilities: Basic Install
     categories: "Developer Tools,Integration & Delivery"
-    description: "Artifactory HA deploys Artifactory in a high availability environment across multiple pods"
-    containerImage: quay.io/jfrog/artifactory-ha-operator
+    description: "JFrog Artifactory Enterprise deploys Artifactory in a high availability environment across multiple pods"
+    containerImage: registry.connect.redhat.com/jfrog/artifactory-operator
     createdAt: 2020-03-25T00:00:00Z
     support: JFrog
     certified: "true"
@@ -133,21 +138,11 @@ spec:
                 - name: OPERATOR_NAME
                   value: artifactory-ha-operator
                 - name: RELATED_IMAGE_ARTIFACTORY_IMAGE_REPOSITORY
-                  value: registry.connect.redhat.com/jfrog/artifactory-pro:7.3.2
+                  value: registry.connect.redhat.com/jfrog/artifactory-pro
                 - name: RELATED_IMAGE_NGINX_IMAGE_REPOSITORY
-                  value: registry.redhat.io/rhel8/nginx-116:latest
-                - name: DATABASE_TYPE
-                  value: OVERRIDE
-                - name: DATABASE_DRIVER
-                  value: OVERRIDE
-                - name: DATABASE_URL
-                  value: OVERRIDE
-                - name: DATABASE_USER
-                  value: OVERRIDE
-                - name: DATABASE_PASSWORD
-                  value: OVERRIDE
-                image: registry.connect.redhat.com/jfrog/artifactory-operator:7.3.2
-                imagePullPolicy: IfNotPresent
+                  value: registry.redhat.io/rhel8/nginx-116
+                image: registry.connect.redhat.com/jfrog/artifactory-operator
+                imagePullPolicy: Always
                 name: artifactory-ha-operator
                 resources: {}
               serviceAccountName: artifactory-ha-operator
