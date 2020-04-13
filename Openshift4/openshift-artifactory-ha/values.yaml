@@ -1,6 +1,7 @@
-# Openshift artifactory ha
-# Requires one custom init container
-# to resolve the user id perm issue with redhat
+# Openshift Artifactory HA
+# This helm chart subcharts the latest jfrog/artifactory-ha chart
+# and applies various things like initContainers, nginx mainConf, etc
+# to enable the artifactory-ha helm chart to work in an openshift environment
 artifactory-ha:
   ###################################
   # EDIT TO YOUR DB CONFIGURATION
@@ -9,7 +10,7 @@ artifactory-ha:
     type: "OVERRIDE"
     driver: "OVERRIDE"
     url: "OVERRIDE"
-    user: "postgres"
+    user: "OVERRIDE"
     password: "OVERRIDE"
 
   ###################################
@@ -36,7 +37,8 @@ artifactory-ha:
             name: volume
     ## Change to use RH UBI images
     image:
-      repository: quay.io/jfrog/artifactory-rh-pro
+      repository: registry.connect.redhat.com/jfrog/artifactory-pro
+      version: 7.3.2
     node:
       waitForPrimaryStartup:
         enabled: false
@@ -45,7 +47,9 @@ artifactory-ha:
     enabled: false
   nginx:
     image:
-      repository: quay.io/jfrog/nginx-artifactory-rh-pro
+      repository: registry.redhat.io/rhel8/nginx-116
+      version: latest
+    tlsSecretName: "OVERRIDE"
     http:
       externalPort: 80
       internalPort: 8080
