@@ -4,5 +4,5 @@
   kind: OpenshiftArtifactoryHa
   chart: helm-charts/openshift-artifactory-ha
   overrideValues:
-    artifactory-ha.artifactory.image.repository: $RELATED_IMAGE_ARTIFACTORY_IMAGE_REPOSITORY
-    artifactory-ha.nginx.image.repository: $RELATED_IMAGE_NGINX_IMAGE_REPOSITORY
+    artifactory-ha.artifactory.image.override: $RELATED_IMAGE_ARTIFACTORY_IMAGE_REPOSITORY
+    artifactory-ha.nginx.image.override: $RELATED_IMAGE_NGINX_IMAGE_REPOSITORY
