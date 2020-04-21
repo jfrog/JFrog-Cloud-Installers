@@ -36,7 +36,7 @@ The following Vars must be configured.
 * artifactory_license1 - 5: These are the cluster licenses.
 
 ### secondary
-* artifactory_is_primary: For the primary node this must be set to **false**.
+* artifactory_is_primary: For the secondary node(s) this must be set to **false**.
 
 ### Example Inventory YAML
 An example inventory YAM is [here](hosts.yml).
