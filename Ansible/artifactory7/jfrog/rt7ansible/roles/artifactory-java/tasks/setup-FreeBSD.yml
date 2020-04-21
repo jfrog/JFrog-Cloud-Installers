@@ -1,0 +1,12 @@
+---
+- name: Ensure Java is installed.
+  pkgng:
+    name: "{{ java_packages }}"
+    state: present
+  become: true
+
+- name: ensure proc is mounted
+  mount: name=/proc fstype=procfs src=proc opts=rw state=mounted
+
+- name: ensure fdesc is mounted
+  mount: name=/dev/fd fstype=fdescfs src=fdesc opts=rw state=mounted

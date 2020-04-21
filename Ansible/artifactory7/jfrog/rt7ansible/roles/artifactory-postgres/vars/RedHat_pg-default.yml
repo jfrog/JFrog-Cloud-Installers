@@ -1,0 +1,4 @@
+---
+
+postgres_server_cmd_initdb: /usr/pgsql-{{ postgres_server_version }}/bin/initdb -D /var/lib/pgsql/{{ postgres_server_version }}/data
+postgres_server_initdb_become: true

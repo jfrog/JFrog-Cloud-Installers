@@ -1,0 +1,4 @@
+---
+
+postgres_server_cmd_initdb: /usr/pgsql-{{ postgres_server_version }}/bin/postgresql{{ postgres_server_pkg_version }}-setup initdb
+postgres_server_initdb_become: false

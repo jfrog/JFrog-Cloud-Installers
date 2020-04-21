@@ -1,0 +1,29 @@
+---
+# defaults file for artifactory
+# indicates were this collection was downlaoded from (galaxy, automation_hub, standalone)
+ansible_marketplace: standalone
+
+# The version of Artifactory to install
+artifactory_version: 7.4.1
+
+# whether to enable HA
+artifactory_ha_enabled: true
+
+# value for whether a host is primary. this should be set in host vars
+artifactory_is_primary: false
+
+# The location where Artifactory should install.
+artifactory_download_directory: /opt/jfrog
+
+# The location where Artifactory should store data.
+artifactory_file_store_dir: /data
+
+# Pick the Artifactory flavour to install, can be also cpp-ce, jcr, pro.
+# note that for "pro" version, the artifactory_zip URL would need to be overridden to e.g.:
+# https://dl.bintray.com/jfrog/artifactory-pro/org/artifactory/pro/jfrog-artifactory-pro/{{ artifactory_version }}/jfrog-artifactory-pro-{{ artifactory_version }}.zip
+# https://dl.bintray.com/jfrog/artifactory-pro/org/artifactory/pro/jfrog-artifactory-pro/{{ artifactory_version }}/jfrog-artifactory-pro-{{ artifactory_version }}-linux.tar.gz
+artifactory_flavour: pro
+
+java_version: java-1.8.0
+
+extra_java_opts: -server -Xms2g -Xmx14g -Xss256k -XX:+UseG1GC

@@ -1,0 +1,11 @@
+---
+
+postgres_server_cmd_initdb: /usr/pgsql-{{ postgres_server_version }}/bin/postgresql{{ postgres_server_pkg_version }}-setup initdb -D
+postgres_server_data_location: /var/lib/pgsql/{{ postgres_server_version }}/data
+postgres_server_config_location: "{{ postgres_server_data_location }}"
+postgres_server_service_name: postgresql-{{ postgres_server_version }}
+
+postgres_server_config_data_directory: null
+postgres_server_config_hba_file: null
+postgres_server_config_ident_file: null
+postgres_server_config_external_pid_file: null

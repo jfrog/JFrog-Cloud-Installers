@@ -1,0 +1,10 @@
+---
+- hosts: database
+  gather_facts: true
+  roles:
+    - jfrog/rt7ansible/roles/artifactory-postgres
+
+- hosts: primary:secondary
+  gather_facts: true
+  roles:
+    - jfrog/rt7ansible/roles/artifactory
