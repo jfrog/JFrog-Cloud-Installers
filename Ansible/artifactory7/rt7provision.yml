@@ -8,3 +8,4 @@
   gather_facts: true
   roles:
     - jfrog/rt7ansible/roles/artifactory
+    - jfrog/rt7ansible/roles/artifactory-nginx-ssl

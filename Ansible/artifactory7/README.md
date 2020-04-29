@@ -3,13 +3,13 @@ This repo contains the Ansible collection for JFrog Artifactory Pro 7 roles. The
 
 ## Roles Provided
 ### artifactory
-The artifactory role installs the Artifactory Pro software onto the host. Per the Vars below, it will configure a node as primary or secondary.
+The artifactory role installs the Artifactory Pro software onto the host. Per the Vars below, it will configure a node as primary or secondary. This role uses secondary roles artifactory-nginx and artifactory-java to install nginx and java dependencies.
+
+### artifactory-nginx-ssl
+The artifactory-nginx-ssl role installs and configures nginx for SSL.
 
 ### artifactory-postgres
 The artifactory-postgres role will install Postgresql software and configure an artifactory database and user.
-
-### artifactory-java
-The artifactory-java role ensures that the correct version of Java is installed for Artifactory.
 
 ## Vars Required
 The following Vars must be configured.
@@ -19,9 +19,7 @@ The following Vars must be configured.
 * ansible_ssh_private_key_file: The SSH key to use. eg. "/Users/jefff/.ssh/jeff-ec2-us-east.pem"
 * db_user: The Artifactory database user to configure. eg. "artifactory"
 * db_password: The Artifactory database password to configure. "Art1fact0ry"
-* server_name: This is the LB DNS or IP. eg. "ansibleelb-623062857.us-east-1.elb.amazonaws.com"
-* certificate: This is the SSL cert.
-* certificate_key: This is the SSL private key.
+* server_name: This is the server name. eg. "artifactory.54.175.51.178.xip.io"
 
 ### artifactory
 * master_key: This is the Artifactory Master Key.
@@ -37,6 +35,10 @@ The following Vars must be configured.
 
 ### secondary
 * artifactory_is_primary: For the secondary node(s) this must be set to **false**.
+
+### SSL Config (Used with artifactory-nginx-ssl role)
+* certificate: This is the SSL cert.
+* certificate_key: This is the SSL private key.
 
 ### Example Inventory YAML
 An example inventory YAM is [here](hosts.yml).
