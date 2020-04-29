@@ -1,0 +1,35 @@
+---
+- name: install python2 psycopg2
+  apt:
+    name: python-psycopg2
+    update_cache: yes
+  become: yes
+
+- name: install python3 psycopg2
+  apt:
+    name: python3-psycopg2
+    update_cache: yes
+  become: yes
+
+- name: add postgres apt key
+  apt_key:
+    url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+    id: "0x7FCC7D46ACCC4CF8"
+    state: present
+  become: yes
+
+- name: register APT repository
+  apt_repository:
+    repo: deb http://apt.postgresql.org/pub/repos/apt/ {{ ansible_distribution_release }}-pgdg main
+    state: present
+    filename: pgdg
+  become: yes
+
+- name: install postgres packages
+  apt:
+    name:
+      - postgresql-{{ postgres_server_version }}
+      - postgresql-server-dev-{{ postgres_server_version }}
+      - postgresql-contrib-{{ postgres_server_version }}
+    state: present
+  become: yes

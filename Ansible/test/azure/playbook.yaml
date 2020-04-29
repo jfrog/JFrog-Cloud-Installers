@@ -1,0 +1,161 @@
+---
+- name: Provision Azure test infrastructure
+  hosts: localhost
+  tasks:
+  - name: Create azure test system
+    azure_rm_deployment:
+      resource_group: "{{ lookup('env', 'azure_resource_group') }}"
+      location: eastus
+      name: AzureAnsibleInfra
+      parameters:
+        vnetName:
+          value: "vnetAnsible"
+        vnetAddressRange:
+          value: "10.0.0.0/16"
+        subnetAddressRange:
+          value: "10.0.0.0/24"
+        location:
+          value: "eastus"
+        adminPublicKey:
+          value: "{{ lookup('env', 'ssh_public_key') }}"
+        sizeOfDiskInGB:
+          value: 128
+        vmSize:
+          value: Standard_D2s_v3
+        numberOfArtifactory:
+          value: 2
+        numberOfXray:
+          value: 1
+        numberOfDb:
+          value: 1
+      template_link: "{{ lookup('env', 'arm_template') }}"
+    register: azureDeployment
+  - name: Get Azure deployment details
+    debug:
+      var: azureDeployment
+
+  - name: Add bastion
+    add_host:
+      hostname: "{{ azureDeployment.deployment.outputs.lbIp.value }}"
+      groups: bastion
+      ansible_user: "ubuntu"
+  - name: Add new RT primary to host group
+    add_host:
+      hostname: "{{ azureDeployment.deployment.outputs.vmArtPriIp.value }}"
+      ansible_user: "ubuntu"
+      ansible_ssh_common_args: '-o ProxyCommand="ssh -o StrictHostKeyChecking=no -A ubuntu@{{ azureDeployment.deployment.outputs.lbIp.value }} -W %h:%p"'
+      db_url: "jdbc:postgresql://{{ azureDeployment.deployment.outputs.vmDbArrIp.value[0] }}:5432/artifactory"
+      server_name: "rt.{{ azureDeployment.deployment.outputs.lbIp.value }}.xip.io"
+      artifactory_is_primary: true
+      artifactory_license1: "{{ lookup('env', 'artifactory_license1') }}"
+      artifactory_license2: "{{ lookup('env', 'artifactory_license2') }}"
+      artifactory_license3: "{{ lookup('env', 'artifactory_license3') }}"
+      groups:
+      - artifactory
+
+  - name: Add RT secondaries to host group
+    add_host:
+      hostname: "{{ item }}"
+      ansible_user: "ubuntu"
+      ansible_ssh_common_args: '-o ProxyCommand="ssh -o StrictHostKeyChecking=no -A ubuntu@{{ azureDeployment.deployment.outputs.lbIp.value }} -W %h:%p"'
+      db_url: "jdbc:postgresql://{{ azureDeployment.deployment.outputs.vmDbArrIp.value[0] }}:5432/artifactory"
+      server_name: "rt.{{ azureDeployment.deployment.outputs.lbIp.value }}.xip.io"
+      artifactory_is_primary: false
+      groups:
+      - artifactory
+    loop: "{{ azureDeployment.deployment.outputs.vmArtSecArrIp.value }}"
+
+  - name: Add xrays to host group
+    add_host:
+      hostname: "{{ item }}"
+      ansible_user: "ubuntu"
+      ansible_ssh_common_args: '-o ProxyCommand="ssh -o StrictHostKeyChecking=no -A ubuntu@{{ azureDeployment.deployment.outputs.lbIp.value }} -W %h:%p"'
+      jfrog_url: "http://rt.{{ azureDeployment.deployment.outputs.lbIp.value }}.xip.io"
+      master_key: "{{ lookup('env', 'master_key') }}"
+      join_key: "{{ lookup('env', 'join_key') }}"
+      db_type: "postgresql"
+      db_driver: "org.postgresql.Driver"
+      db_user: "xray"
+      db_password: "xray"
+      db_url: "postgres://{{ azureDeployment.deployment.outputs.vmDbArrIp.value[0] }}:5432/xraydb?sslmode=disable"
+      groups: xray
+    loop: "{{ azureDeployment.deployment.outputs.vmXrayArrIp.value }}"
+
+  - name: Add DBs to host group
+    add_host:
+      hostname: "{{ item }}"
+      ansible_user: "ubuntu"
+      ansible_ssh_common_args: '-o ProxyCommand="ssh -o StrictHostKeyChecking=no -A ubuntu@{{ azureDeployment.deployment.outputs.lbIp.value }} -W %h:%p"'
+      db_users:
+        - { db_user: "artifactory", db_password: "Art1fAct0ry" }
+        - { db_user: "xray", db_password: "xray" }
+      dbs:
+        - { db_name: "artifactory", db_owner: "artifactory" }
+        - { db_name: "xraydb", db_owner: "xray" }
+      groups: database
+    loop: "{{ azureDeployment.deployment.outputs.vmDbArrIp.value }}"
+
+  - name: Set up test environment url
+    replace:
+      path: ../tests/src/test/resources/testenv.yaml
+      regexp: 'urlval'
+      replace: "http://rt.{{ azureDeployment.deployment.outputs.lbIp.value }}.xip.io"
+
+  - name: Set up test environment external_ip
+    replace:
+      path: ../tests/src/test/resources/testenv.yaml
+      regexp: 'ipval'
+      replace: "{{ azureDeployment.deployment.outputs.lbIp.value }}"
+
+  - name: Set up test environment rt_password
+    replace:
+      path: ../tests/src/test/resources/testenv.yaml
+      regexp: 'passval'
+      replace: "password"
+
+  - name: show testenv.yaml
+    debug: var=item
+    with_file:
+      - ../tests/src/test/resources/testenv.yaml
+
+  - name: Wait 300 seconds for port 22
+    wait_for:
+      port: 22
+      host: "{{ azureDeployment.deployment.outputs.lbIp.value }}"
+      delay: 10
+
+  - debug:
+      msg: "Unified URL is at http://rt.{{ azureDeployment.deployment.outputs.lbIp.value }}.xip.io"
+
+- hosts: database
+  roles:
+  - postgres
+
+- hosts: artifactory
+  vars:
+    artifactory_ha_enabled: true
+    master_key: "{{ lookup('env', 'master_key') }}"
+    join_key: "{{ lookup('env', 'join_key') }}"
+    db_download_url: "https://jdbc.postgresql.org/download/postgresql-42.2.12.jar"
+    db_type: "postgresql"
+    db_driver: "org.postgresql.Driver"
+    db_user: "artifactory"
+    db_password: "Art1fAct0ry"
+  roles:
+  - artifactory
+
+- hosts: xray
+  roles:
+  - xray
+
+- name: Test
+  hosts: localhost
+  tasks:
+  - name: Run tests
+    shell:
+      cmd: ./gradlew clean unified_test
+      chdir: ../tests/
+  - name: Cleanup and delete a resource group
+    azure_rm_resourcegroup:
+      name: "{{ lookup('env', 'azure_resource_group') }}"
+      state: absent
