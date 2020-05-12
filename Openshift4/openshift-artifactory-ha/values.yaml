@@ -33,10 +33,8 @@ artifactory-ha:
             name: volume
     ## Change to use RH UBI images
     image:
-      repository: quay.io/jfrog/artifactory-rh-pro
-      version: 7.4.1
-      #repository: registry.connect.redhat.com/jfrog/artifactory-pro
-      #version: 7.3.2
+      repository: registry.connect.redhat.com/jfrog/artifactory-pro
+      version: 7.4.3
     node:
       replicaCount: 2
       waitForPrimaryStartup:

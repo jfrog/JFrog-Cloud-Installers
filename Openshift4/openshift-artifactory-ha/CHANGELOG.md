@@ -1,6 +1,9 @@
 # JFrog  Openshift Artifactory-ha Chart Changelog
 All changes to this chart will be documented in this file.
 
+## [2.4.6] - May 12, 2020
+* Updating to latest jfrog/artifactory-ha helm chart version 2.4.6 artifactory version 7.4.3
+
 ## [2.3.0] - April 13, 2020
 * Updating to latest jfrog/artifactory-ha helm chart version 2.3.0
 
