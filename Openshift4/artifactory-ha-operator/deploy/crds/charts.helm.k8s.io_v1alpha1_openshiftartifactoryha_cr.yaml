@@ -20,9 +20,11 @@ spec:
               name: volume
       image:
         repository: registry.connect.redhat.com/jfrog/artifactory-pro
-        version: 7.3.2
+        version: 7.4.3
+      joinKey: EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
       masterKey: FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
       node:
+        replicaCount: 2
         waitForPrimaryStartup:
           enabled: false
     database:
@@ -94,6 +96,8 @@ spec:
           include {{ .Values.nginx.persistence.mountPath }}/conf.d/*.conf;
         }
       tlsSecretName: OVERRIDE
+      service:
+        ssloffload: false
     postgresql:
       enabled: false
     waitForDatabase: false
