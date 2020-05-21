@@ -1,9 +1,10 @@
 {
-  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "db_user": {
       "type": "string",
+      "defaultValue": "artifactory",
       "minLength": 1
     },
     "db_password": {
@@ -11,10 +12,12 @@
     },
     "db_server": {
       "type": "string",
+      "defaultValue": "artmssqlsrv",
       "minLength": 1
     },
     "db_name": {
       "type": "string",
+      "defaultValue": "artdb",
       "minLength": 1
     },
     "db_location": {
@@ -40,10 +43,7 @@
       "type": "Microsoft.Sql/servers",
       "kind": "v12.0",
       "location": "[variables('db_location')]",
-      "apiVersion": "2015-05-01-preview",
-      "dependsOn": [
-
-      ],
+      "apiVersion": "2019-06-01-preview",
       "tags": {
         "displayName": "artifactoryDB"
       },
@@ -57,7 +57,7 @@
           "name": "[uniqueString(parameters('db_server'), 'AllowAllWindowsAzureIps' )]",
           "type": "firewallrules",
           "location": "[variables('db_location')]",
-          "apiVersion": "2015-05-01-preview",
+          "apiVersion": "2019-06-01-preview",
           "dependsOn": [
             "[concat('Microsoft.Sql/servers/', parameters('db_server'))]"
           ],
@@ -71,7 +71,7 @@
           "type": "databases",
           "kind": "v12.0,user",
           "location": "[variables('db_location')]",
-          "apiVersion": "2015-05-01-preview",
+          "apiVersion": "2019-06-01-preview",
           "dependsOn": [
             "[parameters('db_server')]"
           ],
