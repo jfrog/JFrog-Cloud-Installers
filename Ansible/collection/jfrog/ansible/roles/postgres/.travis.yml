@@ -1,0 +1,30 @@
+---
+language: python
+
+services:
+  - docker
+
+env:
+  global:
+    - DEBUG=--debug
+  matrix:
+    - MOLECULE_DISTRO=centos7 MOLECULE_SCENARIO=default
+    - MOLECULE_DISTRO=centos7 MOLECULE_SCENARIO=version11
+    # - MOLECULE_DISTRO: fedora27
+    # - MOLECULE_DISTRO: fedora29
+    - MOLECULE_DISTRO=ubuntu1604 MOLECULE_SCENARIO=default
+    - MOLECULE_DISTRO=ubuntu1604 MOLECULE_SCENARIO=version11
+    - MOLECULE_DISTRO=ubuntu1804 MOLECULE_SCENARIO=default
+    - MOLECULE_DISTRO=ubuntu1804 MOLECULE_SCENARIO=version11
+    # - MOLECULE_DISTRO: debian9
+
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y net-tools
+install:
+  - pip install molecule docker-py
+
+script:
+  - molecule --version
+  - ansible --version
+  - molecule $DEBUG test -s $MOLECULE_SCENARIO

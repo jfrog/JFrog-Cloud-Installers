@@ -1,0 +1,6 @@
+---
+project_name: JFrog
+reference: "https://github.com/robertdebock/ansible-role-artifactory/blob/master/defaults/main.yml"
+versions:
+  - name: Artifactory
+    url: "https://dl.bintray.com/jfrog/artifactory/"

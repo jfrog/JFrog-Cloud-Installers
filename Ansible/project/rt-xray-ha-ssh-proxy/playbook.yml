@@ -1,0 +1,15 @@
+---
+- hosts: database
+  gather_facts: true
+  roles:
+    - jfrog/ansible/roles/postgres
+
+- hosts: primary:secondary
+  gather_facts: true
+  roles:
+    - jfrog/ansible/roles/artifactory
+
+- hosts: xray
+  gather_facts: true
+  roles:
+    - jfrog/ansible/roles/xray

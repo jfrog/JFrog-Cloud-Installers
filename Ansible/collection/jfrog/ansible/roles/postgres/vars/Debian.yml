@@ -1,0 +1,12 @@
+---
+
+postgres_server_cmd_initdb: /usr/lib/postgresql/{{ postgres_server_version }}/bin/initdb -D
+postgres_server_initdb_become: yes
+postgres_server_data_location: /var/lib/postgresql/{{ postgres_server_version }}/main
+postgres_server_config_location: /etc/postgresql/{{ postgres_server_version }}/main
+postgres_server_service_name: postgresql@{{ postgres_server_version }}-main
+
+postgres_server_config_data_directory: "/var/lib/postgresql/{{ postgres_server_version }}/main"
+postgres_server_config_hba_file: "/etc/postgresql/{{ postgres_server_version }}/main/pg_hba.conf"
+postgres_server_config_ident_file: "/etc/postgresql/{{ postgres_server_version }}/main/pg_ident.conf"
+postgres_server_config_external_pid_file: "/var/run/postgresql/{{ postgres_server_version }}-main.pid"
