@@ -144,4 +144,5 @@
   - name: Cleanup and delete stack
     cloudformation:
       stack_name: "{{ lookup('env', 'stack_name') }}"
+      region: "us-east-1"
       state: "absent"

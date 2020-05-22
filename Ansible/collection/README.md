@@ -66,6 +66,13 @@ eg.
  ansible-playbook -i example-playbooks/rt-xray-ha/hosts.yml example-playbooks/rt-xray-ha/playbook.yml
 ```
 
+## Autogenerating Master and Join Keys
+You may want to auto-generate your master amd join keys and apply it to all the nodes.
+
+```
+ansible-playbook -i hosts.yml playbook.yml --extra-vars "master_key=$(openssl rand -hex 16) join_key=$(openssl rand -hex 16)"
+```
+
 ## Bastion Hosts
 In many cases, you may want to run this Ansible collection through a Bastion host to provision JFrog servers. You can include the following Var for a host or group of hosts:
 

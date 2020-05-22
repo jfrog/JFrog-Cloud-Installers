@@ -1,0 +1,21 @@
+---
+- debug:
+    var: master_key
+
+- debug:
+    var: join_key
+
+- hosts: database
+  gather_facts: true
+  roles:
+    - jfrog/ansible/roles/postgres
+
+- hosts: artifactory
+  gather_facts: true
+  roles:
+    - jfrog/ansible/roles/artifactory
+
+- hosts: xray
+  gather_facts: true
+  roles:
+    - jfrog/ansible/roles/xray

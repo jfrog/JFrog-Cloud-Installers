@@ -120,7 +120,7 @@ class RepositoryTest extends RepositorySteps{
         Reporter.log("- Verify JCR repos were created. ${numberOfRepos} repositories were created", true)
     }
 
-    @Test(priority=4, groups=["jcr","pro"], testName = "Create a directory in generic repo")
+    /*@Test(priority=4, groups=["jcr","pro"], testName = "Create a directory in generic repo")
     void createDirectoryTest(){
         def repoName = "generic-dev-local"
         def directoryName = "test-directory/"
@@ -161,9 +161,9 @@ class RepositoryTest extends RepositorySteps{
                         + directoryName + "/" + filename))
 
         Reporter.log("- Get the artifact info. Artifact info is successfully returned", true)
-    }
+    }*/
 
-    @Test(priority=7, groups=["jcr", "pro"], testName = "Delete item")
+/*    @Test(priority=7, groups=["jcr", "pro"], testName = "Delete item")
     void deleteJCRItemTest(){
         def repoName = "generic-dev-local"
         def directoryName = "test-directory"
@@ -176,9 +176,9 @@ class RepositoryTest extends RepositorySteps{
                 .body("errors[0].message", equalToIgnoringCase("Unable to find item"))
 
         Reporter.log("- Delete item. File has been deleted successfully", true)
-    }
+    }*/
 
-    @Test(priority=8, groups=["pro"], testName = "Create support bundle")
+    /*@Test(priority=8, groups=["pro"], testName = "Create support bundle")
     void createSupportBundleHATest(){
         def name = "Support Bundle"
         LocalDate startDate = LocalDate.now().minusDays(5)
@@ -188,7 +188,7 @@ class RepositoryTest extends RepositorySteps{
                 .body("artifactory.bundle_url", containsString(artifactoryURL))
 
         Reporter.log("- Create support bundle. Successfully created", true)
-    }
+    }*/
 
     @Test(priority=8, groups=["jcr"], testName = "Create support bundle")
     void createSupportBundleJCATest(){
@@ -270,7 +270,7 @@ class RepositoryTest extends RepositorySteps{
         Reporter.log("- Re-create repositories for JCR distribution. Successfully created", true)
     }
 
-    @Test(priority=13, groups=["jcr","pro"], testName = "Create a directory in generic repo")
+/*    @Test(priority=13, groups=["jcr","pro"], testName = "Create a directory in generic repo")
     void reCreateDirectoryTest(){
         def repoName = "generic-dev-local"
         def directoryName = "test-directory/"
@@ -281,9 +281,9 @@ class RepositoryTest extends RepositorySteps{
                 .body("uri", equalTo("http://" + artifactoryURL + ":80/artifactory/" + repoName + "/" + directoryName))
 
         Reporter.log("- Create folder. Folder successfully created", true)
-    }
+    }*/
 
-    @Test(priority=14, groups=["jcr","pro"], testName = "Deploy file to generic repo")
+/*    @Test(priority=14, groups=["jcr","pro"], testName = "Deploy file to generic repo")
     void reDeployArtifactToGenericTest(){
         def repoName = "generic-dev-local"
         def directoryName = "test-directory"
@@ -296,7 +296,7 @@ class RepositoryTest extends RepositorySteps{
                         + directoryName + "/" + filename))
 
         Reporter.log("- Deploy artifact. Artifact successfully deployed", true)
-    }
+    }*/
 
 
 }

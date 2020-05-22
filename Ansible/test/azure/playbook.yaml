@@ -155,7 +155,8 @@
     shell:
       cmd: ./gradlew clean unified_test
       chdir: ../tests/
-  - name: Cleanup and delete a resource group
+  - name: Cleanup and delete resource group
     azure_rm_resourcegroup:
       name: "{{ lookup('env', 'azure_resource_group') }}"
+      force_delete_nonempty: yes
       state: absent
