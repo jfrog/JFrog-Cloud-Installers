@@ -1,0 +1,6 @@
+artifactory.cluster.license
+tls.crt
+tls.key
+artifactory-ha-operator/helm-charts/openshift-artifactory-ha
+*.tar.gz
+*.tgz

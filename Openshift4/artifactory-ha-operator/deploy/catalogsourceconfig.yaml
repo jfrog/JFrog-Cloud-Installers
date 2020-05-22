@@ -1,0 +1,8 @@
+apiVersion: operators.coreos.com/v1
+kind: CatalogSourceConfig
+metadata:
+  name: artifactory-ha-operator-csc
+  namespace: openshift-marketplace
+spec:
+  targetNamespace: jfrog-artifactory
+  packages: artifactory-ha-operator

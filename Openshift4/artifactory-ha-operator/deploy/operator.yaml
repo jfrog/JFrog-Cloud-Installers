@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: artifactory-ha-operator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: artifactory-ha-operator
+  template:
+    metadata:
+      labels:
+        name: artifactory-ha-operator
+    spec:
+      serviceAccountName: artifactory-ha-operator
+      containers:
+        - name: artifactory-ha-operator
+          image: registry.connect.redhat.com/jfrog/artifactory-operator
+          imagePullPolicy: Always
+          env:
+            - name: WATCH_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: OPERATOR_NAME
+              value: "artifactory-ha-operator"
+            - name: RELATED_IMAGE_ARTIFACTORY_IMAGE_REPOSITORY
+              value: "registry.connect.redhat.com/jfrog/artifactory-pro"
+            - name: RELATED_IMAGE_NGINX_IMAGE_REPOSITORY
+              value: "registry.redhat.io/rhel8/nginx-116"
