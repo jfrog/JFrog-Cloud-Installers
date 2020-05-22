@@ -49,7 +49,7 @@ metadata:
                   "repository": "registry.redhat.io/rhel8/nginx-116",
                   "version": "latest"
                 },
-                "mainConf": "# Main Nginx configuration file\nworker_processes  4;\nerror_log  {{ .Values.nginx.persistence.mountPath }}/logs//error.log warn;\npid        /tmp/nginx.pid;\nevents {\n  worker_connections  1024;\n}\nhttp {\n  include       /etc/nginx/mime.types;\n  default_type  application/octet-stream;\n  variables_hash_max_size 1024;\n  variables_hash_bucket_size 64;\n  server_names_hash_max_size 4096;\n  server_names_hash_bucket_size 128;\n  types_hash_max_size 2048;\n  types_hash_bucket_size 64;\n  proxy_read_timeout 2400s;\n  client_header_timeout 2400s;\n  client_body_timeout 2400s;\n  proxy_connect_timeout 75s;\n  proxy_send_timeout 2400s;\n  proxy_buffer_size 32k;\n  proxy_buffers 40 32k;\n  proxy_busy_buffers_size 64k;\n  proxy_temp_file_write_size 250m;\n  proxy_http_version 1.1;\n  client_body_buffer_size 128k;\n  log_format  main  '$remote_addr - $remote_user [$time_local] \"$request\" '\n  '$status $body_bytes_sent \"$http_referer\" '\n  '\"$http_user_agent\" \"$http_x_forwarded_for\"';\n  log_format timing 'ip = $remote_addr '\n  'user = \"$remote_user\" '\n  'local_time = \"$time_local\" '\n  'host = $host '\n  'request = \"$request\" '\n  'status = $status '\n  'bytes = $body_bytes_sent '\n  'upstream = \"$upstream_addr\" '\n  'upstream_time = $upstream_response_time '\n  'request_time = $request_time '\n  'referer = \"$http_referer\" '\n  'UA = \"$http_user_agent\"';\n  access_log  {{ .Values.nginx.persistence.mountPath }}/logs/access.log  timing;\n  sendfile        on;\n  #tcp_nopush     on;\n  keepalive_timeout  65;\n  #gzip  on;\n  include {{ .Values.nginx.persistence.mountPath }}/conf.d/*.conf;\n}\n",
+                "mainConf": "# Main Nginx configuration file\nworker_processes  4;\nerror_log  {{ .Values.nginx.persistence.mountPath }}/logs//error.log warn;\npid        /tmp/nginx.pid;\nevents {\n  worker_connections  1024;\n}\nhttp {\n  include       /etc/nginx/mime.types;\n  default_type  application/octet-stream;\n  variables_hash_max_size 1024;\n  variables_hash_bucket_size 64;\n  server_names_hash_max_size 4096;\n  server_names_hash_bucket_size 128;\n  types_hash_max_size 2048;\n  types_hash_bucket_size 64;\n  proxy_read_timeout 2400s;\n  client_header_timeout 2400s;\n  client_body_timeout 2400s;\n  proxy_connect_timeout 75s;\n  proxy_send_timeout 2400s;\n  proxy_buffer_size 32k;\n  proxy_buffers 40 32k;\n  proxy_busy_buffers_size 64k;\n  proxy_temp_file_write_size 250m;\n  proxy_http_version 1.1;\n  client_body_buffer_size 128k;\n  log_format  main  '$remote_addr - $remote_user [$time_local] \"$request\" '\n  '$status $body_bytes_sent \"$http_referer\" '\n  '\"$http_user_agent\" \"$http_x_forwarded_for\"';\n  log_format timing 'ip = $remote_addr '\n  'user = \\\"$remote_user\\\" '\n  'local_time = \\\"$time_local\\\" '\n  'host = $host '\n  'request = \\\"$request\\\" '\n  'status = $status '\n  'bytes = $body_bytes_sent '\n  'upstream = \\\"$upstream_addr\\\" '\n  'upstream_time = $upstream_response_time '\n  'request_time = $request_time '\n  'referer = \\\"$http_referer\\\" '\n  'UA = \\\"$http_user_agent\\\"';\n  access_log  {{ .Values.nginx.persistence.mountPath }}/logs/access.log  timing;\n  sendfile        on;\n  #tcp_nopush     on;\n  keepalive_timeout  65;\n  #gzip  on;\n  include {{ .Values.nginx.persistence.mountPath }}/conf.d/*.conf;\n}\n",
                 "service": {
                   "ssloffload": false
                 },
@@ -66,13 +66,13 @@ metadata:
     capabilities: Basic Install
     categories: "Developer Tools,Integration & Delivery"
     description: "JFrog Artifactory Enterprise deploys Artifactory in a high availability environment across multiple pods"
-    containerImage: registry.connect.redhat.com/jfrog/artifactory-operator:7.3
+    containerImage: registry.connect.redhat.com/jfrog/artifactory-operator:7.4
     createdAt: 2020-03-25T00:00:00Z
     support: JFrog
     certified: "true"
     repository: https://github.com/jfrog/JFrog-Cloud-Installers/tree/openshift4/Openshift4
   name: artifactory-ha-operator.v1.0.0
-  namespace: jfrog-artifactory
+  namespace: placeholder
 spec:
   apiservicedefinitions: {}
   customresourcedefinitions:
@@ -117,7 +117,7 @@ spec:
   install:
     spec:
       deployments:
-      - name: artifactory-ha-operator
+      - name: artifactory-ha-operatorvi
         spec:
           replicas: 1
           selector:
@@ -142,10 +142,10 @@ spec:
                 - name: OPERATOR_NAME
                   value: artifactory-ha-operator
                 - name: RELATED_IMAGE_ARTIFACTORY_IMAGE_REPOSITORY
-                  value: registry.connect.redhat.com/jfrog/artifactory-pro:7.3
+                  value: registry.connect.redhat.com/jfrog/artifactory-pro:7.4.3
                 - name: RELATED_IMAGE_NGINX_IMAGE_REPOSITORY
                   value: registry.redhat.io/rhel8/nginx-116:latest
-                image: registry.connect.redhat.com/jfrog/artifactory-operator:7.3
+                image: registry.connect.redhat.com/jfrog/artifactory-operator:7.4
                 imagePullPolicy: Always
                 name: artifactory-ha-operator
                 resources: {}
@@ -260,7 +260,7 @@ spec:
           verbs:
           - '*'
         - apiGroups:
-          - 'rbac.authorization.k8s.io'
+          - rbac.authorization.k8s.io
           resources:
           - '*'
           verbs:
@@ -268,14 +268,14 @@ spec:
         serviceAccountName: artifactory-ha-operator
     strategy: deployment
   installModes:
-  - supported: true
-    type: OwnNamespace
-  - supported: true
-    type: SingleNamespace
-  - supported: false
-    type: MultiNamespace
-  - supported: true
-    type: AllNamespaces
+    - supported: true
+      type: OwnNamespace
+    - supported: true
+      type: SingleNamespace
+    - supported: false
+      type: MultiNamespace
+    - supported: true
+      type: AllNamespaces
   keywords:
     - "DevOps"
     - "CI/CD"

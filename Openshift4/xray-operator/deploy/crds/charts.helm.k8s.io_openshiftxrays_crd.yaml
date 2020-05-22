@@ -1,14 +1,14 @@
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
-  name: openshiftartifactoryhas.charts.helm.k8s.io
+  name: openshiftxrays.charts.helm.k8s.io
 spec:
   group: charts.helm.k8s.io
   names:
-    kind: OpenshiftArtifactoryHa
-    listKind: OpenshiftArtifactoryHaList
-    plural: openshiftartifactoryhas
-    singular: openshiftartifactoryha
+    kind: OpenshiftXray
+    listKind: OpenshiftXrayList
+    plural: openshiftxrays
+    singular: openshiftxray
   scope: Namespaced
   subresources:
     status: {}

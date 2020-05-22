@@ -1,0 +1,5 @@
+channels:
+- currentCSV: xray-operator.v1.0.0
+  name: alpha
+defaultChannel: alpha
+packageName: xray-operator

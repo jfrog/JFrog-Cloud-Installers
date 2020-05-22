@@ -30,23 +30,23 @@ xray:
   analysis:
     name: xray-analysis
     image:
-      repository: quay.io/jfrog/xray-analysis-rh
-      # version:
+      repository: registry.connect.redhat.com/jfrog/xray-analysis
+      version: 3.3.0
     updateStrategy: RollingUpdate
     podManagementPolicy: Parallel
     preStartCommand:
   indexer:
     name: xray-indexer
     image:
-      repository: quay.io/jfrog/xray-indexer-rh
-      # version:
+      repository: registry.connect.redhat.com/jfrog/xray-indexer
+      version: 3.3.0
     updateStrategy: RollingUpdate
     podManagementPolicy: Parallel
   persist:
     name: xray-persist
     image:
-      repository: quay.io/jfrog/xray-persist-rh
-      # version:
+      repository: registry.connect.redhat.com/jfrog/xray-persist
+      version: 3.3.0
     updateStrategy: RollingUpdate
     podManagementPolicy: Parallel
     persistence:
@@ -55,22 +55,22 @@ xray:
   server:
     name: xray-server
     image:
-      repository: quay.io/jfrog/xray-server-rh
-      # version:
+      repository: registry.connect.redhat.com/jfrog/xray-server
+      version: 3.3.0
     updateStrategy: RollingUpdate
     podManagementPolicy: Parallel
     replicaCount: 1
   router:
     name: router
     image:
-      repository: quay.io/jfrog/router-rh
+      repository: registry.connect.redhat.com/jfrog/xray-router
       version: 1.2.1
       imagePullPolicy: IfNotPresent
   rabbitmq-ha:
     enabled: true
     replicaCount: 1
     image:
-      repository: quay.io/jfrog/xray-rabbitmq-rh
+      repository: registry.connect.redhat.com/jfrog/xray-rabbitmq
       tag: 3.8.0
     rabbitmqEpmdPort: 4369
     rabbitmqNodePort: 5672

@@ -1,0 +1,26 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: rabbitmq-lb
+  labels:
+    app: rabbitmq
+spec:
+  selector:
+    app: rabbitmq
+  ports:
+  - name: port1
+    protocol: TCP
+    port: 4369
+    targetPort: 4369
+  - name: port3
+    protocol: TCP
+    port: 5672
+    targetPort: 5672
+  - name: port4
+    protocol: TCP
+    port: 25672
+    targetPort: 25672
+  type: ClusterIP
+
+
+

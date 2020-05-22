@@ -6,81 +6,113 @@ metadata:
       [
         {
           "apiVersion": "charts.helm.k8s.io/v1alpha1",
-          "kind": "OpenshiftArtifactoryHa",
+          "kind": "OpenshiftXray",
           "metadata": {
-            "name": "openshiftartifactoryha"
+            "name": "openshiftxray"
           },
           "spec": {
-            "artifactory-ha": {
-              "artifactory": {
-                "customInitContainersBegin": "- name: \"redhat-custom-setup\"\n  image: {{ index .Values \"initContainerImage\" }}\n  imagePullPolicy: \"{{ .Values.artifactory.image.pullPolicy }}\"\n  command:\n    - 'sh'\n    - '-c'\n    - 'chown -R 1030:1030 {{ .Values.artifactory.persistence.mountPath }}'\n  securityContext:\n      runAsUser: 0\n  volumeMounts:\n    - mountPath: \"{{ .Values.artifactory.persistence.mountPath }}\"\n      name: volume\n",
+            "xray": {
+              "analysis": {
                 "image": {
-                  "repository": "registry.connect.redhat.com/jfrog/artifactory-pro",
-                  "version": "7.4.3"
+                  "repository": "registry.connect.redhat.com/jfrog/xray-analysis",
+                  "version": "3.3.0"
                 },
-                "joinKey": "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE",
-                "masterKey": "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
-                "node": {
-                  "replicaCount": 2,
-                  "waitForPrimaryStartup": {
-                    "enabled": false
-                  }
-                }
+                "name": "xray-analysis",
+                "podManagementPolicy": "Parallel",
+                "preStartCommand": null,
+                "updateStrategy": "RollingUpdate"
               },
               "database": {
-                "driver": "OVERRIDE",
                 "password": "OVERRIDE",
-                "type": "OVERRIDE",
                 "url": "OVERRIDE",
                 "user": "OVERRIDE"
               },
-              "initContainerImage": "registry.redhat.io/ubi8-minimal",
-              "installerInfo": "{ \"productId\": \"Openshift_artifactory-ha/{{ .Chart.Version }}\", \"features\": [ { \"featureId\": \"ArtifactoryVersion/{{ default .Chart.AppVersion .Values.artifactory.image.version }}\" }, { \"featureId\": \"{{ if .Values.postgresql.enabled }}postgresql{{ else }}{{ .Values.database.type }}{{ end }}/0.0.0\" }, { \"featureId\": \"Platform/Openshift\" }, { \"featureId\": \"Partner/ACC-006983\" }, { \"featureId\": \"Channel/Openshift\" } ] }",
-              "nginx": {
-                "http": {
-                  "externalPort": 80,
-                  "internalPort": 8080
-                },
-                "https": {
-                  "externalPort": 443,
-                  "internalPort": 8443
-                },
+              "global": {
+                "postgresqlTlsSecret": null
+              },
+              "indexer": {
                 "image": {
-                  "repository": "registry.redhat.io/rhel8/nginx-116",
-                  "version": "latest"
+                  "repository": "registry.connect.redhat.com/jfrog/xray-indexer",
+                  "version": "3.3.0"
                 },
-                "mainConf": "# Main Nginx configuration file\nworker_processes  4;\nerror_log  {{ .Values.nginx.persistence.mountPath }}/logs//error.log warn;\npid        /tmp/nginx.pid;\nevents {\n  worker_connections  1024;\n}\nhttp {\n  include       /etc/nginx/mime.types;\n  default_type  application/octet-stream;\n  variables_hash_max_size 1024;\n  variables_hash_bucket_size 64;\n  server_names_hash_max_size 4096;\n  server_names_hash_bucket_size 128;\n  types_hash_max_size 2048;\n  types_hash_bucket_size 64;\n  proxy_read_timeout 2400s;\n  client_header_timeout 2400s;\n  client_body_timeout 2400s;\n  proxy_connect_timeout 75s;\n  proxy_send_timeout 2400s;\n  proxy_buffer_size 32k;\n  proxy_buffers 40 32k;\n  proxy_busy_buffers_size 64k;\n  proxy_temp_file_write_size 250m;\n  proxy_http_version 1.1;\n  client_body_buffer_size 128k;\n  log_format  main  '$remote_addr - $remote_user [$time_local] \"$request\" '\n  '$status $body_bytes_sent \"$http_referer\" '\n  '\"$http_user_agent\" \"$http_x_forwarded_for\"';\n  log_format timing 'ip = $remote_addr '\n  'user = \\\"$remote_user\\\" '\n  'local_time = \\\"$time_local\\\" '\n  'host = $host '\n  'request = \\\"$request\\\" '\n  'status = $status '\n  'bytes = $body_bytes_sent '\n  'upstream = \\\"$upstream_addr\\\" '\n  'upstream_time = $upstream_response_time '\n  'request_time = $request_time '\n  'referer = \\\"$http_referer\\\" '\n  'UA = \\\"$http_user_agent\\\"';\n  access_log  {{ .Values.nginx.persistence.mountPath }}/logs/access.log  timing;\n  sendfile        on;\n  #tcp_nopush     on;\n  keepalive_timeout  65;\n  #gzip  on;\n  include {{ .Values.nginx.persistence.mountPath }}/conf.d/*.conf;\n}\n",
-                "service": {
-                  "ssloffload": false
+                "name": "xray-indexer",
+                "podManagementPolicy": "Parallel",
+                "updateStrategy": "RollingUpdate"
+              },
+              "persist": {
+                "image": {
+                  "repository": "registry.connect.redhat.com/jfrog/xray-persist",
+                  "version": "3.3.0"
                 },
-                "tlsSecretName": "OVERRIDE"
+                "name": "xray-persist",
+                "persistence": {
+                  "size": "10Gi"
+                },
+                "podManagementPolicy": "Parallel",
+                "preStartCommand": null,
+                "updateStrategy": "RollingUpdate"
               },
               "postgresql": {
                 "enabled": false
               },
-              "waitForDatabase": false
+              "rabbitmq-ha": {
+                "enabled": true,
+                "image": {
+                  "repository": "registry.connect.redhat.com/jfrog/xray-rabbitmq",
+                  "tag": "3.8.0"
+                },
+                "rabbitmqEpmdPort": 4369,
+                "rabbitmqManagerPort": 15672,
+                "rabbitmqNodePort": 5672,
+                "replicaCount": 1
+              },
+              "replicaCount": 1,
+              "router": {
+                "image": {
+                  "imagePullPolicy": "IfNotPresent",
+                  "repository": "registry.connect.redhat.com/jfrog/xray-router",
+                  "version": "1.2.1"
+                },
+                "name": "router"
+              },
+              "server": {
+                "image": {
+                  "repository": "registry.connect.redhat.com/jfrog/xray-server",
+                  "version": "3.3.0"
+                },
+                "name": "xray-server",
+                "podManagementPolicy": "Parallel",
+                "replicaCount": 1,
+                "updateStrategy": "RollingUpdate"
+              },
+              "xray": {
+                "consoleLog": false,
+                "jfrogUrl": "OVERRIDE",
+                "joinKey": "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE",
+                "masterKey": "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
+              }
             }
           }
         }
       ]
     capabilities: Basic Install
     categories: "Developer Tools,Integration & Delivery"
-    description: "JFrog Artifactory Enterprise deploys Artifactory in a high availability environment across multiple pods"
-    containerImage: registry.connect.redhat.com/jfrog/artifactory-operator:7.4
-    createdAt: 2020-03-25T00:00:00Z
+    description: "JFrog Xray Enterprise deploys Xray security scanner into Openshift"
+    containerImage: registry.connect.redhat.com/jfrog/xray-operator:3.3.0
+    createdAt: 2020-05-22T00:00:00Z
     support: JFrog
     certified: "true"
     repository: https://github.com/jfrog/JFrog-Cloud-Installers/tree/openshift4/Openshift4
-  name: artifactory-ha-operator.v1.0.0
+  name: xray-operator.v1.0.0
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
   customresourcedefinitions:
     owned:
-      - description: Represents Artifactory HA Instances
-        displayName: Artifactory HA
-        kind: OpenshiftArtifactoryHa
-        name: openshiftartifactoryhas.charts.helm.k8s.io
+      - description: Represents Xray Instances
+        displayName: Xray
+        kind: OpenshiftXray
+        name: openshiftxrays.charts.helm.k8s.io
         resources:
           - kind: Deployment
             version: v1
@@ -97,8 +129,8 @@ spec:
           - kind: StatefulSet
             version: apps/v1
         version: v1alpha1
-  description: Openshift 4 Operator to deploy JFrog Artifactory Enterprise
-  displayName: JFrog Artifactory Enterprise Operator
+  description: Openshift 4 Operator to deploy JFrog Xray
+  displayName: JFrog Xray Enterprise Operator
   provider:
     name: JFrog
   links:
@@ -117,17 +149,17 @@ spec:
   install:
     spec:
       deployments:
-      - name: artifactory-ha-operatorvi
+      - name: xray-operator
         spec:
           replicas: 1
           selector:
             matchLabels:
-              name: artifactory-ha-operator
+              name: xray-operator
           strategy: {}
           template:
             metadata:
               labels:
-                name: artifactory-ha-operator
+                name: xray-operator
             spec:
               containers:
               - env:
@@ -140,16 +172,24 @@ spec:
                     fieldRef:
                       fieldPath: metadata.name
                 - name: OPERATOR_NAME
-                  value: artifactory-ha-operator
-                - name: RELATED_IMAGE_ARTIFACTORY_IMAGE_REPOSITORY
-                  value: registry.connect.redhat.com/jfrog/artifactory-pro:7.4.3
-                - name: RELATED_IMAGE_NGINX_IMAGE_REPOSITORY
-                  value: registry.redhat.io/rhel8/nginx-116:latest
-                image: registry.connect.redhat.com/jfrog/artifactory-operator:7.4
+                  value: xray-operator
+                - name: RELATED_IMAGE_XRAY_SERVER_IMAGE_REPOSITORY
+                  value: registry.connect.redhat.com/jfrog/xray-server:3.3.0
+                - name: RELATED_IMAGE_XRAY_ANALYSIS_IMAGE_REPOSITORY
+                  value: registry.connect.redhat.com/jfrog/xray-analysis:3.3.0
+                - name: RELATED_IMAGE_XRAY_PERSIST_IMAGE_REPOSITORY
+                  value: registry.connect.redhat.com/jfrog/xray-persist:3.3.0
+                - name: RELATED_IMAGE_XRAY_INDEXER_IMAGE_REPOSITORY
+                  value: registry.connect.redhat.com/jfrog/xray-indexer:3.3.0
+                - name: RELATED_IMAGE_XRAY_ROUTER_IMAGE_REPOSITORY
+                  value: registry.connect.redhat.com/jfrog/xray-router:1.2.1
+                - name: RELATED_IMAGE_XRAY_RABBITMQ_IMAGE_REPOSITORY
+                  value: registry.connect.redhat.com/jfrog/xray-rabbitmq:3.8.0
+                image: registry.connect.redhat.com/jfrog/xray-operator:3.3.0
                 imagePullPolicy: Always
-                name: artifactory-ha-operator
+                name: xray-operator
                 resources: {}
-              serviceAccountName: artifactory-ha-operator
+              serviceAccountName: xray-operator
       permissions:
       - rules:
         - apiGroups:
@@ -196,7 +236,7 @@ spec:
         - apiGroups:
           - ""
           resourceNames:
-          - artifactory-ha-operator
+          - xray-operator
           resources:
           - '*'
           verbs:
@@ -217,7 +257,7 @@ spec:
         - apiGroups:
           - apps
           resourceNames:
-          - artifactory-ha-operator
+          - xray-operator
           resources:
           - deployments/finalizers
           verbs:
@@ -265,17 +305,17 @@ spec:
           - '*'
           verbs:
           - '*'
-        serviceAccountName: artifactory-ha-operator
+        serviceAccountName: xray-operator
     strategy: deployment
   installModes:
-    - supported: true
-      type: OwnNamespace
-    - supported: true
-      type: SingleNamespace
-    - supported: false
-      type: MultiNamespace
-    - supported: true
-      type: AllNamespaces
+  - supported: true
+    type: OwnNamespace
+  - supported: true
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
   keywords:
     - "DevOps"
     - "CI/CD"
