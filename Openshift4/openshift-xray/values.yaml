@@ -1,5 +1,6 @@
 # Openshift Jfrog Xray
 xray:
+  unifiedUpgradeAllowed: true
   replicaCount: 1
   xray:
     masterKey: FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
