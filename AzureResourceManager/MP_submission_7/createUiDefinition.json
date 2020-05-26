@@ -82,7 +82,6 @@
             ],
             "constraints": {
               "allowedSizes": [
-                "Standard_A2_v2",
                 "Standard_A4_v2",
                 "Standard_A4",
                 "Standard_D2s_v3",
