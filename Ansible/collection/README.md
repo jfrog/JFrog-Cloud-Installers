@@ -32,10 +32,13 @@ The following Vars must be configured.
 * db_user: The database user to configure. eg. "artifactory"
 * db_password: The database password to configure. "Art1fact0ry"
 * server_name: This is the server name. eg. "artifactory.54.175.51.178.xip.io"
+* system_file: Your own system YAML file can be specified and used. If specified, this file will be used rather than constructing a file from the parameters above.
+* binary_store_file: Your own binary store file can be used. If specified, the default cluster-file-system will not be used.
 
 ### primary vars
 * artifactory_is_primary: For the primary node this must be set to **true**.
 * artifactory_license1 - 5: These are the cluster licenses.
+* artifactory_license_file: Your own license file can be used. If specified, a license file constructed from the licenses above will not be used.
 
 ### secondary vars
 * artifactory_is_primary: For the secondary node(s) this must be set to **false**.

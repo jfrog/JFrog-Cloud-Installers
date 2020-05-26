@@ -1,10 +1,8 @@
 ---
 - hosts: database
-  gather_facts: true
   roles:
-    - jfrog/ansible/roles/postgres
+    - postgres
 
 - hosts: primary
-  gather_facts: true
   roles:
-    - jfrog/ansible/roles/artifactory
+    - artifactory

@@ -6,16 +6,13 @@
     var: join_key
 
 - hosts: database
-  gather_facts: true
   roles:
-    - jfrog/ansible/roles/postgres
+    - postgres
 
 - hosts: artifactory
-  gather_facts: true
   roles:
-    - jfrog/ansible/roles/artifactory
+    - artifactory
 
 - hosts: xray
-  gather_facts: true
   roles:
-    - jfrog/ansible/roles/xray
+    - xray

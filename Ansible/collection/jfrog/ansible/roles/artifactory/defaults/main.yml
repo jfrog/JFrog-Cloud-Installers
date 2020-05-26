@@ -6,7 +6,7 @@ ansible_marketplace: standalone
 # The version of Artifactory to install
 artifactory_version: 7.4.1
 
-# licenses
+# licenses file - specify a licenses file or specify up to 5 licenses
 artifactory_license1:
 artifactory_license2:
 artifactory_license3:
@@ -26,9 +26,6 @@ artifactory_download_directory: /opt/jfrog
 artifactory_file_store_dir: /data
 
 # Pick the Artifactory flavour to install, can be also cpp-ce, jcr, pro.
-# note that for "pro" version, the artifactory_zip URL would need to be overridden to e.g.:
-# https://dl.bintray.com/jfrog/artifactory-pro/org/artifactory/pro/jfrog-artifactory-pro/{{ artifactory_version }}/jfrog-artifactory-pro-{{ artifactory_version }}.zip
-# https://dl.bintray.com/jfrog/artifactory-pro/org/artifactory/pro/jfrog-artifactory-pro/{{ artifactory_version }}/jfrog-artifactory-pro-{{ artifactory_version }}-linux.tar.gz
 artifactory_flavour: pro
 
 extra_java_opts: -server -Xms2g -Xmx14g -Xss256k -XX:+UseG1GC
