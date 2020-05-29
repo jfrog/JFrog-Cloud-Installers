@@ -78,11 +78,10 @@
             "label": "Virtual machine size",
             "toolTip": "The size of the virtual machine for JFrog Container Registry",
             "recommendedSizes": [
-              "Standard_A2_v2"
+              "Standard_D2s_v3"
             ],
             "constraints": {
               "allowedSizes": [
-                "Standard_A2_v2",
                 "Standard_A4_v2",
                 "Standard_A4",
                 "Standard_D2s_v3",
