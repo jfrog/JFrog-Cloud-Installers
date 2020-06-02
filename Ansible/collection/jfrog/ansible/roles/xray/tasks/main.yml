@@ -31,9 +31,12 @@
   until: downloadxray is succeeded
   retries: 3
 
-- name: perform prerequisite installation
+- debug:
+    msg: "Running dependency installation for {{ ansible_os_family }}"
+
+- name: perform dependency installation
   include_tasks: "{{ ansible_os_family }}.yml"
-  
+
 - name: ensure etc exists
   file:
     path: "{{ xray_home }}/var/etc"
