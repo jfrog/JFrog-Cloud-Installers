@@ -6,7 +6,4 @@
 - hosts: primary:secondary
   roles:
     - artifactory
-
-- hosts: xray
-  roles:
-    - xray
+    - artifactory-nginx-ssl

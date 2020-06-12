@@ -1,0 +1,7 @@
+---
+- name: epel-release
+  yum:
+    name: epel-release
+    state: present
+  become: yes
+

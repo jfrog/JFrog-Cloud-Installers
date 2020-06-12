@@ -36,6 +36,8 @@ pipelines:
             - sudo pip install boto3 botocore
             - cd ../dependencyState/resources/ansibleRepo
             - echo 'Setting environment variables...'
+            - export artifactory_version="$int_ansibleEnvVars_artifactory_version"
+            - export xray_version="$int_ansibleEnvVars_xray_version"
             - export artifactory_license1="$int_ansibleEnvVars_artifactory_license1"
             - export artifactory_license2="$int_ansibleEnvVars_artifactory_license2"
             - export artifactory_license3="$int_ansibleEnvVars_artifactory_license3"
@@ -82,6 +84,8 @@ pipelines:
             - sudo pip install ansible[azure]
             - cd ../dependencyState/resources/ansibleRepo
             - echo 'Setting environment variables...'
+            - export artifactory_version="$int_ansibleEnvVars_artifactory_version"
+            - export xray_version="$int_ansibleEnvVars_xray_version"
             - export artifactory_license1="$int_ansibleEnvVars_artifactory_license1"
             - export artifactory_license2="$int_ansibleEnvVars_artifactory_license2"
             - export artifactory_license3="$int_ansibleEnvVars_artifactory_license3"

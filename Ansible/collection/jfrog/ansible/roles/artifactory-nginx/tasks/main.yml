@@ -1,4 +1,7 @@
 ---
+- name: perform dependency installation
+  include_tasks: "{{ ansible_os_family }}.yml"
+
 - name: install nginx
   package:
     name: nginx
