@@ -6,4 +6,4 @@
 - hosts: primary:secondary
   roles:
     - artifactory
-    - artifactory-nginx-ssl
+    - artifactory_nginx_ssl

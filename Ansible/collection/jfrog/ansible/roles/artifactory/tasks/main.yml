@@ -2,7 +2,7 @@
 # tasks file for artifactory
 - name: install nginx
   include_role:
-    name: artifactory-nginx
+    name: artifactory_nginx
 
 - name: create group for artifactory
   group:

@@ -44,7 +44,7 @@
     owner: "{{ xray_user }}"
     group: "{{ xray_group }}"
   become: yes
-  
+
 - name: configure system yaml
   template:
     src: system.yaml.j2

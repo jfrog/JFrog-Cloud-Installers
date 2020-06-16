@@ -1,35 +1,16 @@
----
 galaxy_info:
-  author: Robert de Bock
-  role_name: artifactory
-  description: Install and configure artifactory on your system.
-  license: Apache-2.0
-  company: none
-  min_ansible_version: 2.8
+  author: "Jeff Fry <jefff@jfrog.com>"
+  description: "The artifactory role installs the Artifactory Pro software onto the host. Per the Vars below, it will configure a node as primary or secondary. This role uses secondary roles artifactory_nginx to install nginx."
+  company: JFrog
 
-  platforms:
-    - name: Debian
-      versions:
-        - all
-    - name: EL
-      versions:
-        - 7
-        - 8
-    - name: Fedora
-      versions:
-        - all
-    - name: OpenSUSE
-      versions:
-        - all
-    - name: Ubuntu
-      versions:
-        - bionic
+  issue_tracker_url: "https://github.com/jfrog/JFrog-Cloud-Installers/issues"
+
+  license: license (GPL-2.0-or-later)
+
+  min_ansible_version: 2.9
 
   galaxy_tags:
     - artifactory
-    - centos
-    - redhat
-    - server
-    - system
+    - jfrog
 
 dependencies: []

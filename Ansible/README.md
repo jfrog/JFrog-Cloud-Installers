@@ -9,13 +9,18 @@ This Ansible directory consists of the following directories that support the JF
  
  ## Getting Started
  
- 1. Install this collection or the roles in your Ansible path using your ansible.cfg file. The following is an example:
+ 1. Download and nstall this collection or the roles in your Ansible path using your ansible.cfg file. The following is an example:
  ```
 # Installs collections into [current dir]/ansible_collections/namespace/collection_name
 collections_paths = ~/.ansible/collections:/usr/share/ansible/collections:collection
 
 # Installs roles into [current dir]/roles/namespace.rolename
 roles_path = Ansible/collection/jfrog/ansible/roles
+```
+
+Or install this collection from Ansible Galaxy.
+```
+ansible-galaxy collection install jfrog.ansible
 ```
  2. Ansible uses SSH to connect to hosts. Ensure that your SSH private key is on your client and the public keys are installed on your Ansible hosts. 
  
@@ -64,4 +69,12 @@ ansible_ssh_common_args: '-o ProxyCommand="ssh -o StrictHostKeyChecking=no -A us
 
 eg.
 ansible_ssh_common_args: '-o ProxyCommand="ssh -o StrictHostKeyChecking=no -A ubuntu@{{ azureDeployment.deployment.outputs.lbIp.value }} -W %h:%p"'
+```
+
+## Building the Collection Archive
+1. Go to the [collection/jfrog/ansible directory](collection/jfrog/ansible).
+2. Update the galaxy.yml meta file as needed. Update the version.
+3. Build the archive.
+```
+ansible-galaxy collection build
 ```

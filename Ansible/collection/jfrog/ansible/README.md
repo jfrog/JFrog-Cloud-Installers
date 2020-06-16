@@ -1,12 +1,12 @@
 # Ansible
-This repo contains the Ansible collection for JFrog roles. These roles allow you to provision Artifactory for High-Availability using a Primary node and multiple Secondary nodes. Additionally, a Postgresql role is provided for installing an Artifactory Postgresql database.
+This collection provides roles for installing Artifactory and Xray. Additionally, it provides optional SSL and Postgresql roles if these are needed for your deployment.
 
 ## Roles Provided
 ### artifactory
-The artifactory role installs the Artifactory Pro software onto the host. Per the Vars below, it will configure a node as primary or secondary. This role uses secondary roles artifactory-nginx to install nginx.
+The artifactory role installs the Artifactory Pro software onto the host. Per the Vars below, it will configure a node as primary or secondary. This role uses secondary roles artifactory_nginx to install nginx.
 
-### artifactory-nginx-ssl
-The artifactory-nginx-ssl role installs and configures nginx for SSL.
+### artifactory_nginx_ssl
+The artifactory_nginx_ssl role installs and configures nginx for SSL.
 
 ### postgres
 The postgres role will install Postgresql software and configure a database and user to support an Artifactory or Xray server.
@@ -35,15 +35,15 @@ The following Vars must be configured.
 * _system_file_: Your own [system YAML](https://www.jfrog.com/confluence/display/JFROG/System+YAML+Configuration+File) file can be specified and used. **If specified, this file will be used rather than constructing a file from the parameters above.**
 * _binary_store_file_: Your own [binary store file](https://www.jfrog.com/confluence/display/JFROG/Configuring+the+Filestore) can be used. If specified, the default cluster-file-system will not be used.
 
-### primary vars
+### primary vars (vars used by the primary Artifactory server)
 * _artifactory_is_primary_: For the primary node this must be set to **true**.
 * _artifactory_license1 - 5_: These are the cluster licenses.
 * _artifactory_license_file_: Your own license file can be used. **If specified, a license file constructed from the licenses above will not be used.**
 
-### secondary vars
+### secondary vars (vars used by the secondary Artifactory server)
 * _artifactory_is_primary_: For the secondary node(s) this must be set to **false**.
 
-### ssl vars (Used with artifactory-nginx-ssl role)
+### ssl vars (Used with artifactory_nginx_ssl role)
 * _certificate_: This is the SSL cert.
 * _certificate_key_: This is the SSL private key.
 

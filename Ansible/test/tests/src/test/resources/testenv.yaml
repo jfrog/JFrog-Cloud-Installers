@@ -1,6 +1,6 @@
 artifactory:
-  url: urlval
-  external_ip: ipval
+  url: http://Ansib-Appli-1RBHLINBKUHSU-1876699665.us-east-1.elb.amazonaws.com
+  external_ip: Ansib-Appli-1RBHLINBKUHSU-1876699665.us-east-1.elb.amazonaws.com
   distribution: artifactory_ha
   rt_username: admin
-  rt_password: passval
+  rt_password: password
