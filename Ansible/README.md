@@ -10,9 +10,23 @@ This Ansible directory consists of the following directories that support the JF
  ## Getting Started
  
  1. Install this collection from Ansible Galaxy. This collection is also available in RedHat Automation Hub.
+    
     ```
     ansible-galaxy collection install jfrog.installers
     ```
+        
+    Ensure you reference the collection in your playbook when using these roles.
+        
+    ```
+    ---
+    - hosts: xray
+      collections:
+        - jfrog.installers
+      roles:
+        - xray
+    
+    ```
+    
  2. Ansible uses SSH to connect to hosts. Ensure that your SSH private key is on your client and the public keys are installed on your Ansible hosts. 
  
  3. Create your inventory file. Use one of the examples from the [examples directory](examples) to construct an inventory file (hosts.yml) with the host addresses and variables.
@@ -21,7 +35,7 @@ This Ansible directory consists of the following directories that support the JF
  
  5. Then execute with the following command to provision the JFrog software with Ansible. Variables can also be passed in at the command-line.
  
- ```
+```
 ansible-playbook -i hosts.yml playbook.yml --extra-vars "master_key=$(openssl rand -hex 16) join_key=$(openssl rand -hex 16)"
 ```
 

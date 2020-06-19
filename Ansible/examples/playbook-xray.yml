@@ -1,4 +1,6 @@
 ---
 - hosts: xray
+  collections:
+    - jfrog.installers
   roles:
     - xray
