@@ -49,6 +49,8 @@ pipelines:
             - export AWS_ACCESS_KEY_ID="$int_ansibleEnvVars_AWS_ACCESS_KEY_ID"
             - export AWS_SECRET_KEY="$int_ansibleEnvVars_AWS_SECRET_KEY"
             - printenv
+            - pwd
+            - ls
             - eval $(ssh-agent -s)
             - ssh-add <(echo "$int_ansiblePrivateKey_key")
             - ansible-playbook Ansible/test/aws/playbook.yaml
@@ -98,6 +100,8 @@ pipelines:
             - export clientSecret="$int_ansibleAzureKeys_password"
             - export tenantId="$int_ansibleAzureKeys_tenant"
             - printenv
+            - pwd
+            - ls
             - eval $(ssh-agent -s)
             - ssh-add <(echo "$int_ansiblePrivateKey_key")
             - az login --service-principal -u "$clientId" -p "$clientSecret" --tenant "$tenantId"

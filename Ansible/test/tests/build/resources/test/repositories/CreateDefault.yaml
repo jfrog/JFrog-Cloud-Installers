@@ -1,0 +1,554 @@
+localRepositories:
+  libs-release-local:
+      type: maven
+      description: "production deployment"
+      repoLayout: maven-2-default
+      xray:
+          enabled: true
+  libs-snapshot-local:
+      type: maven
+      description: "snapshot deployment"
+      repoLayout: maven-2-default
+      xray:
+          enabled: true
+  maven-prod-local:
+      type: maven
+      description: "production release deployment"
+      repoLayout: maven-2-default
+      xray:
+          enabled: true
+  maven-dev-local:
+      type: maven
+      description: "development release deployment"
+      repoLayout: maven-2-default
+      xray:
+          enabled: true
+  maven-release-local:
+      type: maven
+      description: "development release deployment"
+      repoLayout: maven-2-default
+      xray:
+          enabled: true
+  maven-snapshot-local:
+      type: maven
+      description: "development release deployment"
+      repoLayout: maven-2-default
+      xray:
+          enabled: true
+  gradle-prod-local:
+      type: gradle
+      description: "production deployment"
+      repoLayout: gradle-default
+      xray:
+          enabled: true
+  gradle-dev-local:
+      type: gradle
+      description: "development deployment"
+      repoLayout: gradle-default
+      xray:
+          enabled: true
+  tomcat-local:
+      type: generic
+      description: "used by demo"
+      repoLayout: simple-default
+      xray:
+          enabled: true
+  generic-prod-local:
+      type: generic
+      description: "production deployment"
+      repoLayout: simple-default
+      xray:
+          enabled: true
+  generic-dev-local:
+      type: generic
+      description: "development deployment"
+      repoLayout: simple-default
+      xray:
+          enabled: true
+  ivy-prod-local:
+      type: ivy
+      description: "production deployment"
+      repoLayout: "ivy-default"
+      xray:
+          enabled: true
+  ivy-dev-local:
+      type: ivy
+      description: "development deployment"
+      repoLayout: ivy-default
+      xray:
+          enabled: true
+  helm-prod-local:
+      type: helm
+      description: "production deployment"
+      repoLayout: simple-default
+      xray:
+          enabled: true
+  helm-dev-local:
+      type: helm
+      description: "development deployment"
+      repoLayout: simple-default
+      xray:
+          enabled: true
+  sbt-prod-local:
+      type: sbt
+      description: "production deployment"
+      repoLayout: sbt-default
+      xray:
+          enabled: true
+  sbt-dev-local:
+      type: sbt
+      description: "development deployment"
+      repoLayout: sbt-default
+      xray:
+          enabled: true
+  nuget-prod-local:
+      type: nuget
+      description: "production deployment"
+      repoLayout: nuget-default
+      xray:
+          enabled: true
+  nuget-dev-local:
+      type: nuget
+      description: "development deployment"
+      repoLayout: nuget-default
+      xray:
+          enabled: true
+  gems-prod-local:
+        type: gems
+        description: "production deployment"
+        repoLayout: simple-default
+        xray:
+            enabled: true
+  gems-dev-local:
+        type: gems
+        description: "development deployment"
+        repoLayout: simple-default
+        xray:
+            enabled: true
+  npm-prod-local:
+      type: npm
+      description: "production deployment"
+      repoLayout: npm-default
+      xray:
+          enabled: true
+  npm-dev-local:
+      type: npm
+      description: "development deployment"
+      repoLayout: npm-default
+      xray:
+          enabled: true
+  bower-prod-local:
+      type: bower
+      description: "production deployment"
+      repoLayout: bower-default
+      xray:
+          enabled: true
+  bower-dev-local:
+      type: bower
+      description: "development deployment"
+      repoLayout: bower-default
+      xray:
+          enabled: true
+  debian-prod-local:
+      type: debian
+      description: "production deployment"
+      repoLayout: simple-default
+      xray:
+          enabled: true
+  debian-dev-local:
+      type: debian
+      description: "development deployment"
+      repoLayout: simple-default
+      xray:
+          enabled: true
+  php-prod-local:
+      type: composer
+      description: "production deployment"
+      repoLayout: composer-default
+      xray:
+          enabled: true
+  php-dev-local:
+      type: composer
+      description: "development deployment"
+      repoLayout: composer-default
+      xray:
+          enabled: true
+  pypi-prod-local:
+      type: pypi
+      description: "production deployment"
+      repoLayout: simple-default
+      xray:
+          enabled: true
+  pypi-dev-local:
+      type: pypi
+      description: "development deployment"
+      repoLayout: simple-default
+      xray:
+          enabled: true
+  docker-prod-local:
+      type: docker
+      description: "production deployment"
+      repoLayout: simple-default
+      xray:
+          enabled: true
+  docker-stage-local:
+      type: docker
+      description: "stage deployment"
+      repoLayout: simple-default
+      xray:
+          enabled: true
+  docker-dev-local:
+      type: docker
+      description: "development deployment"
+      repoLayout: simple-default
+      xray:
+          enabled: true
+  docker-local:
+      type: docker
+      description: "docker deployment"
+      repoLayout: simple-default
+      xray:
+          enabled: true
+  docker-push:
+        type: docker
+        description: "docker push repo for push replication testing"
+        repoLayout: simple-default
+        xray:
+            enabled: true
+  vagrant-prod-local:
+      type: vagrant
+      description: "production deployment"
+      repoLayout: simple-default
+      xray:
+          enabled: true
+  vagrant-dev-local:
+      type: vagrant
+      description: "development deployment"
+      repoLayout: simple-default
+      xray:
+          enabled: true
+  gitlfs-prod-local:
+      type: gitlfs
+      description: "production deployment"
+      repoLayout: simple-default
+      xray:
+          enabled: true
+  gitlfs-dev-local:
+      type: gitlfs
+      description: "development deployment"
+      repoLayout: simple-default
+      xray:
+          enabled: true
+  rpm-prod-local:
+      type: yum
+      description: "production deployment"
+      repoLayout: simple-default
+      xray:
+          enabled: true
+  rpm-dev-local:
+      type: yum
+      description: "development deployment"
+      repoLayout: simple-default
+      xray:
+          enabled: true
+  conan-prod-local:
+      type: conan
+      description: "production deployment"
+      repoLayout: conan-default
+      xray:
+          enabled: true
+  conan-dev-local:
+      type: conan
+      description: "development deployment"
+      repoLayout: conan-default
+      xray:
+          enabled: true
+  chef-prod-local:
+      type: chef
+      description: "production deployment"
+      repoLayout: simple-default
+      xray:
+          enabled: true
+  chef-dev-local:
+      type: chef
+      description: "development deployment"
+      repoLayout: simple-default
+      xray:
+          enabled: true
+  puppet-prod-local:
+      type: puppet
+      description: "production deployment"
+      repoLayout: puppet-default
+      xray:
+          enabled: true
+  puppet-dev-local:
+      type: puppet
+      description: "development deployment"
+      repoLayout: puppet-default
+      xray:
+          enabled: true
+  go-prod-local:
+      type: go
+      description: "production deployment"
+      repoLayout: go-default
+      xray:
+          enabled: true
+  go-staging-local:
+        type: go
+        description: "production deployment"
+        repoLayout: go-default
+        xray:
+            enabled: true
+remoteRepositories:
+  docker-remote:
+      type: docker
+      url: https://registry-1.docker.io
+      repoLayout: simple-default
+      enableTokenAuthentication: true
+      xray:
+        enabled: true
+  helm-remote:
+      type: helm
+      url: https://storage.googleapis.com/kubernetes-charts
+      repoLayout: simple-default
+      xray:
+        enabled: true
+  jcenter:
+      type: maven
+      url: https://jcenter.bintray.com
+      repoLayout: maven-2-default
+      xray:
+        enabled: true
+  npm-remote:
+      type: npm
+      url: https://registry.npmjs.org
+      repoLayout: npm-default
+      xray:
+        enabled: true
+  nuget-remote:
+      type: nuget
+      url: https://www.nuget.org/
+      repoLayout: nuget-default
+      xray:
+        enabled: true
+  bower-remote:
+      type: bower
+      url: https://github.com/
+      repoLayout: bower-default
+      xray:
+        enabled: true
+  gems-remote:
+      type: gems
+      url: https://rubygems.org/
+      repoLayout: simple-default
+      xray:
+        enabled: true
+  debian-remote:
+      type: debian
+      url: http://archive.ubuntu.com/ubuntu/
+      repoLayout: simple-default
+      xray:
+        enabled: true
+  php-remote:
+      type: composer
+      url: https://github.com/
+      repoLayout: composer-default
+      xray:
+        enabled: true
+  pypi-remote:
+      type: pypi
+      url: https://files.pythonhosted.org
+      repoLayout: simple-default
+      xray:
+        enabled: true
+  rpm-remote:
+      type: yum
+      url: http://mirror.centos.org/centos/
+      repoLayout: simple-default
+      xray:
+        enabled: true
+  chef-remote:
+      type: chef
+      url: https://supermarket.chef.io
+      repoLayout: simple-default
+      xray:
+        enabled: true
+  puppet-remote:
+      type: puppet
+      url: https://forgeapi.puppetlabs.com/
+      repoLayout: puppet-default
+      xray:
+        enabled: true
+virtualRepositories:
+  maven-release-virtual:
+      type: maven
+      repositories:
+        - maven-prod-local
+        - jcenter
+        - maven-release-local
+        - libs-release-local
+      description: "maven release virtual repositories"
+      defaultDeploymentRepo: maven-release-local
+  maven-snapshot-virtual:
+      type: maven
+      repositories:
+        - maven-snapshot-local
+        - jcenter
+        - maven-dev-local
+        - libs-snapshot-local
+      description: "maven snapshot virtual repositories"
+      defaultDeploymentRepo: maven-snapshot-local
+  gradle-virtual:
+      type: gradle
+      repositories:
+        - gradle-dev-local
+        - jcenter
+        - gradle-prod-local
+        - libs-release-local
+      description: "gradle virtual repositories"
+      defaultDeploymentRepo: gradle-dev-local
+  docker-PLACEHOLDERFORBUILDSTEP:
+        type: docker
+        repositories:
+          - docker-local
+          - docker-remote
+          - docker-dev-local
+          - docker-prod-local
+          - docker-stage-local
+          - docker-push
+        description: "docker virtual"
+        defaultDeploymentRepo: docker-stage-local
+  docker-virtual:
+      type: docker
+      repositories:
+        - docker-local
+        - docker-remote
+        - docker-dev-local
+        - docker-prod-local
+        - docker-stage-local
+        - docker-push
+      description: "docker virtual"
+      defaultDeploymentRepo: docker-stage-local
+  libs-release:
+      type: maven
+      repositories:
+        - libs-release-local
+        - jcenter
+      description: "maven libraries virtual"
+      defaultDeploymentRepo: libs-release-local
+  libs-snapshot:
+        type: maven
+        repositories:
+          - libs-snapshot-local
+          - jcenter
+        description: "maven libraries virtual"
+        defaultDeploymentRepo: libs-snapshot-local
+  ivy-virtual:
+      type: ivy
+      repositories:
+        - ivy-prod-local
+        - ivy-dev-local
+        - jcenter
+      description: "ivy virtual"
+      defaultDeploymentRepo: ivy-dev-local
+  generic-virtual:
+      type: generic
+      repositories:
+        - generic-prod-local
+        - generic-dev-local
+      description: "generic virtual"
+      defaultDeploymentRepo: generic-dev-local
+  helm-virtual:
+      type: helm
+      repositories:
+        - helm-prod-local
+        - helm-dev-local
+        - helm-remote
+      description: "helm virtual"
+      defaultDeploymentRepo: helm-dev-local
+  nuget-virtual:
+      type: nuget
+      repositories:
+        - nuget-prod-local
+        - nuget-dev-local
+        - nuget-remote
+      description: "nuget virtual"
+      defaultDeploymentRepo: nuget-dev-local
+  npm-virtual:
+      type: npm
+      repositories:
+        - npm-dev-local
+        - npm-remote
+        - npm-prod-local
+      description: "npm virtual"
+      defaultDeploymentRepo: npm-dev-local
+  chef-virtual:
+      type: chef
+      repositories:
+        - chef-dev-local
+        - chef-remote
+        - chef-prod-local
+      description: "chef virtual"
+      defaultDeploymentRepo: chef-dev-local
+  puppet-virtual:
+      type: puppet
+      repositories:
+        - puppet-dev-local
+        - puppet-remote
+        - puppet-prod-local
+      description: "puppet virtual"
+      defaultDeploymentRepo: puppet-dev-local
+  rpm-virtual:
+      type: yum
+      repositories:
+        - rpm-dev-local
+        - rpm-remote
+        - rpm-prod-local
+      description: "rpm virtual"
+      defaultDeploymentRepo: rpm-dev-local
+  gitlfs-virtual:
+      type: gitlfs
+      repositories:
+        - gitlfs-dev-local
+        - gitlfs-prod-local
+      description: "gitlfs virtual"
+      defaultDeploymentRepo: gitlfs-dev-local
+  pypi-virtual:
+      type: pypi
+      repositories:
+        - pypi-dev-local
+        - pypi-prod-local
+        - pypi-remote
+      description: "pypi virtual"
+      defaultDeploymentRepo: pypi-dev-local
+  bower-virtual:
+      type: bower
+      repositories:
+        - bower-dev-local
+        - bower-prod-local
+        - bower-remote
+      description: "bower virtual"
+      defaultDeploymentRepo: bower-dev-local
+  gems-virtual:
+      type: gems
+      repositories:
+        - gems-dev-local
+        - gems-prod-local
+        - gems-remote
+      description: "gems virtual"
+      defaultDeploymentRepo: gems-dev-local
+  sbt-virtual:
+      type: sbt
+      repositories:
+        - sbt-dev-local
+        - sbt-prod-local
+        - jcenter
+      description: "sbt virtual"
+      defaultDeploymentRepo: sbt-dev-local
+  go-staging:
+      type: go
+      repositories:
+        - go-staging-local
+        - go-prod-local
+      description: "go virtual"
+      defaultDeploymentRepo: go-staging-local

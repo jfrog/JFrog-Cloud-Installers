@@ -1,0 +1,18 @@
+---
+- name: Install db-utl
+  yum:
+    name: "{{ xray_home }}/app/third-party/misc/libdb-utils-5.3.21-19.el7.x86_64.rpm"
+    state: present
+  become: yes
+
+- name: Install socat
+  yum:
+    name: "{{ xray_home }}/app/third-party/rabbitmq/socat-1.7.3.2-2.el7.x86_64.rpm"
+    state: present
+  become: yes
+
+- name: Install erlang
+  yum:
+    name: "{{ xray_home }}/app/third-party/rabbitmq/erlang-21.1.4-1.el7.centos.x86_64.rpm"
+    state: present
+  become: yes

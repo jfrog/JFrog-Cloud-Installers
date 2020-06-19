@@ -1,0 +1,107 @@
+p- Health check. Service "jfac@01eb4sc7vmyn3y1958z2jp16t6" on node "79bb5ca64ee44569aaac94846a7258d2" is healthy
+Y- Health check. Service "jffe@000" on node "79bb5ca64ee44569aaac94846a7258d2" is healthy
+p- Health check. Service "jfmd@01eb4scm5ggcgsx207xjtr181p" on node "79bb5ca64ee44569aaac94846a7258d2" is healthy
+p- Health check. Service "jfrt@01eb4scnq0vk430wzk9v2f1syf" on node "79bb5ca64ee44569aaac94846a7258d2" is healthy
+- Ping test. Service is OK
+L- Delete sample HA repositories. All repositories were successfully deleted
+*383 changes to config merged successfully
+@- Create repositories for HA distribution. Successfully created
+%Number of created repositories is 84
+=- Verify HA repos were created. 84 repositories were created
+E- Delete HA repositories. All repositories were successfully deleted
+	2- Verify repo were deleted. 0 repositories remain
+
+*383 changes to config merged successfully
+
+C- Re-create repositories for HA distribution. Successfully created
+4- Create users. User testuser0 created successfully
+4- Create users. User testuser1 created successfully
+4- Create users. User testuser2 created successfully
+4- Create users. User testuser3 created successfully
+4- Create users. User testuser4 created successfully
+4- Create users. User testuser5 created successfully
+4- Create users. User testuser6 created successfully
+4- Create users. User testuser7 created successfully
+4- Create users. User testuser8 created successfully
+4- Create users. User testuser9 created successfully
+A- Verify created users. User testuser0 was successfully verified
+A- Verify created users. User testuser1 was successfully verified
+A- Verify created users. User testuser2 was successfully verified
+A- Verify created users. User testuser3 was successfully verified
+A- Verify created users. User testuser4 was successfully verified
+A- Verify created users. User testuser5 was successfully verified
+A- Verify created users. User testuser6 was successfully verified
+A- Verify created users. User testuser7 was successfully verified
+A- Verify created users. User testuser8 was successfully verified
+A- Verify created users. User testuser9 was successfully verified
+ <- Generate API keys. Key for testuser0 created successfully
+!<- Generate API keys. Key for testuser1 created successfully
+"<- Generate API keys. Key for testuser2 created successfully
+#<- Generate API keys. Key for testuser3 created successfully
+$<- Generate API keys. Key for testuser4 created successfully
+%<- Generate API keys. Key for testuser5 created successfully
+&<- Generate API keys. Key for testuser6 created successfully
+'<- Generate API keys. Key for testuser7 created successfully
+(<- Generate API keys. Key for testuser8 created successfully
+)<- Generate API keys. Key for testuser9 created successfully
+*D- Re-generate API keys. Key for testuser0 re-generated successfully
++D- Re-generate API keys. Key for testuser1 re-generated successfully
+,D- Re-generate API keys. Key for testuser2 re-generated successfully
+-D- Re-generate API keys. Key for testuser3 re-generated successfully
+.D- Re-generate API keys. Key for testuser4 re-generated successfully
+/D- Re-generate API keys. Key for testuser5 re-generated successfully
+0D- Re-generate API keys. Key for testuser6 re-generated successfully
+1D- Re-generate API keys. Key for testuser7 re-generated successfully
+2D- Re-generate API keys. Key for testuser8 re-generated successfully
+3D- Re-generate API keys. Key for testuser9 re-generated successfully
+4<- Create group. Group test-group-0 was successfully created
+5<- Create group. Group test-group-1 was successfully created
+6<- Create group. Group test-group-2 was successfully created
+7<- Create group. Group test-group-3 was successfully created
+8<- Create group. Group test-group-4 was successfully created
+9<- Create group. Group test-group-5 was successfully created
+:<- Create group. Group test-group-6 was successfully created
+;<- Create group. Group test-group-7 was successfully created
+<<- Create group. Group test-group-8 was successfully created
+=<- Create group. Group test-group-9 was successfully created
+>D- Create permissions. Permissions successfully created and verified
+?H- Delete permissions. User testPermission has been removed successfully
+@<- Delete user. User testuser0 has been removed successfully
+A<- Delete user. User testuser1 has been removed successfully
+B<- Delete user. User testuser2 has been removed successfully
+C<- Delete user. User testuser3 has been removed successfully
+D<- Delete user. User testuser4 has been removed successfully
+E<- Delete user. User testuser5 has been removed successfully
+F<- Delete user. User testuser6 has been removed successfully
+G<- Delete user. User testuser7 has been removed successfully
+H<- Delete user. User testuser8 has been removed successfully
+I<- Delete user. User testuser9 has been removed successfully
+JA- Delete group. Group test-group-0 has been removed successfully
+KA- Delete group. Group test-group-1 has been removed successfully
+LA- Delete group. Group test-group-2 has been removed successfully
+MA- Delete group. Group test-group-3 has been removed successfully
+NA- Delete group. Group test-group-4 has been removed successfully
+OA- Delete group. Group test-group-5 has been removed successfully
+PA- Delete group. Group test-group-6 has been removed successfully
+QA- Delete group. Group test-group-7 has been removed successfully
+RA- Delete group. Group test-group-8 has been removed successfully
+SA- Delete group. Group test-group-9 has been removed successfully
+UTY- Create issue event. Issue event with ID XRAY-4206031 created and verified successfully
+UVY- Update issue event. Issue event with ID XRAY-4206031 updated and verified successfully
+UW\- Create policy. Policy with name security_policy_4206031 created and verified successfully
+UX\- Update policy. Policy with name security_policy_4206031 updated and verified successfully
+UYe- Get policies. Policies list is returned successfully. Policies returned: [security_policy_4206031]
+UZd- Create watch. Watch with name all-repositories_4206031 has been created and verified successfully
+U[d- Update watch. Watch with name all-repositories_4206031 has been updated and verified successfully
+U\@- Assign policy to watch. Policy assigned successfully to Watch
+U]M- Delete watch. Watch all-repositories_4206031 has been successfully deleted
+U^N- Delete policy. Policy security_policy_4206031 has been successfully deleted
+U_n- Integration configuration. Configuration for vendor vendor_4206031 has been successfully added and verified
+U`W- Enable TLS for RabbitMQ. TLS for RabbitMQ has been successfully enabled and verified
+UaN- Get binary manager. Binary manager is verified, connected RT version: 7.4.1
+Ub#- Get repo indexing configuration.
+Uc;- Update repo indexing configuration. Successfully updated
+UdO- Create support bundle. Created with a bug, localhost instead of the hostname
+Ue;- Get system monitoring status. Data returned successfully
+Uf;- Get system monitoring status. Data returned successfully
+Ug7- Get X-ray version. Version: 3.3.0, revision: 3980dcb

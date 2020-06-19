@@ -1,27 +1,18 @@
-# JFrog Ansible Collection
+# JFrog Ansible Installers Collection
 
 This Ansible directory consists of the following directories that support the JFrog Ansible collection.
  
- * [collection directory](collection) - This directory contains the Ansible collection package that has the Ansible roles for Artifactory and Xray. See the collection [README](collection/README.md) for details on the available roles and variables.
+ * [ansible_collections directory](ansible_collections) - This directory contains the Ansible collection package that has the Ansible roles for Artifactory and Xray. See the collection [README](ansible_collections/README.md) for details on the available roles and variables.
  * [examples directory](examples) - This directory contains example playbooks for various architectures from single Artifactory (RT) deployments to high-availability setups.
  * [infra directory](infra) - This directory contains example infrastructure templates that can be used for testing and as example deployments.
  * [test directory](test) - This directory contains Gradle tests that can be used to verify a deployment. It also has Ansible playbooks for creating infrastructure, provisioning software and testing with Gradle.
  
  ## Getting Started
  
- 1. Download and nstall this collection or the roles in your Ansible path using your ansible.cfg file. The following is an example:
- ```
-# Installs collections into [current dir]/ansible_collections/namespace/collection_name
-collections_paths = ~/.ansible/collections:/usr/share/ansible/collections:collection
-
-# Installs roles into [current dir]/roles/namespace.rolename
-roles_path = Ansible/collection/jfrog/ansible/roles
-```
-
-Or install this collection from Ansible Galaxy.
-```
-ansible-galaxy collection install jfrog.ansible
-```
+ 1. Install this collection from Ansible Galaxy. This collection is also available in RedHat Automation Hub.
+    ```
+    ansible-galaxy collection install jfrog.installers
+    ```
  2. Ansible uses SSH to connect to hosts. Ensure that your SSH private key is on your client and the public keys are installed on your Ansible hosts. 
  
  3. Create your inventory file. Use one of the examples from the [examples directory](examples) to construct an inventory file (hosts.yml) with the host addresses and variables.
@@ -72,7 +63,7 @@ ansible_ssh_common_args: '-o ProxyCommand="ssh -o StrictHostKeyChecking=no -A ub
 ```
 
 ## Building the Collection Archive
-1. Go to the [collection/jfrog/ansible directory](collection/jfrog/ansible).
+1. Go to the [ansible_collections/jfrog/installers directory](ansible_collections/jfrog/installers).
 2. Update the galaxy.yml meta file as needed. Update the version.
 3. Build the archive.
 ```

@@ -37,9 +37,7 @@
       db_url: "jdbc:postgresql://{{ AWSDeployment.stack_outputs.DBInstancePrivate }}:5432/artifactory"
       server_name: "{{ AWSDeployment.stack_outputs.ALBHostName }}"
       artifactory_is_primary: true
-      artifactory_license1: "{{ lookup('env', 'artifactory_license1') }}"
-      artifactory_license2: "{{ lookup('env', 'artifactory_license2') }}"
-      artifactory_license3: "{{ lookup('env', 'artifactory_license3') }}"
+      artifactory_license_file: "{{ lookup('env', 'artifactory_license_file') }}"
       groups:
       - artifactory
 

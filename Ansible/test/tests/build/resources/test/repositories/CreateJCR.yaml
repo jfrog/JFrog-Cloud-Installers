@@ -1,0 +1,119 @@
+localRepositories:
+    tomcat-local:
+        type: generic
+        description: "used by demo"
+        repoLayout: simple-default
+        xray:
+            enabled: true
+    generic-prod-local:
+        type: generic
+        description: "production deployment"
+        repoLayout: simple-default
+        xray:
+            enabled: true
+    generic-dev-local:
+        type: generic
+        description: "development deployment"
+        repoLayout: simple-default
+        xray:
+            enabled: true
+    helm-prod-local:
+        type: helm
+        description: "production deployment"
+        repoLayout: simple-default
+        xray:
+            enabled: true
+    helm-dev-local:
+        type: helm
+        description: "development deployment"
+        repoLayout: simple-default
+        xray:
+            enabled: true
+    docker-generator:
+        type: docker
+        description: "docker generator repo for generation testing"
+        repoLayout: simple-default
+        xray:
+            enabled: true
+    docker-prod-local:
+        type: docker
+        description: "production deployment"
+        repoLayout: simple-default
+        xray:
+            enabled: true
+    docker-stage-local:
+        type: docker
+        description: "stage deployment"
+        repoLayout: simple-default
+        xray:
+            enabled: true
+    docker-dev-local:
+        type: docker
+        description: "development deployment"
+        repoLayout: simple-default
+        xray:
+            enabled: true
+    docker-local:
+        type: docker
+        description: "docker deployment"
+        repoLayout: simple-default
+        xray:
+            enabled: true
+    docker-push:
+        type: docker
+        description: "docker push repo for push replication testing"
+        repoLayout: simple-default
+        xray:
+            enabled: true
+virtualRepositories:
+    generic-virtual:
+        type: generic
+        repositories:
+            - generic-prod-local
+            - generic-dev-local
+        description: "generic virtual"
+        defaultDeploymentRepo: generic-dev-local
+    helm-virtual:
+        type: helm
+        repositories:
+            - helm-prod-local
+            - helm-dev-local
+            - helm-remote
+        description: "helm virtual"
+        defaultDeploymentRepo: helm-dev-local
+    docker-PLACEHOLDERFORBUILDSTEP:
+        type: docker
+        repositories:
+            - docker-local
+            - docker-remote
+            - docker-dev-local
+            - docker-prod-local
+            - docker-stage-local
+            - docker-push
+        description: "docker virtual"
+        defaultDeploymentRepo: docker-stage-local
+    docker-virtual:
+        type: docker
+        repositories:
+            - docker-local
+            - docker-remote
+            - docker-dev-local
+            - docker-prod-local
+            - docker-stage-local
+            - docker-push
+        description: "docker virtual"
+        defaultDeploymentRepo: docker-stage-local
+remoteRepositories:
+    helm-remote:
+        type: helm
+        url: https://storage.googleapis.com/kubernetes-charts
+        repoLayout: simple-default
+        xray:
+            enabled: true
+    docker-remote:
+        type: docker
+        url: https://registry-1.docker.io
+        repoLayout: simple-default
+        enableTokenAuthentication: true
+        xray:
+            enabled: true

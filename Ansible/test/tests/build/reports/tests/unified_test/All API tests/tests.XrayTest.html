@@ -1,0 +1,307 @@
+<html>
+<head>
+<title>TestNG:  tests.XrayTest</title>
+<link href="../testng.css" rel="stylesheet" type="text/css" />
+<link href="../my-testng.css" rel="stylesheet" type="text/css" />
+
+<style type="text/css">
+.log { display: none;} 
+.stack-trace { display: none;} 
+</style>
+<script type="text/javascript">
+<!--
+function flip(e) {
+  current = e.style.display;
+  if (current == 'block') {
+    e.style.display = 'none';
+    return 0;
+  }
+  else {
+    e.style.display = 'block';
+    return 1;
+  }
+}
+
+function toggleBox(szDivId, elem, msg1, msg2)
+{
+  var res = -1;  if (document.getElementById) {
+    res = flip(document.getElementById(szDivId));
+  }
+  else if (document.all) {
+    // this is the way old msie versions work
+    res = flip(document.all[szDivId]);
+  }
+  if(elem) {
+    if(res == 0) elem.innerHTML = msg1; else elem.innerHTML = msg2;
+  }
+
+}
+
+function toggleAllBoxes() {
+  if (document.getElementsByTagName) {
+    d = document.getElementsByTagName('div');
+    for (i = 0; i < d.length; i++) {
+      if (d[i].className == 'log') {
+        flip(d[i]);
+      }
+    }
+  }
+}
+
+// -->
+</script>
+
+</head>
+<body>
+<h2 align='center'>tests.XrayTest</h2><table border='1' align="center">
+<tr>
+<td>Tests passed/Failed/Skipped:</td><td>19/0/0</td>
+</tr><tr>
+<td>Started on:</td><td>Thu Jun 18 15:55:44 PDT 2020</td>
+</tr>
+<tr><td>Total time:</td><td>10 seconds (10620 ms)</td>
+</tr><tr>
+<td>Included groups:</td><td>common xray pro </td>
+</tr><tr>
+<td>Excluded groups:</td><td></td>
+</tr>
+</table><p/>
+<small><i>(Hover the method name to see the test class name)</i></small><p/>
+<table width='100%' border='1' class='invocation-passed'>
+<tr><td colspan='4' align='center'><b>PASSED TESTS</b></td></tr>
+<tr><td><b>Test method</b></td>
+<td width="30%"><b>Exception</b></td>
+<td width="10%"><b>Time (seconds)</b></td>
+<td><b>Instance</b></td>
+</tr>
+<tr>
+<td title='tests.XrayTest.assignPolicyToWatchTest()'><b>assignPolicyToWatchTest</b><br>Test class: tests.XrayTest<br/>
+<a href="#Output-210346416" onClick='toggleBox("Output-210346416", this, "Show output", "Hide output");'>Show output</a>
+
+<a href="#Output-210346416" onClick="toggleAllBoxes();">Show all outputs</a>
+<div class='log' id="Output-210346416">
+- Assign policy to watch. Policy assigned successfully to Watch<br/>
+</div>
+</td>
+<td></td>
+<td>0</td>
+<td>tests.XrayTest@53d7d172</td></tr>
+<tr>
+<td title='tests.XrayTest.createIssueEventTest()'><b>createIssueEventTest</b><br>Test class: tests.XrayTest<br>Parameters: XRAY-, CVE-2017-2000386, A very important custom issue, A very important custom issue<br/>
+<a href="#Output-905774528" onClick='toggleBox("Output-905774528", this, "Show output", "Hide output");'>Show output</a>
+
+<a href="#Output-905774528" onClick="toggleAllBoxes();">Show all outputs</a>
+<div class='log' id="Output-905774528">
+- Create issue event. Issue event with ID XRAY-4206031 created and verified successfully<br/>
+</div>
+</td>
+<td></td>
+<td>0</td>
+<td>tests.XrayTest@53d7d172</td></tr>
+<tr>
+<td title='tests.XrayTest.createPolicyTest()'><b>createPolicyTest</b><br>Test class: tests.XrayTest<br/>
+<a href="#Output-1279180344" onClick='toggleBox("Output-1279180344", this, "Show output", "Hide output");'>Show output</a>
+
+<a href="#Output-1279180344" onClick="toggleAllBoxes();">Show all outputs</a>
+<div class='log' id="Output-1279180344">
+- Create policy. Policy with name security_policy_4206031 created and verified successfully<br/>
+</div>
+</td>
+<td></td>
+<td>0</td>
+<td>tests.XrayTest@53d7d172</td></tr>
+<tr>
+<td title='tests.XrayTest.createSupportBundleTest()'><b>createSupportBundleTest</b><br>Test class: tests.XrayTest<br/>
+<a href="#Output-195039775" onClick='toggleBox("Output-195039775", this, "Show output", "Hide output");'>Show output</a>
+
+<a href="#Output-195039775" onClick="toggleAllBoxes();">Show all outputs</a>
+<div class='log' id="Output-195039775">
+- Create support bundle. Created with a bug, localhost instead of the hostname<br/>
+</div>
+</td>
+<td></td>
+<td>4</td>
+<td>tests.XrayTest@53d7d172</td></tr>
+<tr>
+<td title='tests.XrayTest.createWatchTest()'><b>createWatchTest</b><br>Test class: tests.XrayTest<br/>
+<a href="#Output-1002236441" onClick='toggleBox("Output-1002236441", this, "Show output", "Hide output");'>Show output</a>
+
+<a href="#Output-1002236441" onClick="toggleAllBoxes();">Show all outputs</a>
+<div class='log' id="Output-1002236441">
+- Create watch. Watch with name all-repositories_4206031 has been created and verified successfully<br/>
+</div>
+</td>
+<td></td>
+<td>0</td>
+<td>tests.XrayTest@53d7d172</td></tr>
+<tr>
+<td title='tests.XrayTest.deletePolicyTest()'><b>deletePolicyTest</b><br>Test class: tests.XrayTest<br/>
+<a href="#Output-265672618" onClick='toggleBox("Output-265672618", this, "Show output", "Hide output");'>Show output</a>
+
+<a href="#Output-265672618" onClick="toggleAllBoxes();">Show all outputs</a>
+<div class='log' id="Output-265672618">
+- Delete policy. Policy security_policy_4206031 has been successfully deleted<br/>
+</div>
+</td>
+<td></td>
+<td>0</td>
+<td>tests.XrayTest@53d7d172</td></tr>
+<tr>
+<td title='tests.XrayTest.deleteWatchTest()'><b>deleteWatchTest</b><br>Test class: tests.XrayTest<br/>
+<a href="#Output-1750020575" onClick='toggleBox("Output-1750020575", this, "Show output", "Hide output");'>Show output</a>
+
+<a href="#Output-1750020575" onClick="toggleAllBoxes();">Show all outputs</a>
+<div class='log' id="Output-1750020575">
+- Delete watch. Watch all-repositories_4206031 has been successfully deleted<br/>
+</div>
+</td>
+<td></td>
+<td>0</td>
+<td>tests.XrayTest@53d7d172</td></tr>
+<tr>
+<td title='tests.XrayTest.enableTLSRabbitMQTest()'><b>enableTLSRabbitMQTest</b><br>Test class: tests.XrayTest<br/>
+<a href="#Output-1998866981" onClick='toggleBox("Output-1998866981", this, "Show output", "Hide output");'>Show output</a>
+
+<a href="#Output-1998866981" onClick="toggleAllBoxes();">Show all outputs</a>
+<div class='log' id="Output-1998866981">
+- Enable TLS for RabbitMQ. TLS for RabbitMQ has been successfully enabled and verified<br/>
+</div>
+</td>
+<td></td>
+<td>0</td>
+<td>tests.XrayTest@53d7d172</td></tr>
+<tr>
+<td title='tests.XrayTest.getBinaryManagerTest()'><b>getBinaryManagerTest</b><br>Test class: tests.XrayTest<br/>
+<a href="#Output-171237055" onClick='toggleBox("Output-171237055", this, "Show output", "Hide output");'>Show output</a>
+
+<a href="#Output-171237055" onClick="toggleAllBoxes();">Show all outputs</a>
+<div class='log' id="Output-171237055">
+- Get binary manager. Binary manager is verified, connected RT version: 7.4.1<br/>
+</div>
+</td>
+<td></td>
+<td>0</td>
+<td>tests.XrayTest@53d7d172</td></tr>
+<tr>
+<td title='tests.XrayTest.getIndexingConfigurationTest()'><b>getIndexingConfigurationTest</b><br>Test class: tests.XrayTest<br/>
+<a href="#Output-964374609" onClick='toggleBox("Output-964374609", this, "Show output", "Hide output");'>Show output</a>
+
+<a href="#Output-964374609" onClick="toggleAllBoxes();">Show all outputs</a>
+<div class='log' id="Output-964374609">
+- Get repo indexing configuration.<br/>
+</div>
+</td>
+<td></td>
+<td>0</td>
+<td>tests.XrayTest@53d7d172</td></tr>
+<tr>
+<td title='tests.XrayTest.getPoliciesTest()'><b>getPoliciesTest</b><br>Test class: tests.XrayTest<br/>
+<a href="#Output-918755700" onClick='toggleBox("Output-918755700", this, "Show output", "Hide output");'>Show output</a>
+
+<a href="#Output-918755700" onClick="toggleAllBoxes();">Show all outputs</a>
+<div class='log' id="Output-918755700">
+- Get policies. Policies list is returned successfully. Policies returned: [security_policy_4206031]<br/>
+</div>
+</td>
+<td></td>
+<td>0</td>
+<td>tests.XrayTest@53d7d172</td></tr>
+<tr>
+<td title='tests.XrayTest.getSystemMonitoringTest()'><b>getSystemMonitoringTest</b><br>Test class: tests.XrayTest<br/>
+<a href="#Output-2100654263" onClick='toggleBox("Output-2100654263", this, "Show output", "Hide output");'>Show output</a>
+
+<a href="#Output-2100654263" onClick="toggleAllBoxes();">Show all outputs</a>
+<div class='log' id="Output-2100654263">
+- Get system monitoring status. Data returned successfully<br/>
+</div>
+</td>
+<td></td>
+<td>0</td>
+<td>tests.XrayTest@53d7d172</td></tr>
+<tr>
+<td title='tests.XrayTest.integrationConfigurationTest()'><b>integrationConfigurationTest</b><br>Test class: tests.XrayTest<br/>
+<a href="#Output-1893526503" onClick='toggleBox("Output-1893526503", this, "Show output", "Hide output");'>Show output</a>
+
+<a href="#Output-1893526503" onClick="toggleAllBoxes();">Show all outputs</a>
+<div class='log' id="Output-1893526503">
+- Integration configuration. Configuration for vendor vendor_4206031 has been successfully added and verified<br/>
+</div>
+</td>
+<td></td>
+<td>0</td>
+<td>tests.XrayTest@53d7d172</td></tr>
+<tr>
+<td title='tests.XrayTest.updateIndexingConfigurationTest()'><b>updateIndexingConfigurationTest</b><br>Test class: tests.XrayTest<br/>
+<a href="#Output-1940612561" onClick='toggleBox("Output-1940612561", this, "Show output", "Hide output");'>Show output</a>
+
+<a href="#Output-1940612561" onClick="toggleAllBoxes();">Show all outputs</a>
+<div class='log' id="Output-1940612561">
+- Update repo indexing configuration. Successfully updated<br/>
+</div>
+</td>
+<td></td>
+<td>0</td>
+<td>tests.XrayTest@53d7d172</td></tr>
+<tr>
+<td title='tests.XrayTest.updateIssueEventTest()'><b>updateIssueEventTest</b><br>Test class: tests.XrayTest<br>Parameters: XRAY-, CVE-2017-2000386, A very important custom issue, A very important custom issue<br/>
+<a href="#Output-849340127" onClick='toggleBox("Output-849340127", this, "Show output", "Hide output");'>Show output</a>
+
+<a href="#Output-849340127" onClick="toggleAllBoxes();">Show all outputs</a>
+<div class='log' id="Output-849340127">
+- Update issue event. Issue event with ID XRAY-4206031 updated and verified successfully<br/>
+</div>
+</td>
+<td></td>
+<td>0</td>
+<td>tests.XrayTest@53d7d172</td></tr>
+<tr>
+<td title='tests.XrayTest.updatePolicyTest()'><b>updatePolicyTest</b><br>Test class: tests.XrayTest<br/>
+<a href="#Output-1334285173" onClick='toggleBox("Output-1334285173", this, "Show output", "Hide output");'>Show output</a>
+
+<a href="#Output-1334285173" onClick="toggleAllBoxes();">Show all outputs</a>
+<div class='log' id="Output-1334285173">
+- Update policy. Policy with name security_policy_4206031 updated and verified successfully<br/>
+</div>
+</td>
+<td></td>
+<td>0</td>
+<td>tests.XrayTest@53d7d172</td></tr>
+<tr>
+<td title='tests.XrayTest.updateWatchTest()'><b>updateWatchTest</b><br>Test class: tests.XrayTest<br/>
+<a href="#Output-488559534" onClick='toggleBox("Output-488559534", this, "Show output", "Hide output");'>Show output</a>
+
+<a href="#Output-488559534" onClick="toggleAllBoxes();">Show all outputs</a>
+<div class='log' id="Output-488559534">
+- Update watch. Watch with name all-repositories_4206031 has been updated and verified successfully<br/>
+</div>
+</td>
+<td></td>
+<td>0</td>
+<td>tests.XrayTest@53d7d172</td></tr>
+<tr>
+<td title='tests.XrayTest.xrayGetVersionTest()'><b>xrayGetVersionTest</b><br>Test class: tests.XrayTest<br/>
+<a href="#Output-784961581" onClick='toggleBox("Output-784961581", this, "Show output", "Hide output");'>Show output</a>
+
+<a href="#Output-784961581" onClick="toggleAllBoxes();">Show all outputs</a>
+<div class='log' id="Output-784961581">
+- Get X-ray version. Version: 3.3.0, revision: 3980dcb<br/>
+</div>
+</td>
+<td></td>
+<td>0</td>
+<td>tests.XrayTest@53d7d172</td></tr>
+<tr>
+<td title='tests.XrayTest.xrayPingRequestTest()'><b>xrayPingRequestTest</b><br>Test class: tests.XrayTest<br/>
+<a href="#Output-1197735962" onClick='toggleBox("Output-1197735962", this, "Show output", "Hide output");'>Show output</a>
+
+<a href="#Output-1197735962" onClick="toggleAllBoxes();">Show all outputs</a>
+<div class='log' id="Output-1197735962">
+- Get system monitoring status. Data returned successfully<br/>
+</div>
+</td>
+<td></td>
+<td>0</td>
+<td>tests.XrayTest@53d7d172</td></tr>
+</table><p>
+</body>
+</html>
