@@ -40,7 +40,7 @@ pipelines:
             - ls dependencyState
             - ls dependencyState/resources
             - ls dependencyState/resources/ansibleRepo
-            - cd ../dependencyState/resources/ansibleRepo
+            - cd dependencyState/resources/ansibleRepo
             - echo 'Setting environment variables...'
             - export artifactory_version="$int_ansibleEnvVars_artifactory_version"
             - export xray_version="$int_ansibleEnvVars_xray_version"
@@ -96,7 +96,7 @@ pipelines:
             - ls dependencyState
             - ls dependencyState/resources
             - ls dependencyState/resources/ansibleRepo
-            - cd ../dependencyState/resources/ansibleRepo
+            - cd dependencyState/resources/ansibleRepo
             - echo 'Setting environment variables...'
             - export artifactory_version="$int_ansibleEnvVars_artifactory_version"
             - export xray_version="$int_ansibleEnvVars_xray_version"
