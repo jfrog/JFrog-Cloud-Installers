@@ -7,6 +7,15 @@ This Ansible directory consists of the following directories that support the JF
  * [infra directory](infra) - This directory contains example infrastructure templates that can be used for testing and as example deployments.
  * [test directory](test) - This directory contains Gradle tests that can be used to verify a deployment. It also has Ansible playbooks for creating infrastructure, provisioning software and testing with Gradle.
  
+ ## Tested Artifactory and Xray Versions
+ The following versions of Artifactory and Xray have been validated with this collection. Other versions and combinations may also work.
+ 
+ | artifactory_version | xray_version |
+ |---------------------|--------------|
+ | 7.6.1               | 3.5.2        |
+ | 7.5.0               | 3.3.0        |
+ | 7.4.3               | 3.3.0        |
+ 
  ## Getting Started
  
  1. Install this collection from Ansible Galaxy. This collection is also available in RedHat Automation Hub.
