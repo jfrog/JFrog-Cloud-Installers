@@ -1,0 +1,8 @@
+---
+- hosts: database
+  roles:
+    - postgres
+
+- hosts: primary
+  roles:
+    - artifactory

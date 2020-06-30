@@ -1,0 +1,25 @@
+---
+
+galaxy_info:
+  role_name: postgres_server
+  author: Jeff Fry
+  description: Installation of Postgres for Artifactory HA
+  company: JFrog
+  min_ansible_version: 2.8
+  platforms:
+    - name: Fedora
+      versions:
+        - 27
+        - 29
+    - name: Ubuntu
+      versions:
+        - xenial
+        - bionic
+    - name: Debian
+      versions:
+        - stretch
+  galaxy_tags:
+    - postgres
+    - postgresql
+
+dependencies: []

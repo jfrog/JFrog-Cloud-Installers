@@ -1,0 +1,448 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/0.1.2-preview/CreateUIDefinition.MultiVm.json#",
+  "handler": "Microsoft.Azure.CreateUIDef",
+  "version": "0.1.2-preview",
+  "parameters": {
+    "basics": [
+      {}
+    ],
+    "steps": [
+      {
+        "name": "vmCredentials",
+        "label": "VM Credential",
+        "bladeTitle": "VM Credential",
+        "subLabel": {
+          "preValidation": "Provide VM credentials",
+          "postValidation": "Great - let's move on!"
+        },
+        "elements": [
+          {
+            "name": "adminUsername",
+            "type": "Microsoft.Compute.UserNameTextBox",
+            "label": "Admin username",
+            "osPlatform": "Linux",
+            "constraints": {
+              "required": true,
+              "regex": "^[a-z0-9A-Z]{1,30}$",
+              "validationMessage": "Only alphanumeric characters are allowed, and the value must be 1-30 characters long."
+            },
+            "toolTip": "Provide admin username for the virtual machine"
+          },
+          {
+            "name": "adminPassword",
+            "type": "Microsoft.Compute.CredentialsCombo",
+            "label": {
+              "password": "Password",
+              "confirmPassword": "Confirm password"
+            },
+            "osPlatform": "Linux",
+            "constraints": {
+              "required": true,
+              "customPasswordRegex": "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{12,}$",
+              "customValidationMessage": "The password must contain at least 12 characters, with at least 1 uppercase letter, 1 lowercase letter and 1 number."
+            },
+            "options": {
+              "hideConfirmation": false
+            },
+            "toolTip": {
+              "password": "Provide admin password for the virtual machine"
+            },
+            "visible": true
+          }
+        ]
+      },
+      {
+        "name": "clusterConfig",
+        "label": "Artifactory Cluster settings",
+        "subLabel": {
+          "preValidation": "Configure Artifactory Cluster settings",
+          "postValidation": "Done!"
+        },
+        "bladeTitle": "Artifactory Cluster Settings",
+        "elements": [
+          {
+            "name": "clusterName",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Cluster name",
+            "toolTip": "Cluster name",
+            "defaultValue": "",
+            "constraints": {
+              "required": true,
+              "regex": "^[a-z0-9A-Z]{1,30}$",
+              "validationMessage": "Only alphanumeric characters are allowed, and the value must be 1-30 characters long."
+            }
+          },
+          {
+            "name": "vmSku",
+            "type": "Microsoft.Compute.SizeSelector",
+            "label": "Virtual machine size",
+            "toolTip": "The size of the virtual machine for Artifactory",
+            "recommendedSizes": [
+              "Standard_D4s_v3"
+            ],
+            "constraints": {
+              "allowedSizes": [
+                "Standard_A4_v2",
+                "Standard_A4",
+                "Standard_D2s_v3",
+                "Standard_D4s_v3",
+                "Standard_D8s_v3",
+                "Standard_D16s_v3",
+                "Standard_D32s_v3",
+                "Standard_DS3_v2",
+                "Standard_D2_v2",
+                "Standard_D3_v2",
+                "Standard_DC2s",
+                "Standard_DC4s"
+              ]
+            },
+            "osPlatform": "Linux",
+            "count": 1
+          },
+          {
+            "name": "nodeCount",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Number of additional VM instances for member Artifactory nodes. Minimum 1 node.(+1 primary = 2 node cluster)",
+            "defaultValue": "2",
+            "toolTip": "Number of Artifactory member nodes in cluster",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "1",
+                  "value": 1
+                },
+                {
+                  "label": "2",
+                  "value": 2
+                },
+                {
+                  "label": "3",
+                  "value": 3
+                },
+                {
+                  "label": "4",
+                  "value": 4
+                }
+              ],
+              "required": true
+            },
+            "visible": "true"
+          },
+          {
+            "name": "artifactoryVersion",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Artifactory-vm image version to deploy.",
+            "defaultValue": "7.4.3",
+            "toolTip": "Version of Artifactory to deploy",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "6.8.0",
+                  "value": "6.8.0"
+                },
+                {
+                  "label": "6.16.0",
+                  "value": "0.16.0"
+                },
+                {
+                  "label": "6.17.0",
+                  "value": "0.17.0"
+                },
+                {
+                  "label": "6.18.0",
+                  "value": "6.18.0"
+                },
+                {
+                  "label": "7.2.1",
+                  "value": "7.2.1"
+                },
+                {
+                  "label": "7.3.2",
+                  "value": "0.3.2"
+                },
+                {
+                  "label": "7.4.3",
+                  "value": "7.4.3"
+                }
+              ],
+              "required": true
+            },
+            "visible": true
+          },
+          {
+            "name": "masterKey",
+            "type": "Microsoft.Common.PasswordBox",
+            "label": {
+              "password": "Artifactory master Key",
+              "confirmPassword": "Confirm master Key"
+            },
+            "toolTip": "Master key for Artifactory cluster. Generate master.key using command '$openssl rand -hex 16'",
+            "constraints": {
+              "required": true,
+              "regex": "^[a-z0-9A-Z]{1,32}$",
+              "validationMessage": "Only alphanumeric characters are allowed, and the value must be 1-32 characters long."
+            },
+            "options": {
+              "hideConfirmation": true
+            }
+          },
+          {
+            "name": "artifactoryLicense1",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Artifactory Enterprise License.",
+            "toolTip": "Artifactory Enterprise License. Providing one license is mandatory",
+            "constraints": {
+              "required": true,
+              "regex": "^.{1,10000}",
+              "validationMessage": "Only Enterprise licenses are allowed."
+            }
+          },
+          {
+            "name": "artifactoryLicense2",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Artifactory Enterprise License.",
+            "toolTip": "Artifactory Enterprise License. Providing one license is mandatory",
+            "constraints": {
+              "required": true,
+              "regex": "^.{1,10000}",
+              "validationMessage": "Only Enterprise licenses are allowed."
+            }
+          },
+          {
+            "name": "artifactoryLicense3",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Artifactory Enterprise License.",
+            "toolTip": "Artifactory Enterprise License. Providing one license is mandatory",
+            "constraints": {
+              "required": false,
+              "regex": "^.{1,10000}",
+              "validationMessage": "Only Enterprise licenses are allowed."
+            }
+          },
+          {
+            "name": "artifactoryLicense4",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Artifactory Enterprise License.",
+            "toolTip": "Artifactory Enterprise License. Providing one license is mandatory",
+            "constraints": {
+              "required": false,
+              "regex": "^.{1,10000}",
+              "validationMessage": "Only Enterprise licenses are allowed."
+            }
+          },
+          {
+            "name": "artifactoryLicense5",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Artifactory Enterprise License.",
+            "toolTip": "Artifactory Enterprise License. Providing one license is mandatory",
+            "constraints": {
+              "required": false,
+              "regex": "^.{1,10000}",
+              "validationMessage": "Only Enterprise licenses are allowed."
+            }
+          },
+          {
+            "name": "certificate",
+            "type": "Microsoft.Common.PasswordBox",
+            "label": {
+              "password": "Provide your SSL Certificate.",
+              "confirmPassword": "Confirm SSL Certificate."
+            },
+            "toolTip": "To use Artifactory as docker registry you need to provide wild card valid Certificate. Provide your SSL Certificate.",
+            "constraints": {
+              "required": true,
+              "regex": "^(-----BEGIN CERTIFICATE-----)(.+)(-----END CERTIFICATE-----)$",
+              "validationMessage": "Provide SSL Certificate."
+            },
+            "options": {
+              "hideConfirmation": true
+            }
+          },
+          {
+            "name": "certificateKey",
+            "type": "Microsoft.Common.PasswordBox",
+            "label": {
+              "password": "Provide your SSL Certificate key.",
+              "confirmPassword": "Confirm SSL Certificate key."
+            },
+            "toolTip": "Provide your SSL Certificate key",
+            "constraints": {
+              "required": true,
+              "regex": "^(-----BEGIN)(.+)(PRIVATE KEY-----)(.+)(-----END)(.+)(PRIVATE KEY-----)$",
+              "validationMessage": "Provide SSL Certificate Key."
+            },
+            "options": {
+              "hideConfirmation": true
+            }
+          },
+          {
+            "name": "certificateDomain",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Provide your Certificate Domain Name.",
+            "defaultValue": "artifactory",
+            "toolTip": "Provide your Certificate Domain Name. For e.g jfrog.team for certificate with *.jfrog.team",
+            "constraints": {
+              "required": true,
+              "regex": "^(\\*)*([\\w-\\.])+$",
+              "validationMessage": "Must be a valid fully-qualified domain name."
+            }
+          },
+          {
+            "name": "artifactoryServerName",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Provide artifactory server name to be used in Nginx.",
+            "defaultValue": "artifactory",
+            "toolTip": "Provide artifactory server name to be used in Nginx. e.g artifactory for artifactory.jfrog.team",
+            "constraints": {
+              "required": true,
+              "regex": "^[a-z0-9A-Z]{1,20}$",
+              "validationMessage": "Only letters and numbers are allowed, and the value must be 1-20 characters long."
+            }
+          },
+          {
+            "name": "extraJavaOptions",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Setting Java Memory Parameters for Artifactory",
+            "defaultValue": "-server -Xms2g -Xmx8g -Xss256k -XX:+UseG1GC -XX:OnOutOfMemoryError=\\\"kill -9 %p\\\"",
+            "toolTip": "Setting Java Memory Parameters for Artifactory. Learn about system requirements for Artifactory https://www.jfrog.com/confluence/display/RTF/System+Requirements#SystemRequirements-RecommendedHardware.",
+            "constraints": {
+              "required": false,
+              "regex": "[^a-zA-Z0-9]+\\S+\\D",
+              "validationMessage": "Example: -server -Xms2g -Xmx12g -Xss256k -XX:+UseG1GC -XX:OnOutOfMemoryError=\\\"kill -9 %p\\\""
+            }
+          }
+        ]
+      },
+      {
+        "name": "databaseConfig",
+        "label": "Database Configuration",
+        "subLabel": {
+          "preValidation": "Configure the Database",
+          "postValidation": "Done"
+        },
+        "bladeTitle": "Database Credential",
+        "elements": [
+          {
+            "name": "dbAdminUsername",
+            "type": "Microsoft.Compute.UserNameTextBox",
+            "label": "User name",
+            "toolTip": "Admin username for the database",
+            "osPlatform": "Linux",
+            "constraints": {
+              "required": true,
+              "regex": "^[a-z0-9A-Z]{1,30}$",
+              "validationMessage": "Only alphanumeric characters are allowed, and the value must be 1-30 characters long."
+            }
+          },
+          {
+            "name": "dbAdminPassword",
+            "type": "Microsoft.Common.PasswordBox",
+            "label": {
+              "password": "Password",
+              "confirmPassword": "Confirm password"
+            },
+            "toolTip": "Admin password for the database",
+            "constraints": {
+              "required": true,
+              "regex": "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{12,}$",
+              "validationMessage": "The password must contain at least 12 characters, with at least 1 uppercase letter, 1 lowercase letter and 1 number."
+            },
+            "options": {
+              "hideConfirmation": false
+            },
+            "visible": true
+          },
+          {
+            "name": "dbName",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Database name",
+            "toolTip": "Database name",
+            "constraints": {
+              "required": true,
+              "regex": "^[a-z0-9A-Z]{1,15}$",
+              "validationMessage": "Only alphanumeric characters are allowed, and the value must be 1-15 characters long."
+            }
+          },
+          {
+            "name": "dbEdition",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Database Edition",
+            "defaultValue": "Basic",
+            "toolTip": "Edition of Database to use",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "Basic",
+                  "value": "Basic"
+                },
+                {
+                  "label": "Standard",
+                  "value": "Standard"
+                },
+                {
+                  "label": "Premium",
+                  "value": "Premium"
+                }
+              ],
+              "required": true
+            },
+            "visible": true
+          }
+        ]
+      },
+      {
+        "name": "storageConfig",
+        "label": "Storage settings",
+        "subLabel": {
+          "preValidation": "Configure the infrastructure settings",
+          "postValidation": "Done"
+        },
+        "bladeTitle": "Storage settings",
+        "elements": [
+          {
+            "name": "storageAccountsType",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Storage account type",
+            "defaultValue": "Standard_LRS",
+            "toolTip": "Storage account type",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "Standard_LRS",
+                  "value": "Standard_LRS"
+                }
+              ],
+              "required": true
+            },
+            "visible": true
+          }
+        ]
+      }
+    ],
+    "outputs": {
+      "clusterName": "[steps('clusterConfig').clusterName]",
+      "vmSku": "[steps('clusterConfig').vmSku]",
+      "location": "[location()]",
+      "nodeCount": "[steps('clusterConfig').nodeCount]",
+      "artifactoryVersion": "[steps('clusterConfig').artifactoryVersion]",
+      "masterKey": "[steps('clusterConfig').masterKey]",
+      "artifactoryLicense1": "[steps('clusterConfig').artifactoryLicense1]",
+      "artifactoryLicense2": "[steps('clusterConfig').artifactoryLicense2]",
+      "artifactoryLicense3": "[steps('clusterConfig').artifactoryLicense3]",
+      "artifactoryLicense4": "[steps('clusterConfig').artifactoryLicense4]",
+      "artifactoryLicense5": "[steps('clusterConfig').artifactoryLicense5]",
+      "certificate": "[steps('clusterConfig').certificate]",
+      "certificateKey": "[steps('clusterConfig').certificateKey]",
+      "certificateDomain": "[steps('clusterConfig').certificateDomain]",
+      "artifactoryServerName": "[steps('clusterConfig').artifactoryServerName]",
+      "extraJavaOptions": "[steps('clusterConfig').extraJavaOptions]",
+      "adminUsername": "[steps('vmCredentials').adminUsername]",
+      "adminPassword": "[steps('vmCredentials').adminPassword.password]",
+      "DB_Admin_User": "[steps('databaseConfig').dbAdminUsername]",
+      "DB_Admin_Password": "[steps('databaseConfig').dbAdminPassword]",
+      "DB_Name": "[steps('databaseConfig').dbName]",
+      "DB_Edition": "[steps('databaseConfig').dbEdition]",
+      "storageAccountType": "[steps('storageConfig').storageAccountsType]"
+    }
+  }
+}

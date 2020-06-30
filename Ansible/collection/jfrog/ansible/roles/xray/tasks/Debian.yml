@@ -1,0 +1,37 @@
+---
+- name: Install db5.3-util
+  apt:
+    deb: "{{ xray_home }}/app/third-party/misc/db5.3-util_5.3.28-3ubuntu3_amd64.deb"
+  ignore_errors: yes
+  become: yes
+
+- name: Install db-util
+  apt:
+    deb: "{{ xray_home }}/app/third-party/misc/db-util_1_3a5.3.21exp1ubuntu1_all.deb"
+  ignore_errors: yes
+  become: yes
+
+- name: Install libssl
+  apt:
+    deb: "{{ xray_home }}/app/third-party/rabbitmq/libssl1.1_1.1.0j-1_deb9u1_amd64.deb"
+  ignore_errors: yes
+  become: yes
+
+- name: Install socat
+  apt:
+    deb: "{{ xray_home }}/app/third-party/rabbitmq/socat_1.7.3.1-2+deb9u1_amd64.deb"
+  become: yes
+
+- name: Install libwxbase3.0-0v5
+  apt:
+    name: libwxbase3.0-0v5
+    update_cache: yes
+    state: present
+  ignore_errors: yes
+  become: yes
+
+- name: Install erlang
+  apt:
+    deb: "{{ xray_home }}/app/third-party/rabbitmq/esl-erlang_21.2.1-1~ubuntu~xenial_amd64.deb"
+  become: yes
+

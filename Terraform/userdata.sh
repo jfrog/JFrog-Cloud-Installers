@@ -178,7 +178,7 @@ cat <<EOF >/var/opt/jfrog/artifactory/etc/info/installer-info.json
   "productId": "Terraform_artifactory-ha/1.0.0",
   "features": [
   {
-    "featureId": "MySql/5.5"
+    "featureId": "Partner/ACC-007450"
   }
   ]
 }

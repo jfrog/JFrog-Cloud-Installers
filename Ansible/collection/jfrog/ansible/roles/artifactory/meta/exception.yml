@@ -1,0 +1,6 @@
+---
+exceptions:
+  - variation: Alpine
+    reason: Artifactory start/stop scripts don't properly work.
+  - variation: amazonlinux:1
+    reason: "Shutting down artifactory: /usr/bin/java\nfinding\nUsing the default catalina management port (8015) to test shutdown\nArtifactory Tomcat already stopped"

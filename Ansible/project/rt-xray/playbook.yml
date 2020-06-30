@@ -1,0 +1,12 @@
+---
+- hosts: database
+  roles:
+    - postgres
+
+- hosts: artifactory
+  roles:
+    - artifactory
+
+- hosts: xray
+  roles:
+    - xray
