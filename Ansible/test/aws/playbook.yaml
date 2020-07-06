@@ -144,8 +144,8 @@
     shell:
       cmd: ./gradlew clean unified_test
       chdir: ../tests/
-#  - name: Cleanup and delete stack
-#    cloudformation:
-#      stack_name: "{{ lookup('env', 'stack_name') }}"
-#      region: "us-east-1"
-#      state: "absent"
+  - name: Cleanup and delete stack
+    cloudformation:
+      stack_name: "{{ lookup('env', 'stack_name') }}"
+      region: "us-east-1"
+      state: "absent"
