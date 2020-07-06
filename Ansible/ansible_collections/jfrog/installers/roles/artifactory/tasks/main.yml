@@ -86,9 +86,9 @@
     dest: "{{ artifactory_home }}/var/etc/security/join.key"
   become: yes
 
-- name: ensure {{ artifactory_home }}/var/etc/info/ exists
+- name: ensure {{ artifactory_home }}/var/etc/artifactory/info/ exists
   file:
-    path: "{{ artifactory_home }}/var/etc/info/"
+    path: "{{ artifactory_home }}/var/etc/artifactory/info/"
     state: directory
     owner: "{{ artifactory_user }}"
     group: "{{ artifactory_group }}"
