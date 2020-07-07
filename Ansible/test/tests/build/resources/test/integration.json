@@ -1,0 +1,9 @@
+{
+  "vendor": "whitesource5",
+  "api_key": "12345",
+  "enabled": true,
+  "context": "project_id",
+  "url": "https://saas.whitesourcesoftware.com/xray",
+  "description": "WhiteSource provides a simple yet powerful open source security and licenses management solution. More details at http://www.whitesourcesoftware.com.",
+  "test_url": "https://saas.whitesourcesoftware.com/xray/api/checkauth"
+}

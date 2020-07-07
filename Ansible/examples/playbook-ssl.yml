@@ -1,0 +1,13 @@
+---
+- hosts: database
+  collections:
+    - jfrog.installers
+  roles:
+    - postgres
+
+- hosts: primary
+  collections:
+    - jfrog.installers
+  roles:
+    - artifactory
+    - artifactory_nginx_ssl

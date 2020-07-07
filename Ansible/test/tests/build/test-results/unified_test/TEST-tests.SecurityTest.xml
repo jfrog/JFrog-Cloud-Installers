@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="tests.SecurityTest" tests="72" skipped="0" failures="0" errors="0" timestamp="2020-06-18T22:55:12" hostname="jefff-mac.lan" time="31.893">
+  <properties/>
+  <testcase name="createUsersTest[0](testuser0, email0@jfrog.com, password123)" classname="tests.SecurityTest" time="0.48"/>
+  <testcase name="createUsersTest[1](testuser1, email1@jfrog.com, password123)" classname="tests.SecurityTest" time="0.467"/>
+  <testcase name="createUsersTest[2](testuser2, email2@jfrog.com, password123)" classname="tests.SecurityTest" time="0.498"/>
+  <testcase name="createUsersTest[3](testuser3, email3@jfrog.com, password123)" classname="tests.SecurityTest" time="0.385"/>
+  <testcase name="createUsersTest[4](testuser4, email4@jfrog.com, password123)" classname="tests.SecurityTest" time="0.409"/>
+  <testcase name="createUsersTest[5](testuser5, email5@jfrog.com, password123)" classname="tests.SecurityTest" time="0.422"/>
+  <testcase name="createUsersTest[6](testuser6, email6@jfrog.com, password123)" classname="tests.SecurityTest" time="0.419"/>
+  <testcase name="createUsersTest[7](testuser7, email7@jfrog.com, password123)" classname="tests.SecurityTest" time="0.405"/>
+  <testcase name="createUsersTest[8](testuser8, email8@jfrog.com, password123)" classname="tests.SecurityTest" time="0.417"/>
+  <testcase name="createUsersTest[9](testuser9, email9@jfrog.com, password123)" classname="tests.SecurityTest" time="0.402"/>
+  <testcase name="verifyUsersTest[0](testuser0, email0@jfrog.com, password123)" classname="tests.SecurityTest" time="0.338"/>
+  <testcase name="verifyUsersTest[1](testuser1, email1@jfrog.com, password123)" classname="tests.SecurityTest" time="0.331"/>
+  <testcase name="verifyUsersTest[2](testuser2, email2@jfrog.com, password123)" classname="tests.SecurityTest" time="0.313"/>
+  <testcase name="verifyUsersTest[3](testuser3, email3@jfrog.com, password123)" classname="tests.SecurityTest" time="0.322"/>
+  <testcase name="verifyUsersTest[4](testuser4, email4@jfrog.com, password123)" classname="tests.SecurityTest" time="0.324"/>
+  <testcase name="verifyUsersTest[5](testuser5, email5@jfrog.com, password123)" classname="tests.SecurityTest" time="0.337"/>
+  <testcase name="verifyUsersTest[6](testuser6, email6@jfrog.com, password123)" classname="tests.SecurityTest" time="0.311"/>
+  <testcase name="verifyUsersTest[7](testuser7, email7@jfrog.com, password123)" classname="tests.SecurityTest" time="0.394"/>
+  <testcase name="verifyUsersTest[8](testuser8, email8@jfrog.com, password123)" classname="tests.SecurityTest" time="0.337"/>
+  <testcase name="verifyUsersTest[9](testuser9, email9@jfrog.com, password123)" classname="tests.SecurityTest" time="0.312"/>
+  <testcase name="generateAPIKeysTest[0](testuser0, email0@jfrog.com, password123)" classname="tests.SecurityTest" time="0.816"/>
+  <testcase name="generateAPIKeysTest[1](testuser1, email1@jfrog.com, password123)" classname="tests.SecurityTest" time="0.543"/>
+  <testcase name="generateAPIKeysTest[2](testuser2, email2@jfrog.com, password123)" classname="tests.SecurityTest" time="0.499"/>
+  <testcase name="generateAPIKeysTest[3](testuser3, email3@jfrog.com, password123)" classname="tests.SecurityTest" time="0.463"/>
+  <testcase name="generateAPIKeysTest[4](testuser4, email4@jfrog.com, password123)" classname="tests.SecurityTest" time="0.448"/>
+  <testcase name="generateAPIKeysTest[5](testuser5, email5@jfrog.com, password123)" classname="tests.SecurityTest" time="0.457"/>
+  <testcase name="generateAPIKeysTest[6](testuser6, email6@jfrog.com, password123)" classname="tests.SecurityTest" time="0.442"/>
+  <testcase name="generateAPIKeysTest[7](testuser7, email7@jfrog.com, password123)" classname="tests.SecurityTest" time="0.472"/>
+  <testcase name="generateAPIKeysTest[8](testuser8, email8@jfrog.com, password123)" classname="tests.SecurityTest" time="0.467"/>
+  <testcase name="generateAPIKeysTest[9](testuser9, email9@jfrog.com, password123)" classname="tests.SecurityTest" time="0.479"/>
+  <testcase name="regenerateAPIKeysTest[0](testuser0, email0@jfrog.com, password123)" classname="tests.SecurityTest" time="0.473"/>
+  <testcase name="regenerateAPIKeysTest[1](testuser1, email1@jfrog.com, password123)" classname="tests.SecurityTest" time="0.447"/>
+  <testcase name="regenerateAPIKeysTest[2](testuser2, email2@jfrog.com, password123)" classname="tests.SecurityTest" time="0.476"/>
+  <testcase name="regenerateAPIKeysTest[3](testuser3, email3@jfrog.com, password123)" classname="tests.SecurityTest" time="0.474"/>
+  <testcase name="regenerateAPIKeysTest[4](testuser4, email4@jfrog.com, password123)" classname="tests.SecurityTest" time="0.45"/>
+  <testcase name="regenerateAPIKeysTest[5](testuser5, email5@jfrog.com, password123)" classname="tests.SecurityTest" time="0.422"/>
+  <testcase name="regenerateAPIKeysTest[6](testuser6, email6@jfrog.com, password123)" classname="tests.SecurityTest" time="0.479"/>
+  <testcase name="regenerateAPIKeysTest[7](testuser7, email7@jfrog.com, password123)" classname="tests.SecurityTest" time="0.45"/>
+  <testcase name="regenerateAPIKeysTest[8](testuser8, email8@jfrog.com, password123)" classname="tests.SecurityTest" time="0.448"/>
+  <testcase name="regenerateAPIKeysTest[9](testuser9, email9@jfrog.com, password123)" classname="tests.SecurityTest" time="0.457"/>
+  <testcase name="createGroupTest[0](test-group-0)" classname="tests.SecurityTest" time="0.599"/>
+  <testcase name="createGroupTest[1](test-group-1)" classname="tests.SecurityTest" time="0.62"/>
+  <testcase name="createGroupTest[2](test-group-2)" classname="tests.SecurityTest" time="0.629"/>
+  <testcase name="createGroupTest[3](test-group-3)" classname="tests.SecurityTest" time="0.617"/>
+  <testcase name="createGroupTest[4](test-group-4)" classname="tests.SecurityTest" time="0.634"/>
+  <testcase name="createGroupTest[5](test-group-5)" classname="tests.SecurityTest" time="0.614"/>
+  <testcase name="createGroupTest[6](test-group-6)" classname="tests.SecurityTest" time="0.654"/>
+  <testcase name="createGroupTest[7](test-group-7)" classname="tests.SecurityTest" time="0.656"/>
+  <testcase name="createGroupTest[8](test-group-8)" classname="tests.SecurityTest" time="0.647"/>
+  <testcase name="createGroupTest[9](test-group-9)" classname="tests.SecurityTest" time="0.629"/>
+  <testcase name="createPermissionsTest" classname="tests.SecurityTest" time="0.912"/>
+  <testcase name="deletePermissionsTest" classname="tests.SecurityTest" time="0.375"/>
+  <testcase name="deleteUserTest[0](testuser0, email0@jfrog.com, password123)" classname="tests.SecurityTest" time="0.403"/>
+  <testcase name="deleteUserTest[1](testuser1, email1@jfrog.com, password123)" classname="tests.SecurityTest" time="0.347"/>
+  <testcase name="deleteUserTest[2](testuser2, email2@jfrog.com, password123)" classname="tests.SecurityTest" time="0.412"/>
+  <testcase name="deleteUserTest[3](testuser3, email3@jfrog.com, password123)" classname="tests.SecurityTest" time="0.337"/>
+  <testcase name="deleteUserTest[4](testuser4, email4@jfrog.com, password123)" classname="tests.SecurityTest" time="0.4"/>
+  <testcase name="deleteUserTest[5](testuser5, email5@jfrog.com, password123)" classname="tests.SecurityTest" time="0.35"/>
+  <testcase name="deleteUserTest[6](testuser6, email6@jfrog.com, password123)" classname="tests.SecurityTest" time="0.35"/>
+  <testcase name="deleteUserTest[7](testuser7, email7@jfrog.com, password123)" classname="tests.SecurityTest" time="0.35"/>
+  <testcase name="deleteUserTest[8](testuser8, email8@jfrog.com, password123)" classname="tests.SecurityTest" time="0.379"/>
+  <testcase name="deleteUserTest[9](testuser9, email9@jfrog.com, password123)" classname="tests.SecurityTest" time="0.334"/>
+  <testcase name="deleteGroupTest[0](test-group-0)" classname="tests.SecurityTest" time="0.335"/>
+  <testcase name="deleteGroupTest[1](test-group-1)" classname="tests.SecurityTest" time="0.324"/>
+  <testcase name="deleteGroupTest[2](test-group-2)" classname="tests.SecurityTest" time="0.327"/>
+  <testcase name="deleteGroupTest[3](test-group-3)" classname="tests.SecurityTest" time="0.319"/>
+  <testcase name="deleteGroupTest[4](test-group-4)" classname="tests.SecurityTest" time="0.407"/>
+  <testcase name="deleteGroupTest[5](test-group-5)" classname="tests.SecurityTest" time="0.333"/>
+  <testcase name="deleteGroupTest[6](test-group-6)" classname="tests.SecurityTest" time="0.338"/>
+  <testcase name="deleteGroupTest[7](test-group-7)" classname="tests.SecurityTest" time="0.326"/>
+  <testcase name="deleteGroupTest[8](test-group-8)" classname="tests.SecurityTest" time="0.322"/>
+  <testcase name="deleteGroupTest[9](test-group-9)" classname="tests.SecurityTest" time="0.313"/>
+  <system-out><![CDATA[- Create users. User testuser0 created successfully
+- Create users. User testuser1 created successfully
+- Create users. User testuser2 created successfully
+- Create users. User testuser3 created successfully
+- Create users. User testuser4 created successfully
+- Create users. User testuser5 created successfully
+- Create users. User testuser6 created successfully
+- Create users. User testuser7 created successfully
+- Create users. User testuser8 created successfully
+- Create users. User testuser9 created successfully
+- Verify created users. User testuser0 was successfully verified
+- Verify created users. User testuser1 was successfully verified
+- Verify created users. User testuser2 was successfully verified
+- Verify created users. User testuser3 was successfully verified
+- Verify created users. User testuser4 was successfully verified
+- Verify created users. User testuser5 was successfully verified
+- Verify created users. User testuser6 was successfully verified
+- Verify created users. User testuser7 was successfully verified
+- Verify created users. User testuser8 was successfully verified
+- Verify created users. User testuser9 was successfully verified
+- Generate API keys. Key for testuser0 created successfully
+- Generate API keys. Key for testuser1 created successfully
+- Generate API keys. Key for testuser2 created successfully
+- Generate API keys. Key for testuser3 created successfully
+- Generate API keys. Key for testuser4 created successfully
+- Generate API keys. Key for testuser5 created successfully
+- Generate API keys. Key for testuser6 created successfully
+- Generate API keys. Key for testuser7 created successfully
+- Generate API keys. Key for testuser8 created successfully
+- Generate API keys. Key for testuser9 created successfully
+- Re-generate API keys. Key for testuser0 re-generated successfully
+- Re-generate API keys. Key for testuser1 re-generated successfully
+- Re-generate API keys. Key for testuser2 re-generated successfully
+- Re-generate API keys. Key for testuser3 re-generated successfully
+- Re-generate API keys. Key for testuser4 re-generated successfully
+- Re-generate API keys. Key for testuser5 re-generated successfully
+- Re-generate API keys. Key for testuser6 re-generated successfully
+- Re-generate API keys. Key for testuser7 re-generated successfully
+- Re-generate API keys. Key for testuser8 re-generated successfully
+- Re-generate API keys. Key for testuser9 re-generated successfully
+- Create group. Group test-group-0 was successfully created
+- Create group. Group test-group-1 was successfully created
+- Create group. Group test-group-2 was successfully created
+- Create group. Group test-group-3 was successfully created
+- Create group. Group test-group-4 was successfully created
+- Create group. Group test-group-5 was successfully created
+- Create group. Group test-group-6 was successfully created
+- Create group. Group test-group-7 was successfully created
+- Create group. Group test-group-8 was successfully created
+- Create group. Group test-group-9 was successfully created
+- Create permissions. Permissions successfully created and verified
+- Delete permissions. User testPermission has been removed successfully
+- Delete user. User testuser0 has been removed successfully
+- Delete user. User testuser1 has been removed successfully
+- Delete user. User testuser2 has been removed successfully
+- Delete user. User testuser3 has been removed successfully
+- Delete user. User testuser4 has been removed successfully
+- Delete user. User testuser5 has been removed successfully
+- Delete user. User testuser6 has been removed successfully
+- Delete user. User testuser7 has been removed successfully
+- Delete user. User testuser8 has been removed successfully
+- Delete user. User testuser9 has been removed successfully
+- Delete group. Group test-group-0 has been removed successfully
+- Delete group. Group test-group-1 has been removed successfully
+- Delete group. Group test-group-2 has been removed successfully
+- Delete group. Group test-group-3 has been removed successfully
+- Delete group. Group test-group-4 has been removed successfully
+- Delete group. Group test-group-5 has been removed successfully
+- Delete group. Group test-group-6 has been removed successfully
+- Delete group. Group test-group-7 has been removed successfully
+- Delete group. Group test-group-8 has been removed successfully
+- Delete group. Group test-group-9 has been removed successfully
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

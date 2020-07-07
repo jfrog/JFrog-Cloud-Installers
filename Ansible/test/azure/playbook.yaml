@@ -44,6 +44,7 @@
       hostname: "{{ azureDeployment.deployment.outputs.vmArtPriIp.value }}"
       ansible_user: "ubuntu"
       ansible_ssh_common_args: '-o ProxyCommand="ssh -o StrictHostKeyChecking=no -A ubuntu@{{ azureDeployment.deployment.outputs.lbIp.value }} -W %h:%p"'
+      artifactory_version: "{{ lookup('env', 'artifactory_version') }}"
       db_url: "jdbc:postgresql://{{ azureDeployment.deployment.outputs.vmDbArrIp.value[0] }}:5432/artifactory"
       server_name: "rt.{{ azureDeployment.deployment.outputs.lbIp.value }}.xip.io"
       artifactory_is_primary: true
@@ -58,6 +59,7 @@
       hostname: "{{ item }}"
       ansible_user: "ubuntu"
       ansible_ssh_common_args: '-o ProxyCommand="ssh -o StrictHostKeyChecking=no -A ubuntu@{{ azureDeployment.deployment.outputs.lbIp.value }} -W %h:%p"'
+      artifactory_version: "{{ lookup('env', 'artifactory_version') }}"
       db_url: "jdbc:postgresql://{{ azureDeployment.deployment.outputs.vmDbArrIp.value[0] }}:5432/artifactory"
       server_name: "rt.{{ azureDeployment.deployment.outputs.lbIp.value }}.xip.io"
       artifactory_is_primary: false
@@ -70,6 +72,7 @@
       hostname: "{{ item }}"
       ansible_user: "ubuntu"
       ansible_ssh_common_args: '-o ProxyCommand="ssh -o StrictHostKeyChecking=no -A ubuntu@{{ azureDeployment.deployment.outputs.lbIp.value }} -W %h:%p"'
+      xray_version: "{{ lookup('env', 'xray_version') }}"
       jfrog_url: "http://rt.{{ azureDeployment.deployment.outputs.lbIp.value }}.xip.io"
       master_key: "{{ lookup('env', 'master_key') }}"
       join_key: "{{ lookup('env', 'join_key') }}"
