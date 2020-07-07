@@ -1,7 +1,7 @@
 ---
 # defaults file for artifactory
 # indicates were this collection was downlaoded from (galaxy, automation_hub, standalone)
-ansible_marketplace: galaxy
+ansible_marketplace: standalone
 
 # The version of Artifactory to install
 artifactory_version: 7.6.1
