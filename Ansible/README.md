@@ -10,11 +10,11 @@ This Ansible directory consists of the following directories that support the JF
  ## Tested Artifactory and Xray Versions
  The following versions of Artifactory and Xray have been validated with this collection. Other versions and combinations may also work.
  
- | artifactory_version | xray_version |
- |---------------------|--------------|
- | 7.6.1               | 3.5.2        |
- | 7.5.0               | 3.3.0        |
- | 7.4.3               | 3.3.0        |
+| collection_version | artifactory_version | xray_version |
+|--------------------|---------------------|--------------|
+| 1.0.7              | 7.6.1               | 3.5.2        |
+| 1.0.6              | 7.5.0               | 3.3.0        |
+| 1.0.6              | 7.4.3               | 3.3.0        |
  
  ## Getting Started
  
