@@ -2,7 +2,7 @@ xray:
   analysis:
     image:
       repository: registry.connect.redhat.com/jfrog/xray-analysis
-      version: 3.3.0
+      version: 3.5.2
     name: xray-analysis
     podManagementPolicy: Parallel
     preStartCommand: null
@@ -16,14 +16,14 @@ xray:
   indexer:
     image:
       repository: registry.connect.redhat.com/jfrog/xray-indexer
-      version: 3.3.0
+      version: 3.5.2
     name: xray-indexer
     podManagementPolicy: Parallel
     updateStrategy: RollingUpdate
   persist:
     image:
       repository: registry.connect.redhat.com/jfrog/xray-persist
-      version: 3.3.0
+      version: 3.5.2
     name: xray-persist
     persistence:
       size: 10Gi
@@ -46,16 +46,17 @@ xray:
     image:
       imagePullPolicy: IfNotPresent
       repository: registry.connect.redhat.com/jfrog/xray-router
-      version: 1.2.1
+      version: 1.4.0
     name: router
   server:
     image:
       repository: registry.connect.redhat.com/jfrog/xray-server
-      version: 3.3.0
+      version: 3.5.2
     name: xray-server
     podManagementPolicy: Parallel
     replicaCount: 1
     updateStrategy: RollingUpdate
+  unifiedUpgradeAllowed: true
   xray:
     consoleLog: false
     jfrogUrl: OVERRIDE
