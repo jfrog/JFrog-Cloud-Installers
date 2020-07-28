@@ -7,4 +7,4 @@ scorecard:
     - olm:
         cr-manifest:
           - "deploy/crds/charts.helm.k8s.io_v1alpha1_openshiftartifactoryha_cr.yaml"
-        csv-path: "deploy/olm-catalog/artifactory-ha-operator/1.0.1/artifactory-ha-operator.v1.0.0.clusterserviceversion.yaml"
+        csv-path: "deploy/olm-catalog/artifactory-ha-operator/1.0.2/artifactory-ha-operator.v1.0.2.clusterserviceversion.yaml"

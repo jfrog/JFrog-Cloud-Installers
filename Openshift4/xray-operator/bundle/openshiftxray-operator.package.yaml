@@ -1,4 +1,4 @@
 packageName: openshiftxray-operator
 channels:
   - name: alpha
-    currentCSV: xray-operator.v1.0.1
+    currentCSV: xray-operator.v1.0.2
