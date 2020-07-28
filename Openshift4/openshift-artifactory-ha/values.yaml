@@ -34,7 +34,7 @@ artifactory-ha:
     ## Change to use RH UBI images
     image:
       repository: registry.connect.redhat.com/jfrog/artifactory-pro
-      version: 7.6.1
+      version: 7.6.3
     node:
       replicaCount: 2
       waitForPrimaryStartup:
