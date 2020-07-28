@@ -15,7 +15,7 @@ metadata:
               "artifactory": {
                 "image": {
                   "repository": "registry.connect.redhat.com/jfrog/artifactory-pro",
-                  "version": "7.4.3"
+                  "version": "7.6.3"
                 },
                 "joinKey": "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE",
                 "masterKey": "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
@@ -63,13 +63,13 @@ metadata:
     capabilities: Basic Install
     categories: "Developer Tools,Integration & Delivery"
     description: "JFrog Artifactory Enterprise deploys Artifactory in a high availability environment across multiple pods"
-    containerImage: registry.connect.redhat.com/jfrog/artifactory-operator:7.4
+    containerImage: registry.connect.redhat.com/jfrog/artifactory-operator:7.6.3
     createdAt: 2020-03-25T00:00:00Z
     support: JFrog
     certified: "true"
     repository: https://github.com/jfrog/JFrog-Cloud-Installers/tree/openshift4/Openshift4
-  name: artifactory-ha-operator.v1.0.0
-  namespace: placeholder
+  name: artifactory-ha-operator.v1.0.2
+  namespace: default
 spec:
   apiservicedefinitions: {}
   customresourcedefinitions:
@@ -94,7 +94,39 @@ spec:
           - kind: StatefulSet
             version: apps/v1
         version: v1alpha1
-  description: Openshift 4 Operator to deploy JFrog Artifactory Enterprise
+  description: |
+    ## Overview
+
+    Openshift Operator to deploy JFrog Artifactory Enterprise into your Openshift cluster.
+
+    ## Usage
+
+    An external DB is required. The operator will not deploy a DB but will require you to specify the configuration values to connect to it.
+
+    Search for JFrog and click JFrog Artifactory Enterprise Operator to install.
+
+    Go to the Installed Operators.
+
+    Wait for the JFrog Artifactory Enterprise Operator to complete the installation.
+
+    Open the Operator and click on the provided API: Artifactory HA.
+
+    Click Create New Instance and provide the following parameters for your DB configuration:
+
+    ```
+    DATABASE_TYPE
+    DATABASE_DRIVER
+    DATABASE_URL
+    DATABASE_USER
+    DATABASE_PASSWORD
+    ```
+
+    In addition to use TLS you will need to first create a k8s tls secret to store your .crt and .key file into.
+
+    Then supply the value of this k8s secret into the TLS_SECRET field.
+
+    Click Create for Artifactory Enterprise to deploy into OpenShift and connect to it on the external IP exposed by the load balancer.
+
   displayName: JFrog Artifactory Enterprise Operator
   provider:
     name: JFrog
@@ -139,10 +171,10 @@ spec:
                 - name: OPERATOR_NAME
                   value: artifactory-ha-operator
                 - name: RELATED_IMAGE_ARTIFACTORY_IMAGE_REPOSITORY
-                  value: registry.connect.redhat.com/jfrog/artifactory-pro:7.4.3
+                  value: registry.connect.redhat.com/jfrog/artifactory-pro:7.6.3
                 - name: RELATED_IMAGE_NGINX_IMAGE_REPOSITORY
                   value: registry.redhat.io/rhel8/nginx-116:latest
-                image: registry.connect.redhat.com/jfrog/artifactory-operator:7.4
+                image: registry.connect.redhat.com/jfrog/artifactory-operator:7.6.3
                 imagePullPolicy: Always
                 name: artifactory-ha-operator
                 resources: {}
@@ -293,4 +325,5 @@ spec:
     - "rpm"
     - "yum"
   maturity: alpha
-  version: 1.0.0
+  version: 1.0.2
+  replaces: artifactory-ha-operator.v1.0.1

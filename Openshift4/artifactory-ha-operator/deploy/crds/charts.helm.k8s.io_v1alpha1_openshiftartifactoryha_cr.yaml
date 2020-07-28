@@ -20,7 +20,7 @@ spec:
               name: volume
       image:
         repository: registry.connect.redhat.com/jfrog/artifactory-pro
-        version: 7.4.3
+        version: 7.6.1
       joinKey: EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
       masterKey: FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
       node:

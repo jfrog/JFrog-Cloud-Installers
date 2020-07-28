@@ -1,4 +1,4 @@
 packageName: openshiftartifactoryha-operator
 channels:
   - name: alpha
-    currentCSV: artifactory-ha-operator.v1.0.0
+    currentCSV: artifactory-ha-operator.v1.0.2

@@ -15,7 +15,7 @@ metadata:
               "artifactory": {
                 "image": {
                   "repository": "registry.connect.redhat.com/jfrog/artifactory-pro",
-                  "version": "7.4.3"
+                  "version": "7.6.1"
                 },
                 "joinKey": "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE",
                 "masterKey": "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
@@ -63,13 +63,13 @@ metadata:
     capabilities: Basic Install
     categories: "Developer Tools,Integration & Delivery"
     description: "JFrog Artifactory Enterprise deploys Artifactory in a high availability environment across multiple pods"
-    containerImage: registry.connect.redhat.com/jfrog/artifactory-operator:7.4
+    containerImage: registry.connect.redhat.com/jfrog/artifactory-operator:7.6.1
     createdAt: 2020-03-25T00:00:00Z
     support: JFrog
     certified: "true"
     repository: https://github.com/jfrog/JFrog-Cloud-Installers/tree/openshift4/Openshift4
-  name: artifactory-ha-operator.v1.0.0
-  namespace: placeholder
+  name: artifactory-ha-operator.v1.0.1
+  namespace: default
 spec:
   apiservicedefinitions: {}
   customresourcedefinitions:
@@ -139,10 +139,10 @@ spec:
                 - name: OPERATOR_NAME
                   value: artifactory-ha-operator
                 - name: RELATED_IMAGE_ARTIFACTORY_IMAGE_REPOSITORY
-                  value: registry.connect.redhat.com/jfrog/artifactory-pro:7.4.3
+                  value: registry.connect.redhat.com/jfrog/artifactory-pro:7.6.1
                 - name: RELATED_IMAGE_NGINX_IMAGE_REPOSITORY
                   value: registry.redhat.io/rhel8/nginx-116:latest
-                image: registry.connect.redhat.com/jfrog/artifactory-operator:7.4
+                image: registry.connect.redhat.com/jfrog/artifactory-operator:7.6.1
                 imagePullPolicy: Always
                 name: artifactory-ha-operator
                 resources: {}
@@ -293,4 +293,5 @@ spec:
     - "rpm"
     - "yum"
   maturity: alpha
-  version: 1.0.0
+  version: 1.0.1
+  replaces: artifactory-ha-operator.v1.0.0
