@@ -12,11 +12,24 @@ The xray role will install Xray software onto the host. An Artifactory server an
 * _db_user_: The database user to configure. eg. "xray"
 * _db_password_: The database password to configure. "xray"
 * _system_file_: Your own [system YAML](https://www.jfrog.com/confluence/display/JFROG/System+YAML+Configuration+File) file can be specified and used. If specified, this file will be used rather than constructing a file from the parameters above.
+* _xray_upgrade_only_: Perform an software upgrade only. Default is false.
 
 ## Example Playbook
 ```
 ---
 - hosts: xray
+  roles:
+    - xray
+```
+
+## Upgrades
+The Xray role supports software upgrades. To use a role to perform a software upgrade only, use the _xray_upgrade_only_ variables and specify the version. See the following example.
+
+```
+- hosts: xray
+  vars:
+    xray_version: "{{ lookup('env', 'xray_version_upgrade') }}"
+    xray_upgrade_only: true
   roles:
     - xray
 ```

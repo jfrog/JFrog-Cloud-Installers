@@ -1,0 +1,63 @@
+---
+- debug:
+    msg: "Performing upgrade of Artifactory..."
+
+- name: stop artifactory
+  service:
+    name: artifactory
+    state: stopped
+  become: yes
+
+- name: ensure jfrog_home_directory exists
+  file:
+    path: "{{ jfrog_home_directory }}"
+    state: directory
+  become: yes
+
+- name: download artifactory
+  unarchive:
+    src: "{{ artifactory_tar }}"
+    dest: "{{ jfrog_home_directory }}"
+    remote_src: yes
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+    creates: "{{ artifactory_untar_home }}"
+  become: yes
+  register: downloadartifactory
+  until: downloadartifactory is succeeded
+  retries: 3
+
+- name: Delete artifactory app
+  file:
+    path: "{{ artifactory_home }}/app"
+    state: absent
+  become: yes
+
+- name: CP new app to artifactory app
+  command: "cp -r {{ artifactory_untar_home }}/app {{ artifactory_home }}/app"
+  become: yes
+
+- name: Delete untar directory
+  file:
+    path: "{{ artifactory_untar_home }}"
+    state: absent
+  become: yes
+
+- name: start and enable the primary node
+  service:
+    name: artifactory
+    state: restarted
+  become: yes
+  when: artifactory_is_primary == true
+
+- name: random wait before restarting to prevent secondary nodes from hitting DB first
+  pause:
+    seconds: "{{ 120 | random + 10}}"
+  when: artifactory_is_primary == false
+
+- name: start and enable the secondary nodes
+  service:
+    name: artifactory
+    state: restarted
+  become: yes
+  when: artifactory_is_primary == false

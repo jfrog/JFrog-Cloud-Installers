@@ -20,7 +20,7 @@ artifactory_ha_enabled: true
 artifactory_is_primary: true
 
 # The location where Artifactory should install.
-artifactory_download_directory: /opt/jfrog
+jfrog_home_directory: /opt/jfrog
 
 # The location where Artifactory should store data.
 artifactory_file_store_dir: /data
@@ -31,7 +31,8 @@ artifactory_flavour: pro
 extra_java_opts: -server -Xms2g -Xmx14g -Xss256k -XX:+UseG1GC
 
 artifactory_tar: https://dl.bintray.com/jfrog/artifactory-pro/org/artifactory/pro/jfrog-artifactory-pro/{{ artifactory_version }}/jfrog-artifactory-pro-{{ artifactory_version }}-linux.tar.gz
-artifactory_home: "{{ artifactory_download_directory }}/artifactory-{{ artifactory_flavour }}-{{ artifactory_version }}"
+artifactory_home: "{{ jfrog_home_directory }}/artifactory"
+artifactory_untar_home: "{{ jfrog_home_directory }}/artifactory-{{ artifactory_flavour }}-{{ artifactory_version }}"
 
 artifactory_user: artifactory
 artifactory_group: artifactory
@@ -46,3 +47,6 @@ service_list:
     status_pattern: artifactory
     user_name: "{{ artifactory_user }}"
     group_name: "{{ artifactory_group }}"
+
+# if this is an upgrade
+artifactory_upgrade_only: false

@@ -10,14 +10,18 @@ xray_version: 3.5.2
 xray_ha_enabled: true
 
 # The location where xray should install.
-xray_download_directory: /opt/jfrog
+jfrog_home_directory: /opt/jfrog
 
 # The remote xray download file
-xray_tar: https://bintray.com/standAloneDownload/downloadArtifact?agree=true&artifactPath=/jfrog/jfrog-xray/xray-linux/{{ xray_version }}/jfrog-xray-{{ xray_version }}-linux.tar.gz&callback_id=anonymous&product=xray
+xray_tar: https://dl.bintray.com/jfrog/jfrog-xray/xray-linux/{{ xray_version }}/jfrog-xray-{{ xray_version }}-linux.tar.gz
 
 #The xray install directory
-xray_home: "{{ xray_download_directory }}/jfrog-xray-{{ xray_version }}-linux"
+xray_untar_home: "{{ jfrog_home_directory }}/jfrog-xray-{{ xray_version }}-linux"
+xray_home: "{{ jfrog_home_directory }}/xray"
 
 #xray users and groups
 xray_user: xray
 xray_group: xray
+
+# if this is an upgrade
+xray_upgrade_only: false
