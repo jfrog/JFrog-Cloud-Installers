@@ -119,6 +119,7 @@
   - debug:
       msg: "Unified URL is at http://{{ AWSDeployment.stack_outputs.ALBHostName }}"
 
+# apply roles to install software
 - hosts: database
   roles:
   - postgres
@@ -147,3 +148,25 @@
       shell:
         cmd: ./gradlew clean unified_test
         chdir: ../tests/
+
+# Now upgrade
+- name: Upgrade
+  hosts: localhost
+  tasks:
+    - pause:
+        prompt: "Proceed to upgrade?"
+        minutes: 5
+
+- hosts: artifactory
+  vars:
+    artifactory_version: "{{ lookup('env', 'artifactory_version_upgrade') }}"
+    artifactory_upgrade_only: true
+  roles:
+    - artifactory
+
+- hosts: xray
+  vars:
+    xray_version: "{{ lookup('env', 'xray_version_upgrade') }}"
+    xray_upgrade_only: true
+  roles:
+    - xray

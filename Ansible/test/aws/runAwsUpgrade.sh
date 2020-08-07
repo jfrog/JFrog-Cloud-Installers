@@ -9,4 +9,6 @@ export join_key=d8c19a03036f83ea45f2c658e22fdd61
 export ansible_user=ubuntu
 export artifactory_version="7.4.3"
 export xray_version="3.4.0"
-ansible-playbook Ansible/test/aws/playbook-ha-install.yaml
+export artifactory_version_upgrade="7.6.1"
+export xray_version_upgrade="3.5.2"
+ansible-playbook Ansible/test/aws/playbook-ha-upgrade.yaml
