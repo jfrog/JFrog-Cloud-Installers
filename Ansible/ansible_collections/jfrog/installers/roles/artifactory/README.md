@@ -14,6 +14,7 @@ The artifactory role installs the Artifactory Pro software onto the host. Per th
 * _server_name_: This is the server name. eg. "artifactory.54.175.51.178.xip.io"
 * _system_file_: Your own [system YAML](https://www.jfrog.com/confluence/display/JFROG/System+YAML+Configuration+File) file can be specified and used. **If specified, this file will be used rather than constructing a file from the parameters above.**
 * _binary_store_file_: Your own [binary store file](https://www.jfrog.com/confluence/display/JFROG/Configuring+the+Filestore) can be used. If specified, the default cluster-file-system will not be used.
+* _artifactory_upgrade_only_: Perform an software upgrade only. Default is false.
 
 ### primary vars (vars used by the primary Artifactory server)
 * _artifactory_is_primary_: For the primary node this must be set to **true**.
@@ -27,6 +28,18 @@ The artifactory role installs the Artifactory Pro software onto the host. Per th
 ```
 ---
 - hosts: primary
+  roles:
+    - artifactory
+```
+
+## Upgrades
+The Artifactory role supports software upgrades. To use a role to perform a software upgrade only, use the _artifactory_upgrade_only_ variable and specify the version. See the following example.
+
+```
+- hosts: artifactory
+  vars:
+    artifactory_version: "{{ lookup('env', 'artifactory_version_upgrade') }}"
+    artifactory_upgrade_only: true
   roles:
     - artifactory
 ```

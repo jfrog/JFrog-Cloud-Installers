@@ -1,6 +1,0 @@
-artifactory:
-  url: http://Ansib-Appli-M90CVY19FRF6-334171479.us-east-1.elb.amazonaws.com
-  external_ip: Ansib-Appli-M90CVY19FRF6-334171479.us-east-1.elb.amazonaws.com
-  distribution: artifactory_ha
-  rt_username: admin
-  rt_password: password

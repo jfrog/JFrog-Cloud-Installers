@@ -1,13 +1,6 @@
 # JFrog Ansible Installers Collection
 
-This Ansible directory consists of the following directories that support the JFrog Ansible collection.
- 
- * [ansible_collections directory](ansible_collections) - This directory contains the Ansible collection package that has the Ansible roles for Artifactory and Xray. See the collection [README](ansible_collections/README.md) for details on the available roles and variables.
- * [examples directory](examples) - This directory contains example playbooks for various architectures from single Artifactory (RT) deployments to high-availability setups.
- * [infra directory](infra) - This directory contains example infrastructure templates that can be used for testing and as example deployments.
- * [test directory](test) - This directory contains Gradle tests that can be used to verify a deployment. It also has Ansible playbooks for creating infrastructure, provisioning software and testing with Gradle.
- 
- ## Getting Started
+## Getting Started
  
  1. Install this collection from Ansible Galaxy. This collection is also available in RedHat Automation Hub.
     
@@ -29,9 +22,9 @@ This Ansible directory consists of the following directories that support the JF
     
  2. Ansible uses SSH to connect to hosts. Ensure that your SSH private key is on your client and the public keys are installed on your Ansible hosts. 
  
- 3. Create your inventory file. Use one of the examples from the [examples directory](examples) to construct an inventory file (hosts.yml) with the host addresses and variables.
+ 3. Create your inventory file. Use one of the examples from the [examples directory](https://github.com/jfrog/JFrog-Cloud-Installers/tree/master/Ansible/examples) to construct an inventory file (hosts.yml) with the host addresses and variables.
  
- 4. Create your playbook. Use one of the examples from the [examples directory](examples) to construct a playbook using the JFrog Ansible roles. These roles will be applied to your inventory and provision software.
+ 4. Create your playbook. Use one of the examples from the [examples directory](https://github.com/jfrog/JFrog-Cloud-Installers/tree/master/Ansible/examples) to construct a playbook using the JFrog Ansible roles. These roles will be applied to your inventory and provision software.
  
  5. Then execute with the following command to provision the JFrog software with Ansible. Variables can also be passed in at the command-line.
  
@@ -74,4 +67,23 @@ ansible_ssh_common_args: '-o ProxyCommand="ssh -o StrictHostKeyChecking=no -A us
 
 eg.
 ansible_ssh_common_args: '-o ProxyCommand="ssh -o StrictHostKeyChecking=no -A ubuntu@{{ azureDeployment.deployment.outputs.lbIp.value }} -W %h:%p"'
+```
+
+## Upgrades
+The Artifactory and Xray roles support software upgrades. To use a role to perform a software upgrade only, use the _artifactory_upgrade_only_ or _xray_upgrade_only_ variables and specify the version. See the following example.
+
+```
+- hosts: artifactory
+  vars:
+    artifactory_version: "{{ lookup('env', 'artifactory_version_upgrade') }}"
+    artifactory_upgrade_only: true
+  roles:
+    - artifactory
+
+- hosts: xray
+  vars:
+    xray_version: "{{ lookup('env', 'xray_version_upgrade') }}"
+    xray_upgrade_only: true
+  roles:
+    - xray
 ```

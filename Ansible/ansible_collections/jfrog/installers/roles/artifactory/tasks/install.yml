@@ -1,0 +1,166 @@
+---
+- debug:
+    msg: "Performing installation of Artifactory..."
+
+- name: install nginx
+  include_role:
+    name: artifactory_nginx
+
+- name: create group for artifactory
+  group:
+    name: "{{ artifactory_group }}"
+    state: present
+  become: yes
+
+- name: create user for artifactory
+  user:
+    name: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+    system: yes
+  become: yes
+
+- name: ensure jfrog_home_directory exists
+  file:
+    path: "{{ jfrog_home_directory }}"
+    state: directory
+  become: yes
+
+- name: download artifactory
+  unarchive:
+    src: "{{ artifactory_tar }}"
+    dest: "{{ jfrog_home_directory }}"
+    remote_src: yes
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+    creates: "{{ artifactory_untar_home }}"
+  become: yes
+  register: downloadartifactory
+  until: downloadartifactory is succeeded
+  retries: 3
+
+- name: MV untar directory to artifactory home
+  command: "mv {{ artifactory_untar_home }} {{ artifactory_home }}"
+  become: yes
+
+- name: ensure artifactory_file_store_dir exists
+  file:
+    path: "{{ artifactory_file_store_dir }}"
+    state: directory
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+  become: yes
+
+- name: ensure etc exists
+  file:
+    path: "{{ artifactory_home }}/var/etc"
+    state: directory
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+  become: yes
+
+- name: use specified system yaml
+  copy:
+    src: "{{ system_file }}"
+    dest: "{{ artifactory_home }}/var/etc/system.yaml"
+  become: yes
+  when: system_file is defined
+
+- name: configure system yaml
+  template:
+    src: system.yaml.j2
+    dest: "{{ artifactory_home }}/var/etc/system.yaml"
+  become: yes
+  when: system_file is not defined
+
+- name: ensure {{ artifactory_home }}/var/etc/security/ exists
+  file:
+    path: "{{ artifactory_home }}/var/etc/security/"
+    state: directory
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+  become: yes
+
+- name: configure master key
+  template:
+    src: master.key.j2
+    dest: "{{ artifactory_home }}/var/etc/security/master.key"
+  become: yes
+
+- name: configure join key
+  template:
+    src: join.key.j2
+    dest: "{{ artifactory_home }}/var/etc/security/join.key"
+  become: yes
+
+- name: ensure {{ artifactory_home }}/var/etc/artifactory/info/ exists
+  file:
+    path: "{{ artifactory_home }}/var/etc/artifactory/info/"
+    state: directory
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+  become: yes
+
+- name: configure installer info
+  template:
+    src: installer-info.json.j2
+    dest: "{{ artifactory_home }}/var/etc/artifactory/info/installer-info.json"
+  become: yes
+
+- name: use specified binary store
+  copy:
+    src: "{{ binary_store_file }}"
+    dest: "{{ artifactory_home }}/var/etc/binarystore.xml"
+  become: yes
+  when: binary_store_file is defined
+
+- name: use default binary store
+  template:
+    src: binarystore.xml.j2
+    dest: "{{ artifactory_home }}/var/etc/binarystore.xml"
+  become: yes
+  when: binary_store_file is not defined
+
+- name: use license file
+  copy:
+    src: "{{ artifactory_license_file }}"
+    dest: "{{ artifactory_home }}/var/etc/artifactory/artifactory.cluster.license"
+  become: yes
+  when: artifactory_license_file is defined and artifactory_is_primary == true
+
+- name: use license strings
+  template:
+    src: artifactory.cluster.license.j2
+    dest: "{{ artifactory_home }}/var/etc/artifactory/artifactory.cluster.license"
+  become: yes
+  when: artifactory_license_file is not defined and artifactory_is_primary == true
+
+- name: download database driver
+  get_url:
+    url: "{{ db_download_url }}"
+    dest: "{{ artifactory_home }}/var/bootstrap/artifactory/tomcat/lib"
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+  become: yes
+
+- name: create artifactory service
+  shell: "{{ artifactory_home }}/app/bin/installService.sh"
+  become: yes
+
+- name: start and enable the primary node
+  service:
+    name: artifactory
+    state: restarted
+  become: yes
+  when: artifactory_is_primary == true
+
+- name: random wait before restarting to prevent secondary nodes from hitting DB first
+  pause:
+    seconds: "{{ 120 | random + 10}}"
+  when: artifactory_is_primary == false
+
+- name: start and enable the secondary nodes
+  service:
+    name: artifactory
+    state: restarted
+  become: yes
+  when: artifactory_is_primary == false
