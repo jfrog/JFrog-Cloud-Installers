@@ -1,0 +1,31 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "db_user": {
+      "value": "GEN-UNIQUE"
+    },
+    "db_password": {
+      "value": "GEN-UNIQUE"
+    },
+    "db_server": {
+      "value": "postgressrvr"
+    },
+    "databases": {
+      "value": {
+        "properties": [
+          {
+            "name": "artdb",
+            "charset": "UTF8",
+            "collation": "English_United States.1252"
+          },
+          {
+            "name": "xray",
+            "charset": "UTF8",
+            "collation": "English_United States.1252"
+          }
+        ]
+      }
+    }
+  }
+}

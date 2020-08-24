@@ -1,0 +1,109 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "db_user": {
+      "type": "string",
+      "defaultValue": "artifactory",
+      "minLength": 1
+    },
+    "db_password": {
+      "type": "securestring"
+    },
+    "db_server": {
+      "type": "string",
+      "defaultValue": "artmssqlsrv",
+      "minLength": 1
+    },
+    "db_name": {
+      "type": "string",
+      "defaultValue": "artdb",
+      "minLength": 1
+    },
+    "db_location": {
+      "type": "string"
+    },
+    "db_edition": {
+      "type": "string",
+      "defaultValue": "Basic",
+      "allowedValues": [
+        "Basic",
+        "Standard",
+        "Premium"
+      ]
+    },
+    "databases": {
+      "type": "object"
+    },
+    "manual_db_url": {
+      "type": "string"
+    }
+  },
+  "variables": {
+    "rtdbCollation": "Latin1_General_100_CS_AS"
+  },
+  "resources": [
+    {
+      "name": "[parameters('db_server')]",
+      "type": "Microsoft.Sql/servers",
+      "kind": "v12.0",
+      "location": "[parameters('db_location')]",
+      "apiVersion": "2020-02-02-preview",
+      "tags": {
+        "displayName": "artifactoryDB"
+      },
+      "properties": {
+        "administratorLogin": "[parameters('db_user')]",
+        "administratorLoginPassword": "[parameters('db_password')]",
+        "version": "12.0"
+      },
+      "resources": [
+        {
+          "name": "[uniqueString(parameters('db_server'), 'AllowAllWindowsAzureIps' )]",
+          "type": "firewallrules",
+          "location": "[parameters('db_location')]",
+          "apiVersion": "2020-02-02-preview",
+          "dependsOn": [
+            "[resourceId('Microsoft.Sql/servers/', parameters('db_server'))]"
+          ],
+          "properties": {
+            "startIpAddress": "0.0.0.0",
+            "endIpAddress": "0.0.0.0"
+          }
+        },
+        {
+          "name": "[parameters('db_name')]",
+          "type": "databases",
+          "kind": "v12.0,user",
+          "location": "[parameters('db_location')]",
+          "apiVersion": "2020-02-02-preview",
+          "dependsOn": [
+            "[parameters('db_server')]"
+          ],
+          "tags": {
+            "displayName": "artifactoryDB"
+          },
+          "properties": {
+            "edition": "[parameters('db_edition')]",
+            "maxSizeBytes": "1073741824",
+            "collation": "[variables('rtdbCollation')]"
+          }
+        }
+      ]
+    }
+  ],
+  "outputs": {
+    "jdbcConnString": {
+      "type": "string",
+      "value": "[concat('jdbc:sqlserver://', reference(resourceId('Microsoft.Sql/servers/', parameters('db_server'))).fullyQualifiedDomainName, ':1433')]"
+    },
+    "dbUrl": {
+      "type": "string",
+      "value": "[parameters('manual_db_url')]"
+    },
+    "databases": {
+      "type": "object",
+      "value": "[parameters('databases')]"
+    }
+  }
+}
