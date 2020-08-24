@@ -25,11 +25,12 @@
     },
     "artifactoryVersion": {
       "type": "string",
-      "defaultValue": "7.4.3",
+      "defaultValue": "0.0.2",
       "allowedValues": [
         "7.2.1",
         "7.3.2",
-        "7.4.3"
+        "7.4.3",
+        "0.0.2"
       ],
       "metadata": {
         "description": "JFrog Container Registry-vm image version to deploy."
