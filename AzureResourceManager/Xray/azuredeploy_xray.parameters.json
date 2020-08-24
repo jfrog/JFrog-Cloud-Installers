@@ -1,0 +1,63 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "clusterName": {
+      "value": "GEN-UNIQUE"
+    },
+    "adminUsername": {
+      "value": "GEN-UNIQUE"
+    },
+    "adminPassword": {
+      "value": "GEN-UNIQUE"
+    },
+    "virtualNetworkName": {
+      "value": "existing-vm-network-name"
+    },
+    "subnetName": {
+      "value": "existing-subnet-name"
+    },
+    "virtualNetworkNewOrExisting": {
+      "value": "existing"
+    },
+    "virtualNetworkAddressPrefix": {
+      "value": "10.0.0.0/16"
+    },
+    "virtualNetworkResourceGroup": {
+      "value": "resource-group-name"
+    },
+    "virtualMachineSize": {
+      "value": "Standard_D4s_v3"
+    },
+    "subnetAddressPrefix": {
+      "value": "10.0.1.0/24"
+    },
+    "xrayVersion": {
+      "value": "0.0.3"
+    },
+    "artifactoryURL": {
+      "value": "http://artifactory-url.cloudapp.azure.com"
+    },
+    "masterKey": {
+      "value": "GEN-UNIQUE"
+    },
+    "joinKey": {
+      "value": "GEN-UNIQUE"
+    },
+    "db_type": {
+      "value": "Postgresql_existing.json"
+    },
+    "db_user": {
+      "value": "GEN-UNIQUE"
+    },
+    "db_password": {
+      "value": "GEN-UNIQUE"
+    },
+    "manual_db_url": {
+      "value": "jdbc:postgresql://postgressrvr.postgres.database.azure.com:5432"
+    },
+    "db_server": {
+      "value": "postgressrvr"
+    }
+  }
+}

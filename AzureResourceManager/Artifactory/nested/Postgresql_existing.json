@@ -1,0 +1,76 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "db_user": {
+      "type": "string",
+      "defaultValue": "artifactory",
+      "minLength": 1
+    },
+    "db_password": {
+      "type": "securestring"
+    },
+    "db_server": {
+      "type": "string",
+      "defaultValue": "xraypostgressrv",
+      "minLength": 1
+    },
+    "db_name": {
+      "type": "string",
+      "defaultValue": "artdb",
+      "minLength": 1
+    },
+    "db_location": {
+      "type": "string"
+    },
+    "db_edition": {
+      "type": "string",
+      "defaultValue": "Basic",
+      "allowedValues": [
+        "Basic",
+        "Standard",
+        "Premium"
+      ]
+    },
+    "databases": {
+      "type": "object"
+    },
+    "manual_db_url": {
+      "type": "string"
+    }
+  },
+  "variables": {
+  },
+  "resources": [
+  ],
+  "outputs": {
+    "jdbcConnString": {
+      "type": "string",
+      "value": "[parameters('manual_db_url')]"
+    },
+    "db_user": {
+      "type": "string",
+      "value": "[parameters('db_user')]"
+    },
+    "db_server": {
+      "type": "string",
+      "value": "[parameters('db_server')]"
+    },
+    "db_name": {
+      "type": "string",
+      "value": "[parameters('db_name')]"
+    },
+    "db_location": {
+      "type": "string",
+      "value": "[parameters('db_location')]"
+    },
+    "db_edition": {
+      "type": "string",
+      "value": "[parameters('db_edition')]"
+    },
+    "databases": {
+      "type": "object",
+      "value": "[parameters('databases')]"
+    }
+  }
+}

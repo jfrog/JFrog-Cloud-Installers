@@ -1,0 +1,68 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "clusterName": {
+      "value": "rtha"
+    },
+    "adminUsername": {
+      "value": "vmuser"
+    },
+    "adminPassword": {
+      "value": "password"
+    },
+    "db_type": {
+      "value": "Postgresql_deploy.json"
+    },
+    "db_user": {
+      "value": "artifactory"
+    },
+    "db_password": {
+      "value": "password"
+    },
+    "db_name": {
+      "value": "artdb"
+    },
+    "db_edition": {
+      "value": "Basic"
+    },
+    "databases": {
+      "value": {
+        "properties": [
+          {
+            "name": "artdb",
+            "charset": "UTF8",
+            "collation": "English_United States.1252"
+          }
+        ]
+      }
+    },
+    "manual_db_url": {
+      "value": "jdbc:postgresql://postgressrvr.postgres.database.azure.com:5432"
+    },
+    "db_server": {
+      "value": "postgressrvr"
+    },
+    "masterKey": {
+      "value": "GEN-UNIQUE"
+    },
+    "joinKey": {
+      "value": "GEN-UNIQUE"
+    },
+    "certificate": {
+      "value": "-----BEGIN CERTIFICATE-----  -----END CERTIFICATE-----"
+    },
+    "certificateKey": {
+      "value": "-----BEGIN PRIVATE KEY-----  -----END PRIVATE KEY-----"
+    },
+    "artifactoryLicense1": {
+      "value": ""
+    },
+    "artifactoryLicense2": {
+      "value": ""
+    },
+    "artifactoryLicense3": {
+      "value": ""
+    }
+  }
+}
