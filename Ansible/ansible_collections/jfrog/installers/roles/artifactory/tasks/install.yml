@@ -149,7 +149,7 @@
 - name: start and enable the primary node
   service:
     name: artifactory
-    state: restarted
+    state: started
   become: yes
   when: artifactory_is_primary == true
 
@@ -161,6 +161,6 @@
 - name: start and enable the secondary nodes
   service:
     name: artifactory
-    state: restarted
+    state: started
   become: yes
   when: artifactory_is_primary == false
