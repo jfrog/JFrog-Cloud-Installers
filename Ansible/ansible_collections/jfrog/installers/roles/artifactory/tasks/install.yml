@@ -146,6 +146,13 @@
   shell: "{{ artifactory_home }}/app/bin/installService.sh"
   become: yes
 
+- name: ensure ownership of var/data
+  file:
+    path: "{{ artifactory_home }}/var/data"
+    owner: "artifactory"
+    group: "artifactory"
+  become: yes
+
 - name: start and enable the primary node
   service:
     name: artifactory
