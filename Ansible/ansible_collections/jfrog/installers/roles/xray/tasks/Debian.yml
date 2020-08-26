@@ -27,7 +27,6 @@
     name: libwxbase3.0-0v5
     update_cache: yes
     state: present
-  when
   become: yes
 
 - name: Install erlang 21.2.1-1
