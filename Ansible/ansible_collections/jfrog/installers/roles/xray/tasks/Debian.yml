@@ -33,11 +33,11 @@
 - name: Install erlang 21.2.1-1
   apt:
     deb: "{{ xray_home }}/app/third-party/rabbitmq/esl-erlang_21.2.1-1~ubuntu~xenial_amd64.deb"
-  when: {{ xray_version is version('3.8.0','<') }}
+  when: xray_version is version("3.8.0","<")
   become: yes
 
 - name: Install erlang 22.3.4.1-1
   apt:
     deb: "{{ xray_home }}/app/third-party/rabbitmq/esl-erlang_22.3.4.1-1_ubuntu_xenial_amd64.deb"
-  when: {{ xray_version is version('3.8.0','>=') }}
+  when: xray_version is version("3.8.0",">=")
   become: yes
