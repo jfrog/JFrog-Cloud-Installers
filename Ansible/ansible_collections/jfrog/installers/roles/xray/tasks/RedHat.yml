@@ -11,8 +11,16 @@
     state: present
   become: yes
 
-- name: Install erlang
+- name: Install erlang 21.1.4-1
   yum:
     name: "{{ xray_home }}/app/third-party/rabbitmq/erlang-21.1.4-1.el7.centos.x86_64.rpm"
     state: present
+  when: {{ xray_version is version('3.8.0','<') }}
+  become: yes
+
+- name: Install erlang 22.3.4.1-1
+  yum:
+    name: "{{ xray_home }}/app/third-party/rabbitmq/erlang-22.3.4.1-1.el7.centos.x86_64.rpm"
+    state: present
+  when: {{ xray_version is version('3.8.0','>=') }}
   become: yes
