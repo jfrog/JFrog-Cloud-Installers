@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Upgrade version for every release
-XRAY_VERSION=3.6.2
+XRAY_VERSION=3.8.2
 
 export DEBIAN_FRONTEND=noninteractive
 
@@ -20,6 +20,7 @@ cd jfrog-xray-${XRAY_VERSION}-deb
 cat <<EOF >/opt/jfrog-xray-${XRAY_VERSION}-deb/input.txt
 /var/opt/jfrog/xray
 http://
+Y
 EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
 replace_with_host_ip
 N

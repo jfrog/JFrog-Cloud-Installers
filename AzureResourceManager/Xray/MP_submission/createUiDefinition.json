@@ -123,13 +123,17 @@
             "name": "xrayVersion",
             "type": "Microsoft.Common.DropDown",
             "label": "Xray-vm image version to deploy.",
-            "defaultValue": "3.6.2",
+            "defaultValue": "3.8.2",
             "toolTip": "Version of Xray to deploy",
             "constraints": {
               "allowedValues": [
                 {
                   "label": "3.6.2",
                   "value": "0.0.3"
+                },
+                {
+                  "label": "3.8.2",
+                  "value": "0.0.4"
                 }
               ],
               "required": true
