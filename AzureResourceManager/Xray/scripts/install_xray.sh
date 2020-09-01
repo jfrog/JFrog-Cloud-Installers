@@ -25,7 +25,7 @@ EOF
 HOSTNAME=$(hostname -i)
 yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.database.url postgres://${DB_SERVER}.postgres.database.azure.com:5432/${DB_NAME}?sslmode=disable
 yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.database.username ${DB_USER}
-yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.database.username ${DB_PASSWORD}
+yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.database.password ${DB_PASSWORD}
 yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.rabbitMq.password JFXR_RABBITMQ_COOKIE
 yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.jfrogUrl ${ARTIFACTORY_URL}
 yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.security.joinKey ${JOIN_KEY}
