@@ -157,7 +157,7 @@
       "metadata": {
         "description": "The base URI where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
       },
-      "defaultValue": "https://raw.githubusercontent.com/jfrog/JFrog-Cloud-Installers/arm-xray/AzureResourceManager/Xray/"
+      "defaultValue": "https://raw.githubusercontent.com/jfrog/JFrog-Cloud-Installers/master/AzureResourceManager/Xray/"
     },
     "_artifactsLocationSasToken": {
       "type": "securestring",
@@ -189,7 +189,7 @@
     "joinKey": "[parameters('joinKey')]",
     "osType": {
       "publisher": "jfrog",
-      "offer": "x-ray-vm",
+      "offer": "x-ray-vm-preview",
       "sku": "x-ray-vm",
       "version": "[parameters('xrayVersion')]"
     },
@@ -325,7 +325,7 @@
       "plan": {
         "name": "x-ray-vm",
         "publisher": "jfrog",
-        "product": "x-ray-vm"
+        "product": "x-ray-vm-preview"
       },
       "sku": {
         "name": "[parameters('virtualMachineSize')]",

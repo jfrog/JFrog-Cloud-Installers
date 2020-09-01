@@ -3,10 +3,10 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "db_user": {
-      "value": "GEN-UNIQUE"
+      "value": "xray"
     },
     "db_password": {
-      "value": "GEN-UNIQUE"
+      "value": "Password123!"
     },
     "db_server": {
       "value": "postgressrvr"

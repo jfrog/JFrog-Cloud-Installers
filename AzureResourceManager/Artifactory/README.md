@@ -50,12 +50,11 @@ considering you have SSL certificate for `*.jfrog.team`
 
 ### Steps to upgrade Artifactory Version
 
-1. Login into Primary VM instance and sudo as root. Use the admin credentials provided in the install setup.  
+1. Login into first member VM instance and sudo as root. Use the admin credentials provided in the install setup.  
 Note: Use load balancer's NAT entries under Azure resources, to get the allocated NAT port for accessing the VM instance.
 
 2. Stop nginx and artifactory services.
     ```
-    service nginx stop
     service artifactory stop
     ```
 
@@ -67,9 +66,9 @@ Note: Use load balancer's NAT entries under Azure resources, to get the allocate
 4. Start artifactory and nginx services.
     ```
     service artifactory start
-    service nginx start
     ```
-5. Repeat above steps for all member nodes.
+5. Repeat above steps for all member nodes then for primary node.
+6. To check the version of each node, open Administration -> Monitoring -> Service status 
 
 ------
 #### Note:

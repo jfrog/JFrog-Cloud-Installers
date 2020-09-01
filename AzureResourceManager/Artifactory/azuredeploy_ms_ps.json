@@ -243,7 +243,7 @@
       "metadata": {
         "description": "The base URI where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
       },
-      "defaultValue": "https://raw.githubusercontent.com/jfrog/JFrog-Cloud-Installers/arm-xray/AzureResourceManager/Artifactory/"
+      "defaultValue": "https://raw.githubusercontent.com/jfrog/JFrog-Cloud-Installers/master/AzureResourceManager/Artifactory/"
     },
     "_artifactsLocationSasToken": {
       "type": "securestring",
@@ -309,7 +309,7 @@
     "artifactoryLicense5": "[parameters('artifactoryLicense5')]",
     "osType": {
       "publisher": "jfrog",
-      "offer": "artifactory-vm",
+      "offer": "artifactory-vm-preview",
       "sku": "artifactory-vm",
       "version": "[parameters('artifactoryVersion')]"
     },
@@ -790,7 +790,7 @@
       "plan": {
         "name": "artifactory-vm",
         "publisher": "jfrog",
-        "product": "artifactory-vm"
+        "product": "artifactory-vm-preview"
       },
       "sku": {
         "name": "[parameters('vmSku')]",
@@ -889,7 +889,7 @@
       "plan": {
         "name": "artifactory-vm",
         "publisher": "jfrog",
-        "product": "artifactory-vm"
+        "product": "artifactory-vm-preview"
       },
       "sku": {
         "name": "[parameters('vmSku')]",
