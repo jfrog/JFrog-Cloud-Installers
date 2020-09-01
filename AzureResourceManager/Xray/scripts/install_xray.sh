@@ -9,6 +9,11 @@ ARTIFACTORY_URL=$(cat /var/lib/cloud/instance/user-data.txt | grep "^ARTIFACTORY
 
 export DEBIAN_FRONTEND=noninteractive
 
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys CC86BB64
+sudo add-apt-repository ppa:rmescandon/yq -y
+sudo apt update -y
+sudo apt install yq -y
+
 # Create master.key on each node
 sudo mkdir -p /opt/jfrog/xray/var/etc/security/
 cat <<EOF >/opt/jfrog/xray/var/etc/security/master.key
@@ -18,13 +23,13 @@ EOF
 # Xray should have the same join key as the Artifactory instance
 # Both application should be deployed in the same Virtual Networks
 HOSTNAME=$(hostname -i)
-sed -i -e "s/ip:..*/ip: ${HOSTNAME}/" /var/opt/jfrog/xray/etc/system.yaml
-sed -i -e "s#jfrogUrl:..*#jfrogUrl: \"${ARTIFACTORY_URL}\"#" /var/opt/jfrog/xray/etc/system.yaml
-sed -i -e "s/joinKey:..*/joinKey: ${JOIN_KEY}/" /var/opt/jfrog/xray/etc/system.yaml
-# DB configuration
-sed -i -e "s/url: postgres:..*/url: \"postgres:\/\/${DB_SERVER}.postgres.database.azure.com:5432\/${DB_NAME}?sslmode=disable\"/" /var/opt/jfrog/xray/etc/system.yaml
-sed -i -e "s/username:..*/username: \"${DB_USER}\"/" /var/opt/jfrog/xray/etc/system.yaml
-sed -i -e "s/password:..*/password: \"${DB_PASSWORD}\"/" /var/opt/jfrog/xray/etc/system.yaml
+yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.database.url postgres://${DB_SERVER}.postgres.database.azure.com:5432/${DB_NAME}?sslmode=disable
+yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.database.username ${DB_USER}
+yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.database.username ${DB_PASSWORD}
+yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.rabbitMq.password JFXR_RABBITMQ_COOKIE
+yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.jfrogUrl ${ARTIFACTORY_URL}
+yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.security.joinKey ${JOIN_KEY}
+yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.node.ip ${HOSTNAME}
 
 chown xray:xray -R /opt/jfrog/xray/var/etc/security/* && chown xray:xray -R /opt/jfrog/xray/var/etc/security/
 
