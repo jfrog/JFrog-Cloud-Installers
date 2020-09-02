@@ -69,7 +69,6 @@ cat <<EOF >/etc/nginx/nginx.conf
 EOF
 
 cat <<EOF >/etc/nginx/conf.d/artifactory.conf
-ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
 ssl_certificate      /etc/pki/tls/certs/cert.pem;
 ssl_certificate_key  /etc/pki/tls/private/cert.key;
 ssl_session_cache shared:SSL:1m;
@@ -85,30 +84,36 @@ server {
   ## Application specific logs
   ## access_log /var/log/nginx/artifactory-access.log timing;
   ## error_log /var/log/nginx/artifactory-error.log;
-  rewrite ^/$ /ui/ redirect;
-  rewrite ^/ui$ /ui/ redirect;
+  rewrite ^/$ /artifactory/webapp/ redirect;
+  rewrite ^/artifactory/?(/webapp)?$ /artifactory/webapp/ redirect;
   chunked_transfer_encoding on;
   client_max_body_size 0;
-  location / {
+  location /artifactory/ {
     proxy_read_timeout  2400;
     proxy_pass_header   Server;
     proxy_cookie_path   ~*^/.* /;
-    proxy_pass          http://127.0.0.1:8082;
-    proxy_next_upstream error timeout non_idempotent;
-    proxy_next_upstream_tries    1;
-    proxy_set_header    X-JFrog-Override-Base-Url \$http_x_forwarded_proto://\$host:\$server_port;
+    proxy_pass          http://127.0.0.1:8081/artifactory/;
+    proxy_set_header    X-Artifactory-Override-Base-Url
+    \$http_x_forwarded_proto://\$host:\$server_port/artifactory;
     proxy_set_header    X-Forwarded-Port  \$server_port;
     proxy_set_header    X-Forwarded-Proto \$http_x_forwarded_proto;
     proxy_set_header    Host              \$http_host;
     proxy_set_header    X-Forwarded-For   \$proxy_add_x_forwarded_for;
+   }
+      location / {
+      proxy_read_timeout  2400;
+      proxy_pass_header   Server;
+      proxy_cookie_path   ~*^/.* /;
+      proxy_pass          http://127.0.0.1:8082;
+      proxy_set_header    X-Artifactory-Override-Base-Url \$http_x_forwarded_proto://\$host:\$server_port/artifactory;
+      proxy_set_header    X-Forwarded-Port  \$server_port;
+      proxy_set_header    X-Forwarded-Proto \$http_x_forwarded_proto;
+      proxy_set_header    Host              \$http_host;
+      proxy_set_header    X-Forwarded-For   \$proxy_add_x_forwarded_for;
+   }
 
-          location ~ ^/artifactory/ {
-            proxy_pass    http://127.0.0.1:8081;
-        }
-    }
 }
 EOF
-
 
 HOSTNAME=$(ip route get 8.8.8.8 | awk '{print $NF; exit}')
 
