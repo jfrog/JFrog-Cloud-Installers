@@ -187,7 +187,7 @@
     "extraJavaOptions": "[parameters('extraJavaOptions')]",
     "osType": {
       "publisher": "jfrog",
-      "offer": "jfrogcontainerregistry-vm-preview",
+      "offer": "jfrogcontainerregistry-vm",
       "sku": "artifactory-jcr",
       "version": "[parameters('artifactoryVersion')]"
     },
@@ -528,7 +528,7 @@
       "plan": {
         "name": "artifactory-jcr",
         "publisher": "jfrog",
-        "product": "jfrogcontainerregistry-vm-preview"
+        "product": "jfrogcontainerregistry-vm"
       },
       "sku": {
         "name": "[parameters('vmSku')]",

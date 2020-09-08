@@ -136,7 +136,7 @@
             "toolTip": "Master key for JFrog Container Registry cluster. Generate master.key using command '$openssl rand -hex 16'",
             "constraints": {
               "required": true,
-              "regex": "^[a-z0-9A-Z]{1,32}$",
+              "regex": "^[a-z0-9A-Z]{12,32}$",
               "validationMessage": "Only alphanumeric characters are allowed, and the value must be 1-32 characters long."
             },
             "options": {
