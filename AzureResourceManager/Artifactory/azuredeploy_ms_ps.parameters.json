@@ -44,10 +44,10 @@
       "value": "postgressrvr"
     },
     "masterKey": {
-      "value": "GEN-UNIQUE"
+      "value": "GENERATE_MASTER_KEY"
     },
     "joinKey": {
-      "value": "GEN-UNIQUE"
+      "value": "GENERATE_JOIN_KEY"
     },
     "certificate": {
       "value": "-----BEGIN CERTIFICATE-----  -----END CERTIFICATE-----"

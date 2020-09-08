@@ -33,7 +33,7 @@
       "value": "10.0.1.0/24"
     },
     "xrayVersion": {
-      "value": "0.0.3"
+      "value": "0.0.4"
     },
     "artifactoryURL": {
       "value": "http://artifactory-url.cloudapp.azure.com"

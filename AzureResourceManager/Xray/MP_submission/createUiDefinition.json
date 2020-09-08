@@ -123,13 +123,17 @@
             "name": "xrayVersion",
             "type": "Microsoft.Common.DropDown",
             "label": "Xray-vm image version to deploy.",
-            "defaultValue": "3.6.2",
+            "defaultValue": "3.8.2",
             "toolTip": "Version of Xray to deploy",
             "constraints": {
               "allowedValues": [
                 {
                   "label": "3.6.2",
                   "value": "0.0.3"
+                },
+                {
+                  "label": "3.8.2",
+                  "value": "0.0.4"
                 }
               ],
               "required": true
@@ -158,7 +162,7 @@
             "toolTip": "Master key for Xray instance. Generate master.key using command '$openssl rand -hex 16'",
             "constraints": {
               "required": true,
-              "regex": "^[a-z0-9A-Z]{1,32}$",
+              "regex": "^[a-z0-9A-Z]{12,32}$",
               "validationMessage": "Only alphanumeric characters are allowed, and the value must be 1-32 characters long."
             },
             "options": {
@@ -175,7 +179,7 @@
             "toolTip": "Join key from Artifactory cluster. You can copy Join key from the Artifactory UI, Security -> Settings -> Connection details",
             "constraints": {
               "required": true,
-              "regex": "^[a-z0-9A-Z]{1,32}$",
+              "regex": "^[a-z0-9A-Z]{12,32}$",
               "validationMessage": "Only alphanumeric characters are allowed, and the value must be 1-32 characters long."
             },
             "options": {

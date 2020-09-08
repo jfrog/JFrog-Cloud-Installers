@@ -25,11 +25,12 @@
     },
     "artifactoryVersion": {
       "type": "string",
-      "defaultValue": "7.4.3",
+      "defaultValue": "0.0.2",
       "allowedValues": [
         "7.2.1",
         "7.3.2",
-        "7.4.3"
+        "7.4.3",
+        "0.0.2"
       ],
       "metadata": {
         "description": "JFrog Container Registry-vm image version to deploy."
@@ -213,7 +214,7 @@
       "type": "Microsoft.Network/networkSecurityGroups",
       "location": "[parameters('location')]",
       "name": "[variables('nsgName')]",
-      "apiVersion": "2018-07-01",
+      "apiVersion": "2020-03-01",
       "properties": {
         "securityRules": [
           {
@@ -293,9 +294,9 @@
       "type": "Microsoft.Network/virtualNetworks",
       "name": "[variables('virtualNetworkName')]",
       "location": "[parameters('location')]",
-      "apiVersion": "2018-07-01",
+      "apiVersion": "2020-03-01",
       "dependsOn": [
-        "[concat('Microsoft.Network/networkSecurityGroups/', variables('nsgName'))]"
+        "[resourceId('Microsoft.Network/networkSecurityGroups/', variables('nsgName'))]"
       ],
       "properties": {
         "addressSpace": {
@@ -317,14 +318,14 @@
       }
     },
     {
-      "apiVersion": "2018-07-01",
+      "apiVersion": "2020-03-01",
       "type": "Microsoft.Network/networkInterfaces",
       "name": "[variables('nicPrimaryName')]",
       "location": "[parameters('location')]",
       "dependsOn": [
-        "[concat('Microsoft.Network/publicIPAddresses/', variables('pipPrimaryName'))]",
-        "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
-        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgName'))]"
+        "[resourceId('Microsoft.Network/publicIPAddresses/', variables('pipPrimaryName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
+        "[resourceId('Microsoft.Network/networkSecurityGroups/', variables('nsgName'))]"
       ],
       "properties": {
         "ipConfigurations": [
@@ -350,7 +351,7 @@
       "sku": {
         "name": "Standard"
       },
-      "apiVersion": "2018-07-01",
+      "apiVersion": "2020-03-01",
       "properties": {
         "publicIPAllocationMethod": "Static",
         "dnsSettings": {
@@ -362,12 +363,12 @@
       "type": "Microsoft.Network/loadBalancers",
       "name": "[variables('lbName')]",
       "location": "[parameters('location')]",
-      "apiVersion": "2018-07-01",
+      "apiVersion": "2020-03-01",
       "sku": {
         "name": "Standard"
       },
       "dependsOn": [
-        "[concat('Microsoft.Network/publicIPAddresses/', variables('pipPrimaryName'))]"
+        "[resourceId('Microsoft.Network/publicIPAddresses/', variables('pipPrimaryName'))]"
       ],
       "tags":{
         "displayName": "Load Balancer"
@@ -468,7 +469,7 @@
       }
     },
     {
-      "apiVersion": "2018-07-01",
+      "apiVersion": "2019-06-01",
       "type": "Microsoft.Storage/storageAccounts",
       "name": "[variables('storageAccountName')]",
       "location": "[parameters('location')]",
@@ -484,7 +485,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "name": "deploySQLDB",
-      "apiVersion": "2018-07-01",
+      "apiVersion": "2019-09-01",
       "properties": {
         "mode": "Incremental",
         "templateLink": {
@@ -519,10 +520,10 @@
       "location": "[parameters('location')]",
       "apiVersion": "2018-10-01",
       "dependsOn": [
-        "[concat('Microsoft.Network/loadBalancers/', variables('lbName'))]",
-        "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
-        "[concat('Microsoft.Resources/deployments/', 'deploySQLDB')]",
-        "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]"
+        "[resourceId('Microsoft.Network/loadBalancers/', variables('lbName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
+        "[resourceId('Microsoft.Resources/deployments/', 'deploySQLDB')]",
+        "[resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]"
       ],
       "plan": {
         "name": "artifactory-jcr",

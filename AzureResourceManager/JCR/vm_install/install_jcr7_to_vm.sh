@@ -14,18 +14,18 @@ apt-get -y install wget curl>> /tmp/install-curl.log 2>&1
 mkdir -p /etc/pki/tls/private/ /etc/pki/tls/certs/
 openssl req -nodes -x509 -newkey rsa:4096 -keyout /etc/pki/tls/private/example.key -out /etc/pki/tls/certs/example.pem -days 356 -subj "/C=US/ST=California/L=SantaClara/O=IT/CN=*.localhost"
 
-# install the Artifactory PRO and Nginx
-echo "deb https://jfrog.bintray.com/artifactory-pro-debs ${UBUNTU_CODENAME} main" | tee -a /etc/apt/sources.list
+# install the Artifactory JCR and Nginx
+echo "deb https://jfrog.bintray.com/artifactory-debs ${UBUNTU_CODENAME} main" | tee -a /etc/apt/sources.list
 curl --retry 5 https://bintray.com/user/downloadSubjectPublicKey?username=jfrog | apt-key add -
 apt-get update
 apt-get -y install nginx>> /tmp/install-nginx.log 2>&1
-apt-get -y install jfrog-artifactory-pro=${ARTIFACTORY_VERSION} >> /tmp/install-artifactory.log 2>&1
+apt-get -y install jfrog-artifactory-jcr=${ARTIFACTORY_VERSION} >> /tmp/install-artifactory.log 2>&1
 
 # Add callhome metadata (allow us to collect information)
 mkdir -p /var/opt/jfrog/artifactory/etc/info
 cat <<EOF >/var/opt/jfrog/artifactory/etc/info/installer-info.json
 {
-  "productId": "ARM_artifactory-pro/1.0.0",
+  "productId": "ARM_artifactory-jcr/1.0.0",
   "features": [
     {
       "featureId": "Partner/ACC-007221"

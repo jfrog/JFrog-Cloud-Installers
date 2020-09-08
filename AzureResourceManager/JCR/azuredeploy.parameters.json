@@ -21,7 +21,13 @@
       "value": "GEN-UNIQUE"
     },
     "masterKey": {
-      "value": "GEN-UNIQUE"
+      "value": "GENERATE_MASTER_KEY"
+    },
+    "certificate": {
+      "value": "-----BEGIN CERTIFICATE-----  -----END CERTIFICATE-----"
+    },
+    "certificateKey": {
+      "value": "-----BEGIN PRIVATE KEY-----  -----END PRIVATE KEY-----"
     }
   }
 }

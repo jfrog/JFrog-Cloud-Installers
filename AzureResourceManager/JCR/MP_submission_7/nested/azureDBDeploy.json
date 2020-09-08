@@ -43,7 +43,7 @@
       "type": "Microsoft.Sql/servers",
       "kind": "v12.0",
       "location": "[variables('db_location')]",
-      "apiVersion": "2019-06-01-preview",
+      "apiVersion": "2020-02-02-preview",
       "tags": {
         "displayName": "artifactoryDB"
       },
@@ -57,9 +57,9 @@
           "name": "[uniqueString(parameters('db_server'), 'AllowAllWindowsAzureIps' )]",
           "type": "firewallrules",
           "location": "[variables('db_location')]",
-          "apiVersion": "2019-06-01-preview",
+          "apiVersion": "2020-02-02-preview",
           "dependsOn": [
-            "[concat('Microsoft.Sql/servers/', parameters('db_server'))]"
+            "[resourceId('Microsoft.Sql/servers/', parameters('db_server'))]"
           ],
           "properties": {
             "startIpAddress": "0.0.0.0",
@@ -71,7 +71,7 @@
           "type": "databases",
           "kind": "v12.0,user",
           "location": "[variables('db_location')]",
-          "apiVersion": "2019-06-01-preview",
+          "apiVersion": "2020-02-02-preview",
           "dependsOn": [
             "[parameters('db_server')]"
           ],
@@ -90,7 +90,7 @@
   "outputs": {
     "jdbcConnString": {
       "type": "string",
-      "value": "[concat('jdbc:sqlserver://', reference(concat('Microsoft.Sql/servers/', parameters('db_server'))).fullyQualifiedDomainName, ':1433')]"
+      "value": "[concat('jdbc:sqlserver://', reference(resourceId('Microsoft.Sql/servers/', parameters('db_server'))).fullyQualifiedDomainName, ':1433')]"
     }
   }
 }
