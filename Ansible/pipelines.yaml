@@ -34,8 +34,10 @@ pipelines:
             - sudo apt -y --allow-unauthenticated install ansible
             - sudo pip install packaging
             - sudo pip install boto3 botocore
-            - cd ../dependencyState/resources/ansibleRepo
+            - cd dependencyState/resources/ansibleRepo
             - echo 'Setting environment variables...'
+            - export artifactory_version="$int_ansibleEnvVars_artifactory_version"
+            - export xray_version="$int_ansibleEnvVars_xray_version"
             - export artifactory_license1="$int_ansibleEnvVars_artifactory_license1"
             - export artifactory_license2="$int_ansibleEnvVars_artifactory_license2"
             - export artifactory_license3="$int_ansibleEnvVars_artifactory_license3"
@@ -47,6 +49,8 @@ pipelines:
             - export AWS_ACCESS_KEY_ID="$int_ansibleEnvVars_AWS_ACCESS_KEY_ID"
             - export AWS_SECRET_KEY="$int_ansibleEnvVars_AWS_SECRET_KEY"
             - printenv
+            - pwd
+            - ls
             - eval $(ssh-agent -s)
             - ssh-add <(echo "$int_ansiblePrivateKey_key")
             - ansible-playbook Ansible/test/aws/playbook.yaml
@@ -80,8 +84,10 @@ pipelines:
             - sudo pip install packaging
             - sudo pip install msrestazure
             - sudo pip install ansible[azure]
-            - cd ../dependencyState/resources/ansibleRepo
+            - cd dependencyState/resources/ansibleRepo
             - echo 'Setting environment variables...'
+            - export artifactory_version="$int_ansibleEnvVars_artifactory_version"
+            - export xray_version="$int_ansibleEnvVars_xray_version"
             - export artifactory_license1="$int_ansibleEnvVars_artifactory_license1"
             - export artifactory_license2="$int_ansibleEnvVars_artifactory_license2"
             - export artifactory_license3="$int_ansibleEnvVars_artifactory_license3"
@@ -94,6 +100,8 @@ pipelines:
             - export clientSecret="$int_ansibleAzureKeys_password"
             - export tenantId="$int_ansibleAzureKeys_tenant"
             - printenv
+            - pwd
+            - ls
             - eval $(ssh-agent -s)
             - ssh-add <(echo "$int_ansiblePrivateKey_key")
             - az login --service-principal -u "$clientId" -p "$clientSecret" --tenant "$tenantId"

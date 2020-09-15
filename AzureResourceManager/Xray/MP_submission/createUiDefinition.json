@@ -1,0 +1,319 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/0.1.2-preview/CreateUIDefinition.MultiVm.json#",
+  "handler": "Microsoft.Azure.CreateUIDef",
+  "version": "0.1.2-preview",
+  "parameters": {
+    "basics": [],
+    "steps": [
+      {
+        "name": "vmCredential",
+        "label": "VM Credential",
+        "bladeTitle": "VM Credential",
+        "subLabel": {
+          "preValidation": "Provide VM credentials",
+          "postValidation": "Great - let's move on!"
+        },
+        "elements": [
+          {
+            "name": "virtualMachine",
+            "type": "Microsoft.Common.Section",
+            "elements": [
+              {
+                "name": "adminUsername",
+                "type": "Microsoft.Compute.UserNameTextBox",
+                "label": "Admin username",
+                "osPlatform": "Linux",
+                "constraints": {
+                  "required": true,
+                  "regex": "^[a-z0-9A-Z]{1,30}$",
+                  "validationMessage": "Only alphanumeric characters are allowed, and the value must be 1-30 characters long."
+                },
+                "toolTip": "Provide admin username for the virtual machine"
+              },
+              {
+                "name": "adminPassword",
+                "type": "Microsoft.Compute.CredentialsCombo",
+                "label": {
+                  "password": "Password",
+                  "confirmPassword": "Confirm password"
+                },
+                "osPlatform": "Linux",
+                "constraints": {
+                  "required": true,
+                  "customPasswordRegex": "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{12,}$",
+                  "customValidationMessage": "The password must contain at least 12 characters, with at least 1 uppercase letter, 1 lowercase letter and 1 number."
+                },
+                "options": {
+                  "hideConfirmation": false
+                },
+                "toolTip": {
+                  "password": "Provide admin password for the virtual machine"
+                },
+                "visible": true
+              }
+            ],
+            "visible": true
+          },
+          {
+            "name": "vnet",
+            "type": "Microsoft.Network.VirtualNetworkCombo",
+            "toolTip": "Provide Virtual Network information",
+            "label": {
+              "virtualNetwork": "Virtual Network",
+              "subnets": "Subnets"
+            },
+            "defaultValue": {
+              "name": "vmx-vnet",
+              "addressPrefixSize": "/16"
+            },
+            "constraints": {
+              "minAddressPrefixSize": "/24"
+            },
+            "subnets": {
+              "subnet1": {
+                "label": "Subnet",
+                "defaultValue": {
+                  "name": "vmx-subnet",
+                  "addressPrefixSize": "/24"
+                },
+                "constraints": {
+                  "minAddressPrefixSize": "/29",
+                  "minAddressCount": 8,
+                  "requireContiguousAddresses": true
+                }
+              }
+            }
+          },
+          {
+            "name": "vmSku",
+            "type": "Microsoft.Compute.SizeSelector",
+            "label": "Virtual machine size",
+            "toolTip": "The size of the virtual machine for Xray",
+            "recommendedSizes": [
+              "Standard_D4s_v3"
+            ],
+            "constraints": {
+              "allowedSizes": [
+                "Standard_A4_v2",
+                "Standard_A4",
+                "Standard_D4s_v3",
+                "Standard_D8s_v3",
+                "Standard_D16s_v3",
+                "Standard_D32s_v3",
+                "Standard_DS3_v2",
+                "Standard_D3_v2",
+                "Standard_DC4s"
+              ]
+            },
+            "osPlatform": "Linux",
+            "count": 1
+          }
+        ]
+      },
+      {
+        "name": "xrayConfig",
+        "label": "Xray settings",
+        "subLabel": {
+          "preValidation": "Configure Xray Deployment",
+          "postValidation": "Done!"
+        },
+        "bladeTitle": "Xray Settings",
+        "elements": [
+          {
+            "name": "xrayVersion",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Xray-vm image version to deploy.",
+            "defaultValue": "3.8.2",
+            "toolTip": "Version of Xray to deploy",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "3.6.2",
+                  "value": "0.0.3"
+                },
+                {
+                  "label": "3.8.2",
+                  "value": "0.0.4"
+                }
+              ],
+              "required": true
+            },
+            "visible": true
+          },
+          {
+            "name": "clusterName",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Cluster name",
+            "toolTip": "Cluster name",
+            "defaultValue": "",
+            "constraints": {
+              "required": true,
+              "regex": "^[a-z0-9A-Z]{1,30}$",
+              "validationMessage": "Only alphanumeric characters are allowed, and the value must be 1-30 characters long."
+            }
+          },
+          {
+            "name": "masterKey",
+            "type": "Microsoft.Common.PasswordBox",
+            "label": {
+              "password": "Xray master Key",
+              "confirmPassword": "Confirm master Key"
+            },
+            "toolTip": "Master key for Xray instance. Generate master.key using command '$openssl rand -hex 16'",
+            "constraints": {
+              "required": true,
+              "regex": "^[a-z0-9A-Z]{12,32}$",
+              "validationMessage": "Only alphanumeric characters are allowed, and the value must be 1-32 characters long."
+            },
+            "options": {
+              "hideConfirmation": true
+            }
+          },
+          {
+            "name": "joinKey",
+            "type": "Microsoft.Common.PasswordBox",
+            "label": {
+              "password": "Artifactory join Key",
+              "confirmPassword": "Confirm join Key"
+            },
+            "toolTip": "Join key from Artifactory cluster. You can copy Join key from the Artifactory UI, Security -> Settings -> Connection details",
+            "constraints": {
+              "required": true,
+              "regex": "^[a-z0-9A-Z]{12,32}$",
+              "validationMessage": "Only alphanumeric characters are allowed, and the value must be 1-32 characters long."
+            },
+            "options": {
+              "hideConfirmation": true
+            }
+          },
+          {
+            "name": "artifactoryURL",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Provide artifactory URL to connect Xray instance",
+            "defaultValue": "https://myorgartifactory.com",
+            "toolTip": "Provide Artifactory URL",
+            "constraints": {
+              "required": true,
+              "regex": "^(https?)://[^\\s/$.?#].[^\\s]*$",
+              "validationMessage": "URL is not valid"
+            }
+          }
+        ]
+      },
+      {
+        "name": "databaseConfig",
+        "label": "Database Configuration",
+        "subLabel": {
+          "preValidation": "Configure the Database",
+          "postValidation": "Done"
+        },
+        "bladeTitle": "Database Credential",
+        "elements": [
+          {
+            "name": "infoMessage",
+            "type": "Microsoft.Common.InfoBox",
+            "visible": true,
+            "options": {
+              "icon": "Info",
+              "text": "You can deploy a new Postgresql server or use your existing Postgres server and database. Please make sure Postgresql instance is set up correctly before Xray deployment. Check README.md https://github.com/jfrog/JFrog-Cloud-Installers/blob/arm-xray/AzureResourceManager/Xray/README.md#postgresql-deployment. You can use Postgresql template from here https://github.com/jfrog/JFrog-Cloud-Installers/tree/arm-xray/AzureResourceManager/Postgresql"
+            }
+          },
+          {
+            "name": "db_type",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Database options",
+            "toolTip": "Deploy a new DB instance or use an existing DB",
+            "constraints": {
+              "required": true,
+              "allowedValues": [
+                {
+                  "label": "Deploy a new Postgresql instance",
+                  "value": "Postgresql_deploy.json"
+                },
+                {
+                  "label": "Use existing Postgresql instance",
+                  "value": "Postgresql_existing.json"
+                }
+              ]
+            },
+            "visible": true
+          },
+          {
+            "name": "db_server",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Database server name. Skip if a new deployment is selected",
+            "toolTip": "Database server name",
+            "constraints": {
+              "required": false,
+              "regex": "^[a-z0-9A-Z]{1,15}$",
+              "validationMessage": "Only alphanumeric characters are allowed, and the value must be 1-15 characters long."
+            }
+          },
+          {
+            "name": "manual_db_url",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Database connection string. Skip if a new deployment is selected",
+            "toolTip": "Jdbc connection string for MSSQL or Postgresql",
+            "constraints": {
+              "required": false,
+              "regex": "..*",
+              "validationMessage": "DB connection string is not valid"
+            }
+          },
+          {
+            "name": "db_user",
+            "type": "Microsoft.Compute.UserNameTextBox",
+            "label": "User name",
+            "toolTip": "Admin username for the database",
+            "osPlatform": "Linux",
+            "constraints": {
+              "required": true,
+              "regex": "^[a-z0-9A-Z]{1,30}$",
+              "validationMessage": "Only alphanumeric characters are allowed, and the value must be 1-30 characters long."
+            }
+          },
+          {
+            "name": "db_password",
+            "type": "Microsoft.Common.PasswordBox",
+            "label": {
+              "password": "Password",
+              "confirmPassword": "Confirm password"
+            },
+            "toolTip": "Admin password for the database",
+            "constraints": {
+              "required": true,
+              "regex": "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{12,}$",
+              "validationMessage": "The password must contain at least 12 characters, with at least 1 uppercase letter, 1 lowercase letter and 1 number."
+            },
+            "options": {
+              "hideConfirmation": false
+            },
+            "visible": true
+          }
+        ]
+      }
+    ],
+    "outputs": {
+      "location": "[location()]",
+      "adminUsername": "[steps('vmCredential').virtualMachine.adminUsername]",
+      "adminPassword": "[steps('vmCredential').virtualMachine.adminPassword.password]",
+      "virtualNetworkName": "[steps('vmCredential').vnet.name]",
+      "virtualNetworkNewOrExisting": "[steps('vmCredential').vnet.newOrExisting]",
+      "virtualNetworkAddressPrefix": "[first(steps('vmCredential').vnet.addressPrefixes)]",
+      "virtualNetworkResourceGroup": "[steps('vmCredential').vnet.resourceGroup]",
+      "virtualMachineSize": "[steps('vmCredential').vmSku]",
+      "subnetName": "[steps('vmCredential').vnet.subnets.subnet1.name]",
+      "subnetAddressPrefix": "[steps('vmCredential').vnet.subnets.subnet1.addressPrefix]",
+      "xrayVersion": "[steps('xrayConfig').xrayVersion]",
+      "clusterName": "[steps('xrayConfig').clusterName]",
+      "artifactoryURL": "[steps('xrayConfig').artifactoryURL]",
+      "masterKey": "[steps('xrayConfig').masterKey]",
+      "joinKey": "[steps('xrayConfig').joinKey]",
+      "db_type": "[steps('databaseConfig').db_type]",
+      "db_server": "[steps('databaseConfig').db_server]",
+      "manual_db_url": "[steps('databaseConfig').manual_db_url]",
+      "db_user": "[steps('databaseConfig').db_user]",
+      "db_password": "[steps('databaseConfig').db_password]"
+    }
+  }
+}

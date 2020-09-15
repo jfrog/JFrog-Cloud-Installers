@@ -1,0 +1,18 @@
+---
+- hosts: database
+  collections:
+    - jfrog.installers
+  roles:
+    - postgres
+
+- hosts: artifactory
+  collections:
+    - jfrog.installers
+  roles:
+    - artifactory
+
+- hosts: xray
+  collections:
+    - jfrog.installers
+  roles:
+    - xray

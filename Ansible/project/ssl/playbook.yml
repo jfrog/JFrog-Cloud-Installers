@@ -1,9 +1,0 @@
----
-- hosts: database
-  roles:
-    - postgres
-
-- hosts: primary
-  roles:
-    - artifactory
-    - artifactory-nginx-ssl

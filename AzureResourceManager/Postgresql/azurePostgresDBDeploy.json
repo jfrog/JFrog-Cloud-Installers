@@ -1,0 +1,175 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "db_user": {
+      "type": "string",
+      "defaultValue": "xray",
+      "minLength": 1
+    },
+    "db_password": {
+      "type": "securestring"
+    },
+    "db_server": {
+      "type": "string",
+      "defaultValue": "xraypostgressrv",
+      "minLength": 1
+    },
+    "db_name": {
+      "type": "string",
+      "defaultValue": "xrayrtdb",
+      "minLength": 1
+    },
+    "db_location": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "skuCapacity": {
+      "type": "int",
+      "defaultValue": 2
+    },
+    "skuFamily": {
+      "type": "string",
+      "defaultValue": "Gen5"
+    },
+    "skuName": {
+      "type": "string",
+      "defaultValue": "GP_Gen5_2"
+    },
+    "skuSizeMB": {
+      "type": "int",
+      "defaultValue": 5120
+    },
+    "skuTier": {
+      "type": "string",
+      "defaultValue": "GeneralPurpose"
+    },
+    "version": {
+      "type": "string",
+      "defaultValue": "9.6"
+    },
+    "backupRetentionDays": {
+      "type": "int",
+      "defaultValue": 7
+    },
+    "geoRedundantBackup": {
+      "type": "string",
+      "defaultValue": "Disabled"
+    },
+    "databases": {
+      "type": "object",
+      "defaultValue":
+      {
+        "name": "xray",
+        "charset": "UTF8",
+        "collation": "English_United States.1252"
+      }
+    },
+    "sslEnforcement": {
+      "type": "string",
+      "allowedValues": [
+        "Enabled",
+        "Disabled"
+      ],
+      "defaultValue": "Disabled",
+      "metadata": {
+        "description": "SSL Enforcement"
+      }
+    },
+    "publicNetworkAccess": {
+      "type": "string",
+      "allowedValues": [
+        "Enabled",
+        "Disabled"
+      ],
+      "defaultValue": "Enabled",
+      "metadata": {
+        "description": "Public Network Access"
+      }
+    }
+  },
+  "variables": {
+    "db_location": "[if(equals(parameters('db_location'), ''), resourceGroup().location, parameters('db_location'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.DBforPostgreSQL/servers",
+      "apiVersion": "2017-12-01",
+      "location": "[variables('db_location')]",
+      "name": "[parameters('db_server')]",
+      "properties": {
+        "version": "[parameters('version')]",
+        "administratorLogin": "[parameters('db_user')]",
+        "administratorLoginPassword": "[parameters('db_password')]",
+        "publicNetworkAccess": "[parameters('publicNetworkAccess')]",
+        "sslEnforcement": "[parameters('sslEnforcement')]",
+        "storageProfile": {
+          "storageMB": "[parameters('skuSizeMB')]",
+          "backupRetentionDays": "[parameters('backupRetentionDays')]",
+          "geoRedundantBackup": "[parameters('geoRedundantBackup')]"
+        }
+      },
+      "sku": {
+        "name": "[parameters('skuName')]",
+        "tier": "[parameters('skuTier')]",
+        "capacity": "[parameters('skuCapacity')]",
+        "size": "[parameters('skuSizeMB')]",
+        "family": "[parameters('skuFamily')]"
+      },
+      "resources": [
+        {
+          "name": "[uniqueString(parameters('db_server'), 'AllowAllWindowsAzureIps' )]",
+          "type": "firewallRules",
+          "apiVersion": "2017-12-01",
+          "location": "[variables('db_location')]",
+          "dependsOn": [
+            "[resourceId('Microsoft.DBforPostgreSQL/servers', parameters('db_server'))]"
+          ],
+          "properties": {
+            "startIpAddress": "0.0.0.0",
+            "endIpAddress": "0.0.0.0"
+          }
+        },
+        {
+          "type": "Microsoft.DBforPostgreSQL/servers/databases",
+          "apiversion": "2017-12-01",
+          "name": "[concat(parameters('db_server'), '/', parameters('databases').properties[0].name)]",
+          "dependsOn": [
+            "[resourceId('Microsoft.DBforPostgreSQL/servers', parameters('db_server'))]"
+          ],
+          "properties": {
+            "charset": "[parameters('databases').properties[0].charset]",
+            "collation": "[parameters('databases').properties[0].collation]"
+          }
+        },
+        {
+          "type": "Microsoft.DBforPostgreSQL/servers/databases",
+          "apiversion": "2017-12-01",
+          "name": "[concat(parameters('db_server'), '/', parameters('databases').properties[1].name)]",
+          "condition": "[greater(length(parameters('databases').properties), 0)]",
+          "dependsOn": [
+            "[resourceId('Microsoft.DBforPostgreSQL/servers', parameters('db_server'))]"
+          ],
+          "properties": {
+            "charset": "[parameters('databases').properties[1].charset]",
+            "collation": "[parameters('databases').properties[1].collation]"
+          }
+        }
+      ]
+    }
+  ],
+  "outputs": {
+    "jdbcConnString": {
+      "type": "string",
+      "value": "[concat('jdbc:postgresql://', reference(concat('Microsoft.DBforPostgreSQL/servers/', parameters('db_server'))).fullyQualifiedDomainName, ':5432')]"
+    },
+    "dbServerName": {
+      "type": "string",
+      "value": "[parameters('db_server')]"
+    },
+    "xrayConnString": {
+      "type": "string",
+      "value": "[concat('postgres://', reference(concat('Microsoft.DBforPostgreSQL/servers/', parameters('db_server'))).fullyQualifiedDomainName, ':5432')]"
+    }
+  }
+}

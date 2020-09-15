@@ -1,0 +1,54 @@
+---
+- debug:
+    msg: "Performing upgrade of Xray..."
+
+- name: stop xray
+  service:
+    name: xray
+    state: stopped
+  become: yes
+
+- name: ensure jfrog_home_directory exists
+  file:
+    path: "{{ jfrog_home_directory }}"
+    state: directory
+  become: yes
+
+- name: download xray
+  unarchive:
+    src: "{{ xray_tar }}"
+    dest: "{{ jfrog_home_directory }}"
+    remote_src: yes
+    owner: "{{ xray_user }}"
+    group: "{{ xray_group }}"
+    creates: "{{ xray_untar_home }}"
+  become: yes
+  register: downloadxray
+  until: downloadxray is succeeded
+  retries: 3
+
+- name: Delete xray app
+  file:
+    path: "{{ xray_home }}/app"
+    state: absent
+  become: yes
+
+- name: CP new app to xray app
+  command: "cp -r {{ xray_untar_home }}/app {{ xray_home }}/app"
+  become: yes
+
+- name: Delete untar directory
+  file:
+    path: "{{ xray_untar_home }}"
+    state: absent
+  become: yes
+
+- name: create xray service
+  shell: "{{ xray_home }}/app/bin/installService.sh"
+  become: yes
+
+- name: start and enable xray
+  service:
+    name: xray
+    state: restarted
+  become: yes
