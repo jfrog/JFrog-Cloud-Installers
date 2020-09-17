@@ -1,6 +1,35 @@
-- name: perform installation
-  include_tasks: "install.yml"
-  when: not artifactory_upgrade_only
-- name: perform upgrade
-  include_tasks: "upgrade.yml"
-  when: artifactory_upgrade_only
+- name: Rectify Legacy Installation Block
+  block:
+    - name: Check symlink method
+      stat:
+        path: /opt/jfrog/artifactory/app
+      register: newMethod
+    - name: Check artifactory version
+      uri: 
+        url: "{{ web_method }}://{{ artifactory_server_url }}:{{ url_port }}/artifactory/api/system/version"
+        url_username: "{{ artifactory_app_username }}"
+        url_password: "{{ artifactory_app_user_pass }}"
+      register: artifactory_installed_version
+    - name: Debug defunct installation
+      debug:
+        var: artifactory_installed_version
+    - name: Setup temporary untar home
+      set_fact: 
+        temp_untar_home: "{{ jfrog_home_directory }}/artifactory-{{ artifactory_flavour }}-{{ artifactory_installed_version }}"
+    - name: Rectify legacy installation
+      include_tasks: "legacy_migration.yml"
+      when: (not newMethod.stat.islnk) and newMethod.stat.exists
+  rescue:
+    - name: Setup temporary untar home (assuming version is set var for version)
+      set_fact: 
+        temp_untar_home: "{{ jfrog_home_directory }}/artifactory-{{ artifactory_flavour }}-{{ artifactory_version }}"
+    - name: Rectify legacy installation
+      include_tasks: "legacy_migration.yml"
+      when: (not newMethod.stat.islnk) and newMethod.stat.exists
+  always:
+    - name: perform installation
+      include_tasks: "install.yml"
+      when: not artifactory_upgrade_only
+    - name: perform upgrade
+      include_tasks: "upgrade.yml"
+      when: artifactory_upgrade_only

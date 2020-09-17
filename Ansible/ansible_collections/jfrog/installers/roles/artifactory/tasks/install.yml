@@ -52,8 +52,30 @@
   until: downloadartifactory is succeeded
   retries: 3
 
-- name: MV untar directory to artifactory home
-  command: "mv {{ artifactory_untar_home }} {{ artifactory_home }}"
+- name: Create artifactory home folder
+  file:
+    state: directory
+    path: "{{ artifactory_home }}"
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+  become: yes
+
+- name: Create Symlinks for var folder
+  file:
+    state: link
+    src: "{{ artifactory_untar_home }}/var"
+    dest: "{{ artifactory_home }}/var"
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+  become: yes
+
+- name: Create Symlinks for app folder
+  file:
+    state: link
+    src: "{{ artifactory_untar_home }}/app"
+    dest: "{{ artifactory_home }}/app"
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
   become: yes
 
 - name: ensure artifactory_file_store_dir exists
