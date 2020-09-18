@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Upgrade version for every release
-XRAY_VERSION=3.8.2
+XRAY_VERSION=3.8.5
 
 export DEBIAN_FRONTEND=noninteractive
 
