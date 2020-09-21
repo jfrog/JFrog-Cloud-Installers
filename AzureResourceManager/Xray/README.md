@@ -14,7 +14,7 @@ This template can help you setup  [JFrog Xray](https://jfrog.com/xray/) on Azure
 2. Deployed Postgresql instance (if "existing DB" is selected as a parameter).
 
 ## Postgresql deployment
-Xray could fail to connect to "out of the box" Azure Postgresql. You can deploy a compatible Postgresql instance using this link:
+You can deploy a compatible Postgresql instance using this link:
 
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjfrog%2FJFrog-Cloud-Installers%2Farm-xray%2FAzureResourceManager%2FPostgresql%2FazurePostgresDBDeploy.json" target="_blank">
 <img src="https://aka.ms/deploytoazurebutton"/>
@@ -33,16 +33,6 @@ In the Databases field, use the object:
     ]
   }
 ```
-Before deploying Xray, please do following steps:
-1. Use the admin role given by Azure that you initially connected with to PSDB (for example xray) - Remember the password of this role to connect when setting up with Xray.
-
-2. Create a new role named xray@{hostname}, where {hostname} is a DB server name. 
-
-3. Add xray@{hostname} membership to the base Azure user. In the client tab (PgAdmin for example) right click on properties of role "azure_pg_admin" and under Membership tab, add the relevant "xray@{hostname}", click on the checkbox on the tag, save.
-
-4. Change ownership of Xray database. Right click On the name of the database and change owner to "xray@{hostname}"
-
-After these steps are done, run Xray deployment. 
 
 ## Installation
 1. Click "Deploy to Azure" button. If you don't have an Azure subscription, it will guide you on how to signup for a free trial.
