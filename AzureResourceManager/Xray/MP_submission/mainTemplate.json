@@ -183,6 +183,7 @@
     "publicIPAddressType": "Dynamic",
     "db_server": "[parameters('db_server')]",
     "db_user": "[concat(parameters('db_user'), '@', parameters('db_server'))]",
+    "actual_db_user": "[parameters('db_user')]",
     "db_password": "[parameters('db_password')]",
     "db_location": "[parameters('location')]",
     "db_name": "[parameters('databases').properties[0].name]",
@@ -352,7 +353,7 @@
             "computerNamePrefix": "[variables('namingInfix')]",
             "adminUsername": "[parameters('adminUsername')]",
             "adminPassword": "[parameters('adminPassword')]",
-            "customData": "[base64(concat('#INSTALL SCRIPT INPUTS\nXRAY_VERSION=', parameters('xrayVersion'),'\nARTIFACTORY_URL=',variables('artifactoryURL'),'\nDB_SERVER=',variables('db_server'),'\nDB_NAME=',variables('db_name'),'\nDB_ADMIN_USER=',variables('db_user'),'\nDB_ADMIN_PASSWD=',variables('db_password'),'\nMASTER_KEY=',variables('masterKey'),'\nJOIN_KEY=',variables('joinKey'),'\n'))]"
+            "customData": "[base64(concat('#INSTALL SCRIPT INPUTS\nXRAY_VERSION=', parameters('xrayVersion'),'\nARTIFACTORY_URL=',variables('artifactoryURL'),'\nDB_SERVER=',variables('db_server'),'\nDB_NAME=',variables('db_name'),'\nDB_ADMIN_USER=',variables('db_user'),'\nACTUAL_DB_ADMIN_USER=',variables('actual_db_user'),'\nDB_ADMIN_PASSWD=',variables('db_password'),'\nMASTER_KEY=',variables('masterKey'),'\nJOIN_KEY=',variables('joinKey'),'\n'))]"
           },
           "networkProfile": {
             "networkInterfaceConfigurations": [
