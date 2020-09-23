@@ -1,0 +1,3093 @@
+NAME: pipelines
+LAST DEPLOYED: Wed Sep 23 10:16:50 2020
+NAMESPACE: default
+STATUS: pending-install
+REVISION: 1
+TEST SUITE: None
+USER-SUPPLIED VALUES:
+pipelines:
+  global:
+    postgresql:
+      database: pipelinesdb
+      host: postgres-postgresql
+      password: password
+      port: 5432
+      ssl: false
+      user: artifactory
+  pipelines:
+    accessControlAllowOrigins_0: http://openshiftartifactoryha-nginx
+    accessControlAllowOrigins_1: http://openshiftartifactoryha-nginx
+    api:
+      externalUrl: http://pipelines-api.jfrog.tech
+    jfrogUrl: http://openshiftartifactoryha-nginx
+    jfrogUrlUI: http://openshiftartifactoryha-nginx
+    joinKey: EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
+    masterKey: FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+    msg:
+      uiUser: monitor
+      uiUserPassword: monitor
+    www:
+      externalUrl: http://pipelines-www.jfrog.tech
+  postgresql:
+    enabled: false
+  rabbitmq:
+    externalUrl: amqps://pipelines-rabbit.jfrog.tech
+    rabbitmq:
+      password: guest
+      username: guest
+
+COMPUTED VALUES:
+pipelines:
+  buildPlane:
+    dynamic:
+      customer:
+        accountId: ""
+        nodePoolName: ""
+        nodelimit: ""
+      provider:
+        aws:
+          accessKey: ""
+          enabled: false
+          existingSecret: null
+          instanceType: c4.xlarge
+          keyPairName: testaccountSSHKeyPair
+          nodePoolName: aws-dynamic-node-pool
+          nodelimit: "3"
+          region: us-east-1
+          secretKey: ""
+          securityGroupId: testsecuritygroupId
+          subnetId: test-subnetId
+          vpcId: testVPCId
+        k8s:
+          cpu: "1"
+          enabled: false
+          existingSecret: null
+          kubeconfig: ""
+          labels: null
+          memory: "1000"
+          namespace: default
+          nodePoolName: k8s-dynamic-node-pool
+          nodelimit: "3"
+          storageClass: standard
+  existingSecret: null
+  filebeat:
+    enabled: false
+    filebeatYml: |
+      logging.level: info
+      path.data: {{ .Values.pipelines.logPath }}/filebeat
+      name: pipelines-filebeat
+      queue.spool: ~
+      filebeat.inputs:
+      - type: log
+        enabled: true
+        close_eof: ${CLOSE:false}
+        paths:
+           - {{ .Values.pipelines.logPath }}/*.log
+        fields:
+          service: "jfpip"
+          log_type: "pipelines"
+      output:
+        logstash:
+           hosts: ["{{ .Values.filebeat.logstashUrl }}"]
+    image:
+      repository: docker.elastic.co/beats/filebeat
+      version: 7.5.1
+    livenessProbe:
+      exec:
+        command:
+        - sh
+        - -c
+        - |
+          #!/usr/bin/env bash -e
+          curl --fail 127.0.0.1:5066
+      failureThreshold: 3
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      timeoutSeconds: 5
+    logstashUrl: logstash:5044
+    name: pipelines-filebeat
+    readinessProbe:
+      exec:
+        command:
+        - sh
+        - -c
+        - |
+          #!/usr/bin/env bash -e
+          filebeat test output
+      failureThreshold: 3
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      timeoutSeconds: 5
+    resources: {}
+    terminationGracePeriod: 10
+  global:
+    postgresql:
+      database: pipelinesdb
+      host: postgres-postgresql
+      password: password
+      port: 5432
+      ssl: false
+      user: artifactory
+    vault:
+      host: OVERRIDE
+      port: OVERRIDE
+      token: OVERRIDE
+  imagePullSecrets: null
+  imageRegistry: registry.connect.redhat.com
+  initContainer:
+    image: quay.io/jfrog/init:1.0.0
+    pullPolicy: IfNotPresent
+  pipelines:
+    accessControlAllowOrigins_0: http://openshiftartifactoryha-nginx
+    accessControlAllowOrigins_1: http://openshiftartifactoryha-nginx
+    affinity: {}
+    api:
+      externalUrl: http://pipelines-api.jfrog.tech
+      image:
+        pullPolicy: IfNotPresent
+        repository: jfrog/pipelines-api
+      ingress:
+        annotations: {}
+        enabled: false
+        hosts:
+        - chart-example.local
+        path: /
+        tls: []
+      resources: {}
+      service:
+        annotations: null
+        loadBalancerIP: null
+        loadBalancerSourceRanges: []
+        port: 30000
+        type: ClusterIP
+    artifactoryServiceId: FFFFFFFFFFFF
+    authToken: c7595edd-b63d-4fd6-9e1e-13924d6637f0
+    autoscaling:
+      enabled: false
+      maxReplicas: 3
+      minReplicas: 1
+      targetCPUUtilizationPercentage: 70
+    configMaps: ""
+    cron:
+      image:
+        pullPolicy: IfNotPresent
+        repository: jfrog/pipelines-micro
+      resources: {}
+    customInitContainers: |
+      - name: "redhat-custom-setup"
+        image: quay.io/jfrog/init:1.0.0
+        imagePullPolicy: Always
+        command:
+          - 'sh'
+          - '-c'
+          - 'chown -R 1117:1117 /opt/jfrog/pipelines/var/etc'
+        securityContext:
+            runAsUser: 0
+        volumeMounts:
+          - mountPath: "/opt/jfrog/pipelines/var/etc"
+            name: volume
+    customSidecarContainers: ""
+    customVolumeMounts: ""
+    customVolumes: ""
+    extensionSync:
+      image:
+        pullPolicy: IfNotPresent
+        repository: jfrog/pipelines-micro
+      resources: {}
+    hookHandler:
+      image:
+        pullPolicy: IfNotPresent
+        repository: jfrog/pipelines-micro
+      resources: {}
+    jfrogUrl: http://openshiftartifactoryha-nginx
+    jfrogUrlUI: http://openshiftartifactoryha-nginx
+    joinKey: EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
+    licenseId: FFFFFFFFF
+    logPath: /opt/jfrog/pipelines/var/log
+    logup:
+      image:
+        pullPolicy: IfNotPresent
+        repository: jfrog/pipelines-micro
+      resources: {}
+    marshaller:
+      image:
+        pullPolicy: IfNotPresent
+        repository: jfrog/pipelines-micro
+      resources: {}
+    masterKey: FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+    mountPath: /opt/jfrog/pipelines/var/etc
+    msg:
+      uiUser: monitor
+      uiUserPassword: monitor
+    nexec:
+      image:
+        pullPolicy: IfNotPresent
+        repository: jfrog/pipelines-micro
+      resources: {}
+    nodeSelector: {}
+    pipelineSync:
+      image:
+        pullPolicy: IfNotPresent
+        repository: jfrog/pipelines-micro
+      resources: {}
+    pipelinesInit:
+      image:
+        pullPolicy: IfNotPresent
+        repository: jfrog/pipelines-installer
+      resources: {}
+    rabbitmqHealthCheckIntervalInMins: 1
+    rbac:
+      role:
+        rules:
+        - apiGroups:
+          - ""
+          - extensions
+          - apps
+          resources:
+          - deployments
+          - persistentvolumes
+          - persistentvolumeclaims
+          - pods
+          - deployments/scale
+          verbs:
+          - '*'
+    replicaCount: 1
+    rootBucket: jfrogpipelines
+    router:
+      externalPort: 8082
+      image:
+        pullPolicy: IfNotPresent
+        repository: jfrog/pipelines-router
+      internalPort: 8046
+      mountPath: /opt/jfrog/router/var/etc
+      resources: {}
+    runTrigger:
+      image:
+        pullPolicy: IfNotPresent
+        repository: jfrog/pipelines-micro
+      resources: {}
+    serviceId: jfpip@12345
+    stepTrigger:
+      image:
+        pullPolicy: IfNotPresent
+        repository: jfrog/pipelines-micro
+      resources: {}
+    systemYaml: |
+      shared:
+        ## Artifactory configuration
+        ##
+        artifactory:
+          ## Artifactory URL
+          ##
+          baseUrl: "{{ tpl (required "\n\npipelines.jfrogUrl is required!\n" .Values.pipelines.jfrogUrl) . }}"
+          ## Unified UI URL
+          ##
+          baseUrlUI: "{{ tpl (required "\n\npipelines.jfrogUrlUI is required!\n" .Values.pipelines.jfrogUrlUI) . }}"
+          ## Pipelines Service ID
+          ##
+          serviceId: "{{ .Values.pipelines.serviceId }}"
+          ## Artifactory Service ID
+          ##
+          artifactoryServiceId: "{{ .Values.pipelines.artifactoryServiceId }}"
+          ## Artifactory License ID
+          ##
+          licenseId: "{{ .Values.pipelines.licenseId }}"
+          ## Proxy to connect to Artifactory
+          ##
+          proxy:
+            url: ""
+            username: ""
+            password: ""
+
+        ## Router configuration
+        ##
+        router:
+          ip: ""
+          accessPort: {{ .Values.pipelines.router.internalPort }}
+          dataPort: {{ .Values.pipelines.router.externalPort }}
+          joinKey: "{{ .Values.pipelines.joinKey }}"
+
+        security:
+          masterKey: "{{ .Values.pipelines.masterKey }}"
+
+        ## Database configuration
+        ##
+        db:
+          type: "postgres"
+          {{- if .Values.postgresql.enabled }}
+          ip: {{ tpl .Release.Name . }}-postgresql
+          port: "{{ .Values.postgresql.service.port }}"
+          name: {{ .Values.postgresql.postgresqlDatabase }}
+          username: {{ .Values.postgresql.postgresqlUsername }}
+          password: {{ .Values.postgresql.postgresqlPassword }}
+          {{- else }}
+          ip: {{ tpl .Values.global.postgresql.host . }}
+          port: "{{ .Values.global.postgresql.port }}"
+          name: {{ .Values.global.postgresql.database }}
+          username: {{ .Values.global.postgresql.user }}
+          password: {{ .Values.global.postgresql.password }}
+          {{- end }}
+          externalUrl: ""
+          {{- if .Values.postgresql.enabled }}
+          connectionString: "{{ tpl (printf "postgres://%s:%s@%s-postgresql:%v/%s" .Values.postgresql.postgresqlUsername .Values.postgresql.postgresqlPassword .Release.Name .Values.postgresql.service.port .Values.postgresql.postgresqlDatabase) . }}"
+          {{- else if and (not .Values.postgresql.enabled) (.Values.global.postgresql.ssl) }}
+          connectionString: "{{ tpl (printf "postgres://%s:%s@%v:%v/%s?sslmode=require" .Values.global.postgresql.user .Values.global.postgresql.password .Values.global.postgresql.host .Values.global.postgresql.port .Values.global.postgresql.database) . }}"
+          {{- else }}
+          connectionString: "{{ tpl (printf "postgres://%s:%s@%v:%v/%s" .Values.global.postgresql.user .Values.global.postgresql.password .Values.global.postgresql.host .Values.global.postgresql.port .Values.global.postgresql.database) . }}"
+          {{- end }}
+
+        ## RabbitMQ configuration
+        ##
+        msg:
+          {{- if .Values.rabbitmq.enabled }}
+          ip: {{ .Release.Name }}-rabbitmq
+          port: {{ .Values.rabbitmq.service.port }}
+          adminPort: {{ .Values.rabbitmq.service.managerPort }}
+          erlangCookie: {{ .Values.rabbitmq.rabbitmq.erlangCookie }}
+          username: {{ .Values.rabbitmq.rabbitmq.username }}
+          password: {{ .Values.rabbitmq.rabbitmq.password }}
+          defaultExchange: pipelinesEx
+          amqpVhost: pipelines
+          amqpRootVhost: pipelinesRoot
+          {{- else }}
+          ip: {{ tpl .Values.rabbitmq.internal_ip . }}
+          port: {{ .Values.rabbitmq.port}}
+          adminPort: {{ .Values.rabbitmq.manager_port }}
+          erlangCookie: {{ .Values.rabbitmq.erlang_cookie }}
+          username: {{ .Values.rabbitmq.ms_username }}
+          password: {{ .Values.rabbitmq.ms_password }}
+          defaultExchange: {{ .Values.rabbitmq.root_vhost_exchange_name }}
+          amqpVhost: {{ .Values.rabbitmq.build_vhost_name}}
+          amqpRootVhost: {{ .Values.rabbitmq.root_vhost_name }}
+          protocol: {{ .Values.rabbitmq.protocol }}
+          {{- end }}
+          queues:
+            - "core.pipelineSync"
+            - "core.runTrigger"
+            - "core.stepTrigger"
+            - "core.marshaller"
+            - "cluster.init"
+            - "core.logup"
+            - "www.signals"
+            - "core.nexec"
+            - "core.hookHandler"
+            - "core.extensionSync"
+          ui:
+            {{- if .Values.rabbitmq.enabled }}
+            username: {{ .Values.pipelines.msg.uiUser }}
+            password: {{ .Values.pipelines.msg.uiUserPassword }}
+            {{- else }}
+            protocol: http
+            username: {{ .Values.rabbitmq.cp_username }}
+            password: {{ .Values.rabbitmq.cp_password }}
+            {{- end }}
+          external:
+            ## URL for build plane VMs to access RabbitMQ
+            {{- if .Values.rabbitmq.externalUrl }}
+            url: {{ .Values.rabbitmq.externalUrl }}
+            {{- else if (and .Values.rabbitmq.serviceVmLb.enabled .Values.rabbitmq.serviceVmLb.loadBalancerIP) }}
+            url: amqp://{{ .Values.rabbitmq.serviceVmLb.loadBalancerIP }}
+            {{- else if .Values.rabbitmq.enabled }}
+            url: amqp://{{ tpl .Release.Name . }}-rabbitmq
+            {{- else }}
+            url: {{ .Values.rabbitmq.protocol }}://{{ tpl .Values.rabbitmq.msg_hostname . }}:{{ .Values.rabbitmq.port }}
+            {{- end }}
+            rootUrl: ""
+            adminUrl: ""
+          {{- if not .Values.rabbitmq.enabled }}
+          build:
+            username: {{ .Values.rabbitmq.build_username }}
+            password: {{ .Values.rabbitmq.build_password }}
+          {{- end }}
+
+        ## Vault configuration
+        ##
+        vault:
+          {{- if .Values.vault.enabled }}
+          ip: {{ include "pipelines.vault.name" . }}
+          port: {{ .Values.vault.service.port }}
+          {{- else }}
+          ip: {{ .Values.global.vault.host }}
+          port: {{ .Values.global.vault.port }}
+          {{- end }}
+          ## DO NOT CHANGE THE TOKEN VALUE!!!
+          token: "_VAULT_TOKEN_"
+          unsealKeys:
+            - ""
+            - ""
+            - ""
+            - ""
+            - ""
+
+        ## Redis configuration
+        ##
+        redis:
+          ip: {{ .Release.Name }}-redis-master
+          port: 6379
+          clusterEnabled: false
+
+      ## This section is used for bringing up the core services and setting up
+      ## configurations required by the installer & the services
+      ##
+      core:
+        ## id is automatically determined based on the current hostname
+        ## or set using the SHARED_NODE_ID environment variable.
+        ##
+        id: "afd8df9d08bf257ae9b7d7dbbf348b7a3a574ebdd3a61d350d4b64e3129dee85"
+        installerIP: "1.2.3.4"
+        installerAuthToken: "{{ .Values.pipelines.authToken }}"
+        installerImage: "jfrog/pipelines-installer"
+        registryUrl: "{{ .Values.imageRegistry }}"
+        os: "Ubuntu_16.04"
+        osDistribution: "xenial"
+        architecture: "x86_64"
+        dockerVersion: ""
+        runMode: "{{ .Values.runMode }}"
+        user: ""
+        group: ""
+        noVerifySsl: false
+        ignoreTLSErrors: false
+        controlplaneVersion: "{{ default .Chart.AppVersion .Values.pipelines.version }}"
+        buildplaneVersion: "{{ default .Chart.AppVersion .Values.pipelines.version }}"
+        accessControlAllowOrigins:
+          - {{ .Values.pipelines.accessControlAllowOrigins_0 }}
+          - {{ .Values.pipelines.accessControlAllowOrigins_1 }}
+        rabbitmqHealthCheckIntervalInMins: {{ .Values.pipelines.rabbitmqHealthCheckIntervalInMins}}
+        ## Global proxy settings, to be applied to all services
+        ##
+        proxy:
+          httpProxy: ""
+          httpsProxy: ""
+          noProxy: ""
+          username: ""
+          password: ""
+
+        ## Mailserver settings
+        ##
+        mailserver:
+          host: ""
+          port: ""
+          username: ""
+          password: ""
+          tls: ""
+          ssl: ""
+        apiRetryIntervalMs: 3000
+        accountSyncFrequencyHr: 1
+        imageRegistrySecret: "{{ .Values.imagePullSecrets }}"
+        hardDeleteIntervalInMins: 60
+        configBackupCount: 5
+        lastUpdateTime: ""
+        callHomeUrl:  "https://api.bintray.com/products/jfrog/pipelines/stats/usage"
+        allowCallHome: true
+        serviceInstanceHealthCheckIntervalInMins: 1
+        serviceInstanceStatsCutOffIntervalInHours: 24
+
+        ## Service configuration
+        ##
+        services:
+          api:
+            name: {{ include "pipelines.api.name" . }}
+            port: {{ .Values.pipelines.api.service.port }}
+            {{- if (and .Values.pipelines.api.ingress.enabled .Values.pipelines.api.ingress.tls) }}
+            {{- range .Values.pipelines.api.ingress.hosts }}
+            externalUrl: https://{{ . }}
+            {{- end }}
+            {{- else if .Values.pipelines.api.ingress.enabled }}
+            {{- range .Values.pipelines.api.ingress.hosts }}
+            externalUrl: http://{{ . }}
+            {{- end }}
+            {{- else }}
+            externalUrl: {{ .Values.pipelines.api.externalUrl }}
+            {{- end }}
+          www:
+            name: {{ include "pipelines.www.name" . }}
+            port: {{ .Values.pipelines.www.service.port }}
+            {{- if (and .Values.pipelines.www.ingress.enabled .Values.pipelines.www.ingress.tls) }}
+            {{- range .Values.pipelines.www.ingress.hosts }}
+            externalUrl: https://{{ . }}
+            {{- end }}
+            {{- else if .Values.pipelines.www.ingress.enabled }}
+            {{- range .Values.pipelines.www.ingress.hosts }}
+            externalUrl: http://{{ . }}
+            {{- end }}
+            {{- else }}
+            externalUrl: {{ .Values.pipelines.www.externalUrl }}
+            {{- end }}
+            sessionSecret: "{{ .Values.pipelines.authToken }}"
+          pipelineSync:
+            name: pipelineSync
+          runTrigger:
+            name: runTrigger
+          stepTrigger:
+            name: stepTrigger
+          cron:
+            name: cron
+          nexec:
+            name: nexec
+          hookHandler:
+            name: hookHandler
+          marshaller:
+            name: marshaller
+          extensionSync:
+            name: extensionSync
+
+      ## Runtime configuration
+      ##
+      runtime:
+        rootBucket: "{{ .Values.pipelines.rootBucket }}"
+        defaultMinionCount: 1
+        nodeCacheIntervalMS: 600000
+        jobConsoleBatchSize: 10
+        jobConsoleBufferIntervalMs: 3
+        maxDiskUsagePercentage: 90
+        stepTimeoutMS: 3600000
+        nodeStopDayOfWeek: 0
+        nodeStopIntervalDays: 30
+        maxNodeCheckInDelayMin: 15
+        defaultMinionInstanceSize: "c4.large"
+        allowDynamicNodes: true
+        allowCustomNodes: true
+        {{- range $key, $value := .Values.runtimeOverride }}
+        {{ $key }}: {{ $value | quote }}
+        {{- end }}
+        languageImages:
+          - architecture: x86_64
+            os: Ubuntu_16.04
+            language: node
+            registryUrl: docker.bintray.io
+            image: jfrog/pipelines-u16node
+            isDefault: true
+            defaultVersion: 10.18.0
+          - architecture: x86_64
+            os: Ubuntu_16.04
+            language: java
+            registryUrl: docker.bintray.io
+            image: jfrog/pipelines-u16java
+            defaultVersion: 13
+          - architecture: x86_64
+            os: Ubuntu_16.04
+            language: cpp
+            registryUrl: docker.bintray.io
+            image: jfrog/pipelines-u16cpp
+            defaultVersion: 9.0.0
+          - architecture: x86_64
+            os: Ubuntu_16.04
+            language: go
+            registryUrl: docker.bintray.io
+            image: jfrog/pipelines-u16go
+            defaultVersion: 1.12.14
+          - architecture: x86_64
+            os: Ubuntu_18.04
+            language: node
+            registryUrl: docker.bintray.io
+            image: jfrog/pipelines-u18node
+            isDefault: true
+            defaultVersion: 10.18.0
+          - architecture: x86_64
+            os: Ubuntu_18.04
+            language: java
+            registryUrl: docker.bintray.io
+            image: jfrog/pipelines-u18java
+            defaultVersion: 13
+          - architecture: x86_64
+            os: Ubuntu_18.04
+            language: cpp
+            registryUrl: docker.bintray.io
+            image: jfrog/pipelines-u18cpp
+            defaultVersion: 9.0.0
+          - architecture: x86_64
+            os: Ubuntu_18.04
+            language: go
+            registryUrl: docker.bintray.io
+            image: jfrog/pipelines-u18go
+            defaultVersion: 1.12.14
+          - architecture: x86_64
+            os: CentOS_7
+            language: node
+            registryUrl: docker.bintray.io
+            image: jfrog/pipelines-c7node
+            isDefault: true
+            defaultVersion: 10.18.0
+          - architecture: x86_64
+            os: CentOS_7
+            language: java
+            registryUrl: docker.bintray.io
+            image: jfrog/pipelines-c7java
+            defaultVersion: 11
+          - architecture: x86_64
+            os: CentOS_7
+            language: cpp
+            registryUrl: docker.bintray.io
+            image: jfrog/pipelines-c7cpp
+            defaultVersion: 3.4.2
+          - architecture: x86_64
+            os: CentOS_7
+            language: go
+            registryUrl: docker.bintray.io
+            image: jfrog/pipelines-c7go
+            defaultVersion: 1.12.14
+          - architecture: x86_64
+            os: WindowsServer_2019
+            language: node
+            registryUrl: docker.bintray.io
+            image: jfrog/pipelines-w19node
+            defaultVersion: 10.18.0
+          - architecture: x86_64
+            os: WindowsServer_2019
+            language: java
+            registryUrl: docker.bintray.io
+            image: jfrog/pipelines-w19java
+            defaultVersion: 11
+          - architecture: x86_64
+            os: WindowsServer_2019
+            language: cpp
+            registryUrl: docker.bintray.io
+            image: jfrog/pipelines-w19cpp
+            defaultVersion: 9.0.0
+          - architecture: x86_64
+            os: WindowsServer_2019
+            language: go
+            registryUrl: docker.bintray.io
+            image: jfrog/pipelines-w19go
+            defaultVersion: 1.12.14
+          - architecture: x86_64
+            os: WindowsServer_2019
+            language: dotnetcore
+            registryUrl: docker.bintray.io
+            image: jfrog/pipelines-w19dotnetcore
+            isDefault: true
+            defaultVersion: 3.1
+          - architecture: x86_64
+            os: RHEL_7
+            language: node
+            registryUrl: docker.bintray.io
+            image: jfrog/pipelines-c7node
+            isDefault: true
+            defaultVersion: 10.18.0
+          - architecture: x86_64
+            os: RHEL_7
+            language: java
+            registryUrl: docker.bintray.io
+            image: jfrog/pipelines-c7java
+            defaultVersion: 11
+          - architecture: x86_64
+            os: RHEL_7
+            language: cpp
+            registryUrl: docker.bintray.io
+            image: jfrog/pipelines-c7cpp
+            defaultVersion: 3.4.2
+          - architecture: x86_64
+            os: RHEL_7
+            language: go
+            registryUrl: docker.bintray.io
+            image: jfrog/pipelines-c7go
+            defaultVersion: 1.12.14
+    tolerations: []
+    updateStrategy: RollingUpdate
+    version: 1.7.1
+    www:
+      externalUrl: http://pipelines-www.jfrog.tech
+      image:
+        pullPolicy: IfNotPresent
+        repository: jfrog/pipelines-www
+      ingress:
+        annotations: {}
+        enabled: false
+        hosts:
+        - chart-example.local
+        path: /
+        tls: []
+      resources: {}
+      service:
+        annotations: null
+        loadBalancerIP: null
+        loadBalancerSourceRanges: []
+        port: 30001
+        type: ClusterIP
+  postgresql:
+    enabled: false
+    extraEnv: []
+    global:
+      postgresql:
+        database: pipelinesdb
+        host: null
+        password: ""
+        port: 5432
+        ssl: false
+        user: apiuser
+      vault:
+        host: null
+        port: null
+        token: null
+    image:
+      debug: false
+      pullPolicy: IfNotPresent
+      registry: docker.bintray.io
+      repository: bitnami/postgresql
+      tag: 9.6.18-debian-10-r7
+    ldap:
+      baseDN: ""
+      bind_password: null
+      bindDN: ""
+      enabled: false
+      port: ""
+      prefix: ""
+      scheme: ""
+      search_attr: ""
+      search_filter: ""
+      server: ""
+      suffix: ""
+      tls: false
+      url: ""
+    livenessProbe:
+      enabled: true
+      failureThreshold: 6
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 5
+    master:
+      affinity: {}
+      annotations: {}
+      extraInitContainers: []
+      extraVolumeMounts: []
+      extraVolumes: []
+      labels: {}
+      nodeSelector: {}
+      podAnnotations: {}
+      podLabels: {}
+      priorityClassName: ""
+      resources: {}
+      service: {}
+      sidecars: []
+      tolerations: []
+    metrics:
+      enabled: false
+      image:
+        pullPolicy: IfNotPresent
+        registry: docker.io
+        repository: bitnami/postgres-exporter
+        tag: 0.8.0-debian-10-r72
+      livenessProbe:
+        enabled: true
+        failureThreshold: 6
+        initialDelaySeconds: 5
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 5
+      prometheusRule:
+        additionalLabels: {}
+        enabled: false
+        namespace: ""
+        rules: []
+      readinessProbe:
+        enabled: true
+        failureThreshold: 6
+        initialDelaySeconds: 5
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 5
+      securityContext:
+        enabled: false
+        runAsUser: 1001
+      service:
+        annotations:
+          prometheus.io/port: "9187"
+          prometheus.io/scrape: "true"
+        loadBalancerIP: null
+        type: ClusterIP
+      serviceMonitor:
+        additionalLabels: {}
+        enabled: false
+    networkPolicy:
+      allowExternal: true
+      enabled: false
+      explicitNamespacesSelector: {}
+    persistence:
+      accessModes:
+      - ReadWriteOnce
+      annotations: {}
+      enabled: true
+      existingClaim: null
+      mountPath: /bitnami/postgresql
+      size: 50Gi
+      subPath: ""
+    postgresqlDataDir: /bitnami/postgresql/data
+    postgresqlDatabase: pipelinesdb
+    postgresqlPassword: ""
+    postgresqlUsername: apiuser
+    readinessProbe:
+      enabled: true
+      failureThreshold: 6
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 5
+    replication:
+      applicationName: my_application
+      enabled: false
+      numSynchronousReplicas: 0
+      password: repl_password
+      slaveReplicas: 1
+      synchronousCommit: "off"
+      user: repl_user
+    resources:
+      requests:
+        cpu: 250m
+        memory: 256Mi
+    securityContext:
+      enabled: true
+      fsGroup: 1001
+      runAsUser: 1001
+    service:
+      annotations: {}
+      port: 5432
+      type: ClusterIP
+    serviceAccount:
+      enabled: false
+    shmVolume:
+      chmod:
+        enabled: true
+      enabled: true
+    slave:
+      affinity: {}
+      annotations: {}
+      extraInitContainers: |
+        # - name: do-something
+        #   image: busybox
+        #   command: ['do', 'something']
+      extraVolumeMounts: []
+      extraVolumes: []
+      labels: {}
+      nodeSelector: {}
+      podAnnotations: {}
+      podLabels: {}
+      priorityClassName: ""
+      service: {}
+      sidecars: []
+      tolerations: []
+    updateStrategy:
+      type: RollingUpdate
+    volumePermissions:
+      enabled: false
+      image:
+        pullPolicy: Always
+        registry: docker.io
+        repository: bitnami/minideb
+        tag: buster
+      securityContext:
+        runAsUser: 0
+  rabbitmq:
+    affinity: {}
+    enabled: true
+    externalUrl: amqps://pipelines-rabbit.jfrog.tech
+    extraSecrets: {}
+    extraVolumeMounts: []
+    extraVolumes: []
+    forceBoot:
+      enabled: false
+    global:
+      postgresql:
+        database: pipelinesdb
+        host: postgres-postgresql
+        password: password
+        port: 5432
+        ssl: false
+        user: artifactory
+      vault:
+        host: OVERRIDE
+        port: OVERRIDE
+        token: OVERRIDE
+    image:
+      debug: false
+      pullPolicy: IfNotPresent
+      registry: registry.connect.redhat.com
+      repository: jfrog/xray-rabbitmq
+      tag: 3.8.6
+    ingress:
+      annotations: null
+      enabled: false
+      path: /
+      tls: true
+      tlsSecret: OVERRIDE
+    ldap:
+      enabled: false
+      port: "389"
+      server: ""
+      tls:
+        enabled: false
+      user_dn_pattern: cn=${username},dc=example,dc=org
+    livenessProbe:
+      commandOverride: []
+      enabled: true
+      failureThreshold: 6
+      initialDelaySeconds: 120
+      periodSeconds: 30
+      successThreshold: 1
+      timeoutSeconds: 20
+    metrics:
+      enabled: false
+      plugins: rabbitmq_prometheus
+      podAnnotations:
+        prometheus.io/port: '{{ .Values.metrics.port }}'
+        prometheus.io/scrape: "true"
+      port: 9419
+      prometheusRule:
+        additionalLabels: {}
+        enabled: false
+        namespace: ""
+        rules: []
+      serviceMonitor:
+        additionalLabels: {}
+        enabled: false
+        honorLabels: false
+        interval: 30s
+    networkPolicy:
+      allowExternal: true
+      enabled: false
+    nodeSelector: {}
+    persistence:
+      accessMode: ReadWriteOnce
+      enabled: true
+      path: /opt/bitnami/rabbitmq/var/lib/rabbitmq
+      size: 20Gi
+    podAnnotations: {}
+    podDisruptionBudget: {}
+    podLabels: {}
+    podManagementPolicy: OrderedReady
+    protocol: amqps
+    rabbitmq:
+      advancedConfiguration: ""
+      clustering:
+        address_type: hostname
+        k8s_domain: cluster.local
+        rebalance: false
+      configuration: |-
+        ## Clustering
+        cluster_formation.peer_discovery_backend  = rabbit_peer_discovery_k8s
+        cluster_formation.k8s.host = kubernetes.default.svc.cluster.local
+        cluster_formation.node_cleanup.interval = 10
+        cluster_formation.node_cleanup.only_log_warning = true
+        cluster_partition_handling = autoheal
+        # queue master locator
+        queue_master_locator=min-masters
+        # enable guest user
+        loopback_users.guest = false
+      env: {}
+      erlangCookie: PIPELINESRABBITMQCLUSTER
+      extraConfiguration: |-
+        #disk_free_limit.absolute = 50MB
+        #management.load_definitions = /app/load_definition.json
+      extraPlugins: ""
+      loadDefinition:
+        enabled: false
+        secretName: load-definition
+      logs: '-'
+      maxAvailableSchedulers: 2
+      onlineSchedulers: 1
+      password: guest
+      plugins: rabbitmq_management rabbitmq_peer_discovery_k8s
+      setUlimitNofiles: true
+      tls:
+        caCertificate: ""
+        enabled: false
+        failIfNoPeerCert: true
+        serverCertificate: ""
+        serverKey: ""
+        sslOptionsVerify: verify_peer
+      ulimitNofiles: "65536"
+      username: guest
+    rbacEnabled: true
+    readinessProbe:
+      commandOverride: []
+      enabled: true
+      failureThreshold: 3
+      initialDelaySeconds: 10
+      periodSeconds: 30
+      successThreshold: 1
+      timeoutSeconds: 20
+    replicas: 1
+    resources: {}
+    securityContext:
+      enabled: true
+      extra: {}
+      fsGroup: 1001
+      runAsUser: 1001
+    service:
+      annotations: {}
+      distPort: 25672
+      managerPort: 15672
+      port: 5672
+      tlsPort: 5671
+      type: ClusterIP
+    serviceVmLb:
+      annotations: null
+      enabled: false
+      loadBalancerIP: null
+      loadBalancerSourceRanges: []
+    tolerations: []
+    updateStrategy:
+      type: RollingUpdate
+    volumePermissions:
+      enabled: false
+      image:
+        pullPolicy: Always
+        registry: docker.io
+        repository: bitnami/minideb
+        tag: buster
+      resources: {}
+  rbac:
+    create: true
+  redis:
+    cluster:
+      enabled: false
+      slaveCount: 2
+    clusterDomain: cluster.local
+    configmap: |-
+      # Enable AOF https://redis.io/topics/persistence#append-only-file
+      appendonly yes
+      # Disable RDB persistence, AOF persistence already enabled.
+      save ""
+    enabled: true
+    global:
+      postgresql:
+        database: pipelinesdb
+        host: postgres-postgresql
+        password: password
+        port: 5432
+        ssl: false
+        user: artifactory
+      redis: {}
+      vault:
+        host: OVERRIDE
+        port: OVERRIDE
+        token: OVERRIDE
+    image:
+      pullPolicy: IfNotPresent
+      registry: registry.redhat.io
+      repository: rhel8/redis-5
+      tag: 1-98
+    master:
+      affinity: {}
+      command: ""
+      configmap: |-
+        appendonly yes
+        loglevel notice
+      disableCommands:
+      - FLUSHDB
+      - FLUSHALL
+      extraFlags: []
+      livenessProbe:
+        enabled: true
+        failureThreshold: 5
+        initialDelaySeconds: 5
+        periodSeconds: 5
+        successThreshold: 1
+        timeoutSeconds: 5
+      persistence:
+        accessModes:
+        - ReadWriteOnce
+        enabled: true
+        matchExpressions: {}
+        matchLabels: {}
+        path: /data
+        size: 8Gi
+        subPath: ""
+      podAnnotations: {}
+      podLabels: {}
+      readinessProbe:
+        enabled: true
+        failureThreshold: 5
+        initialDelaySeconds: 5
+        periodSeconds: 5
+        successThreshold: 1
+        timeoutSeconds: 1
+      resources: {}
+      service:
+        annotations: {}
+        labels: {}
+        loadBalancerIP: null
+        port: 6379
+        type: ClusterIP
+      statefulset:
+        updateStrategy: RollingUpdate
+    metrics:
+      enabled: false
+      image:
+        pullPolicy: IfNotPresent
+        registry: docker.io
+        repository: bitnami/redis-exporter
+        tag: 1.5.2-debian-10-r21
+      podAnnotations:
+        prometheus.io/port: "9121"
+        prometheus.io/scrape: "true"
+      prometheusRule:
+        additionalLabels: {}
+        enabled: false
+        namespace: ""
+        rules: []
+      service:
+        annotations: {}
+        labels: {}
+        type: ClusterIP
+      serviceMonitor:
+        enabled: false
+        selector:
+          prometheus: kube-prometheus
+    networkPolicy:
+      enabled: false
+      ingressNSMatchLabels: {}
+      ingressNSPodMatchLabels: {}
+    password: ""
+    persistence: {}
+    podSecurityPolicy:
+      create: false
+    rbac:
+      create: false
+      role:
+        rules: []
+    redisPort: 6379
+    securityContext:
+      enabled: true
+      fsGroup: 1001
+      runAsUser: 1001
+    sentinel:
+      configmap: null
+      downAfterMilliseconds: 60000
+      enabled: false
+      failoverTimeout: 18000
+      image:
+        pullPolicy: IfNotPresent
+        registry: docker.io
+        repository: bitnami/redis-sentinel
+        tag: 5.0.8-debian-10-r25
+      initialCheckTimeout: 5
+      livenessProbe:
+        enabled: true
+        failureThreshold: 5
+        initialDelaySeconds: 5
+        periodSeconds: 5
+        successThreshold: 1
+        timeoutSeconds: 5
+      masterSet: mymaster
+      parallelSyncs: 1
+      port: 26379
+      quorum: 2
+      readinessProbe:
+        enabled: true
+        failureThreshold: 5
+        initialDelaySeconds: 5
+        periodSeconds: 5
+        successThreshold: 1
+        timeoutSeconds: 1
+      service:
+        annotations: {}
+        labels: {}
+        loadBalancerIP: null
+        redisPort: 6379
+        sentinelPort: 26379
+        type: ClusterIP
+      staticID: false
+      usePassword: true
+    serviceAccount:
+      create: false
+      name: null
+    slave:
+      affinity: {}
+      command: /run.sh
+      configmap: null
+      disableCommands:
+      - FLUSHDB
+      - FLUSHALL
+      extraFlags: []
+      livenessProbe:
+        enabled: true
+        failureThreshold: 5
+        initialDelaySeconds: 30
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 5
+      persistence:
+        accessModes:
+        - ReadWriteOnce
+        enabled: true
+        matchExpressions: {}
+        matchLabels: {}
+        path: /data
+        size: 8Gi
+        subPath: ""
+      podAnnotations: {}
+      podLabels: {}
+      port: 6379
+      readinessProbe:
+        enabled: true
+        failureThreshold: 5
+        initialDelaySeconds: 5
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 10
+      resources: {}
+      service:
+        annotations: {}
+        labels: {}
+        loadBalancerIP: null
+        port: 6379
+        type: ClusterIP
+      statefulset:
+        updateStrategy: RollingUpdate
+    sysctlImage:
+      command: []
+      enabled: false
+      mountHostSys: false
+      pullPolicy: Always
+      registry: docker.io
+      repository: bitnami/minideb
+      resources: {}
+      tag: buster
+    usePassword: false
+    usePasswordFile: false
+    volumePermissions:
+      enabled: false
+      image:
+        pullPolicy: Always
+        registry: docker.io
+        repository: bitnami/minideb
+        tag: buster
+      resources: {}
+  runMode: production
+  runtimeOverride: {}
+  securityContext:
+    enabled: true
+    gid: 1030
+    uid: 1030
+  vault:
+    affinity: {}
+    configMaps: ""
+    customInitContainers: ""
+    customVolumeMounts: ""
+    customVolumes: ""
+    disablemlock: false
+    enabled: true
+    image:
+      pullPolicy: IfNotPresent
+      repository: registry.connect.redhat.com/jfrog/pipelines-vault
+      tag: 1.7.1
+    init:
+      image:
+        pullPolicy: IfNotPresent
+        repository: jfrog/pipelines-vault-init
+    nodeSelector: {}
+    rbac:
+      role:
+        rules:
+        - apiGroups:
+          - ""
+          resources:
+          - secrets
+          verbs:
+          - '*'
+    resources: {}
+    service:
+      port: 30100
+      type: ClusterIP
+    tolerations: []
+    updateStrategy: RollingUpdate
+
+HOOKS:
+MANIFEST:
+---
+# Source: openshift-pipelines/charts/pipelines/charts/rabbitmq/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: pipelines-rabbitmq
+  namespace: default
+  labels:
+    app: rabbitmq
+    chart: rabbitmq-6.25.0
+    release: "pipelines"
+    heritage: "Helm"
+secrets:
+  - name: "pipelines-rabbitmq"
+---
+# Source: openshift-pipelines/charts/pipelines/templates/service-account.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: pipelines
+  labels:
+    helm.sh/chart: pipelines-1.4.5
+    app.kubernetes.io/name: pipelines
+    app.kubernetes.io/instance: pipelines
+    app.kubernetes.io/version: "1.7.2"
+    app.kubernetes.io/managed-by: Helm
+---
+# Source: openshift-pipelines/charts/pipelines/templates/vault-serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: pipelines-pipelines-vault
+  labels:
+    helm.sh/chart: pipelines-1.4.5
+    app.kubernetes.io/name: pipelines
+    app.kubernetes.io/instance: pipelines
+    app.kubernetes.io/version: "1.7.2"
+    app.kubernetes.io/managed-by: Helm
+    component: pipelines-pipelines-vault
+---
+# Source: openshift-pipelines/charts/pipelines/charts/rabbitmq/templates/secrets.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: pipelines-rabbitmq
+  namespace: default
+  labels:
+    app: rabbitmq
+    chart: rabbitmq-6.25.0
+    release: "pipelines"
+    heritage: "Helm"
+type: Opaque
+data:
+  
+  rabbitmq-password: "Z3Vlc3Q="
+  
+  
+  rabbitmq-erlang-cookie: "UElQRUxJTkVTUkFCQklUTVFDTFVTVEVS"
+---
+# Source: openshift-pipelines/charts/pipelines/templates/database-secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: pipelines-database
+  labels:
+    helm.sh/chart: pipelines-1.4.5
+    app.kubernetes.io/name: pipelines
+    app.kubernetes.io/instance: pipelines
+    app.kubernetes.io/version: "1.7.2"
+    app.kubernetes.io/managed-by: Helm
+type: Opaque
+data:
+  postgresql-password: "cGFzc3dvcmQ="
+  postgresql-url: cG9zdGdyZXM6Ly9hcnRpZmFjdG9yeTpwYXNzd29yZEBwb3N0Z3Jlcy1wb3N0Z3Jlc3FsOjU0MzIvcGlwZWxpbmVzZGI/c3NsbW9kZT1kaXNhYmxl
+---
+# Source: openshift-pipelines/charts/pipelines/templates/pipelines-system-yaml.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: pipelines-system-yaml
+  labels:
+    helm.sh/chart: pipelines-1.4.5
+    app.kubernetes.io/name: pipelines
+    app.kubernetes.io/instance: pipelines
+    app.kubernetes.io/version: "1.7.2"
+    app.kubernetes.io/managed-by: Helm
+type: Opaque
+data:
+stringData:
+  system.yaml: |
+    shared:
+      ## Artifactory configuration
+      ##
+      artifactory:
+        ## Artifactory URL
+        ##
+        baseUrl: "http://openshiftartifactoryha-nginx"
+        ## Unified UI URL
+        ##
+        baseUrlUI: "http://openshiftartifactoryha-nginx"
+        ## Pipelines Service ID
+        ##
+        serviceId: "jfpip@12345"
+        ## Artifactory Service ID
+        ##
+        artifactoryServiceId: "FFFFFFFFFFFF"
+        ## Artifactory License ID
+        ##
+        licenseId: "FFFFFFFFF"
+        ## Proxy to connect to Artifactory
+        ##
+        proxy:
+          url: ""
+          username: ""
+          password: ""
+    
+      ## Router configuration
+      ##
+      router:
+        ip: ""
+        accessPort: 8046
+        dataPort: 8082
+        joinKey: "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE"
+    
+      security:
+        masterKey: "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
+    
+      ## Database configuration
+      ##
+      db:
+        type: "postgres"
+        ip: postgres-postgresql
+        port: "5432"
+        name: pipelinesdb
+        username: artifactory
+        password: password
+        externalUrl: ""
+        connectionString: "postgres://artifactory:password@postgres-postgresql:5432/pipelinesdb"
+    
+      ## RabbitMQ configuration
+      ##
+      msg:
+        ip: pipelines-rabbitmq
+        port: 5672
+        adminPort: 15672
+        erlangCookie: PIPELINESRABBITMQCLUSTER
+        username: guest
+        password: guest
+        defaultExchange: pipelinesEx
+        amqpVhost: pipelines
+        amqpRootVhost: pipelinesRoot
+        queues:
+          - "core.pipelineSync"
+          - "core.runTrigger"
+          - "core.stepTrigger"
+          - "core.marshaller"
+          - "cluster.init"
+          - "core.logup"
+          - "www.signals"
+          - "core.nexec"
+          - "core.hookHandler"
+          - "core.extensionSync"
+        ui:
+          username: monitor
+          password: monitor
+        external:
+          ## URL for build plane VMs to access RabbitMQ
+          url: amqps://pipelines-rabbit.jfrog.tech
+          rootUrl: ""
+          adminUrl: ""
+    
+      ## Vault configuration
+      ##
+      vault:
+        ip: pipelines-pipelines-vault
+        port: 30100
+        ## DO NOT CHANGE THE TOKEN VALUE!!!
+        token: "_VAULT_TOKEN_"
+        unsealKeys:
+          - ""
+          - ""
+          - ""
+          - ""
+          - ""
+    
+      ## Redis configuration
+      ##
+      redis:
+        ip: pipelines-redis-master
+        port: 6379
+        clusterEnabled: false
+    
+    ## This section is used for bringing up the core services and setting up
+    ## configurations required by the installer & the services
+    ##
+    core:
+      ## id is automatically determined based on the current hostname
+      ## or set using the SHARED_NODE_ID environment variable.
+      ##
+      id: "afd8df9d08bf257ae9b7d7dbbf348b7a3a574ebdd3a61d350d4b64e3129dee85"
+      installerIP: "1.2.3.4"
+      installerAuthToken: "c7595edd-b63d-4fd6-9e1e-13924d6637f0"
+      installerImage: "jfrog/pipelines-installer"
+      registryUrl: "registry.connect.redhat.com"
+      os: "Ubuntu_16.04"
+      osDistribution: "xenial"
+      architecture: "x86_64"
+      dockerVersion: ""
+      runMode: "production"
+      user: ""
+      group: ""
+      noVerifySsl: false
+      ignoreTLSErrors: false
+      controlplaneVersion: "1.7.1"
+      buildplaneVersion: "1.7.1"
+      accessControlAllowOrigins:
+        - http://openshiftartifactoryha-nginx
+        - http://openshiftartifactoryha-nginx
+      rabbitmqHealthCheckIntervalInMins: 1
+      ## Global proxy settings, to be applied to all services
+      ##
+      proxy:
+        httpProxy: ""
+        httpsProxy: ""
+        noProxy: ""
+        username: ""
+        password: ""
+    
+      ## Mailserver settings
+      ##
+      mailserver:
+        host: ""
+        port: ""
+        username: ""
+        password: ""
+        tls: ""
+        ssl: ""
+      apiRetryIntervalMs: 3000
+      accountSyncFrequencyHr: 1
+      imageRegistrySecret: ""
+      hardDeleteIntervalInMins: 60
+      configBackupCount: 5
+      lastUpdateTime: ""
+      callHomeUrl:  "https://api.bintray.com/products/jfrog/pipelines/stats/usage"
+      allowCallHome: true
+      serviceInstanceHealthCheckIntervalInMins: 1
+      serviceInstanceStatsCutOffIntervalInHours: 24
+    
+      ## Service configuration
+      ##
+      services:
+        api:
+          name: pipelines-pipelines-api
+          port: 30000
+          externalUrl: http://pipelines-api.jfrog.tech
+        www:
+          name: pipelines-pipelines-www
+          port: 30001
+          externalUrl: http://pipelines-www.jfrog.tech
+          sessionSecret: "c7595edd-b63d-4fd6-9e1e-13924d6637f0"
+        pipelineSync:
+          name: pipelineSync
+        runTrigger:
+          name: runTrigger
+        stepTrigger:
+          name: stepTrigger
+        cron:
+          name: cron
+        nexec:
+          name: nexec
+        hookHandler:
+          name: hookHandler
+        marshaller:
+          name: marshaller
+        extensionSync:
+          name: extensionSync
+    
+    ## Runtime configuration
+    ##
+    runtime:
+      rootBucket: "jfrogpipelines"
+      defaultMinionCount: 1
+      nodeCacheIntervalMS: 600000
+      jobConsoleBatchSize: 10
+      jobConsoleBufferIntervalMs: 3
+      maxDiskUsagePercentage: 90
+      stepTimeoutMS: 3600000
+      nodeStopDayOfWeek: 0
+      nodeStopIntervalDays: 30
+      maxNodeCheckInDelayMin: 15
+      defaultMinionInstanceSize: "c4.large"
+      allowDynamicNodes: true
+      allowCustomNodes: true
+      languageImages:
+        - architecture: x86_64
+          os: Ubuntu_16.04
+          language: node
+          registryUrl: docker.bintray.io
+          image: jfrog/pipelines-u16node
+          isDefault: true
+          defaultVersion: 10.18.0
+        - architecture: x86_64
+          os: Ubuntu_16.04
+          language: java
+          registryUrl: docker.bintray.io
+          image: jfrog/pipelines-u16java
+          defaultVersion: 13
+        - architecture: x86_64
+          os: Ubuntu_16.04
+          language: cpp
+          registryUrl: docker.bintray.io
+          image: jfrog/pipelines-u16cpp
+          defaultVersion: 9.0.0
+        - architecture: x86_64
+          os: Ubuntu_16.04
+          language: go
+          registryUrl: docker.bintray.io
+          image: jfrog/pipelines-u16go
+          defaultVersion: 1.12.14
+        - architecture: x86_64
+          os: Ubuntu_18.04
+          language: node
+          registryUrl: docker.bintray.io
+          image: jfrog/pipelines-u18node
+          isDefault: true
+          defaultVersion: 10.18.0
+        - architecture: x86_64
+          os: Ubuntu_18.04
+          language: java
+          registryUrl: docker.bintray.io
+          image: jfrog/pipelines-u18java
+          defaultVersion: 13
+        - architecture: x86_64
+          os: Ubuntu_18.04
+          language: cpp
+          registryUrl: docker.bintray.io
+          image: jfrog/pipelines-u18cpp
+          defaultVersion: 9.0.0
+        - architecture: x86_64
+          os: Ubuntu_18.04
+          language: go
+          registryUrl: docker.bintray.io
+          image: jfrog/pipelines-u18go
+          defaultVersion: 1.12.14
+        - architecture: x86_64
+          os: CentOS_7
+          language: node
+          registryUrl: docker.bintray.io
+          image: jfrog/pipelines-c7node
+          isDefault: true
+          defaultVersion: 10.18.0
+        - architecture: x86_64
+          os: CentOS_7
+          language: java
+          registryUrl: docker.bintray.io
+          image: jfrog/pipelines-c7java
+          defaultVersion: 11
+        - architecture: x86_64
+          os: CentOS_7
+          language: cpp
+          registryUrl: docker.bintray.io
+          image: jfrog/pipelines-c7cpp
+          defaultVersion: 3.4.2
+        - architecture: x86_64
+          os: CentOS_7
+          language: go
+          registryUrl: docker.bintray.io
+          image: jfrog/pipelines-c7go
+          defaultVersion: 1.12.14
+        - architecture: x86_64
+          os: WindowsServer_2019
+          language: node
+          registryUrl: docker.bintray.io
+          image: jfrog/pipelines-w19node
+          defaultVersion: 10.18.0
+        - architecture: x86_64
+          os: WindowsServer_2019
+          language: java
+          registryUrl: docker.bintray.io
+          image: jfrog/pipelines-w19java
+          defaultVersion: 11
+        - architecture: x86_64
+          os: WindowsServer_2019
+          language: cpp
+          registryUrl: docker.bintray.io
+          image: jfrog/pipelines-w19cpp
+          defaultVersion: 9.0.0
+        - architecture: x86_64
+          os: WindowsServer_2019
+          language: go
+          registryUrl: docker.bintray.io
+          image: jfrog/pipelines-w19go
+          defaultVersion: 1.12.14
+        - architecture: x86_64
+          os: WindowsServer_2019
+          language: dotnetcore
+          registryUrl: docker.bintray.io
+          image: jfrog/pipelines-w19dotnetcore
+          isDefault: true
+          defaultVersion: 3.1
+        - architecture: x86_64
+          os: RHEL_7
+          language: node
+          registryUrl: docker.bintray.io
+          image: jfrog/pipelines-c7node
+          isDefault: true
+          defaultVersion: 10.18.0
+        - architecture: x86_64
+          os: RHEL_7
+          language: java
+          registryUrl: docker.bintray.io
+          image: jfrog/pipelines-c7java
+          defaultVersion: 11
+        - architecture: x86_64
+          os: RHEL_7
+          language: cpp
+          registryUrl: docker.bintray.io
+          image: jfrog/pipelines-c7cpp
+          defaultVersion: 3.4.2
+        - architecture: x86_64
+          os: RHEL_7
+          language: go
+          registryUrl: docker.bintray.io
+          image: jfrog/pipelines-c7go
+          defaultVersion: 1.12.14
+---
+# Source: openshift-pipelines/charts/pipelines/templates/rabbitmq-secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: pipelines-rabbitmq-secret
+  labels:
+    helm.sh/chart: pipelines-1.4.5
+    app.kubernetes.io/name: pipelines
+    app.kubernetes.io/instance: pipelines
+    app.kubernetes.io/version: "1.7.2"
+    app.kubernetes.io/managed-by: Helm
+type: Opaque
+data:
+  rabbitmq-erlang-cookie: "UElQRUxJTkVTUkFCQklUTVFDTFVTVEVS"
+  rabbitmq-password: "Z3Vlc3Q="
+---
+# Source: openshift-pipelines/charts/pipelines/charts/rabbitmq/templates/configuration.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pipelines-rabbitmq-config
+  namespace: default
+  labels:
+    app: rabbitmq
+    chart: rabbitmq-6.25.0
+    release: "pipelines"
+    heritage: "Helm"
+data:
+  enabled_plugins: |-
+    [rabbitmq_management, rabbitmq_peer_discovery_k8s].
+  rabbitmq.conf: |-
+    ##username and password
+    default_user=guest
+    default_pass=CHANGEME
+    ## Clustering
+    cluster_formation.peer_discovery_backend  = rabbit_peer_discovery_k8s
+    cluster_formation.k8s.host = kubernetes.default.svc.cluster.local
+    cluster_formation.node_cleanup.interval = 10
+    cluster_formation.node_cleanup.only_log_warning = true
+    cluster_partition_handling = autoheal
+    # queue master locator
+    queue_master_locator=min-masters
+    # enable guest user
+    loopback_users.guest = false
+    #disk_free_limit.absolute = 50MB
+    #management.load_definitions = /app/load_definition.json
+---
+# Source: openshift-pipelines/charts/pipelines/charts/rabbitmq/templates/healthchecks.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pipelines-rabbitmq-healthchecks
+  namespace: default
+  labels:
+    app: rabbitmq
+    chart: rabbitmq-6.25.0
+    release: "pipelines"
+    heritage: "Helm"
+data:
+  rabbitmq-health-check: |-
+    #!/bin/sh
+    START_FLAG=/opt/bitnami/rabbitmq/var/lib/rabbitmq/.start
+    if [ -f ${START_FLAG} ]; then
+        rabbitmqctl node_health_check
+        RESULT=$?
+        if [ $RESULT -ne 0 ]; then
+          rabbitmqctl status
+          exit $?
+        fi
+        rm -f ${START_FLAG}
+        exit ${RESULT}
+    fi
+    rabbitmq-api-check $1 $2
+  rabbitmq-api-check: |-
+    #!/bin/sh
+    set -e
+    URL=$1
+    EXPECTED=$2
+    ACTUAL=$(curl --silent --show-error --fail "${URL}")
+    echo "${ACTUAL}"
+    test "${EXPECTED}" = "${ACTUAL}"
+---
+# Source: openshift-pipelines/charts/pipelines/charts/redis/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pipelines-redis
+  namespace: default
+  labels:
+    app: redis
+    chart: redis-10.6.3
+    heritage: Helm
+    release: pipelines
+data:
+  redis.conf: |-
+    # User-supplied configuration:
+    # Enable AOF https://redis.io/topics/persistence#append-only-file
+    appendonly yes
+    # Disable RDB persistence, AOF persistence already enabled.
+    save ""
+  master.conf: |-
+    dir /data
+    # User-supplied master configuration:
+    appendonly yes
+    loglevel notice
+    rename-command FLUSHDB ""
+    rename-command FLUSHALL ""
+  replica.conf: |-
+    dir /data
+    slave-read-only yes
+    rename-command FLUSHDB ""
+    rename-command FLUSHALL ""
+---
+# Source: openshift-pipelines/charts/pipelines/charts/redis/templates/health-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pipelines-redis-health
+  namespace: default
+  labels:
+    app: redis
+    chart: redis-10.6.3
+    heritage: Helm
+    release: pipelines
+data:
+  ping_readiness_local.sh: |-
+    #!/bin/bash
+    response=$(
+      timeout -s 9 $1 \
+      redis-cli \
+        -h localhost \
+        -p $REDIS_PORT \
+        ping
+    )
+    if [ "$response" != "PONG" ]; then
+      echo "$response"
+      exit 1
+    fi
+  ping_liveness_local.sh: |-
+    #!/bin/bash
+    response=$(
+      timeout -s 9 $1 \
+      redis-cli \
+        -h localhost \
+        -p $REDIS_PORT \
+        ping
+    )
+    if [ "$response" != "PONG" ] && [ "$response" != "LOADING Redis is loading the dataset in memory" ]; then
+      echo "$response"
+      exit 1
+    fi
+  ping_readiness_master.sh: |-
+    #!/bin/bash
+     response=$(
+      timeout -s 9 $1 \
+      redis-cli \
+        -h $REDIS_MASTER_HOST \
+        -p $REDIS_MASTER_PORT_NUMBER \
+        ping
+    )
+    if [ "$response" != "PONG" ]; then
+      echo "$response"
+      exit 1
+    fi
+  ping_liveness_master.sh: |-
+    #!/bin/bash
+    response=$(
+      timeout -s 9 $1 \
+      redis-cli \
+        -h $REDIS_MASTER_HOST \
+        -p $REDIS_MASTER_PORT_NUMBER \
+        ping
+    )
+    if [ "$response" != "PONG" ] && [ "$response" != "LOADING Redis is loading the dataset in memory" ]; then
+      echo "$response"
+      exit 1
+    fi
+  ping_readiness_local_and_master.sh: |-
+    script_dir="$(dirname "$0")"
+    exit_status=0
+    "$script_dir/ping_readiness_local.sh" $1 || exit_status=$?
+    "$script_dir/ping_readiness_master.sh" $1 || exit_status=$?
+    exit $exit_status
+  ping_liveness_local_and_master.sh: |-
+    script_dir="$(dirname "$0")"
+    exit_status=0
+    "$script_dir/ping_liveness_local.sh" $1 || exit_status=$?
+    "$script_dir/ping_liveness_master.sh" $1 || exit_status=$?
+    exit $exit_status
+---
+# Source: openshift-pipelines/charts/pipelines/templates/pipelines-role.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: pipelines
+  labels:
+    helm.sh/chart: pipelines-1.4.5
+    app.kubernetes.io/name: pipelines
+    app.kubernetes.io/instance: pipelines
+    app.kubernetes.io/version: "1.7.2"
+    app.kubernetes.io/managed-by: Helm
+rules:
+- apiGroups:
+  - ""
+  - extensions
+  - apps
+  resources:
+  - deployments
+  - persistentvolumes
+  - persistentvolumeclaims
+  - pods
+  - deployments/scale
+  verbs:
+  - '*'
+---
+# Source: openshift-pipelines/charts/pipelines/templates/pipelines-rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: pipelines
+  labels:
+    helm.sh/chart: pipelines-1.4.5
+    app.kubernetes.io/name: pipelines
+    app.kubernetes.io/instance: pipelines
+    app.kubernetes.io/version: "1.7.2"
+    app.kubernetes.io/managed-by: Helm
+subjects:
+- kind: ServiceAccount
+  name: pipelines
+  namespace: default
+roleRef:
+  kind: ClusterRole
+  apiGroup: rbac.authorization.k8s.io
+  name: pipelines
+---
+# Source: openshift-pipelines/charts/pipelines/charts/rabbitmq/templates/role.yaml
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: pipelines-rabbitmq-endpoint-reader
+  namespace: default
+  labels:
+    app: rabbitmq
+    chart: rabbitmq-6.25.0
+    release: "pipelines"
+    heritage: "Helm"
+rules:
+- apiGroups: [""]
+  resources: ["endpoints"]
+  verbs: ["get"]
+- apiGroups: [""]
+  resources: ["events"]
+  verbs: ["create"]
+---
+# Source: openshift-pipelines/charts/pipelines/templates/vault-role.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: pipelines-pipelines-vault
+  labels:
+    helm.sh/chart: pipelines-1.4.5
+    app.kubernetes.io/name: pipelines
+    app.kubernetes.io/instance: pipelines
+    app.kubernetes.io/version: "1.7.2"
+    app.kubernetes.io/managed-by: Helm
+    component: pipelines-pipelines-vault
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - '*'
+---
+# Source: openshift-pipelines/charts/pipelines/charts/rabbitmq/templates/rolebinding.yaml
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: pipelines-rabbitmq-endpoint-reader
+  namespace: default
+  labels:
+    app: rabbitmq
+    chart: rabbitmq-6.25.0
+    release: "pipelines"
+    heritage: "Helm"
+subjects:
+- kind: ServiceAccount
+  name: pipelines-rabbitmq
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: pipelines-rabbitmq-endpoint-reader
+---
+# Source: openshift-pipelines/charts/pipelines/templates/vault-rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: pipelines-pipelines-vault
+  labels:
+    helm.sh/chart: pipelines-1.4.5
+    app.kubernetes.io/name: pipelines
+    app.kubernetes.io/instance: pipelines
+    app.kubernetes.io/version: "1.7.2"
+    app.kubernetes.io/managed-by: Helm
+    component: pipelines-pipelines-vault
+subjects:
+- kind: ServiceAccount
+  name: pipelines-pipelines-vault
+roleRef:
+  kind: Role
+  apiGroup: rbac.authorization.k8s.io
+  name: pipelines-pipelines-vault
+---
+# Source: openshift-pipelines/charts/pipelines/charts/rabbitmq/templates/svc-headless.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: pipelines-rabbitmq-headless
+  namespace: default
+  labels:
+    app: rabbitmq
+    chart: rabbitmq-6.25.0
+    release: "pipelines"
+    heritage: "Helm"
+spec:
+  clusterIP: None
+  ports:
+  - name: epmd
+    port: 4369
+    targetPort: epmd
+  - name: amqp
+    port: 5672
+    targetPort: amqp
+  - name: dist
+    port: 25672
+    targetPort: dist
+  - name: stats
+    port: 15672
+    targetPort: stats
+  selector:
+    app: rabbitmq
+    release: "pipelines"
+---
+# Source: openshift-pipelines/charts/pipelines/charts/rabbitmq/templates/svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: pipelines-rabbitmq
+  namespace: default
+  labels:
+    app: rabbitmq
+    chart: rabbitmq-6.25.0
+    release: "pipelines"
+    heritage: "Helm"
+spec:
+  type: ClusterIP
+  ports:
+  - name: epmd
+    port: 4369
+    targetPort: epmd
+    nodePort: null
+  - name: amqp
+    port: 5672
+    targetPort: amqp
+    nodePort: null
+  - name: dist
+    port: 25672
+    targetPort: dist
+    nodePort: null
+  - name: stats
+    port: 15672
+    targetPort: stats
+    nodePort: null
+  selector:
+    app: rabbitmq
+    release: "pipelines"
+---
+# Source: openshift-pipelines/charts/pipelines/charts/redis/templates/headless-svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: pipelines-redis-headless
+  namespace: default
+  labels:
+    app: redis
+    chart: redis-10.6.3
+    release: pipelines
+    heritage: Helm
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+  - name: redis
+    port: 6379
+    targetPort: redis
+  selector:
+    app: redis
+    release: pipelines
+---
+# Source: openshift-pipelines/charts/pipelines/charts/redis/templates/redis-master-svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: pipelines-redis-master
+  namespace: default
+  labels:
+    app: redis
+    chart: redis-10.6.3
+    release: pipelines
+    heritage: Helm
+spec:
+  type: ClusterIP
+  ports:
+  - name: redis
+    port: 6379
+    targetPort: redis
+  selector:
+    app: redis
+    release: pipelines
+    role: master
+---
+# Source: openshift-pipelines/charts/pipelines/templates/api-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: pipelines-pipelines-api
+  labels:
+    helm.sh/chart: pipelines-1.4.5
+    app.kubernetes.io/name: pipelines
+    app.kubernetes.io/instance: pipelines
+    app.kubernetes.io/version: "1.7.2"
+    app.kubernetes.io/managed-by: Helm
+    component: pipelines-pipelines-api
+spec:
+  type: ClusterIP
+  ports:
+    - port: 30000
+      targetPort: 30000
+      protocol: TCP
+      name: api
+  selector:
+    app.kubernetes.io/name: pipelines
+    app.kubernetes.io/instance: pipelines
+    component: pipelines-pipelines-services
+---
+# Source: openshift-pipelines/charts/pipelines/templates/pipelines-service-headless.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: pipelines-pipelines-services-headless
+  labels:
+    helm.sh/chart: pipelines-1.4.5
+    app.kubernetes.io/name: pipelines
+    app.kubernetes.io/instance: pipelines
+    app.kubernetes.io/version: "1.7.2"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+    - port: 30000
+      targetPort: 30000
+      protocol: TCP
+      name: api
+    - port: 30001
+      targetPort: 30001
+      protocol: TCP
+      name: www
+  selector:
+    app.kubernetes.io/name: pipelines
+    app.kubernetes.io/instance: pipelines
+    component: pipelines-pipelines-services
+---
+# Source: openshift-pipelines/charts/pipelines/templates/vault-service-headless.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: pipelines-pipelines-vault-headless
+  labels:
+    helm.sh/chart: pipelines-1.4.5
+    app.kubernetes.io/name: pipelines
+    app.kubernetes.io/instance: pipelines
+    app.kubernetes.io/version: "1.7.2"
+    app.kubernetes.io/managed-by: Helm
+    component: pipelines-pipelines-vault
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+    - name: http
+      port: 30100
+      targetPort: 30100
+      protocol: TCP
+    - name: server
+      port: 30101
+      protocol: TCP  
+  selector:
+    app.kubernetes.io/name: pipelines
+    app.kubernetes.io/instance: pipelines
+    component: pipelines-pipelines-vault
+---
+# Source: openshift-pipelines/charts/pipelines/templates/vault-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: pipelines-pipelines-vault
+  labels:
+    helm.sh/chart: pipelines-1.4.5
+    app.kubernetes.io/name: pipelines
+    app.kubernetes.io/instance: pipelines
+    app.kubernetes.io/version: "1.7.2"
+    app.kubernetes.io/managed-by: Helm
+    component: pipelines-pipelines-vault
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 30100
+      targetPort: 30100
+      protocol: TCP
+    - name: server
+      port: 30101
+      protocol: TCP  
+  selector:
+    app.kubernetes.io/name: pipelines
+    app.kubernetes.io/instance: pipelines
+    component: pipelines-pipelines-vault
+---
+# Source: openshift-pipelines/charts/pipelines/templates/www-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: pipelines-pipelines-www
+  labels:
+    helm.sh/chart: pipelines-1.4.5
+    app.kubernetes.io/name: pipelines
+    app.kubernetes.io/instance: pipelines
+    app.kubernetes.io/version: "1.7.2"
+    app.kubernetes.io/managed-by: Helm
+    component: pipelines-pipelines-www
+spec:
+  type: ClusterIP
+  ports:
+    - port: 30001
+      targetPort: 30001
+      protocol: TCP
+      name: www
+  selector:
+    app.kubernetes.io/name: pipelines
+    app.kubernetes.io/instance: pipelines
+    component: pipelines-pipelines-services
+---
+# Source: openshift-pipelines/charts/pipelines/charts/rabbitmq/templates/statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: pipelines-rabbitmq
+  namespace: default
+  labels:
+    app: rabbitmq
+    chart: rabbitmq-6.25.0
+    release: "pipelines"
+    heritage: "Helm"
+spec:
+  serviceName: pipelines-rabbitmq-headless
+  podManagementPolicy: OrderedReady
+  replicas: 1
+  updateStrategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: rabbitmq
+      release: "pipelines"
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+        release: "pipelines"
+        chart: rabbitmq-6.25.0
+      annotations:
+        checksum/secret: cd200625b24962e95e00a823013671ecf528464dc6d000ff2103710176764a2a
+    spec:      
+      serviceAccountName: pipelines-rabbitmq
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: rabbitmq
+        image: registry.connect.redhat.com/jfrog/xray-rabbitmq:3.8.6
+        imagePullPolicy: "IfNotPresent"
+        command:
+         - bash
+         - -ec
+         - |
+            mkdir -p /opt/bitnami/rabbitmq/.rabbitmq/
+            mkdir -p /opt/bitnami/rabbitmq/etc/rabbitmq/
+            touch /opt/bitnami/rabbitmq/var/lib/rabbitmq/.start
+            #persist the erlang cookie in both places for server and cli tools
+            echo $RABBITMQ_ERL_COOKIE > /opt/bitnami/rabbitmq/var/lib/rabbitmq/.erlang.cookie
+            cp /opt/bitnami/rabbitmq/var/lib/rabbitmq/.erlang.cookie /opt/bitnami/rabbitmq/.rabbitmq/
+            #change permission so only the user has access to the cookie file
+            chmod 600 /opt/bitnami/rabbitmq/.rabbitmq/.erlang.cookie /opt/bitnami/rabbitmq/var/lib/rabbitmq/.erlang.cookie
+            #copy the mounted configuration to both places
+            cp  /opt/bitnami/rabbitmq/conf/* /opt/bitnami/rabbitmq/etc/rabbitmq
+            # Apply resources limits
+            ulimit -n "${RABBITMQ_ULIMIT_NOFILES}"
+            #replace the default password that is generated
+            sed -i "/CHANGEME/cdefault_pass=${RABBITMQ_PASSWORD//\\/\\\\}" /opt/bitnami/rabbitmq/etc/rabbitmq/rabbitmq.conf
+            exec rabbitmq-server
+        volumeMounts:
+          - name: config-volume
+            mountPath: /opt/bitnami/rabbitmq/conf
+          - name: healthchecks
+            mountPath: /usr/local/sbin/rabbitmq-api-check
+            subPath: rabbitmq-api-check
+          - name: healthchecks
+            mountPath: /usr/local/sbin/rabbitmq-health-check
+            subPath: rabbitmq-health-check
+          - name: data
+            mountPath: "/opt/bitnami/rabbitmq/var/lib/rabbitmq"
+        ports:
+        - name: epmd
+          containerPort: 4369
+        - name: amqp
+          containerPort: 5672
+        - name: dist
+          containerPort: 25672
+        - name: stats
+          containerPort: 15672
+        livenessProbe:
+          exec:
+            command:
+              - sh
+              - -c
+              - rabbitmq-api-check "http://guest:$RABBITMQ_PASSWORD@127.0.0.1:15672/api/healthchecks/node" '{"status":"ok"}'
+          initialDelaySeconds: 120
+          timeoutSeconds: 20
+          periodSeconds: 30
+          failureThreshold: 6
+          successThreshold: 1
+        readinessProbe:
+          exec:
+            command:
+              - sh
+              - -c
+              - rabbitmq-health-check "http://guest:$RABBITMQ_PASSWORD@127.0.0.1:15672/api/healthchecks/node" '{"status":"ok"}'
+          initialDelaySeconds: 10
+          timeoutSeconds: 20
+          periodSeconds: 30
+          failureThreshold: 3
+          successThreshold: 1
+        env:
+          - name: BITNAMI_DEBUG
+            value: "false"
+          - name: MY_POD_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+          - name: MY_POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: MY_POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: K8S_SERVICE_NAME
+            value: "pipelines-rabbitmq-headless"
+          - name: K8S_ADDRESS_TYPE
+            value: hostname
+          - name: RABBITMQ_NODENAME
+            value: "rabbit@$(MY_POD_NAME).$(K8S_SERVICE_NAME).$(MY_POD_NAMESPACE).svc.cluster.local"
+          - name: K8S_HOSTNAME_SUFFIX
+            value: ".$(K8S_SERVICE_NAME).$(MY_POD_NAMESPACE).svc.cluster.local"
+          - name: RABBITMQ_LOGS
+            value: "-"
+          - name: RABBITMQ_ULIMIT_NOFILES
+            value: "65536"
+          - name: RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS
+            value: +S 2:1
+          - name: RABBITMQ_USE_LONGNAME
+            value: "true"
+          - name: RABBITMQ_ERL_COOKIE
+            valueFrom:
+              secretKeyRef:
+                name: pipelines-rabbitmq
+                key: rabbitmq-erlang-cookie
+          - name: RABBITMQ_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: pipelines-rabbitmq
+                key: rabbitmq-password
+      securityContext:
+        fsGroup: 1001
+        runAsUser: 1001
+      volumes:
+        - name: config-volume
+          configMap:
+            name: pipelines-rabbitmq-config
+            items:
+            - key: rabbitmq.conf
+              path: rabbitmq.conf
+            - key: enabled_plugins
+              path: enabled_plugins
+        - name: healthchecks
+          configMap:
+            name: pipelines-rabbitmq-healthchecks
+            items:
+            - key: rabbitmq-health-check
+              path: rabbitmq-health-check
+              mode: 111
+            - key: rabbitmq-api-check
+              path: rabbitmq-api-check
+              mode: 111
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+        labels:
+          app: rabbitmq
+          release: "pipelines"
+          heritage: "Helm"
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+            requests:
+              storage: "20Gi"
+---
+# Source: openshift-pipelines/charts/pipelines/charts/redis/templates/redis-master-statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: pipelines-redis-master
+  namespace: default
+  labels:
+    app: redis
+    chart: redis-10.6.3
+    release: pipelines
+    heritage: Helm
+spec:
+  selector:
+    matchLabels:
+      app: redis
+      release: pipelines
+      role: master
+  serviceName: pipelines-redis-headless
+  template:
+    metadata:
+      labels:
+        app: redis
+        chart: redis-10.6.3
+        release: pipelines
+        role: master
+      annotations:
+        checksum/health: 5d2e8523ae6c0cac2452aab66904ac5b5d6dc0a529ac4e9333177b412c6e8fd1
+        checksum/configmap: 58a5a052638c9f5d1252ef740b81decddd00d24176a06b07b57f3e4b1987e666
+        checksum/secret: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+    spec:      
+      securityContext:
+        fsGroup: 1001
+      serviceAccountName: "default"
+      containers:
+      - name: redis
+        image: "registry.redhat.io/rhel8/redis-5:1-98"
+        imagePullPolicy: "IfNotPresent"
+        securityContext:
+          runAsUser: 1001
+        command:
+        - /bin/bash
+        - -c
+        - |
+          if [[ -n $REDIS_PASSWORD_FILE ]]; then
+            password_aux=`cat ${REDIS_PASSWORD_FILE}`
+            export REDIS_PASSWORD=$password_aux
+          fi
+          if [[ ! -f /opt/bitnami/redis/etc/master.conf ]];then
+            cp /opt/bitnami/redis/mounted-etc/master.conf /opt/bitnami/redis/etc/master.conf
+          fi
+          if [[ ! -f /opt/bitnami/redis/etc/redis.conf ]];then
+            cp /opt/bitnami/redis/mounted-etc/redis.conf /opt/bitnami/redis/etc/redis.conf
+          fi
+          ARGS=("--port" "${REDIS_PORT}")
+          ARGS+=("--protected-mode" "no")
+          ARGS+=("--include" "/opt/bitnami/redis/etc/redis.conf")
+          ARGS+=("--include" "/opt/bitnami/redis/etc/master.conf")
+          redis-server "${ARGS[@]}"
+        env:
+        - name: REDIS_REPLICATION_MODE
+          value: master
+        - name: ALLOW_EMPTY_PASSWORD
+          value: "yes"
+        - name: REDIS_PORT
+          value: "6379"
+        ports:
+        - name: redis
+          containerPort: 6379
+        livenessProbe:
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 5
+          exec:
+            command:
+            - sh
+            - -c
+            - /health/ping_liveness_local.sh 5
+        readinessProbe:
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 1
+          successThreshold: 1
+          failureThreshold: 5
+          exec:
+            command:
+            - sh
+            - -c
+            - /health/ping_readiness_local.sh 5
+        resources:
+          {}
+        volumeMounts:
+        - name: health
+          mountPath: /health
+        - name: redis-data
+          mountPath: /data
+          subPath: 
+        - name: config
+          mountPath: /opt/bitnami/redis/mounted-etc
+        - name: redis-tmp-conf
+          mountPath: /opt/bitnami/redis/etc/
+      volumes:
+      - name: health
+        configMap:
+          name: pipelines-redis-health
+          defaultMode: 0755
+      - name: config
+        configMap:
+          name: pipelines-redis
+      - name: redis-tmp-conf
+        emptyDir: {}
+  volumeClaimTemplates:
+    - metadata:
+        name: redis-data
+        labels:
+          app: redis
+          release: pipelines
+          heritage: Helm
+          component: master
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: "8Gi"
+        
+        selector:
+  updateStrategy:
+    type: RollingUpdate
+---
+# Source: openshift-pipelines/charts/pipelines/templates/pipelines-statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: pipelines-pipelines-services
+  labels:
+    helm.sh/chart: pipelines-1.4.5
+    app.kubernetes.io/name: pipelines
+    app.kubernetes.io/instance: pipelines
+    app.kubernetes.io/version: "1.7.2"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  serviceName: pipelines-pipelines-services-headless
+  replicas: 1
+  updateStrategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: pipelines
+      app.kubernetes.io/instance: pipelines
+      component: pipelines-pipelines-services
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: pipelines
+        app.kubernetes.io/instance: pipelines
+        component: pipelines-pipelines-services
+      annotations:
+        checksum/systemyaml: f5d51f2f399be165ea4c3d48b085ab08baed54b2591828cd38fb5f847af16cae
+        checksum/secretdb: 48459e973b36b16071c353caa94a8ca3d3b446a893f79f86af191ce6f3856887
+        checksum/secretaws: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
+        checksum/configaws: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
+        checksum/secretk8s: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
+        checksum/configk8s: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
+        checksum/configfilebeat: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+    spec:
+      serviceAccountName: pipelines
+      initContainers:
+        - name: copy-system-yaml
+          image: "quay.io/jfrog/init:1.0.0"
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+          command:
+          - '/bin/sh'
+          - '-c'
+          - >
+            echo "Copy system.yaml to /opt/jfrog/pipelines/var/etc";
+            cp -fv /tmp/etc/system.yaml /opt/jfrog/pipelines/var/etc/system.yaml;
+          volumeMounts:
+          - name: jfrog-pipelines-folder
+            mountPath: /opt/jfrog/pipelines/var/etc
+          - name: systemyaml
+            mountPath: "/tmp/etc/system.yaml"
+            subPath: system.yaml
+        - name: wait-for-vault
+          image: "quay.io/jfrog/init:1.0.0"
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+          command:
+          - 'sh'
+          - '-c'
+          - >
+            echo "Waiting for Vault to come up...";
+            until nc -z -w 2 pipelines-pipelines-vault 30100 && echo Vault ok; do
+              sleep 2;
+            done;
+        - name: pipelines-installer
+          image: "registry.connect.redhat.com/jfrog/pipelines-installer:1.7.1"
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+          env:
+            - name: VAULT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: root-vault-secret
+                  key: token
+            - name: PIPELINES_SHARED_DB_CONNECTIONSTRING
+              valueFrom:
+                secretKeyRef:
+                  name: pipelines-database
+                  key: postgresql-url
+            - name: PIPELINES_NODE_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: "metadata.name"
+          command:
+          - 'sh'
+          - '-c'
+          - >
+            echo "Waiting for RabbitMQ to come up...";
+            until nc -z -w 2 pipelines-rabbitmq 5672 && echo rabbitmq ok; do
+              sleep 2;
+            done;
+            echo "Waiting for Redis to come up...";
+            until nc -z -w 2 pipelines-redis-master 6379 && echo redis ok; do
+              sleep 2;
+            done;
+            sleep 20;
+            ./pipelines-k8s;
+            echo "Setting router as user for system.yaml";
+            chown 1117:1117 /opt/jfrog/pipelines/var/etc/system.yaml;
+          volumeMounts:
+          - name: jfrog-pipelines-folder
+            mountPath: /opt/jfrog/pipelines/var/etc
+        
+        - name: "redhat-custom-setup"
+          image: quay.io/jfrog/init:1.0.0
+          imagePullPolicy: Always
+          command:
+            - 'sh'
+            - '-c'
+            - 'chown -R 1117:1117 /opt/jfrog/pipelines/var/etc'
+          securityContext:
+              runAsUser: 0
+          volumeMounts:
+            - mountPath: "/opt/jfrog/pipelines/var/etc"
+              name: volume
+        
+      containers:
+        - name: router
+          image: "registry.connect.redhat.com/jfrog/pipelines-router:1.7.1"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: JF_ROUTER_SERVICEREGISTRY_URL
+              value: "http://openshiftartifactoryha-nginx/access"
+            - name: JF_ROUTER_SERVICEREGISTRY_GRPCADDRESS
+              value: "openshiftartifactoryha-nginx"
+            - name: JF_ROUTER_ENTRYPOINTS_INTERNALPORT
+              value: "8046"
+            - name: JF_ROUTER_ENTRYPOINTS_EXTERNALPORT
+              value: "8082"
+            - name: JF_ROUTER_LOGGING_ROUTER_LOGLEVEL
+              value: "DEBUG"
+            - name: JF_SHARED_NODE_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: "metadata.name"
+            - name: JF_SHARED_NODE_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: "status.podIP"
+            - name: JF_SHARED_SECURITY_JOINKEY
+              value: "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE"
+            - name: JF_ROUTER_ENCRYPTSYSTEMCONFIG
+              value: "true"
+          ports:
+            - name: router
+              containerPort: 8046
+          securityContext:
+            allowPrivilegeEscalation: false
+          resources:
+            
+            {}
+          volumeMounts:
+          - name: jfrog-pipelines-folder
+            mountPath: /opt/jfrog/router/var/etc
+        - name: api
+          image: "registry.connect.redhat.com/jfrog/pipelines-api:1.7.1"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: PIPELINES_NODE_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: "metadata.name"
+          ports:
+            - name: api
+              containerPort: 30000
+          livenessProbe:
+            httpGet:
+              path: /
+              port: api
+            initialDelaySeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 6
+          readinessProbe:
+            httpGet:
+              path: /
+              port: api
+            initialDelaySeconds: 10
+            timeoutSeconds: 3
+            periodSeconds: 5
+          resources:
+            {}
+          volumeMounts:
+          - name: jfrog-pipelines-folder
+            mountPath: /opt/jfrog/pipelines/var/etc
+          - name: jfrog-pipelines-logs
+            mountPath: /opt/jfrog/pipelines/var/log
+        - name: www
+          image: "registry.connect.redhat.com/jfrog/pipelines-www:1.7.1"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: www
+              containerPort: 30001
+          livenessProbe:
+            httpGet:
+              path: /
+              port: www
+            initialDelaySeconds: 10
+            failureThreshold: 6
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /
+              port: www
+            initialDelaySeconds: 10
+            timeoutSeconds: 3
+            periodSeconds: 5
+          resources:
+            {}
+          volumeMounts:
+          - name: jfrog-pipelines-folder
+            mountPath: /opt/jfrog/pipelines/var/etc
+          - name: jfrog-pipelines-logs
+            mountPath: /opt/jfrog/pipelines/var/log
+        - name: pipelinesync
+          image: "registry.connect.redhat.com/jfrog/pipelines-micro:1.7.1"
+          imagePullPolicy: IfNotPresent
+          workingDir: /opt/jfrog/pipelines/app/micro/pipelineSync
+          env:
+            - name: COMPONENT
+              value: pipelinesync
+          resources:
+            {}
+          volumeMounts:
+          - name: jfrog-pipelines-folder
+            mountPath: /opt/jfrog/pipelines/var/etc
+          - name: jfrog-pipelines-logs
+            mountPath: /opt/jfrog/pipelines/var/log
+        - name: runtrigger
+          image: "registry.connect.redhat.com/jfrog/pipelines-micro:1.7.1"
+          imagePullPolicy: IfNotPresent
+          workingDir: /opt/jfrog/pipelines/app/micro/runTrigger
+          env:
+            - name: COMPONENT
+              value: runtrigger
+          resources:
+            {}
+          volumeMounts:
+          - name: jfrog-pipelines-folder
+            mountPath: /opt/jfrog/pipelines/var/etc
+          - name: jfrog-pipelines-logs
+            mountPath: /opt/jfrog/pipelines/var/log
+        - name: steptrigger
+          image: "registry.connect.redhat.com/jfrog/pipelines-micro:1.7.1"
+          imagePullPolicy: IfNotPresent
+          workingDir: /opt/jfrog/pipelines/app/micro/stepTrigger
+          env:
+            - name: COMPONENT
+              value: steptrigger
+          resources:
+            {}
+          volumeMounts:
+          - name: jfrog-pipelines-folder
+            mountPath: /opt/jfrog/pipelines/var/etc
+          - name: jfrog-pipelines-logs
+            mountPath: /opt/jfrog/pipelines/var/log
+        - name: cron
+          image: "registry.connect.redhat.com/jfrog/pipelines-micro:1.7.1"
+          imagePullPolicy: IfNotPresent
+          workingDir: /opt/jfrog/pipelines/app/micro/cron
+          env:
+            - name: COMPONENT
+              value: cron
+          resources:
+            {}
+          volumeMounts:
+          - name: jfrog-pipelines-folder
+            mountPath: /opt/jfrog/pipelines/var/etc
+          - name: jfrog-pipelines-logs
+            mountPath: /opt/jfrog/pipelines/var/log
+        - name: nexec
+          image: "registry.connect.redhat.com/jfrog/pipelines-micro:1.7.1"
+          imagePullPolicy: IfNotPresent
+          workingDir: /opt/jfrog/pipelines/app/micro/nexec
+          env:
+            - name: COMPONENT
+              value: nexec
+          resources:
+            {}
+          volumeMounts:
+          - name: jfrog-pipelines-folder
+            mountPath: /opt/jfrog/pipelines/var/etc
+          - name: jfrog-pipelines-logs
+            mountPath: /opt/jfrog/pipelines/var/log
+        - name: hookhandler
+          image: "registry.connect.redhat.com/jfrog/pipelines-micro:1.7.1"
+          imagePullPolicy: IfNotPresent
+          workingDir: /opt/jfrog/pipelines/app/micro/hookHandler
+          env:
+            - name: COMPONENT
+              value: hookhandler
+          resources:
+            {}
+          volumeMounts:
+          - name: jfrog-pipelines-folder
+            mountPath: /opt/jfrog/pipelines/var/etc
+          - name: jfrog-pipelines-logs
+            mountPath: /opt/jfrog/pipelines/var/log
+        - name: marshaller
+          image: "registry.connect.redhat.com/jfrog/pipelines-micro:1.7.1"
+          imagePullPolicy: IfNotPresent
+          workingDir: /opt/jfrog/pipelines/app/micro/marshaller
+          env:
+            - name: COMPONENT
+              value: marshaller
+          resources:
+            {}
+          volumeMounts:
+          - name: jfrog-pipelines-folder
+            mountPath: /opt/jfrog/pipelines/var/etc
+          - name: jfrog-pipelines-logs
+            mountPath: /opt/jfrog/pipelines/var/log
+        - name: logup
+          image: "registry.connect.redhat.com/jfrog/pipelines-micro:1.7.1"
+          imagePullPolicy: IfNotPresent
+          workingDir: /opt/jfrog/pipelines/app/micro/logup
+          env:
+            - name: COMPONENT
+              value: logup
+          resources:
+            {}
+          volumeMounts:
+          - name: jfrog-pipelines-folder
+            mountPath: /opt/jfrog/pipelines/var/etc
+          - name: jfrog-pipelines-logs
+            mountPath: /opt/jfrog/pipelines/var/log
+        - name: extensionsync
+          image: "registry.connect.redhat.com/jfrog/pipelines-micro:1.7.1"
+          imagePullPolicy: IfNotPresent
+          workingDir: /opt/jfrog/pipelines/app/micro/extensionSync
+          env:
+            - name: COMPONENT
+              value: extensionsync
+          resources:
+            {}
+          volumeMounts:
+          - name: jfrog-pipelines-folder
+            mountPath: /opt/jfrog/pipelines/var/etc
+          - name: jfrog-pipelines-logs
+            mountPath: /opt/jfrog/pipelines/var/log
+      volumes:
+      - name: jfrog-pipelines-folder
+        emptyDir: {}
+      - name: jfrog-pipelines-logs
+        emptyDir: {}
+      - name: systemyaml
+        secret:
+          secretName: pipelines-system-yaml
+---
+# Source: openshift-pipelines/charts/pipelines/templates/vault-statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: pipelines-pipelines-vault
+  labels:
+    helm.sh/chart: pipelines-1.4.5
+    app.kubernetes.io/name: pipelines
+    app.kubernetes.io/instance: pipelines
+    app.kubernetes.io/version: "1.7.2"
+    app.kubernetes.io/managed-by: Helm
+    component: pipelines-pipelines-vault
+spec:
+  serviceName: pipelines-pipelines-vault-headless
+  replicas: 1
+  updateStrategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: pipelines
+      app.kubernetes.io/instance: pipelines
+      component: pipelines-pipelines-vault
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: pipelines
+        app.kubernetes.io/instance: pipelines
+        component: pipelines-pipelines-vault
+    spec:
+      serviceAccountName: pipelines-pipelines-vault
+      initContainers:
+        - name: config
+          image: 'quay.io/jfrog/init:1.0.0'
+          imagePullPolicy: IfNotPresent 
+          env:
+            - name: PIPELINES_SHARED_DB_CONNECTIONSTRING
+              valueFrom:
+                secretKeyRef:
+                  name: pipelines-database
+                  key: postgresql-url
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              cat > /etc/vault/config/vault.hcl <<EOF
+              listener "tcp" {
+                address = "0.0.0.0:30100"
+                tls_disable = 1
+              }
+
+              storage "postgresql" {
+                connection_url = "${PIPELINES_SHARED_DB_CONNECTIONSTRING}"
+              }
+
+              max_lease_ttl = "768h"
+              disable_mlock = false
+
+              EOF
+          volumeMounts:
+            - name: vault-config
+              mountPath: /etc/vault/config
+        - name: wait-for-db
+          image: 'quay.io/jfrog/init:1.0.0'
+          imagePullPolicy: IfNotPresent
+          command:
+          - 'sh'
+          - '-c'
+          - >
+            echo "Waiting for Postgres to come up...";
+            until nc -z -w 2 postgres-postgresql 5432 && echo database ok; do
+              sleep 2;
+            done;
+            sleep 10;
+        - name: create-vault-table
+          image: "registry.connect.redhat.com/jfrog/pipelines-installer:1.7.1"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: PIPELINES_SHARED_DB_CONNECTIONSTRING
+              valueFrom:
+                secretKeyRef:
+                  name: pipelines-database
+                  key: postgresql-url
+          command:
+          - 'sh'
+          - '-c'
+          - >
+            echo "Copy system.yaml to /opt/jfrog/pipelines/var/etc";
+            cp -fv /tmp/etc/system.yaml /opt/jfrog/pipelines/var/etc/system.yaml;
+            echo "Creating Vault Table...";
+            ./pipelines-k8s initVault;
+          volumeMounts:
+          - name: jfrog-pipelines-folder
+            mountPath: /opt/jfrog/pipelines/var/etc
+          - name: systemyaml
+            mountPath: "/tmp/etc/system.yaml"
+            subPath: system.yaml
+      containers:
+        - name: vault-init
+          image: "registry.connect.redhat.com/jfrog/pipelines-vault-init:1.7.1"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: CHECK_INTERVAL
+              value: "10s"
+            - name: VAULT_NAMESPACE
+              value: default
+            - name: VAULT_ADDRESS
+              value: "http://localhost:30100"
+          resources:
+            requests:
+              memory: 10Mi
+              cpu: 10m
+            limits:
+              memory: 50Mi
+              cpu: 50m          
+        - name: vault
+          image: "registry.connect.redhat.com/jfrog/pipelines-vault:1.7.1"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: "status.podIP"
+            - name: "VAULT_API_ADDR"
+              value: "http://$(POD_IP):30100"
+            - name: "VAULT_CLUSTER_ADDR"
+              value: "http://$(POD_IP):30101"
+          args:
+            - "server"
+            - "-config=/etc/vault/config/vault.hcl"
+          ports:
+            - name: http
+              containerPort: 30100
+              protocol: "TCP"
+            - name: server
+              containerPort: 30101
+              protocol: "TCP"
+          readinessProbe:
+            httpGet:
+              path: "/v1/sys/health?standbyok=true"
+              port: 30100
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            {}
+          securityContext:
+            capabilities:
+              add:
+                - IPC_LOCK
+          volumeMounts:
+            - name: vault-config
+              mountPath: /etc/vault/config
+      volumes:
+        - name: vault-config
+          emptyDir: {}
+        - name: jfrog-pipelines-folder
+          emptyDir: {}
+        - name: systemyaml
+          secret:
+            secretName: pipelines-system-yaml
+
