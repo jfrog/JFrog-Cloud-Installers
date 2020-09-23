@@ -866,10 +866,15 @@ pipelines:
     enabled: true
     protocol: amqps
     replicas: 1
-    image:
-      registry: registry.connect.redhat.com
-      repository: jfrog/xray-rabbitmq
-      tag: 3.8.6
+
+    #image:
+    #  registry: registry.connect.redhat.com
+    #  repository: jfrog/xray-rabbitmq
+    #  tag: 3.8.6
+    #image:
+    #  registry: quay.io
+    #  repository: jfrog/rabbitmq
+    #  tag: 3.8.3
 
     rabbitmq:
       username: admin
