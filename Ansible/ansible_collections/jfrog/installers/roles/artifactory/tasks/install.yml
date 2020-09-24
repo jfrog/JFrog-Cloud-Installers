@@ -25,6 +25,19 @@
     state: directory
   become: yes
 
+- name: Local Copy artifactory
+  unarchive:
+    src: "{{ local_artifactory_tar }}"
+    dest: "{{ jfrog_home_directory }}"
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+    creates: "{{ artifactory_untar_home }}"
+  become: yes
+  when: local_artifactory_tar is defined
+  register: downloadartifactory
+  until: downloadartifactory is succeeded
+  retries: 3
+
 - name: download artifactory
   unarchive:
     src: "{{ artifactory_tar }}"
@@ -34,6 +47,7 @@
     group: "{{ artifactory_group }}"
     creates: "{{ artifactory_untar_home }}"
   become: yes
+  when: artifactory_tar is defined
   register: downloadartifactory
   until: downloadartifactory is succeeded
   retries: 3
@@ -67,7 +81,7 @@
 
 - name: configure system yaml
   template:
-    src: system.yaml.j2
+    src: "{{ artifactory_system_yaml }}"
     dest: "{{ artifactory_home }}/var/etc/system.yaml"
   become: yes
   when: system_file is not defined
@@ -134,16 +148,34 @@
   become: yes
   when: artifactory_license_file is not defined and artifactory_is_primary == true
 
+- name: Copy local database driver
+  copy:
+    src: "{{ db_local_location }}"
+    dest: "{{ artifactory_home }}/var/bootstrap/artifactory/tomcat/lib"
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+  when: db_local_location is defined
+  become: yes
+  
 - name: download database driver
   get_url:
     url: "{{ db_download_url }}"
     dest: "{{ artifactory_home }}/var/bootstrap/artifactory/tomcat/lib"
     owner: "{{ artifactory_user }}"
     group: "{{ artifactory_group }}"
+  when: db_download_url is defined
   become: yes
 
 - name: create artifactory service
   shell: "{{ artifactory_home }}/app/bin/installService.sh"
+  become: yes
+
+- name: Ensure permissions are correct
+  file:
+    path: "{{ artifactory_home }}"
+    group: "{{ artifactory_group }}"
+    owner: "{{ artifactory_user }}"
+    recurse: yes
   become: yes
 
 - name: start and enable the primary node
