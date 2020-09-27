@@ -1,0 +1,403 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for the resources."
+      }
+    },
+    "clusterName": {
+      "type": "string",
+      "defaultValue": "xray",
+      "maxLength": 61,
+      "metadata": {
+        "description": "String used as a base for naming resources. Must be 3-61 characters in length and globally unique across Azure. A hash is prepended to this string for some resources, and resource-specific information is appended."
+      }
+    },
+    "xrayVersion": {
+      "type": "string",
+      "defaultValue": "0.0.5",
+      "allowedValues": [
+        "0.0.3",
+        "0.0.4",
+        "0.0.5"
+      ],
+      "metadata": {
+        "description": "Xray-vm image version to deploy."
+      }
+    },
+    "artifactoryURL": {
+      "type": "string",
+      "metadata": {
+        "description": "Artifactory URL"
+      }
+    },
+    "masterKey": {
+      "type": "securestring",
+      "maxLength": 64,
+      "metadata": {
+        "description": "Master key for Artifactory cluster. Generate master.key using command '$openssl rand -hex 16'"
+      }
+    },
+    "joinKey": {
+      "type": "securestring",
+      "maxLength": 64,
+      "metadata": {
+        "description": "Join key for Artifactory cluster. Generate join.key using command '$openssl rand -hex 16'"
+      }
+    },
+    "adminUsername": {
+      "type": "string",
+      "defaultValue": "testadmin",
+      "metadata": {
+        "description": "Username for the Virtual Machine."
+      }
+    },
+    "adminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Password for the Virtual Machine."
+      }
+    },
+    "virtualNetworkName": {
+      "type": "string",
+      "metadata": {
+        "description": "New or Existing VNet Name"
+      }
+    },
+    "virtualNetworkNewOrExisting": {
+      "type": "string",
+      "metadata": {
+        "description": "Boolean indicating whether the VNet is new or existing"
+      }
+    },
+    "virtualNetworkAddressPrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "VNet address prefix"
+      }
+    },
+    "virtualNetworkResourceGroup": {
+      "type": "string",
+      "metadata": {
+        "description": "Resource group of the VNet"
+      }
+    },
+    "virtualMachineSize": {
+      "type": "string",
+      "metadata": {
+        "description": "The size of the VM"
+      }
+    },
+    "subnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "New or Existing subnet Name"
+      }
+    },
+    "subnetAddressPrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "Subnet address prefix"
+      }
+    },
+    "db_type": {
+      "type": "string",
+      "defaultValue": "Postgresql_deploy.json",
+      "allowedValues": [
+        "Postgresql_deploy.json",
+        "Postgresql_existing.json"
+      ],
+      "metadata": {
+        "description": "Deploy new Postgresql, MSSQL or use existing DB"
+      }
+    },
+    "manual_db_url": {
+      "type": "string",
+      "metadata": {
+        "description": "DB server URL, if existing DB server is used instead of a new deployment (jdbc:sqlserver://.. or jdbc:postgresql://..)"
+      }
+    },
+    "db_server": {
+      "type": "string",
+      "metadata": {
+        "description": "DB server name, if pre-existing DB is used"
+      }
+    },
+    "db_user": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "Database Admin user name"
+      }
+    },
+    "db_password": {
+      "type": "securestring",
+      "minLength": 1,
+      "metadata": {
+        "description": "Database Admin password"
+      }
+    },
+    "databases": {
+      "type": "object",
+      "defaultValue": {
+        "properties": [
+          {
+            "name": "xray",
+            "charset": "UTF8",
+            "collation": "English_United States.1252"
+          }
+        ]
+      }
+    },
+    "_artifactsLocation": {
+      "type": "string",
+      "metadata": {
+        "description": "The base URI where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
+      },
+      "defaultValue": "[deployment().properties.templateLink.uri]"
+    },
+    "_artifactsLocationSasToken": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The sasToken required to access _artifactsLocation.  When the template is deployed using the accompanying scripts, a sasToken will be automatically generated."
+      },
+      "defaultValue": ""
+    }
+  },
+  "variables": {
+    "namingInfix": "[toLower(substring(concat(parameters('clusterName'), uniqueString(resourceGroup().id)), 0, 9))]",
+    "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'sawinvm')]",
+    "publicIPAddressName": "[concat(uniqueString(resourceGroup().id),'IP')]",
+    "clusterName": "[parameters('clusterName')]",
+    "nicName": "[concat(variables('clusterName'),'Nic')]",
+    "ipConfigName": "[concat(variables('namingInfix'), 'ipconfig')]",
+    "vnetId": {
+      "new": "[resourceId('Microsoft.Network/virtualNetworks',parameters('virtualNetworkName'))]",
+      "existing": "[resourceId(parameters('virtualNetworkResourceGroup'),'Microsoft.Network/virtualNetworks',parameters('virtualNetworkName'))]"
+    },
+    "subnetId": "[concat(variables('vnetId')[parameters('virtualNetworkNewOrExisting')],'/subnets/',parameters('subnetName'))]",
+    "publicIPAddressType": "Dynamic",
+    "db_server": "[parameters('db_server')]",
+    "db_user": "[concat(parameters('db_user'), '@', parameters('db_server'))]",
+    "actual_db_user": "[parameters('db_user')]",
+    "db_password": "[parameters('db_password')]",
+    "db_location": "[parameters('location')]",
+    "db_name": "[parameters('databases').properties[0].name]",
+    "masterKey": "[parameters('masterKey')]",
+    "joinKey": "[parameters('joinKey')]",
+    "osType": {
+      "publisher": "jfrog",
+      "offer": "x-ray-vm",
+      "sku": "x-ray-vm",
+      "version": "[parameters('xrayVersion')]"
+    },
+    "imageReference": "[variables('osType')]",
+    "dbTemplate": "[parameters('db_type')]",
+    "dbTemplateLocation": "[uri(parameters('_artifactsLocation'), concat('nested/', variables('dbTemplate'), parameters('_artifactsLocationSasToken')))]",
+    "artifactoryURL": "[parameters('artifactoryURL')]"
+  },
+  "resources": [
+    {
+      "apiVersion": "2019-05-01",
+      "name": "pid-04c1c376-5d4b-4771-9a7f-054f5910dcef",
+      "type": "Microsoft.Resources/deployments",
+      "properties": {
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "resources": []
+        }
+      }
+    },
+    {
+      "condition": "[equals(parameters('virtualNetworkNewOrExisting'),'new')]",
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-05-01",
+      "name": "[parameters('virtualNetworkName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[parameters('virtualNetworkAddressPrefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[parameters('subnetName')]",
+            "properties": {
+              "addressPrefix": "[parameters('subnetAddressPrefix')]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[variables('publicIPAddressName')]",
+      "apiVersion": "2020-05-01",
+      "location": "[parameters('location')]",
+      "properties": {
+        "publicIPAllocationMethod": "[variables('publicIPAddressType')]"
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[variables('nicName')]",
+      "apiVersion": "2020-05-01",
+      "location": "[parameters('location')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('publicIPAddressName'))]"
+              },
+              "subnet": {
+                "id": "[variables('subnetId')]"
+              }
+            }
+          }
+        ],
+        "enableIPForwarding": true
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses/', variables('publicIPAddressName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2018-11-01",
+      "name": "[variables('storageAccountName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "Storage",
+      "properties": {}
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "name": "deploySQLDB",
+      "apiVersion": "2019-09-01",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('dbTemplateLocation')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "db_user": {
+            "value": "[parameters('db_user')]"
+          },
+          "db_password": {
+            "value": "[variables('db_password')]"
+          },
+          "db_server": {
+            "value": "[variables('db_server')]"
+          },
+          "db_location": {
+            "value": "[variables('db_location')]"
+          },
+          "databases": {
+            "value": "[parameters('databases')]"
+          },
+          "manual_db_url": {
+            "value": "[parameters('manual_db_url')]"
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachineScaleSets",
+      "name": "[concat(variables('namingInfix'), 'xrayScaleset')]",
+      "location": "[parameters('location')]",
+      "apiVersion": "2018-10-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
+        "[resourceId('Microsoft.Network/networkInterfaces/', variables('nicName'))]"
+      ],
+      "plan": {
+        "name": "x-ray-vm",
+        "publisher": "jfrog",
+        "product": "x-ray-vm"
+      },
+      "sku": {
+        "name": "[parameters('virtualMachineSize')]",
+        "tier": "Standard",
+        "capacity": 1
+      },
+      "properties": {
+        "singlePlacementGroup": true,
+        "overprovision": false,
+        "upgradePolicy": {
+          "mode": "Manual"
+        },
+        "virtualMachineProfile": {
+          "storageProfile": {
+            "osDisk": {
+              "caching": "ReadWrite",
+              "diskSizeGB": 250,
+              "createOption": "FromImage"
+            },
+            "imageReference": "[variables('imageReference')]"
+          },
+          "osProfile": {
+            "computerNamePrefix": "[variables('namingInfix')]",
+            "adminUsername": "[parameters('adminUsername')]",
+            "adminPassword": "[parameters('adminPassword')]",
+            "customData": "[base64(concat('#INSTALL SCRIPT INPUTS\nXRAY_VERSION=', parameters('xrayVersion'),'\nARTIFACTORY_URL=',variables('artifactoryURL'),'\nDB_SERVER=',variables('db_server'),'\nDB_NAME=',variables('db_name'),'\nDB_ADMIN_USER=',variables('db_user'),'\nACTUAL_DB_ADMIN_USER=',variables('actual_db_user'),'\nDB_ADMIN_PASSWD=',variables('db_password'),'\nMASTER_KEY=',variables('masterKey'),'\nJOIN_KEY=',variables('joinKey'),'\n'))]"
+          },
+          "networkProfile": {
+            "networkInterfaceConfigurations": [
+              {
+                "name": "[variables('nicName')]",
+                "properties": {
+                  "primary": true,
+                  "ipConfigurations": [
+                    {
+                      "name": "[concat(variables('ipConfigName'),'1')]",
+                      "properties": {
+                        "subnet": {
+                          "id": "[variables('subnetId')]"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "extensionProfile": {
+            "extensions": [
+              {
+                "name": "extension1",
+                "properties": {
+                  "publisher": "Microsoft.Azure.Extensions",
+                  "type": "CustomScript",
+                  "typeHandlerVersion": "2.0",
+                  "autoUpgradeMinorVersion": false,
+                  "settings": {
+                    "fileUris": [
+                      "[uri(parameters('_artifactsLocation'), concat('scripts/install_xray.sh', parameters('_artifactsLocationSasToken')))]"
+                    ]
+                  },
+                  "protectedSettings": {
+                    "commandToExecute": "./install_xray.sh >> /opt/installation_log1.txt"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

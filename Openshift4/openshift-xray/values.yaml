@@ -1,5 +1,6 @@
 # Openshift Jfrog Xray
 xray:
+  unifiedUpgradeAllowed: true
   replicaCount: 1
   xray:
     masterKey: FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
@@ -31,7 +32,7 @@ xray:
     name: xray-analysis
     image:
       repository: registry.connect.redhat.com/jfrog/xray-analysis
-      version: 3.3.0
+      version: 3.6.2
     updateStrategy: RollingUpdate
     podManagementPolicy: Parallel
     preStartCommand:
@@ -39,14 +40,14 @@ xray:
     name: xray-indexer
     image:
       repository: registry.connect.redhat.com/jfrog/xray-indexer
-      version: 3.3.0
+      version: 3.6.2
     updateStrategy: RollingUpdate
     podManagementPolicy: Parallel
   persist:
     name: xray-persist
     image:
       repository: registry.connect.redhat.com/jfrog/xray-persist
-      version: 3.3.0
+      version: 3.6.2
     updateStrategy: RollingUpdate
     podManagementPolicy: Parallel
     persistence:
@@ -56,7 +57,7 @@ xray:
     name: xray-server
     image:
       repository: registry.connect.redhat.com/jfrog/xray-server
-      version: 3.3.0
+      version: 3.6.2
     updateStrategy: RollingUpdate
     podManagementPolicy: Parallel
     replicaCount: 1
@@ -64,7 +65,7 @@ xray:
     name: router
     image:
       repository: registry.connect.redhat.com/jfrog/xray-router
-      version: 1.2.1
+      version: 1.4.2
       imagePullPolicy: IfNotPresent
   rabbitmq-ha:
     enabled: true

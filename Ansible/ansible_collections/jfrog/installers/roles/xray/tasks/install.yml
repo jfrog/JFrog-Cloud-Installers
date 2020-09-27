@@ -52,11 +52,19 @@
     group: "{{ xray_group }}"
   become: yes
 
-- name: configure system yaml
-  template:
-    src: system.yaml.j2
-    dest: "{{ xray_home }}/var/etc/system.yaml"
+- name: use specified system yaml
+  copy:
+    src: "{{ artifactory_system_yaml }}"
+    dest: "{{ artifactory_home }}/var/etc/system.yaml"
   become: yes
+  when: artifactory_system_yaml is defined
+
+- name: configure system yaml template
+  template:
+    src: "{{ artifactory_system_yaml_template }}"
+    dest: "{{ artifactory_home }}/var/etc/system.yaml"
+  become: yes
+  when: artifactory_system_yaml is not defined
 
 - name: ensure {{ xray_home }}/var/etc/security/ exists
   file:
