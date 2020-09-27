@@ -54,17 +54,17 @@
 
 - name: use specified system yaml
   copy:
-    src: "{{ artifactory_system_yaml }}"
-    dest: "{{ artifactory_home }}/var/etc/system.yaml"
+    src: "{{ xray_system_yaml }}"
+    dest: "{{ xray_home }}/var/etc/system.yaml"
   become: yes
-  when: artifactory_system_yaml is defined
+  when: xray_system_yaml is defined
 
 - name: configure system yaml template
   template:
-    src: "{{ artifactory_system_yaml_template }}"
-    dest: "{{ artifactory_home }}/var/etc/system.yaml"
+    src: "{{ xray_system_yaml_template }}"
+    dest: "{{ xray_home }}/var/etc/system.yaml"
   become: yes
-  when: artifactory_system_yaml is not defined
+  when: xray_system_yaml is not defined
 
 - name: ensure {{ xray_home }}/var/etc/security/ exists
   file:
