@@ -64,11 +64,13 @@
     group: "{{ artifactory_group }}"
   become: yes
 
-- name: ensure ownership of data
+- name: ensure data exists
   file:
     path: "{{ artifactory_home }}/var/data"
-    owner: "artifactory"
-    group: "artifactory"
+    state: directory
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+  become: yes
 
 - name: ensure etc exists
   file:
