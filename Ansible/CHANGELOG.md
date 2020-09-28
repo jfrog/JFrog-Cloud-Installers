@@ -2,8 +2,6 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
-
 ## [1.1.0] - 2020-09-27
 
 - Validated for Artifactory 7.7.8 and Xray 3.8.6.
