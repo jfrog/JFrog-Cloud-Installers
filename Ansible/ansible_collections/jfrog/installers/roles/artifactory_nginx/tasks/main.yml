@@ -1,7 +1,9 @@
 ---
-- name: Nginx Install Block
+- name: install nginx
   block:
-    - name: install nginx
+    - debug:
+        msg: "Attempting nginx installation without dependencies for potential offline mode."
+    - name: install nginx without dependencies
       package:
         name: nginx
         state: present
@@ -11,9 +13,11 @@
       become: yes
       until: package_res is success
   rescue:
-    - name: perform dependency installation
+    - debug:
+        msg: "Attempting nginx installation with dependencies for potential online mode."
+    - name: install dependencies
       include_tasks: "{{ ansible_os_family }}.yml"
-    - name: install nginx
+    - name: install nginx after dependency installation
       package:
         name: nginx
         state: present

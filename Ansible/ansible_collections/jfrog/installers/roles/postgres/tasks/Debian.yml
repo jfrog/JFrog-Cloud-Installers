@@ -4,12 +4,14 @@
     name: python-psycopg2
     update_cache: yes
   become: yes
+  ignore_errors: yes
 
 - name: install python3 psycopg2
   apt:
     name: python3-psycopg2
     update_cache: yes
   become: yes
+  ignore_errors: yes
 
 - name: add postgres apt key
   apt_key:

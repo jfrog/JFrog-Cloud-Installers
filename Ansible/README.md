@@ -12,6 +12,11 @@ This Ansible directory consists of the following directories that support the JF
  
 | collection_version | artifactory_version | xray_version |
 |--------------------|---------------------|--------------|
+| 1.1.0              | 7.7.8               | 3.8.6        |
+| 1.0.9              | 7.7.3               | 3.8.0        |
+| 1.0.8              | 7.7.3               | 3.8.0        |
+| 1.0.8              | 7.7.1               | 3.5.2        |
+| 1.0.8              | 7.6.1               | 3.5.2        |
 | 1.0.7              | 7.6.1               | 3.5.2        |
 | 1.0.6              | 7.5.0               | 3.3.0        |
 | 1.0.6              | 7.4.3               | 3.3.0        |
@@ -84,11 +89,29 @@ ansible_ssh_common_args: '-o ProxyCommand="ssh -o StrictHostKeyChecking=no -A us
 eg.
 ansible_ssh_common_args: '-o ProxyCommand="ssh -o StrictHostKeyChecking=no -A ubuntu@{{ azureDeployment.deployment.outputs.lbIp.value }} -W %h:%p"'
 ```
+## Upgrades
+The Artifactory and Xray roles support software updates. To use a role to perform a software update only, use the _artifactory_upgrade_only_ or _xray_upgrade_only_ variable and specify the version. See the following example.
+
+```
+- hosts: artifactory
+  vars:
+    artifactory_version: "{{ lookup('env', 'artifactory_version_upgrade') }}"
+    artifactory_upgrade_only: true
+  roles:
+    - artifactory
+
+- hosts: xray
+  vars:
+    xray_version: "{{ lookup('env', 'xray_version_upgrade') }}"
+    xray_upgrade_only: true
+  roles:
+    - xray
+```
 
 ## Building the Collection Archive
 1. Go to the [ansible_collections/jfrog/installers directory](ansible_collections/jfrog/installers).
 2. Update the galaxy.yml meta file as needed. Update the version.
-3. Build the archive.
+3. Build the archive. (Requires Ansible 2.9+)
 ```
 ansible-galaxy collection build
 ```
