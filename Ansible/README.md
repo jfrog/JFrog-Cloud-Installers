@@ -50,7 +50,7 @@ This Ansible directory consists of the following directories that support the JF
  5. Then execute with the following command to provision the JFrog software with Ansible. Variables can also be passed in at the command-line.
  
 ```
-ansible-playbook -i hosts.yml playbook.yml --extra-vars "master_key=$(openssl rand -hex 16) join_key=$(openssl rand -hex 16)"
+ansible-playbook -i hosts.yml playbook.yml --extra-vars "master_key=$(openssl rand -hex 32) join_key=$(openssl rand -hex 32)"
 ```
 
 ## Autogenerating Master and Join Keys
