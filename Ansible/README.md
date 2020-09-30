@@ -57,7 +57,7 @@ ansible-playbook -i hosts.yml playbook.yml --extra-vars "master_key=$(openssl ra
 You may want to auto-generate your master amd join keys and apply it to all the nodes.
 
 ```
-ansible-playbook -i hosts.yml playbook.yml --extra-vars "master_key=$(openssl rand -hex 16) join_key=$(openssl rand -hex 16)"
+ansible-playbook -i hosts.yml playbook.yml --extra-vars "master_key=$(openssl rand -hex 32) join_key=$(openssl rand -hex 32)"
 ```
 
 ## Using [Ansible Vault](https://docs.ansible.com/ansible/latest/user_guide/vault.html) to Encrypt Vars
