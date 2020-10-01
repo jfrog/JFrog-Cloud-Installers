@@ -12,41 +12,31 @@ artifactory-ha:
     url: "OVERRIDE"
     user: "OVERRIDE"
     password: "OVERRIDE"
-  initContainerImage: registry.redhat.io/ubi8-minimal
-  waitForDatabase: false
+  initContainerImage: registry.connect.redhat.com/jfrog/init:1.0.1
+  waitForDatabase: true
   installerInfo: '{ "productId": "Openshift_artifactory-ha/{{ .Chart.Version }}", "features": [ { "featureId": "ArtifactoryVersion/{{ default .Chart.AppVersion .Values.artifactory.image.version }}" }, { "featureId": "{{ if .Values.postgresql.enabled }}postgresql{{ else }}{{ .Values.database.type }}{{ end }}/0.0.0" }, { "featureId": "Platform/Openshift" }, { "featureId": "Partner/ACC-006983" }, { "featureId": "Channel/Openshift" } ] }'
   artifactory:
-    ## Add custom init containers execution before predefined init containers
-    customInitContainersBegin: |
-      - name: "redhat-custom-setup"
-        #image: "{{ .Values.initContainerImage }}"
-        image: {{ index .Values "initContainerImage" }}
-        imagePullPolicy: "{{ .Values.artifactory.image.pullPolicy }}"
-        command:
-          - 'sh'
-          - '-c'
-          - 'chown -R 1030:1030 {{ .Values.artifactory.persistence.mountPath }}'
-        securityContext:
-            runAsUser: 0
-        volumeMounts:
-          - mountPath: "{{ .Values.artifactory.persistence.mountPath }}"
-            name: volume
+    uid: "1000721030"
     ## Change to use RH UBI images
     image:
-      repository: registry.connect.redhat.com/jfrog/artifactory-pro
-      version: 7.7.3
+      registry: registry.connect.redhat.com
+      repository: jfrog/artifactory-pro
+      tag: 7.9.0
     node:
       replicaCount: 2
       waitForPrimaryStartup:
         enabled: false
-    masterKey: FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-    joinKey: EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
+    masterKey: "OVERRIDE"
+    joinKey: "OVERRIDE"
   postgresql:
     enabled: false
   nginx:
+    uid: "1000720104"
+    gid: "1000720107"
     image:
-      repository: registry.redhat.io/rhel8/nginx-116
-      version: latest
+      registry: registry.redhat.io
+      repository: rhel8/nginx-116
+      tag: latest
     ## K8S secret name for the TLS secret to be used for SSL
     tlsSecretName: "OVERRIDE"
     service:

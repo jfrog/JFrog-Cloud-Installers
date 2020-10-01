@@ -1,0 +1,4 @@
+domain: jfrog.com
+layout: helm.sdk.operatorframework.io/v1
+projectName: artifactory-ha-operator
+version: 3-alpha

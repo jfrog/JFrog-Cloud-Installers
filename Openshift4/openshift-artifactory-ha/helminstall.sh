@@ -51,5 +51,7 @@ helm install artifactory-ha . \
                --set artifactory-ha.database.driver=org.postgresql.Driver \
                --set artifactory-ha.database.url=jdbc:postgresql://postgres-postgresql:5432/artifactory \
                --set artifactory-ha.database.user=artifactory \
-               --set artifactory-ha.database.password=password
+               --set artifactory-ha.database.password=password \
+               --set artifactory-ha.artifactory.joinKey=EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE \
+               --set artifactory-ha.artifactory.masterKey=FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 
