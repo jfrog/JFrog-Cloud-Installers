@@ -1,64 +1,101 @@
+# Openshift Jfrog Xray
 xray:
-  analysis:
-    image:
-      repository: registry.connect.redhat.com/jfrog/xray-analysis
-      version: 3.6.2
-    name: xray-analysis
-    podManagementPolicy: Parallel
-    preStartCommand: null
-    updateStrategy: RollingUpdate
-  database:
-    password: OVERRIDE
-    url: OVERRIDE
-    user: OVERRIDE
-  global:
-    postgresqlTlsSecret: null
-  indexer:
-    image:
-      repository: registry.connect.redhat.com/jfrog/xray-indexer
-      version: 3.6.2
-    name: xray-indexer
-    podManagementPolicy: Parallel
-    updateStrategy: RollingUpdate
-  persist:
-    image:
-      repository: registry.connect.redhat.com/jfrog/xray-persist
-      version: 3.6.2
-    name: xray-persist
-    persistence:
-      size: 10Gi
-    podManagementPolicy: Parallel
-    preStartCommand: null
-    updateStrategy: RollingUpdate
+  unifiedUpgradeAllowed: true
+  replicaCount: 1
+  xray:
+    masterKey: "OVERRIDE"
+    joinKey: "OVERRIDE"
+    consoleLog: false
+    jfrogUrl: "OVERRIDE"
   postgresql:
     enabled: false
-  rabbitmq-ha:
-    enabled: true
+  database:
+    url: "OVERRIDE"
+    user: "OVERRIDE"
+    password: "OVERRIDE"
+  common:
+    xrayUserId: "1000721035"
+    xrayGroupId: "1000721035"
+  analysis:
+    name: xray-analysis
     image:
-      repository: registry.connect.redhat.com/jfrog/xray-rabbitmq
-      tag: 3.8.0
-    rabbitmqEpmdPort: 4369
-    rabbitmqManagerPort: 15672
-    rabbitmqNodePort: 5672
-    replicaCount: 1
-  replicaCount: 1
-  router:
+      registry: registry.connect.redhat.com
+      repository: jfrog/xray-analysis
+      tag: 3.8.8
+    updateStrategy: RollingUpdate
+    podManagementPolicy: Parallel
+    preStartCommand:
+  indexer:
+    name: xray-indexer
     image:
-      imagePullPolicy: IfNotPresent
-      repository: registry.connect.redhat.com/jfrog/xray-router
-      version: 1.4.2
-    name: router
+      registry: registry.connect.redhat.com
+      repository: jfrog/xray-indexer
+      tag: 3.8.8
+    updateStrategy: RollingUpdate
+    podManagementPolicy: Parallel
+  persist:
+    name: xray-persist
+    image:
+      registry: registry.connect.redhat.com
+      repository: jfrog/xray-persist
+      tag: 3.8.8
+    updateStrategy: RollingUpdate
+    podManagementPolicy: Parallel
+    persistence:
+      size: 10Gi
+    preStartCommand:
   server:
-    image:
-      repository: registry.connect.redhat.com/jfrog/xray-server
-      version: 3.6.2
     name: xray-server
+    image:
+      registry: registry.connect.redhat.com
+      repository: jfrog/xray-server
+      tag: 3.8.8
+    updateStrategy: RollingUpdate
     podManagementPolicy: Parallel
     replicaCount: 1
-    updateStrategy: RollingUpdate
-  unifiedUpgradeAllowed: true
-  xray:
-    consoleLog: false
-    jfrogUrl: OVERRIDE
-    joinKey: EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
-    masterKey: FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+  router:
+    name: router
+    image:
+      registry: registry.connect.redhat.com
+      repository: jfrog/xray-router
+      tag: 1.4.3
+      imagePullPolicy: IfNotPresent
+  rabbitmq-ha:
+    enabled: true
+    replicaCount: 1
+    image:
+      repository: registry.connect.redhat.com/jfrog/xray-rabbitmq
+      tag: 3.8.9
+    rabbitmqEpmdPort: 4369
+    rabbitmqNodePort: 5672
+    rabbitmqManagerPort: 15672
+    rabbitmqUsername: guest
+    rabbitmqPassword: guest
+    managementUsername: management
+    managementPassword: management
+    initContainer:
+      enabled: false
+    securityContext:
+      fsGroup: 1000721035
+      runAsUser: 1000721035
+      runAsGroup: 1000721035
+    livenessProbe:
+      initialDelaySeconds: 120
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 6
+      exec:
+        command:
+          - /bin/sh
+          - -c
+          - 'rabbitmqctl status'
+    readinessProbe:
+      initialDelaySeconds: 20
+      periodSeconds: 5
+      timeoutSeconds: 3
+      failureThreshold: 6
+      exec:
+        command:
+          - /bin/sh
+          - -c
+          - 'rabbitmqctl status'

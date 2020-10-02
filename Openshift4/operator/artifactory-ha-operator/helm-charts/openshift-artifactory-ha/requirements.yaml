@@ -1,4 +1,4 @@
 dependencies:
-  - name: xray
-    version: 6.0.6
+  - name: artifactory-ha
+    version: 4.1.0
     repository: https://charts.jfrog.io/
