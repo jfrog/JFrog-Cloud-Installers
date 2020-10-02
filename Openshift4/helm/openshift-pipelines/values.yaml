@@ -871,14 +871,15 @@ pipelines:
     #  registry: registry.connect.redhat.com
     #  repository: jfrog/xray-rabbitmq
     #  tag: 3.8.6
-    #image:
-    #  registry: quay.io
-    #  repository: jfrog/rabbitmq
-    #  tag: 3.8.3
+    image:
+      registry: quay.io
+      repository: jfrog/rabbitmq
+      tag: 3.9.1
 
+    # DO NOT CHANGE CUSTOM INIT USER
     rabbitmq:
-      username: admin
-      password: ""
+      username: user
+      password: bitnami
 
       ## Erlang cookie to determine whether different nodes are allowed to communicate with each other
       erlangCookie: PIPELINESRABBITMQCLUSTER

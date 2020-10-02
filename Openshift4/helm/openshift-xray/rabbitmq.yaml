@@ -16,10 +16,10 @@ spec:
         app: rabbitmq
     spec:
       containers:
-        - image: quay.io/jfrog/xray-rabbitmq-rh:3.8.0
+        - image: registry.connect.redhat.com/jfrog/xray-rabbitmq:3.8.9
           imagePullPolicy: "Always"
           name: xray-rabbitmq
           ports:
             -  containerPort: 4369
             -  containerPort: 5672
-            -  containerPort: 25672
+            -  containerPort: 15672

@@ -1,4 +1,4 @@
 dependencies:
   - name: xray
-    version: 4.2.0
+    version: 6.0.6
     repository: https://charts.jfrog.io/
