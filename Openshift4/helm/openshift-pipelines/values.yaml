@@ -16,8 +16,7 @@ pipelines:
 
   ## Common
   initContainer:
-    #image: registry.connect.redhat.com/jfrog/init:1.0.0
-    image: quay.io/jfrog/init:1.0.0
+    image: registry.connect.redhat.com/jfrog/init:1.0.0
     pullPolicy: IfNotPresent
 
   ## Available modes: devmode (enable it for debuging) and production
