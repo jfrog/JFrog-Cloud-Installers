@@ -1,0 +1,101 @@
+# Openshift Jfrog Xray
+xray:
+  unifiedUpgradeAllowed: true
+  replicaCount: 1
+  xray:
+    masterKey: "OVERRIDE"
+    joinKey: "OVERRIDE"
+    consoleLog: false
+    jfrogUrl: "OVERRIDE"
+  postgresql:
+    enabled: false
+  database:
+    url: "OVERRIDE"
+    user: "OVERRIDE"
+    password: "OVERRIDE"
+  common:
+    xrayUserId: "1000721035"
+    xrayGroupId: "1000721035"
+  analysis:
+    name: xray-analysis
+    image:
+      registry: registry.connect.redhat.com
+      repository: jfrog/xray-analysis
+      tag: 3.8.8
+    updateStrategy: RollingUpdate
+    podManagementPolicy: Parallel
+    preStartCommand:
+  indexer:
+    name: xray-indexer
+    image:
+      registry: registry.connect.redhat.com
+      repository: jfrog/xray-indexer
+      tag: 3.8.8
+    updateStrategy: RollingUpdate
+    podManagementPolicy: Parallel
+  persist:
+    name: xray-persist
+    image:
+      registry: registry.connect.redhat.com
+      repository: jfrog/xray-persist
+      tag: 3.8.8
+    updateStrategy: RollingUpdate
+    podManagementPolicy: Parallel
+    persistence:
+      size: 10Gi
+    preStartCommand:
+  server:
+    name: xray-server
+    image:
+      registry: registry.connect.redhat.com
+      repository: jfrog/xray-server
+      tag: 3.8.8
+    updateStrategy: RollingUpdate
+    podManagementPolicy: Parallel
+    replicaCount: 1
+  router:
+    name: router
+    image:
+      registry: registry.connect.redhat.com
+      repository: jfrog/xray-router
+      tag: 1.4.3
+      imagePullPolicy: IfNotPresent
+  rabbitmq-ha:
+    enabled: true
+    replicaCount: 1
+    image:
+      repository: registry.connect.redhat.com/jfrog/xray-rabbitmq
+      tag: 3.8.9
+    rabbitmqEpmdPort: 4369
+    rabbitmqNodePort: 5672
+    rabbitmqManagerPort: 15672
+    rabbitmqUsername: guest
+    rabbitmqPassword: guest
+    managementUsername: management
+    managementPassword: management
+    initContainer:
+      enabled: false
+    securityContext:
+      fsGroup: 1000721035
+      runAsUser: 1000721035
+      runAsGroup: 1000721035
+    livenessProbe:
+      initialDelaySeconds: 120
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 6
+      exec:
+        command:
+          - /bin/sh
+          - -c
+          - 'rabbitmqctl status'
+    readinessProbe:
+      initialDelaySeconds: 20
+      periodSeconds: 5
+      timeoutSeconds: 3
+      failureThreshold: 6
+      exec:
+        command:
+          - /bin/sh
+          - -c
+          - 'rabbitmqctl status'

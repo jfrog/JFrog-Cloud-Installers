@@ -1,0 +1,6 @@
+dependencies:
+- name: pipelines
+  repository: https://charts.jfrog.io/
+  version: 1.4.5
+digest: sha256:83b0fa740797074925e7f237762ff493727faf58476c3884f247acc44428202b
+generated: "2020-09-21T10:32:37.846331-07:00"

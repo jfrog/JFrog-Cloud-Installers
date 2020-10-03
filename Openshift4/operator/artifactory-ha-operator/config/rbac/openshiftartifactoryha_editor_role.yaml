@@ -1,0 +1,24 @@
+# permissions for end users to edit openshiftartifactoryhas.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: openshiftartifactoryha-editor-role
+rules:
+- apiGroups:
+  - cache.jfrog.com
+  resources:
+  - openshiftartifactoryhas
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - cache.jfrog.com
+  resources:
+  - openshiftartifactoryhas/status
+  verbs:
+  - get
