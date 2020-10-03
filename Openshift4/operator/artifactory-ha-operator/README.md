@@ -4,6 +4,12 @@ This code base is intended to deploy Artifactory HA as an operator to an Openshi
 
 Openshift OperatorHub has the latest official supported Cluster Service Version (CSV) for the OLM catalog.
 
+# Breaking Changes
+
+```
+v1.1.0 breaks existing upgrade path due to base helm chart breaking changes
+```
+
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.

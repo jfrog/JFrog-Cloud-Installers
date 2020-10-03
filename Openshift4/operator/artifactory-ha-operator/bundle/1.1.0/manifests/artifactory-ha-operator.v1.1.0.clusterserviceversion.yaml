@@ -110,7 +110,9 @@ spec:
         name: ''
         version: apps/v1
       version: v1alpha1
-  description: '## Overview
+  description: '## [BREAKING] Upgrades from 1.0.0 to 1.1.x currently are not supported. New installations only.
+
+    ## Overview
 
     Openshift Operator to deploy JFrog Artifactory Enterprise into your Openshift
     cluster.

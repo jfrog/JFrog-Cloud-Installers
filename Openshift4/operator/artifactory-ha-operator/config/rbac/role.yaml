@@ -1,31 +1,119 @@
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
+kind: Role
 metadata:
-  name: manager-role
+  creationTimestamp: null
+  name: artifactory-ha-operator
 rules:
-##
-## Base operator rules
-##
-# We need to get namespaces so the operator can read namespaces to ensure they exist
 - apiGroups:
-  - ""
+    - ""
   resources:
-  - namespaces
+    - pods
+    - services
+    - services/finalizers
+    - endpoints
+    - persistentvolumeclaims
+    - events
+    - configmaps
+    - secrets
+    - serviceaccounts
   verbs:
-  - get
-# We need to manage Helm release secrets
+    - create
+    - delete
+    - get
+    - list
+    - patch
+    - update
+    - watch
 - apiGroups:
-  - ""
+    - apps
   resources:
-  - secrets
+    - deployments
+    - daemonsets
+    - replicasets
+    - statefulsets
   verbs:
-  - "*"
-# We need to create events on CRs about things happening during reconciliation
+    - create
+    - delete
+    - get
+    - list
+    - patch
+    - update
+    - watch
 - apiGroups:
-  - ""
+    - ""
   resources:
-  - events
+    - namespaces
   verbs:
-  - create
-
-# +kubebuilder:scaffold:rules
+    - get
+- apiGroups:
+    - ""
+  resourceNames:
+    - artifactory-ha-operator
+  resources:
+    - '*'
+  verbs:
+    - '*'
+- apiGroups:
+    - ""
+  resources:
+    - events
+  verbs:
+    - create
+- apiGroups:
+    - monitoring.coreos.com
+  resources:
+    - servicemonitors
+  verbs:
+    - get
+    - create
+- apiGroups:
+    - apps
+  resourceNames:
+    - artifactory-ha-operator
+  resources:
+    - deployments/finalizers
+  verbs:
+    - update
+- apiGroups:
+    - ""
+  resources:
+    - pods
+  verbs:
+    - get
+- apiGroups:
+    - apps
+  resources:
+    - replicasets
+    - deployments
+  verbs:
+    - get
+- apiGroups:
+    - charts.helm.k8s.io
+  resources:
+    - '*'
+  verbs:
+    - create
+    - delete
+    - get
+    - list
+    - patch
+    - update
+    - watch
+- apiGroups:
+    - networking.k8s.io
+  resources:
+    - '*'
+  verbs:
+    - '*'
+- apiGroups:
+    - policy
+  resources:
+    - '*'
+  verbs:
+    - '*'
+- apiGroups:
+    - 'rbac.authorization.k8s.io'
+  resources:
+    - '*'
+  verbs:
+    - '*'
