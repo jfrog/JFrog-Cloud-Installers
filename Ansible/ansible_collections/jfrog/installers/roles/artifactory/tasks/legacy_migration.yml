@@ -1,0 +1,34 @@
+---
+- name: MV artifactory home to artifactory untar home
+  command: "mv {{ artifactory_home }} {{ temp_untar_home }}"
+  become: yes
+- name: Ensure untar home permissions are correct
+  file:
+    state: directory
+    path: "{{ temp_untar_home }}"
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+  become: yes
+- name: Create artifactory home folder
+  file:
+    state: directory
+    path: "{{ artifactory_home }}"
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+  become: yes
+- name: Create Symlinks for var folder
+  file:
+    state: link
+    src: "{{ temp_untar_home }}/var"
+    dest: "{{ artifactory_home }}/var"
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+  become: yes
+- name: Create Symlinks for app folder
+  file:
+    state: link
+    src: "{{ temp_untar_home }}/app"
+    dest: "{{ artifactory_home }}/app"
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+  become: yes

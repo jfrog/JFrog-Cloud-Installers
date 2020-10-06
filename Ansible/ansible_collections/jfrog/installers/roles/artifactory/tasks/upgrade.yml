@@ -14,6 +14,19 @@
     state: directory
   become: yes
 
+- name: Local Copy artifactory
+  unarchive:
+    src: "{{ local_artifactory_tar }}"
+    dest: "{{ jfrog_home_directory }}"
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+    creates: "{{ artifactory_untar_home }}"
+  become: yes
+  when: local_artifactory_tar is defined
+  register: downloadartifactory
+  until: downloadartifactory is succeeded
+  retries: 3
+
 - name: download artifactory
   unarchive:
     src: "{{ artifactory_tar }}"
@@ -23,24 +36,42 @@
     group: "{{ artifactory_group }}"
     creates: "{{ artifactory_untar_home }}"
   become: yes
+  when: artifactory_tar is defined
   register: downloadartifactory
   until: downloadartifactory is succeeded
   retries: 3
 
-- name: Delete artifactory app
+#- name: Delete artifactory app
+#  file:
+#    path: "{{ artifactory_home }}/app"
+#    state: absent
+#  become: yes
+
+#- name: CP new app to artifactory app
+#  command: "cp -r {{ artifactory_untar_home }}/app {{ artifactory_home }}/app"
+#  become: yes
+
+#- name: Delete untar directory
+#  file:
+#    path: "{{ artifactory_untar_home }}"
+#    state: absent
+#  become: yes
+
+- name: Create Symlinks for app folder
   file:
-    path: "{{ artifactory_home }}/app"
-    state: absent
+    state: link
+    src: "{{ artifactory_untar_home }}/app"
+    dest: "{{ artifactory_home }}/app"
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
   become: yes
 
-- name: CP new app to artifactory app
-  command: "cp -r {{ artifactory_untar_home }}/app {{ artifactory_home }}/app"
-  become: yes
-
-- name: Delete untar directory
+- name: Ensure permissions are correct
   file:
-    path: "{{ artifactory_untar_home }}"
-    state: absent
+    path: "{{ jfrog_home_directory }}"
+    group: "{{ artifactory_group }}"
+    owner: "{{ artifactory_user }}"
+    recurse: yes
   become: yes
 
 - name: start and enable the primary node
