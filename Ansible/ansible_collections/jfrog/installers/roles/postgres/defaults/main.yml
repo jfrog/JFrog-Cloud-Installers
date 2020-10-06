@@ -82,3 +82,8 @@ postgres_server_auto_explain_log_min_duration: -1
 
 # Whether or not to use EXPLAIN ANALYZE.
 postgres_server_auto_explain_log_analyze: true
+
+# Sets the hosts that can access the database
+postgres_allowed_hosts:
+  - { type: "host", database: "all", user: "all", address: "0.0.0.0/0", method: "trust"}
+

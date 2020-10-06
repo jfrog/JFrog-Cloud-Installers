@@ -1,0 +1,4 @@
+packageName: openshiftartifactoryha-operator
+channels:
+  - name: alpha
+    currentCSV: artifactory-ha-operator.v1.0.3

@@ -84,6 +84,11 @@
         - { db_name: "xraydb", db_owner: "xray" }
       groups: database
 
+  - name: Set up test environment file
+    copy:
+      src: ../tests/src/test/resources/testenv_tpl.yaml
+      dest: ../tests/src/test/resources/testenv.yaml
+
   - name: Set up test environment url
     replace:
       path: ../tests/src/test/resources/testenv.yaml
@@ -140,12 +145,7 @@
 - name: Test
   hosts: localhost
   tasks:
-  - name: Run tests
-    shell:
-      cmd: ./gradlew clean unified_test
-      chdir: ../tests/
-  - name: Cleanup and delete stack
-    cloudformation:
-      stack_name: "{{ lookup('env', 'stack_name') }}"
-      region: "us-east-1"
-      state: "absent"
+    - name: Run tests
+      shell:
+        cmd: ./gradlew clean unified_test
+        chdir: ../tests/

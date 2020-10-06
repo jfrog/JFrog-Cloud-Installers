@@ -64,6 +64,14 @@
     group: "{{ artifactory_group }}"
   become: yes
 
+- name: ensure data exists
+  file:
+    path: "{{ artifactory_home }}/var/data"
+    state: directory
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+  become: yes
+
 - name: ensure etc exists
   file:
     path: "{{ artifactory_home }}/var/etc"
@@ -74,17 +82,17 @@
 
 - name: use specified system yaml
   copy:
-    src: "{{ system_file }}"
-    dest: "{{ artifactory_home }}/var/etc/system.yaml"
-  become: yes
-  when: system_file is defined
-
-- name: configure system yaml
-  template:
     src: "{{ artifactory_system_yaml }}"
     dest: "{{ artifactory_home }}/var/etc/system.yaml"
   become: yes
-  when: system_file is not defined
+  when: artifactory_system_yaml is defined
+
+- name: configure system yaml template
+  template:
+    src: "{{ artifactory_system_yaml_template }}"
+    dest: "{{ artifactory_home }}/var/etc/system.yaml"
+  become: yes
+  when: artifactory_system_yaml is not defined
 
 - name: ensure {{ artifactory_home }}/var/etc/security/ exists
   file:
@@ -181,7 +189,7 @@
 - name: start and enable the primary node
   service:
     name: artifactory
-    state: restarted
+    state: started
   become: yes
   when: artifactory_is_primary == true
 
@@ -193,6 +201,6 @@
 - name: start and enable the secondary nodes
   service:
     name: artifactory
-    state: restarted
+    state: started
   become: yes
   when: artifactory_is_primary == false
