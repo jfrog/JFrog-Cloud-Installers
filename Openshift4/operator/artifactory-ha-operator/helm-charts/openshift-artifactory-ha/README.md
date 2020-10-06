@@ -16,6 +16,15 @@ artifactory-ha.artifactory.node.replicaCount
 ```
 
 This is due to helm referencing them through the subchart artifactory-ha now.
+
+## Security Context Constraints
+
+To deploy this helm chart you will need to be a cluster admin w/ access to the anyuid scc.
+
+````bash
+oc adm policy add-scc-to-user anyuid -z my_user_name
+````
+
 ## Prerequisites Details
 
 * Kubernetes 1.12+

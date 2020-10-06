@@ -4,11 +4,14 @@ This code base is intended to deploy Artifactory HA as an operator to an Openshi
 
 Openshift OperatorHub has the latest official supported Cluster Service Version (CSV) for the OLM catalog.
 
-# Breaking Changes
 
-```
-v1.1.0 breaks existing upgrade path due to base helm chart breaking changes
-```
+## Security Context Constraints
+
+To deploy this helm chart you will need to be a cluster admin w/ access to the anyuid scc.
+
+````bash
+oc adm policy add-scc-to-user anyuid -z artifactory-ha-operator
+````
 
 ## Getting Started
 
