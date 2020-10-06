@@ -12,7 +12,7 @@
       register: artifactory_installed_version
     - name: Debug defunct installation
       debug:
-        var: artifactory_installed_version
+        var: artifactory_installed_version.json.version
     - name: Setup temporary untar home
       set_fact: 
         temp_untar_home: "{{ jfrog_home_directory }}/artifactory-{{ artifactory_flavour }}-{{ artifactory_installed_version }}"

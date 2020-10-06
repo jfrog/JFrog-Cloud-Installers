@@ -202,7 +202,7 @@
 
 - name: Ensure permissions are correct
   file:
-    path: "{{ artifactory_home }}"
+    path: "{{ jfrog_home_directory }}"
     group: "{{ artifactory_group }}"
     owner: "{{ artifactory_user }}"
     recurse: yes
