@@ -68,9 +68,9 @@ cat <<EOF >/etc/nginx/nginx.conf
 
     include    /etc/nginx/conf.d/*.conf;
     default_type  application/octet-stream;
-    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
-    '$status $body_bytes_sent "$http_referer" '
-    '"$http_user_agent" "$http_x_forwarded_for"';
+    log_format  main  '\$remote_addr - \$remote_user [\$time_local] "\$request" '
+    '\$status \$body_bytes_sent "\$http_referer" '
+    '"\$http_user_agent" "\$http_x_forwarded_for"';
     access_log  /var/log/nginx/access.log  main;
     sendfile        on;
     #tcp_nopush     on;
@@ -255,6 +255,17 @@ EOF
 cat /tmp/temp.key | sed 's/KEY----- /&\n/' | sed 's/ -----END/\n-----END/' | awk '{if($0 ~ /----/) {print;} else { gsub(/ /,"\n");print;}}' > /etc/pki/tls/private/cert.key
     rm /tmp/temp.key
 fi
+
+cat <<EOF >/var/opt/jfrog/artifactory/etc/info/installer-info.json
+{
+  "productId": "ARM_artifactory-pro-template/1.0.0",
+  "features": [
+    {
+      "featureId": "Partner/ACC-007221"
+    }
+  ]
+}
+EOF
 
 chown artifactory:artifactory -R /var/opt/jfrog/artifactory/*  && chown artifactory:artifactory -R /var/opt/jfrog/artifactory/etc/security && chown artifactory:artifactory -R /var/opt/jfrog/artifactory/etc/*
 
