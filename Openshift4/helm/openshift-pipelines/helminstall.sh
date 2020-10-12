@@ -12,6 +12,8 @@ then
   JOIN_KEY=EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
 fi
 
+JOIN_KEY=93f1e5d2e8863b3ec14f5cdf136c7896
+
 helm upgrade --install pipelines . \
      --set pipelines.pipelines.jfrogUrl=http://openshiftartifactoryha-nginx \
      --set pipelines.pipelines.jfrogUrlUI=http://openshiftartifactoryha-nginx \

@@ -3,7 +3,7 @@ kind: OpenshiftArtifactoryHa
 metadata:
   name: openshiftartifactoryha-sample
 spec:
-  # Default values copied from <project_dir>/helm-charts/openshift-artifactory-ha/values.yaml
+  # Default values copied from <project_dir>/helm-charts/openshift-artifactory-ha/values-old.yaml
   artifactory-ha:
     access:
       accessConfig:

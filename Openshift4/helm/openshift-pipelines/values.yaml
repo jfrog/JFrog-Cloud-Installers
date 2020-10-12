@@ -1,4 +1,5 @@
 pipelines:
+
   # MUST SET FOR EXTERNAL POSTGRESQL AND VAULT
   global:
     postgresql:
@@ -9,15 +10,21 @@ pipelines:
       password: OVERRIDE
       ssl: OVERRIDE
 
-    vault:
-      host: OVERRIDE
-      port: OVERRIDE
-      token: OVERRIDE
-
   ## Common
   initContainer:
-    image: registry.connect.redhat.com/jfrog/init:1.0.0
+    image: registry.connect.redhat.com/jfrog/pipelines-init:1.8.0
     pullPolicy: IfNotPresent
+
+  # Init containers
+  initContainers:
+    resources: {}
+  #    requests:
+  #      memory: "64Mi"
+  #      cpu: "10m"
+  #    limits:
+  #      memory: "128Mi"
+  #      cpu: "250m"
+
 
   ## Available modes: devmode (enable it for debuging) and production
   runMode: production
@@ -42,27 +49,22 @@ pipelines:
   ## Set user/group to run Pipelines components with
   securityContext:
     enabled: true
-    uid: 1030
-    gid: 1030
+    uid: '1000721117'
+    gid: '1000721117'
 
   ## Pipelines components
   pipelines:
-
-    version: 1.7.1
-
+    version: 1.8.0
     ## Artifactory URL - Mandatory
     jfrogUrl: OVERRIDE
-    ## Artifactory UI URL - Mandatory
     jfrogUrlUI: OVERRIDE
 
-    ## Join Key to connect to Artifactory
-    ## IMPORTANT: You should NOT use the example joinKey for a production deployment!
-    joinKey: EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
+    ## Pipelines requires the join key from Artifactory
+    joinKey: OVERRIDE
 
     ## Pipelines requires a unique master key
     ## You can generate one with the command: "openssl rand -hex 32"
-    ## IMPORTANT: You should NOT use the example masterKey for a production deployment!
-    masterKey: FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+    masterKey: OVERRIDE
 
     ## Installer Authentication Token
     ## The unique token can be generated with: uuidgen | tr '[:upper:]' '[:lower:]'
@@ -96,6 +98,8 @@ pipelines:
 
     # RabbitMQ health check interval in mins
     rabbitmqHealthCheckIntervalInMins: 1
+    # Artifactory health check interval in mins
+    artifactoryHealthCheckIntervalInMins: 1
 
     updateStrategy: RollingUpdate
 
@@ -132,9 +136,28 @@ pipelines:
         ## Whitelist IPs allowed to LoadBalancer type services
         ## Example: loadBalancerSourceRanges={82.82.190.51/32,141.141.8.8/32}
         loadBalancerSourceRanges: []
+      livenessProbe:
+        enabled: true
+        initialDelaySeconds: 20
+        timeoutSeconds: 10
+        periodSeconds: 10
+        failureThreshold: 10
+        successThreshold: 1
+        path: /
+        port: api
+
+      readinessProbe:
+        enabled: true
+        initialDelaySeconds: 20
+        timeoutSeconds: 10
+        periodSeconds: 10
+        failureThreshold: 10
+        successThreshold: 1
+        path: /
+        port: api
 
       ## External URL, it is ignored if ingress is enabled
-      externalUrl: OVERRIDE
+      externalUrl:
 
       ingress:
         enabled: false
@@ -157,7 +180,6 @@ pipelines:
         # requests:
         #   cpu: 100m
         #   memory: 128Mi
-
     router:
       image:
         repository: jfrog/pipelines-router
@@ -197,9 +219,29 @@ pipelines:
         ## Whitelist IPs allowed to LoadBalancer type services
         ## Example: loadBalancerSourceRanges={82.82.190.51/32,141.141.8.8/32}
         loadBalancerSourceRanges: []
+      livenessProbe:
+        enabled: true
+        initialDelaySeconds: 20
+        failureThreshold: 10
+        timeoutSeconds: 10
+        periodSeconds: 10
+        successThreshold: 1
+        path: /
+        port: www
+
+
+      readinessProbe:
+        enabled: true
+        initialDelaySeconds: 20
+        failureThreshold: 10
+        timeoutSeconds: 10
+        periodSeconds: 10
+        successThreshold: 1
+        path: /
+        port: www
 
       ## External URL, it is ignored if ingress is enabled
-      externalUrl: OVERRIDE
+      externalUrl:
 
       ingress:
         enabled: false
@@ -230,7 +272,7 @@ pipelines:
     pipelineSync:
       image:
         repository: jfrog/pipelines-micro
-        pullPolicy: IfNotPresent
+        pullPolicy: Always
 
       resources: {}
         # limits:
@@ -392,20 +434,35 @@ pipelines:
     #    mountPath: /scripts/script.sh
     #    subPath: script.sh
 
-    ## Add custom init containers
-    customInitContainers: |
+    ## Add custom init begin containers - first init container to run
+    customInitContainersBegin: |
       - name: "redhat-custom-setup"
         image: {{ .Values.initContainer.image }}
         imagePullPolicy: Always
         command:
           - 'sh'
           - '-c'
-          - 'mkdir -p /opt/jfrog/pipelines/var/etc && mkdir -p /opt/jfrog/pipelines/var/tmp && mkdir -p /opt/jfrog/pipelines/var/log && chown -R 1117:1117 /opt/jfrog/pipelines && chmod -R 0777 /opt/jfrog/pipelines'
+          - 'chown -R {{ .Values.securityContext.uid }}:{{ .Values.securityContext.gid }} {{ .Values.pipelines.mountPath }} && chown -R {{ .Values.securityContext.uid }}:{{ .Values.securityContext.gid }} {{ .Values.pipelines.logPath }}'
         securityContext:
             runAsUser: 0
         volumeMounts:
-          - mountPath: "/opt/jfrog/pipelines"
-            name: jfrog-pipelines-folder
+          - name: jfrog-pipelines-folder
+            mountPath: "{{ .Values.pipelines.mountPath }}"
+          - name: jfrog-pipelines-logs
+            mountPath: {{ .Values.pipelines.logPath }}
+
+    ## Add custom init containers - last init container to run
+    customInitContainers: |
+    #  - name: "custom-setup"
+    #    image: "{{ .Values.initContainer.image }}"
+    #    imagePullPolicy: "{{ .Values.initContainer.pullPolicy}}"
+    #    command:
+    #      - 'sh'
+    #      - '-c'
+    #      - 'touch {{ .Values.pipelines.mountPath }}/example-custom-setup'
+    #    volumeMounts:
+    #      - mountPath: "{{ .Values.pipelines.mountPath}}"
+    #        name: jfrog-pipelines-folder
 
     ## Add custom sidecar containers
     # - The provided example uses a custom volume (customVolumes)
@@ -434,6 +491,16 @@ pipelines:
     #        cpu: "100m"
 
     systemYaml: |
+      {{- if .Values.router.routerConfiguration }}
+      router:
+        ## Router configuration
+        topology:
+          external:
+            refresh:
+              interval: "{{ .Values.router.topology.external.refresh.interval }}"
+        serviceRegistry:
+          url: "{{ .Values.router.serviceRegistry.url }}"
+      {{- end }}
       shared:
         ## Artifactory configuration
         ##
@@ -614,6 +681,7 @@ pipelines:
           - {{ .Values.pipelines.accessControlAllowOrigins_0 }}
           - {{ .Values.pipelines.accessControlAllowOrigins_1 }}
         rabbitmqHealthCheckIntervalInMins: {{ .Values.pipelines.rabbitmqHealthCheckIntervalInMins}}
+        artifactoryHealthCheckIntervalInMins: {{ .Values.pipelines.artifactoryHealthCheckIntervalInMins}}
         ## Global proxy settings, to be applied to all services
         ##
         proxy:
@@ -847,6 +915,16 @@ pipelines:
   ## Runtime Override Properties Section
   runtimeOverride: {}
 
+  # Router Configuration
+  router:
+    routerConfiguration: false
+    topology:
+      external:
+        refresh:
+          interval: "3s"
+    serviceRegistry:
+      url:
+
   # PostgreSQL
   ## https://hub.helm.sh/charts/bitnami/postgresql
   ## Configuration values for the postgresql dependency
@@ -860,50 +938,34 @@ pipelines:
   ## Configuration values for the rabbitmq dependency
   ## ref: https://github.com/kubernetes/charts/blob/master/stable/rabbitmq/README.md
   ##
-  # /var/lib/rabbitmq
   rabbitmq:
     enabled: true
     protocol: amqps
     replicas: 1
 
-    #image:
-    #  registry: registry.connect.redhat.com
-    #  repository: jfrog/xray-rabbitmq
-    #  tag: 3.8.6
     image:
-      registry: quay.io
-      repository: jfrog/rabbitmq
-      tag: 3.9.1
+      registry: registry.connect.redhat.com
+      repository: jfrog/pipelines-rabbitmq
+      tag: 3.8.9
+
 
     # DO NOT CHANGE CUSTOM INIT USER
     rabbitmq:
       username: user
       password: bitnami
-
-      ## Erlang cookie to determine whether different nodes are allowed to communicate with each other
       erlangCookie: PIPELINESRABBITMQCLUSTER
-      # existingErlangSecret: name-of-existing-secret
-
       extraPlugins: ""
 
     service:
       type: ClusterIP
-
-      ## Service annotations
       annotations: {}
-
-      ## Load Balancer sources
-      # loadBalancerSourceRanges:
-      # - 10.10.10.0/24
 
     persistence:
       enabled: true
       size: 20Gi
 
     resources: {}
-
     affinity: {}
-
     ingress:
       ## Set to true to enable ingress record generation
       enabled: false
@@ -918,16 +980,14 @@ pipelines:
       tls: true
 
       ## If TLS is set to true, you must declare what secret will store the key/certificate for TLS
-      tlsSecret: OVERRIDE
+      tlsSecret: myTlsSecret
 
       ## Ingress annotations done as key:value pairs
       annotations:
       #  kubernetes.io/ingress.class: nginx
       #  kubernetes.io/tls-acme: true
 
-    ## External URL for Build Plane VMs to access RabbitMQ
-    ## e.g. amqps://pipelines-msg.doamin.com
-    ## It should be set for the LoadBalancer below IP with proper domain name and TLS if external IP is used.
+
     externalUrl: OVERRIDE
 
     ## Service with external/internal LoadBalancer to access RabbitMQ by Node-pool VMs
@@ -969,7 +1029,7 @@ pipelines:
     usePassword: false
 
     master:
-      command: ""
+      command: "container-entrypoint run-redis"
       configmap: |-
         appendonly yes
         loglevel notice
@@ -996,12 +1056,11 @@ pipelines:
   ## Vault
   vault:
     enabled: true
-
     updateStrategy: RollingUpdate
 
     image:
       repository: registry.connect.redhat.com/jfrog/pipelines-vault
-      tag: 1.7.1
+      tag: 1.8.0
       pullPolicy: IfNotPresent
 
     init:
@@ -1014,7 +1073,7 @@ pipelines:
       type: ClusterIP
       port: 30100
 
-    # PRODUCTION environments should always enable mlock
+    # Disable mlock only in non-prod environments
     disablemlock: false
 
     resources: {}
@@ -1061,7 +1120,20 @@ pipelines:
     #    mountPath: /scripts/script.sh
     #    subPath: script.sh
 
-    ## Add custom init containers
+    ## Add custom init begin containers - first init container to run
+    customInitContainersBegin: |
+    #  - name: "custom-begin-setup"
+    #    image: "{{ .Values.initContainer.image }}"
+    #    imagePullPolicy: "{{ .Values.initContainer.pullPolicy}}"
+    #    command:
+    #      - 'sh'
+    #      - '-c'
+    #      - 'touch {{ .Values.pipelines.mountPath }}/example-custom-setup'
+    #    volumeMounts:
+    #      - mountPath: "{{ .Values.pipelines.mountPath}}"
+    #        name: jfrog-pipelines-folder
+
+    ## Add custom init containers - last init container to run
     customInitContainers: |
     #  - name: "custom-setup"
     #    image: "{{ .Values.initContainer.image }}"
@@ -1072,11 +1144,17 @@ pipelines:
     #      - 'touch {{ .Values.pipelines.mountPath }}/example-custom-setup'
     #    volumeMounts:
     #      - mountPath: "{{ .Values.pipelines.mountPath}}"
-    #        name: pipelines-data
+    #        name: jfrog-pipelines-folder
+
 
   # Filebeat Sidecar container
+  ## The provided filebeat configuration is for Pipeline logs. It assumes you have a logstash installed and configured properly.
   filebeat:
     enabled: false
+
+  ##
+  rbac:
+    create: true
 
   ## The Build Plane is where the actual builds will run
   buildPlane:
