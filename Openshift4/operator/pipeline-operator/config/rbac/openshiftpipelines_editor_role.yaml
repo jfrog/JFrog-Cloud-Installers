@@ -1,0 +1,24 @@
+# permissions for end users to edit openshiftpipelines.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: openshiftpipelines-editor-role
+rules:
+- apiGroups:
+  - charts.my.domain
+  resources:
+  - openshiftpipelines
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - charts.my.domain
+  resources:
+  - openshiftpipelines/status
+  verbs:
+  - get

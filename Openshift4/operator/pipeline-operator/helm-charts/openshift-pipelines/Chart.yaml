@@ -1,0 +1,16 @@
+apiVersion: v1
+appVersion: 1.8.0
+description: A Helm chart for JFrog Pipelines
+home: https://jfrog.com/pipelines/
+icon: https://raw.githubusercontent.com/jfrog/charts/master/stable/pipelines/icon/pipelines-logo.png
+keywords:
+  - pipelines
+  - jfrog
+  - devops
+maintainers:
+- email: vinaya@jfrog.com
+  name: Vinay Aggarwal
+- email: johnp@jfrog.com
+  name: John Peterson
+name: openshift-pipelines
+version: 1.5.4

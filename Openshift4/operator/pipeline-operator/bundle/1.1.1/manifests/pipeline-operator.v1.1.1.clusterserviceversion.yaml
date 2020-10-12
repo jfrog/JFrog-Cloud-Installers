@@ -1,0 +1,502 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: |-
+      [
+        {
+          "apiVersion": "charts.helm.k8s.io/v1alpha1",
+          "kind": "OpenshiftPipeline",
+          "metadata": {
+            "name": "openshiftpipeline"
+          },
+          "spec": {
+            "pipelines": {
+              "global": {
+                "postgresql": {
+                  "host": "OVERRIDE",
+                  "port": "OVERRIDE",
+                  "database": "OVERRIDE",
+                  "user": "OVERRIDE",
+                  "password": "OVERRIDE",
+                  "ssl": "false"
+                }
+              },
+              "initContainer": {
+                "image": "registry.connect.redhat.com/jfrog/pipelines-init:1.8.0",
+                "pullPolicy": "Always"
+              },
+              "imageRegistry": "registry.connect.redhat.com",
+              "securityContext": {
+                "enabled": true,
+                "uid": "1000721117",
+                "gid": "1000721117"
+              },
+              "pipelines": {
+                "version": "1.8.0",
+                "jfrogUrl": "OVERRIDE",
+                "jfrogUrlUI": "OVERRIDE",
+                "accessControlAllowOrigins_0": "OVERRIDE",
+                "accessControlAllowOrigins_1": "OVERRIDE",
+                "joinKey": "OVERRIDE",
+                "masterKey": "OVERRIDE",
+                "api": {
+                  "image": {
+                    "repository": "jfrog/pipelines-api",
+                    "pullPolicy": "Always"
+                  },
+                  "externalUrl": "OVERRIDE"
+                },
+                "www": {
+                  "image": {
+                    "repository": "jfrog/pipelines-www",
+                    "pullPolicy": "Always"
+                  },
+                  "externalUrl": "OVERRIDE"
+                },
+                "router": {
+                  "image": {
+                    "repository": "jfrog/pipelines-router",
+                    "pullPolicy": "Always"
+                  }
+                },
+                "msg": {
+                  "uiUser": "OVERRIDE",
+                  "uiUserPassword": "OVERRIDE"
+                },
+                "pipelineSync": {
+                  "image": {
+                    "repository": "jfrog/pipelines-micro",
+                    "pullPolicy": "Always"
+                  }
+                },
+                "runTrigger": {
+                  "image": {
+                    "repository": "jfrog/pipelines-micro",
+                    "pullPolicy": "Always"
+                  }
+                },
+                "stepTrigger": {
+                  "image": {
+                    "repository": "jfrog/pipelines-micro",
+                    "pullPolicy": "Always"
+                  }
+                },
+                "cron": {
+                  "image": {
+                    "repository": "jfrog/pipelines-micro",
+                    "pullPolicy": "Always"
+                  }
+                },
+                "nexec": {
+                  "image": {
+                    "repository": "jfrog/pipelines-micro",
+                    "pullPolicy": "Always"
+                  }
+                },
+                "hookHandler": {
+                  "image": {
+                    "repository": "jfrog/pipelines-micro",
+                    "pullPolicy": "Always"
+                  }
+                },
+                "marshaller": {
+                  "image": {
+                    "repository": "jfrog/pipelines-micro",
+                    "pullPolicy": "Always"
+                  }
+                },
+                "logup": {
+                  "image": {
+                    "repository": "jfrog/pipelines-micro",
+                    "pullPolicy": "Always"
+                  }
+                },
+                "extensionSync": {
+                  "image": {
+                    "repository": "jfrog/pipelines-micro",
+                    "pullPolicy": "Always"
+                  }
+                },
+                "pipelinesInit": {
+                  "image": {
+                    "repository": "jfrog/pipelines-installer",
+                    "pullPolicy": "Always"
+                  }
+                }
+              },
+              "postgresql": {
+                "enabled": false
+              },
+              "rabbitmq": {
+                "enabled": true,
+                "externalUrl": "OVERRIDE",
+                "image": {
+                  "registry": "registry.connect.redhat.com",
+                  "repository": "jfrog/pipelines-rabbitmq",
+                  "tag": "3.8.9"
+                }
+              },
+              "redis": {
+                "enabled": true,
+                "master": {
+                  "command": "container-entrypoint run-redis"
+                },
+                "image": {
+                  "registry": "registry.redhat.io",
+                  "repository": "rhel8/redis-5",
+                  "tag": "1-98"
+                }
+              },
+              "vault": {
+                "enabled": true,
+                "disablemlock": false,
+                "image": {
+                  "repository": "registry.connect.redhat.com/jfrog/pipelines-vault",
+                  "tag": "1.8.0"
+                },
+                "init": {
+                  "repository": "jfrog/pipelines-vault-init",
+                  "pullPolicy": "Always"
+                }
+              }
+            }
+          }
+        }
+      ]
+    capabilities: Seamless Upgrades
+    categories: Developer Tools,Integration & Delivery
+    certified: 'true'
+    containerImage: registry.connect.redhat.com/jfrog/pipelines-operator:1.8.0
+    createdAt: 2020-10-09 00:00:00+00:00
+    description: JFrog Pipeline Enterprise deploys Pipeline CI/CD Openshift (Requires Jfrog Artifactory)
+    repository: https://github.com/jfrog/JFrog-Cloud-Installers/tree/openshift4/Openshift4
+    support: JFrog
+  creationTimestamp: null
+  name: pipeline-operator.v1.1.1
+  namespace: default
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+    - description: Represents Pipeline Instances
+      displayName: Pipeline
+      kind: OpenshiftPipeline
+      name: openshiftpipelines.charts.helm.k8s.io
+      resources:
+      - kind: Deployment
+        name: ''
+        version: v1
+      - kind: Service
+        name: ''
+        version: v1
+      - kind: ReplicaSet
+        name: ''
+        version: v1
+      - kind: Pod
+        name: ''
+        version: v1
+      - kind: Secret
+        name: ''
+        version: v1
+      - kind: ConfigMap
+        name: ''
+        version: v1
+      - kind: StatefulSet
+        name: ''
+        version: apps/v1
+      version: v1alpha1
+  description: '## Overview
+
+
+    Openshift Operator to deploy JFrog Pipelinesinto your Openshift cluster.
+
+    ## Usage
+
+
+    An external DB is required. The operator will not deploy a DB but will require
+    you to specify the configuration values to connect to it.
+
+
+    Search for JFrog and click JFrog Pipeline Operator to install.
+
+
+    Go to the Installed Operators.
+
+
+    Wait for the JFrog Pipeline Operator to complete the installation.
+
+
+    Open the Operator and click on the provided API: Xray
+
+
+    Click Create New Instance and provide the following parameters for your DB configuration:
+
+
+    ```
+
+     pipelines.global.postgresql.host=<postgresql_host>
+     pipelines.global.postgresql.port=<postgresql_port>
+     pipelines.global.postgresql.database=<postgresql_dbname>
+     pipelines.global.postgresql.user=<postgresql_user>
+     pipelines.global.postgresql.password=<postgresql_password>
+
+    ```
+
+
+    JFROG_URL is the external ip or DNS of your Artifactory to connect Pipelines to. Artifactory
+    is required to use this operator.
+
+    You will need to specify your JFROG_URL in the follow locations:
+
+    Use the cluster DNS name of the service for most operator deployments this will be: http://openshiftartifactoryha-nginx
+
+    ```
+      pipelines.pipelines.jfrogUrl=<JFROG_URL>
+      pipelines.pipelines.jfrogUrlUI=<JFROG_URL>
+      pipelines.pipelines.accessControlAllowOrigins_0=<JFROG_URL>
+      pipelines.pipelines.accessControlAllowOrigins_1=<JFROG_URL>
+    ```
+
+    Setup a unique master key and use the same join key you used when creating Artifactory:
+
+    ```
+       pipelines.pipelines.masterKey=$MASTER_KEY
+       pipelines.pipelines.joinKey=$JOIN_KEY
+    ```
+
+    Setup a unique username and password for Rabbitmq user:
+
+    ```
+       pipelines.pipelines.msg.uiUser=monitor
+       pipelines.pipelines.msg.uiUserPassword=monitor
+    ```
+
+    Specify external urls that will be your Openshift routes if desired:
+
+    ```
+       pipelines.rabbitmq.externalUrl=amqps://pipelines-rabbit.example.com
+       pipelines.pipelines.api.externalUrl=http://pipelines-api.example.com
+       pipelines.pipelines.www.externalUrl=http://pipelines-www.example.com
+    ```
+
+    Deploy JFrog Pipelines into your cluster.
+
+    ## Build Plane Usage
+
+    To use the pipelines build plane you can either use your Openshift cluster or a 3rd party cloud provider like AWS.
+
+    Setup the Pipelines build plane.
+
+    ## Sync issue fix
+
+    To resolve the known host issue when syncing from a new site for now users can rsh into the pod or open the terminal into the pod in the Openshift web console.
+
+    Once inside the container `pipelinesync` run the follow command:
+
+    ```
+    /pipelineSync/clone.sh
+    ```
+
+    Type yes to accept the host verification and then re-sync your pipeline.
+    '
+  displayName: JFrog Pipeline Operator
+  icon:
+  - base64data: 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UmVhZHlxyWU8AAADJWlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS42LWMxNDggNzkuMTY0MDM2LCAyMDE5LzA4LzEzLTAxOjA2OjU3ICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdFJlZj0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlUmVmIyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgMjEuMCAoTWFjaW50b3NoKSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDpENDgwNUU0NzUzREQxMUVBOUZGODkwMEY5OEQzRjlFMiIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDpENDgwNUU0ODUzREQxMUVBOUZGODkwMEY5OEQzRjlFMiI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkQ0ODA1RTQ1NTNERDExRUE5RkY4OTAwRjk4RDNGOUUyIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOkQ0ODA1RTQ2NTNERDExRUE5RkY4OTAwRjk4RDNGOUUyIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+WnMr7QAAIxhJREFUeNrsnc11G0fWQMvf0ZlZgo6AUASkIgC088ZDKAKAERCMgGAEhCIgGIHA8cY7NSMQGIHBCIZYzmz49SNeWy2IIPFT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
+    mediatype: image/png
+  install:
+    spec:
+      deployments:
+      - name: pipeline-operator
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              name: pipeline-operator
+          strategy: {}
+          template:
+            metadata:
+              labels:
+                name: pipeline-operator
+            spec:
+              containers:
+              - env:
+                - name: WATCH_NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.annotations['olm.targetNamespaces']
+                - name: POD_NAME
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.name
+                - name: OPERATOR_NAME
+                  value: pipeline-operator
+                image: registry.connect.redhat.com/jfrog/pipelines-operator:1.8.0
+                imagePullPolicy: Always
+                name: pipeline-operator
+                resources: {}
+              serviceAccountName: pipeline-operator
+      permissions:
+      - rules:
+        - apiGroups:
+          - ''
+          resources:
+          - pods
+          - services
+          - services/finalizers
+          - endpoints
+          - persistentvolumeclaims
+          - events
+          - configmaps
+          - secrets
+          - serviceaccounts
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - apps
+          resources:
+          - deployments
+          - daemonsets
+          - replicasets
+          - statefulsets
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - ''
+          resources:
+          - namespaces
+          verbs:
+          - get
+        - apiGroups:
+          - ''
+          resourceNames:
+          - pipeline-operator
+          resources:
+          - '*'
+          verbs:
+          - '*'
+        - apiGroups:
+          - ''
+          resources:
+          - events
+          verbs:
+          - create
+        - apiGroups:
+          - monitoring.coreos.com
+          resources:
+          - servicemonitors
+          verbs:
+          - get
+          - create
+        - apiGroups:
+          - apps
+          resourceNames:
+          - pipeline-operator
+          resources:
+          - deployments/finalizers
+          verbs:
+          - update
+        - apiGroups:
+          - ''
+          resources:
+          - pods
+          verbs:
+          - get
+        - apiGroups:
+          - apps
+          resources:
+          - replicasets
+          - deployments
+          verbs:
+          - get
+        - apiGroups:
+          - charts.helm.k8s.io
+          resources:
+          - '*'
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - networking.k8s.io
+          resources:
+          - '*'
+          verbs:
+          - '*'
+        - apiGroups:
+          - policy
+          resources:
+          - '*'
+          verbs:
+          - '*'
+        - apiGroups:
+          - rbac.authorization.k8s.io
+          resources:
+          - '*'
+          verbs:
+          - '*'
+        serviceAccountName: pipeline-operator
+    strategy: deployment
+  installModes:
+  - supported: true
+    type: OwnNamespace
+  - supported: true
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
+  keywords:
+  - DevOps
+  - CI/CD
+  - Developers
+  - Software
+  - Productivity
+  - Artifact Repository
+  - Repository Manager
+  - Docker
+  - Maven
+  - Git
+  - Helm
+  - npm
+  - go
+  - golang
+  - kubernetes
+  - k8s
+  - rpm
+  - yum
+  links:
+  - name: JFrog
+    url: https://www.jfrog.com
+  - name: JFrog Pipelines
+    url: https://jfrog.com/pipelines/
+  - name: JFrog Pipelines Video
+    url: https://www.youtube.com/watch?v=5xbMYabN1MQ
+  maintainers:
+  - email: partner-support@jfrog.com
+    name: JFrog
+  maturity: alpha
+  provider:
+    name: JFrog
+  version: 1.1.1
+status:
+  certsLastUpdated: null
+  certsRotateAt: null
+  lastTransitionTime: null
+  lastUpdateTime: null
