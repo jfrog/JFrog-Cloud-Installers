@@ -14,6 +14,7 @@ LABEL operators.operatorframework.io.test.mediatype.v1=scorecard+v1
 
 COPY 1.1.1/manifests /manifests/
 COPY 1.1.1/metadata /metadata/
+COPY 1.1.1/tests /tests/
 LABEL com.redhat.openshift.versions="v4.5,v4.6"
 LABEL com.redhat.delivery.operator.bundle=true
 LABEL com.redhat.delivery.backport=true

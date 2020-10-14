@@ -167,7 +167,7 @@ metadata:
     capabilities: Seamless Upgrades
     categories: Developer Tools,Integration & Delivery
     certified: 'true'
-    containerImage: registry.connect.redhat.com/jfrog/pipelines-operator:1.8.0
+    containerImage: registry.connect.redhat.com/jfrog/pipelines-operator:1.8
     createdAt: 2020-10-09 00:00:00+00:00
     description: JFrog Pipeline Enterprise deploys Pipeline CI/CD Openshift (Requires Jfrog Artifactory)
     repository: https://github.com/jfrog/JFrog-Cloud-Installers/tree/openshift4/Openshift4
@@ -209,7 +209,7 @@ spec:
   description: '## Overview
 
 
-    Openshift Operator to deploy JFrog Pipelinesinto your Openshift cluster.
+    Openshift Operator to deploy JFrog Pipelines into your Openshift cluster.
 
     ## Usage
 
@@ -331,7 +331,25 @@ spec:
                       fieldPath: metadata.name
                 - name: OPERATOR_NAME
                   value: pipeline-operator
-                image: registry.connect.redhat.com/jfrog/pipelines-operator:1.8.0
+                - name: RELATED_IMAGE_PIPELINE_API_IMAGE_REPOSITORY
+                  value: registry.connect.redhat.com/jfrog/pipelines-api:1.8.0
+                - name: RELATED_IMAGE_PIPELINE_ROUTER_IMAGE_REPOSITORY
+                  value: registry.connect.redhat.com/jfrog/pipelines-router:1.8.0
+                - name: RELATED_IMAGE_PIPELINE_WWW_IMAGE_REPOSITORY
+                  value: registry.connect.redhat.com/jfrog/pipelines-www:1.8.0
+                - name: RELATED_IMAGE_PIPELINE_MICRO_IMAGE_REPOSITORY
+                  value: registry.connect.redhat.com/jfrog/pipelines-micro:1.8.0
+                - name: RELATED_IMAGE_PIPELINE_INSTALLER_IMAGE_REPOSITORY
+                  value: registry.connect.redhat.com/jfrog/pipelines-installer:1.8.0
+                - name: RELATED_IMAGE_PIPELINE_RABBITMQ_IMAGE_REPOSITORY
+                  value: registry.connect.redhat.com/jfrog/pipelines-rabbitmq:3.8.9
+                - name: RELATED_IMAGE_PIPELINE_REDIS_IMAGE_REPOSITORY
+                  value: registry.redhat.io/rhel8/redis-5:1-98
+                - name: RELATED_IMAGE_PIPELINE_VAULT_INIT_IMAGE_REPOSITORY
+                  value: registry.connect.redhat.com/jfrog/pipelines-vault-init:1.8.0
+                - name: RELATED_IMAGE_PIPELINE_VAULT_IMAGE_REPOSITORY
+                  value: registry.connect.redhat.com/jfrog/pipelines-vault:1.8.0
+                image: registry.connect.redhat.com/jfrog/pipelines-operator:1.8
                 imagePullPolicy: Always
                 name: pipeline-operator
                 resources: {}
