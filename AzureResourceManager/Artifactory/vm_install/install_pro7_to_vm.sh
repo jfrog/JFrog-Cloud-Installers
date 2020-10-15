@@ -25,7 +25,7 @@ apt-get -y install jfrog-artifactory-pro=${ARTIFACTORY_VERSION} >> /tmp/install-
 mkdir -p /var/opt/jfrog/artifactory/etc/info
 cat <<EOF >/var/opt/jfrog/artifactory/etc/info/installer-info.json
 {
-  "productId": "ARM_artifactory-pro/1.0.0",
+  "productId": "ARM_artifactory-pro-vm/1.0.0",
   "features": [
     {
       "featureId": "Partner/ACC-007221"
