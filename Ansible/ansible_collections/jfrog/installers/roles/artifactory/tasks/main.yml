@@ -1,9 +1,10 @@
 - name: Rectify Legacy Installation Block
   block:
-    - name: Check to see if artifactory has a service
-      systemd:
-        state: stopped
+    - name: Check to see if artifactory has a service and stop it
+      service:
         name: artifactory
+        state: stopped
+      become: yes
     - name: Check symlink method
       stat:
         path: /opt/jfrog/artifactory/app
@@ -24,10 +25,10 @@
       include_tasks: "legacy_migration.yml"
       when: (not newMethod.stat.islnk) and newMethod.stat.exists
   rescue:
-    - name: Check to see if artifactory has a service
-      systemd:
-        state: stopped
+    - name: Check to see if artifactory has a service and stop it
+      service:
         name: artifactory
+        state: stopped
     - name: Setup temporary untar home (assuming version is set var for version)
       set_fact: 
         temp_untar_home: "{{ jfrog_home_directory }}/artifactory-{{ artifactory_flavour }}-{{ artifactory_version }}"
