@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Upgrade version for every release
-ARTIFACTORY_VERSION=7.7.3
+ARTIFACTORY_VERSION=$1
 UBUNTU_CODENAME=$(cat /etc/lsb-release | grep "^DISTRIB_CODENAME=" | sed "s/DISTRIB_CODENAME=//")
 
 export DEBIAN_FRONTEND=noninteractive
@@ -25,7 +25,7 @@ apt-get -y install jfrog-artifactory-jcr=${ARTIFACTORY_VERSION} >> /tmp/install-
 mkdir -p /var/opt/jfrog/artifactory/etc/info
 cat <<EOF >/var/opt/jfrog/artifactory/etc/info/installer-info.json
 {
-  "productId": "ARM_artifactory-jcr/1.0.0",
+  "productId": "ARM_artifactory-jcr-vm/1.0.0",
   "features": [
     {
       "featureId": "Partner/ACC-007221"

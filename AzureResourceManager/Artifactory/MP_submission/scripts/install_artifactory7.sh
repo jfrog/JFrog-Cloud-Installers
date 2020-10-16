@@ -256,6 +256,17 @@ cat /tmp/temp.key | sed 's/KEY----- /&\n/' | sed 's/ -----END/\n-----END/' | awk
     rm /tmp/temp.key
 fi
 
+cat <<EOF >/var/opt/jfrog/artifactory/etc/info/installer-info.json
+{
+  "productId": "ARM_artifactory-pro-template/1.0.0",
+  "features": [
+    {
+      "featureId": "Partner/ACC-007221"
+    }
+  ]
+}
+EOF
+
 chown artifactory:artifactory -R /var/opt/jfrog/artifactory/*  && chown artifactory:artifactory -R /var/opt/jfrog/artifactory/etc/security && chown artifactory:artifactory -R /var/opt/jfrog/artifactory/etc/*
 
 # start Artifactory

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Upgrade version for every release
-XRAY_VERSION=3.8.5
+XRAY_VERSION=$1
 
 export DEBIAN_FRONTEND=noninteractive
 
@@ -33,10 +33,10 @@ EOF
 # Run interactive installation script with default parameters
 cat "/opt/jfrog-xray-${XRAY_VERSION}-deb/input.txt" | ./install.sh >> /var/log/install-xray.log 2>&1
 
-# Add Callhome to the Xray instance
+# Add VM image Callhome to the Xray instance
 cat <<EOF >>/opt/jfrog/xray/app/bin/xray.default
 export PARTNER_ID=Partner/ACC-007221
-export INTEGRATION_NAME=ARM_xray/1.0.0
+export INTEGRATION_NAME=ARM_xray-vm/1.0.0
 EOF
 
 # Remove Xray service from boot up run

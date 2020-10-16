@@ -21,6 +21,12 @@ cat <<EOF >/opt/jfrog/xray/var/etc/security/master.key
 ${MASTER_KEY}
 EOF
 
+# Add Template Callhome to the Xray instance
+cat <<EOF >>/opt/jfrog/xray/app/bin/xray.default
+export PARTNER_ID=Partner/ACC-007221
+export INTEGRATION_NAME=ARM_xray-template/1.0.0
+EOF
+
 # Xray should have the same join key as the Artifactory instance
 # Both application should be deployed in the same Virtual Networks
 HOSTNAME=$(hostname -i)
