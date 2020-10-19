@@ -5,11 +5,8 @@
         "location": {
             "value": "westus2"
         },
-        "networkInterfaceName": {
-            "value": "jcr-nic"
-        },
-        "networkSecurityGroupName": {
-            "value": "jcr-nsg"
+        "namingInfix": {
+            "value": "jcr"
         },
         "networkSecurityGroupRules": {
             "value": [
@@ -31,9 +28,6 @@
         "subnetName": {
             "value": "default"
         },
-        "virtualNetworkName": {
-            "value": "jcr-vm-test-vnet"
-        },
         "addressPrefixes": {
             "value": [
                 "10.0.0.0/24"
@@ -48,9 +42,6 @@
                     }
                 }
             ]
-        },
-        "publicIpAddressName": {
-            "value": "jcr-public-ip"
         },
         "publicIpAddressType": {
             "value": "Dynamic"

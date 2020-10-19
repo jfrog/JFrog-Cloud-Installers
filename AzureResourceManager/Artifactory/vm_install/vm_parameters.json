@@ -64,9 +64,6 @@
         "virtualMachineComputerName": {
             "value": "rtvm"
         },
-        "diskNameSalt": {
-            "value": "20200824153005"
-        },
         "storageAccountName": {
             "value": "mpstoragevhd"
         },

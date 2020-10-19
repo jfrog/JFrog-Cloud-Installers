@@ -90,7 +90,7 @@
             "value": "OWERWRITE_THE_PASSWORD"
         },
         "artifactoryVersion": {
-            "value": "3.8.5"
+            "value": "3.9.1"
         },
         "scriptName": {
             "value": "install_xray_to_vm.sh"

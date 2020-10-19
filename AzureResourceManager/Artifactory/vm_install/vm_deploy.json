@@ -41,9 +41,6 @@
         "virtualMachineComputerName": {
             "type": "String"
         },
-        "diskNameSalt": {
-            "type": "String"
-        },
         "storageAccountName": {
             "type": "String"
         },
