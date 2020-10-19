@@ -79,7 +79,7 @@
         },
         "defaultValue": ""
         },
-        "artifactoryVersion": {
+        "xrayVersion": {
             "type": "String"
         },
         "scriptName": {
@@ -96,9 +96,9 @@
         "subnetRef": "[concat(variables('vnetId'), '/subnets/', parameters('subnetName'))]",
         "storageContainerUri": "[concat(concat('https://', parameters('storageAccountName'), '.blob.core.windows.net/'), 'vhds/')]",
         "scriptName": "[parameters('scriptName')]",
-        "commandToExecute": "[concat('bash ', variables('scriptName'), ' ', parameters('artifactoryVersion'))]",
+        "commandToExecute": "[concat('bash ', variables('scriptName'), ' ', parameters('xrayVersion'))]",
         "fileLocation": "[uri(parameters('_artifactsLocation'), concat('vm_install/', variables('scriptName'), parameters('_artifactsLocationSasToken')))]",
-        "diskNameSalt": "[concat(parameters('artifactoryVersion'), '-', parameters('baseTime'))]"
+        "diskNameSalt": "[concat(parameters('xrayVersion'), '-', parameters('baseTime'))]"
 
     },
     "resources": [

@@ -89,7 +89,7 @@
         "adminPassword": {
             "value": "OWERWRITE_THE_PASSWORD"
         },
-        "artifactoryVersion": {
+        "xrayVersion": {
             "value": "3.9.1"
         },
         "scriptName": {
