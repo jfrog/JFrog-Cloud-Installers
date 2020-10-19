@@ -160,6 +160,17 @@ cat <<EOF >/var/opt/jfrog/artifactory/etc/artifactory/binarystore.xml
 </config>
 EOF
 
+cat <<EOF >/var/opt/jfrog/artifactory/etc/info/installer-info.json
+{
+  "productId": "ARM_artifactory-jcr-template/1.0.0",
+  "features": [
+    {
+      "featureId": "Partner/ACC-007221"
+    }
+  ]
+}
+EOF
+
 cat /var/lib/cloud/instance/user-data.txt | grep "^CERTIFICATE=" | sed "s/CERTIFICATE=//" > /tmp/temp.pem
 cat /tmp/temp.pem | sed 's/CERTIFICATE----- /&\n/g' | sed 's/ -----END/\n-----END/g' | awk '{if($0 ~ /----/) {print;} else { gsub(/ /,"\n");print;}}' > /etc/pki/tls/certs/cert.pem
 rm /tmp/temp.pem

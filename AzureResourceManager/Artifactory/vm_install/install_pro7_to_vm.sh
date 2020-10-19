@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Upgrade version for every release
-ARTIFACTORY_VERSION=7.7.3
+ARTIFACTORY_VERSION=$1
 UBUNTU_CODENAME=$(cat /etc/lsb-release | grep "^DISTRIB_CODENAME=" | sed "s/DISTRIB_CODENAME=//")
 
 export DEBIAN_FRONTEND=noninteractive

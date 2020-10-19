@@ -1,0 +1,90 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "value": "westus2"
+        },
+        "namingInfix": {
+            "value": "jcr"
+        },
+        "networkSecurityGroupRules": {
+            "value": [
+                {
+                    "name": "SSH",
+                    "properties": {
+                        "priority": 300,
+                        "protocol": "TCP",
+                        "access": "Allow",
+                        "direction": "Inbound",
+                        "sourceAddressPrefix": "*",
+                        "sourcePortRange": "*",
+                        "destinationAddressPrefix": "*",
+                        "destinationPortRange": "22"
+                    }
+                }
+            ]
+        },
+        "subnetName": {
+            "value": "default"
+        },
+        "addressPrefixes": {
+            "value": [
+                "10.0.0.0/24"
+            ]
+        },
+        "subnets": {
+            "value": [
+                {
+                    "name": "default",
+                    "properties": {
+                        "addressPrefix": "10.0.0.0/24"
+                    }
+                }
+            ]
+        },
+        "publicIpAddressType": {
+            "value": "Dynamic"
+        },
+        "publicIpAddressSku": {
+            "value": "Basic"
+        },
+        "virtualMachineName": {
+            "value": "jcr-vm"
+        },
+        "virtualMachineComputerName": {
+            "value": "jcrvm"
+        },
+        "storageAccountName": {
+            "value": "mpstoragevhd"
+        },
+        "virtualMachineSize": {
+            "value": "Standard_B4ms"
+        },
+
+        "diagnosticsStorageAccountName": {
+            "value": "jcrvmtestdiag"
+        },
+        "diagnosticsStorageAccountId": {
+            "value": "Microsoft.Storage/storageAccounts/jcrvmtestdiag"
+        },
+        "diagnosticsStorageAccountType": {
+            "value": "Standard_LRS"
+        },
+        "diagnosticsStorageAccountKind": {
+            "value": "Storage"
+        },
+        "adminUsername": {
+            "value": "vmuser"
+        },
+        "adminPassword": {
+            "value": "OWERWRITE_THE_PASSWORD"
+        },
+        "artifactoryVersion": {
+            "value": "7.10.2"
+        },
+        "scriptName": {
+            "value": "install_jcr7_to_vm.sh"
+        }
+    }
+}
