@@ -13,9 +13,24 @@ xray:
     url: "OVERRIDE"
     user: "OVERRIDE"
     password: "OVERRIDE"
+  initContainerImage: registry.connect.redhat.com/jfrog/init:1.0.1
   common:
     xrayUserId: "1000721035"
     xrayGroupId: "1000721035"
+    customInitContainers: |
+      - name: "prepare-uid-persistent-volume"
+        image: "{{ .Values.initContainerImage }}"
+        imagePullPolicy: "{{ .Values.imagePullPolicy }}"
+        command:
+          - 'sh'
+          - '-c'
+          - >
+            chown -Rv {{ .Values.common.xrayUserId }}:{{ .Values.common.xrayGroupId }} {{ .Values.xray.persistence.mountPath }}
+        securityContext:
+            runAsUser: 0
+        volumeMounts:
+          - mountPath: "{{ .Values.xray.persistence.mountPath }}"
+            name: data-volume
   analysis:
     name: xray-analysis
     image:

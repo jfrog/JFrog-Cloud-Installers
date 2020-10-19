@@ -3,9 +3,7 @@
 # and applies various things like initContainers, nginx mainConf, etc
 # to enable the artifactory-ha helm chart to work in an openshift environment
 artifactory-ha:
-  ###################################
-  # EDIT TO YOUR DB CONFIGURATION
-  ###################################
+  databaseUpgradeReady: true
   database:
     type: "OVERRIDE"
     driver: "OVERRIDE"
@@ -28,6 +26,20 @@ artifactory-ha:
         enabled: false
     masterKey: "OVERRIDE"
     joinKey: "OVERRIDE"
+    customInitContainersBegin: |
+      - name: "prepare-uid-persistent-volume"
+        image: "{{ .Values.initContainerImage }}"
+        imagePullPolicy: "{{ .Values.artifactory.image.pullPolicy }}"
+        command:
+          - 'sh'
+          - '-c'
+          - >
+            chown -Rv {{ .Values.artifactory.uid }}:{{ .Values.artifactory.uid }} {{ .Values.artifactory.persistence.mountPath }}
+        securityContext:
+            runAsUser: 0
+        volumeMounts:
+          - mountPath: "{{ .Values.artifactory.persistence.mountPath }}"
+            name: volume
   postgresql:
     enabled: false
   nginx:

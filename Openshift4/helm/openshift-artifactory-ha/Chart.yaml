@@ -16,4 +16,4 @@ name: openshift-artifactory-ha
 sources:
 - https://bintray.com/jfrog/product/JFrog-Artifactory-Pro/view
 - https://github.com/jfrog/charts
-version: 4.1.0
+version: 4.2.0
