@@ -1,6 +1,6 @@
-# Use the 'create api' subcommand to add watches to this file.
-- group: charts.helm.k8s.io
-  version: v1alpha1
+---
+- version: v1alpha1
+  group: charts.helm.k8s.io
   kind: OpenshiftPipelines
   chart: helm-charts/openshift-pipelines
 # +kubebuilder:scaffold:watch

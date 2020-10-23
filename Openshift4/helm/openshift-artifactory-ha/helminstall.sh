@@ -41,6 +41,9 @@ else
   fi
 fi
 
+MASTER_KEY=$(openssl rand -hex 32)
+JOIN_KEY=$(openssl rand -hex 32)
+
 # install via helm with default postgresql configuration
 helm install artifactory-ha . \
                --set artifactory-ha.nginx.service.ssloffload=true \
@@ -52,6 +55,11 @@ helm install artifactory-ha . \
                --set artifactory-ha.database.url=jdbc:postgresql://postgres-postgresql:5432/artifactory \
                --set artifactory-ha.database.user=artifactory \
                --set artifactory-ha.database.password=password \
-               --set artifactory-ha.artifactory.joinKey=EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE \
-               --set artifactory-ha.artifactory.masterKey=FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+               --set artifactory-ha.artifactory.joinKey=$JOIN_KEY \
+               --set artifactory-ha.artifactory.masterKey=$MASTER_KEY
 
+
+echo "*** IMPORTANT ****"
+echo "export MASTER_KEY=$MASTER_KEY"
+echo "export JOIN_KEY=$JOIN_KEY"
+echo "*** SUCCESS ****"

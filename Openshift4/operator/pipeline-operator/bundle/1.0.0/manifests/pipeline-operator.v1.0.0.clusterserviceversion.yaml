@@ -167,13 +167,13 @@ metadata:
     capabilities: Seamless Upgrades
     categories: Developer Tools,Integration & Delivery
     certified: 'true'
-    containerImage: registry.connect.redhat.com/jfrog/pipelines-operator:1.8
+    containerImage: registry.connect.redhat.com/jfrog/pipelines-operator:1.8.1
     createdAt: 2020-10-09 00:00:00+00:00
     description: JFrog Pipeline Enterprise deploys Pipeline CI/CD Openshift (Requires Jfrog Artifactory)
     repository: https://github.com/jfrog/JFrog-Cloud-Installers/tree/openshift4/Openshift4
     support: JFrog
   creationTimestamp: null
-  name: pipeline-operator.v1.1.1
+  name: pipeline-operator.v1.0.0
   namespace: default
 spec:
   apiservicedefinitions: {}
@@ -349,7 +349,7 @@ spec:
                   value: registry.connect.redhat.com/jfrog/pipelines-vault-init:1.8.0
                 - name: RELATED_IMAGE_PIPELINE_VAULT_IMAGE_REPOSITORY
                   value: registry.connect.redhat.com/jfrog/pipelines-vault:1.8.0
-                image: registry.connect.redhat.com/jfrog/pipelines-operator:1.8
+                image: registry.connect.redhat.com/jfrog/pipelines-operator:1.8.1
                 imagePullPolicy: Always
                 name: pipeline-operator
                 resources: {}
@@ -512,7 +512,7 @@ spec:
   maturity: alpha
   provider:
     name: JFrog
-  version: 1.1.1
+  version: 1.0.0
 status:
   certsLastUpdated: null
   certsRotateAt: null
