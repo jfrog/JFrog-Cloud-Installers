@@ -1,5 +1,5 @@
 channels:
-- currentCSV: pipeline-operator.v1.1.1
+- currentCSV: pipeline-operator.v1.0.0
   name: alpha
 defaultChannel: ''
 packageName: openshiftpipeline-operator

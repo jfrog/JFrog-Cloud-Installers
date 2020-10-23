@@ -11,7 +11,7 @@ helm upgrade --install artifactory-ha . \
                --set artifactory-ha.database.url=jdbc:postgresql://postgres-postgresql:5432/artifactory \
                --set artifactory-ha.database.user=artifactory \
                --set artifactory-ha.database.password=password \
-               --set artifactory-ha.artifactory.joinKey=EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE \
-               --set artifactory-ha.artifactory.masterKey=FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF \
+               --set artifactory-ha.artifactory.joinKey=$JOIN_KEY \
+               --set artifactory-ha.artifactory.masterKey=$MASTER_KEY \
                --set artifactory-ha.databaseUpgradeReady=true
 

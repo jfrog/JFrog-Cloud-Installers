@@ -17,6 +17,7 @@ xray:
   common:
     xrayUserId: "1000721035"
     xrayGroupId: "1000721035"
+    xrayVersion: "3.10.3-1"
     customInitContainers: |
       - name: "prepare-uid-persistent-volume"
         image: "{{ .Values.initContainerImage }}"
@@ -36,7 +37,6 @@ xray:
     image:
       registry: registry.connect.redhat.com
       repository: jfrog/xray-analysis
-      tag: 3.8.8
     updateStrategy: RollingUpdate
     podManagementPolicy: Parallel
     preStartCommand:
@@ -45,7 +45,6 @@ xray:
     image:
       registry: registry.connect.redhat.com
       repository: jfrog/xray-indexer
-      tag: 3.8.8
     updateStrategy: RollingUpdate
     podManagementPolicy: Parallel
   persist:
@@ -53,7 +52,6 @@ xray:
     image:
       registry: registry.connect.redhat.com
       repository: jfrog/xray-persist
-      tag: 3.8.8
     updateStrategy: RollingUpdate
     podManagementPolicy: Parallel
     persistence:
@@ -64,7 +62,6 @@ xray:
     image:
       registry: registry.connect.redhat.com
       repository: jfrog/xray-server
-      tag: 3.8.8
     updateStrategy: RollingUpdate
     podManagementPolicy: Parallel
     replicaCount: 1
@@ -73,14 +70,14 @@ xray:
     image:
       registry: registry.connect.redhat.com
       repository: jfrog/xray-router
-      tag: 1.4.3
       imagePullPolicy: IfNotPresent
+      tag: 3.10.3-1
   rabbitmq-ha:
     enabled: true
     replicaCount: 1
     image:
       repository: registry.connect.redhat.com/jfrog/xray-rabbitmq
-      tag: 3.8.9
+      tag: 3.10.3-1
     rabbitmqEpmdPort: 4369
     rabbitmqNodePort: 5672
     rabbitmqManagerPort: 15672
