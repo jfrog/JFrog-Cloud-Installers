@@ -7,19 +7,4 @@
             <class name="tests.HealthCheckTest"/>
         </classes>
     </test>
-    <test name="tests.RepositoryTest">
-        <classes>
-            <class name="tests.RepositoryTest"/>
-        </classes>
-    </test>
-    <test name="tests.SecurityTest">
-        <classes>
-            <class name="tests.SecurityTest"/>
-        </classes>
-    </test>
-    <test name="tests.XrayTest">
-        <classes>
-            <class name="tests.XrayTest"/>
-        </classes>
-    </test>
 </suite>
