@@ -12,6 +12,7 @@ This Ansible directory consists of the following directories that support the JF
  
 | collection_version | artifactory_version | xray_version |
 |--------------------|---------------------|--------------|
+| 1.1.1              | 7.10.2              | 3.9.1        |
 | 1.1.0              | 7.7.8               | 3.8.6        |
 | 1.0.9              | 7.7.3               | 3.8.0        |
 | 1.0.8              | 7.7.3               | 3.8.0        |
