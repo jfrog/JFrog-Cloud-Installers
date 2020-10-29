@@ -50,3 +50,7 @@ service_list:
 
 # if this is an upgrade
 artifactory_upgrade_only: false
+
+#default username and password
+artifactory_app_username: admin
+artifactory_app_user_pass: password

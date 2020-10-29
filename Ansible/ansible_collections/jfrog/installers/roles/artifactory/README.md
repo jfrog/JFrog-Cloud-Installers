@@ -1,6 +1,8 @@
 # artifactory
 The artifactory role installs the Artifactory Pro software onto the host. Per the Vars below, it will configure a node as primary or secondary. This role uses secondary roles artifactory_nginx to install nginx.
 
+1.1.1 contains breaking changes. To mitigate this, use the role before doing any upgrades, let it mitigate the path changes, and then run again with your upgrade.
+
 ## Role Variables
 * _artifactory_version_: The version of Artifactory to install. eg. "7.4.1"
 * _master_key_: This is the Artifactory [Master Key](https://www.jfrog.com/confluence/display/JFROG/Managing+Keys). See below to [autogenerate this key](#autogenerating-master-and-join-keys).
