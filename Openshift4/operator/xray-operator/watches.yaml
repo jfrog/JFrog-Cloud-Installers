@@ -4,7 +4,6 @@
   kind: OpenshiftXray
   chart: helm-charts/openshift-xray
   overrideValues:
-    xray.initContainerImage.override: $RELATED_IMAGE_XRAY_INIT_IMAGE_REPOSITORY
     xray.server.image.override: $RELATED_IMAGE_XRAY_SERVER_IMAGE_REPOSITORY
     xray.analysis.image.override: $RELATED_IMAGE_XRAY_ANALYSIS_IMAGE_REPOSITORY
     xray.persist.image.override: $RELATED_IMAGE_XRAY_PERSIST_IMAGE_REPOSITORY

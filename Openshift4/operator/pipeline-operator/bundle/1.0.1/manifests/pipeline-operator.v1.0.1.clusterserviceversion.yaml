@@ -173,7 +173,7 @@ metadata:
     repository: https://github.com/jfrog/JFrog-Cloud-Installers/tree/openshift4/Openshift4
     support: JFrog
   creationTimestamp: null
-  name: pipeline-operator.v1.0.0
+  name: pipeline-operator.v1.0.1
   namespace: default
 spec:
   apiservicedefinitions: {}
@@ -465,6 +465,8 @@ spec:
           - '*'
         - apiGroups:
           - rbac.authorization.k8s.io
+          resourceNames:
+            - pipeline-operator
           resources:
           - '*'
           verbs:
@@ -512,7 +514,8 @@ spec:
   maturity: alpha
   provider:
     name: JFrog
-  version: 1.0.0
+  replaces: pipeline-operator.v1.0.0
+  version: 1.0.1
 status:
   certsLastUpdated: null
   certsRotateAt: null

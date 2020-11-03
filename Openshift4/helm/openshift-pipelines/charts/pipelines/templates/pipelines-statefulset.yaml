@@ -348,6 +348,9 @@ spec:
           image: "{{ .Values.imageRegistry }}/{{ .Values.pipelines.nexec.image.repository }}:{{ default .Chart.AppVersion .Values.pipelines.version }}"
           imagePullPolicy: {{ .Values.pipelines.nexec.image.pullPolicy }}
           workingDir: /opt/jfrog/pipelines/app/micro/nexec
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsUser: 0
           env:
             - name: COMPONENT
               value: nexec
