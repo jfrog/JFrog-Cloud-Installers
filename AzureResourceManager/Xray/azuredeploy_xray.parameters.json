@@ -3,19 +3,19 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "clusterName": {
-      "value": "GEN-UNIQUE"
+      "value": "GENERATE-CLUSTER-NAME"
     },
     "adminUsername": {
-      "value": "GEN-UNIQUE"
+      "value": "ADMIN-USERNAME"
     },
     "adminPassword": {
-      "value": "GEN-UNIQUE"
+      "value": "ADMIN-PASSWORD"
     },
     "virtualNetworkName": {
-      "value": "existing-vm-network-name"
+      "value": "EXISTING-VM-NETWORK-NAME"
     },
     "subnetName": {
-      "value": "existing-subnet-name"
+      "value": "EXISTING-SUBNET-NAME"
     },
     "virtualNetworkNewOrExisting": {
       "value": "existing"
@@ -24,7 +24,7 @@
       "value": "10.0.0.0/16"
     },
     "virtualNetworkResourceGroup": {
-      "value": "resource-group-name"
+      "value": "RESOURCE-GROUP-NAME"
     },
     "virtualMachineSize": {
       "value": "Standard_D4s_v3"
@@ -33,25 +33,25 @@
       "value": "10.0.1.0/24"
     },
     "xrayVersion": {
-      "value": "0.0.6"
+      "value": "0.0.7"
     },
     "artifactoryURL": {
-      "value": "http://artifactory-url.cloudapp.azure.com"
+      "value": "http://ARTIFACTORY-URL.cloudapp.azure.com"
     },
     "masterKey": {
-      "value": "GEN-UNIQUE"
+      "value": "GENERATE-MASTER-KEY"
     },
     "joinKey": {
-      "value": "GEN-UNIQUE"
+      "value": "GET-JOIN-KEY-IN-ARTIFACTORY-UI"
     },
     "db_type": {
-      "value": "Postgresql_existing.json"
+      "value": "Postgresql_deploy.json"
     },
     "db_user": {
-      "value": "GEN-UNIQUE"
+      "value": "DB-USERNAME"
     },
     "db_password": {
-      "value": "GEN-UNIQUE"
+      "value": "DB-PASSWORD"
     },
     "manual_db_url": {
       "value": "jdbc:postgresql://postgressrvr.postgres.database.azure.com:5432"
