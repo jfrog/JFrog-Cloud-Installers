@@ -1,4 +1,4 @@
-# JFrog Ansible Installers Collection
+# JFrog Ansible Installers Collection (Supports Ubuntu flavours only 
 
 This Ansible directory consists of the following directories that support the JFrog Ansible collection.
  
@@ -9,6 +9,7 @@ This Ansible directory consists of the following directories that support the JF
  
  ## Tested Artifactory and Xray Versions
  The following versions of Artifactory and Xray have been validated with this collection. Other versions and combinations may also work.
+ 
  
 | collection_version | artifactory_version | xray_version |
 |--------------------|---------------------|--------------|
@@ -117,3 +118,7 @@ The Artifactory and Xray roles support software updates. To use a role to perfor
 ```
 ansible-galaxy collection build
 ```
+
+## OS support 
+* Current ansible collection only supports ubuntu flavours
+* Centos/RHEL and SELinux support is coming soon, stay tuned :)
