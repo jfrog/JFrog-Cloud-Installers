@@ -22,6 +22,8 @@ might close your issue.  If we're wrong, PLEASE feel free to reopen it and
 explain why.
 -->
 
+**Which installer **:
+
 **Which product and version **:
 
 
