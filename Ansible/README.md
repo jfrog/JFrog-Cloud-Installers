@@ -1,4 +1,4 @@
-# JFrog Ansible Installers Collection (Supports Ubuntu flavours only 
+# JFrog Ansible Installers Collection
 
 This Ansible directory consists of the following directories that support the JFrog Ansible collection.
  
