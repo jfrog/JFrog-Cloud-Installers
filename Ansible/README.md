@@ -120,5 +120,5 @@ ansible-galaxy collection build
 ```
 
 ## OS support 
-* Current ansible collection only supports ubuntu flavours
+* Current ansible collection only supports ubuntu and its flavours
 * Centos/RHEL and SELinux support is coming soon, stay tuned :)
