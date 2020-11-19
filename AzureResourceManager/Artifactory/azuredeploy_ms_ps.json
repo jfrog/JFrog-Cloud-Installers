@@ -79,7 +79,7 @@
     },
     "artifactoryVersion": {
       "type": "string",
-      "defaultValue": "0.0.5",
+      "defaultValue": "0.0.52",
       "allowedValues": [
         "6.11.3",
         "6.15.0",
@@ -95,7 +95,7 @@
         "0.0.2",
         "0.0.31",
         "0.0.4",
-	      "0.0.5"
+	    "0.0.52"
       ],
       "metadata": {
         "description": "Artifactory-vm image version to deploy."
@@ -240,7 +240,7 @@
       "metadata": {
         "description": "The base URI where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
       },
-      "defaultValue": "https://raw.githubusercontent.com/jfrog/JFrog-Cloud-Installers/arm-7.10.6/AzureResourceManager/Artifactory/"
+      "defaultValue": "https://raw.githubusercontent.com/jfrog/JFrog-Cloud-Installers/master/AzureResourceManager/Artifactory/"
     },
     "_artifactsLocationSasToken": {
       "type": "securestring",
@@ -306,7 +306,7 @@
     "artifactoryLicense5": "[parameters('artifactoryLicense5')]",
     "osType": {
       "publisher": "jfrog",
-      "offer": "artifactory-vm-preview",
+      "offer": "artifactory-vm",
       "sku": "artifactory-vm",
       "version": "[parameters('artifactoryVersion')]"
     },
@@ -787,7 +787,7 @@
       "plan": {
         "name": "artifactory-vm",
         "publisher": "jfrog",
-        "product": "artifactory-vm-preview"
+        "product": "artifactory-vm"
       },
       "sku": {
         "name": "[parameters('vmSku')]",
@@ -886,7 +886,7 @@
       "plan": {
         "name": "artifactory-vm",
         "publisher": "jfrog",
-        "product": "artifactory-vm-preview"
+        "product": "artifactory-vm"
       },
       "sku": {
         "name": "[parameters('vmSku')]",
