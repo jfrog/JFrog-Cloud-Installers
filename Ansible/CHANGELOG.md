@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [] - 2020-11-19
+- Updated example hosts file to be explicit about pulling passwords,keys from env vars.
+
 ## [1.1.2] - 2020-10-29
 - Updated default versions to RT 7.10.2 and Xray 3.10.3.
 - Removed obsolete gradle tests.
