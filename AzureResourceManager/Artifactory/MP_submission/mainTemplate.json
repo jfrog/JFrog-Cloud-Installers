@@ -79,7 +79,7 @@
     },
     "artifactoryVersion": {
       "type": "string",
-      "defaultValue": "0.0.52",
+      "defaultValue": "0.0.6",
       "allowedValues": [
         "6.6.0",
         "6.6.1",
@@ -98,7 +98,8 @@
         "0.0.2",
         "0.0.31",
         "0.0.4",
-		"0.0.52"
+	"0.0.52",
+	"0.0.6"
       ],
       "metadata": {
         "description": "Artifactory-vm image version to deploy."
