@@ -4,7 +4,8 @@
 # helm install postgres bitnami/postgresql
 # follow artifactory postgresql db setup:
 # https://www.jfrog.com/confluence/display/JFROG/PostgreSQL
-POSTGRES=$(helm ls | grep postgres | wc -l)
+NAMESPACE="default"
+POSTGRES=$(helm ls -n $NAMESPACE | grep postgres | wc -l)
 
 if [[ "$POSTGRES" =~ (0) ]]
 then
