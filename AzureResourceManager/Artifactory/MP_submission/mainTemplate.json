@@ -98,8 +98,8 @@
         "0.0.2",
         "0.0.31",
         "0.0.4",
-	"0.0.52",
-	"0.0.6"
+	    "0.0.52",
+	    "0.0.6"
       ],
       "metadata": {
         "description": "Artifactory-vm image version to deploy."
