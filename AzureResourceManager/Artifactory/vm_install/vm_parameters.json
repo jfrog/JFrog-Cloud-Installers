@@ -90,7 +90,7 @@
             "value": "OWERWRITE_THE_PASSWORD"
         },
         "artifactoryVersion": {
-            "value": "7.10.5"
+            "value": "7.11.2"
         },
         "scriptName": {
             "value": "install_pro7_to_vm.sh"
