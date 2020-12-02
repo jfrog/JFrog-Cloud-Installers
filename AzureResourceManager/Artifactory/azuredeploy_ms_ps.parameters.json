@@ -9,7 +9,7 @@
       "value": "vmuser"
     },
     "adminPassword": {
-      "value": "password"
+      "value": "OWERWRITE_THE_PASSWORD"
     },
     "db_type": {
       "value": "Postgresql_deploy.json"
@@ -18,7 +18,7 @@
       "value": "artifactory"
     },
     "db_password": {
-      "value": "password"
+      "value": "OWERWRITE_THE_PASSWORD"
     },
     "db_name": {
       "value": "artdb"
@@ -50,19 +50,19 @@
       "value": "GENERATE_JOIN_KEY"
     },
     "certificate": {
-      "value": "-----BEGIN CERTIFICATE-----  -----END CERTIFICATE-----"
+      "value": "-----BEGIN CERTIFICATE----- <YOUR CERTIFICATE HERE> -----END CERTIFICATE-----"
     },
     "certificateKey": {
-      "value": "-----BEGIN PRIVATE KEY-----  -----END PRIVATE KEY-----"
+      "value": "-----BEGIN PRIVATE KEY----- <YOUR CERTIFICATE HERE> -----END PRIVATE KEY-----"
     },
     "artifactoryLicense1": {
-      "value": ""
+      "value": "<ARTIFACTORY LICENCE FOR MASTER NODE>"
     },
     "artifactoryLicense2": {
-      "value": ""
+      "value": "<ARTIFACTORY LICENCE FOR MEMBER0 NODE>"
     },
     "artifactoryLicense3": {
-      "value": ""
+      "value": "<ARTIFACTORY LICENCE FOR MEMBER1 NODE>"
     }
   }
 }

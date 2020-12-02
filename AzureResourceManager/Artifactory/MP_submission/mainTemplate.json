@@ -79,7 +79,7 @@
     },
     "artifactoryVersion": {
       "type": "string",
-      "defaultValue": "0.0.3",
+      "defaultValue": "0.0.6",
       "allowedValues": [
         "6.6.0",
         "6.6.1",
@@ -96,7 +96,10 @@
         "7.4.30",
         "0.0.1",
         "0.0.2",
-        "0.0.3"
+        "0.0.31",
+        "0.0.4",
+	    "0.0.52",
+	    "0.0.6"
       ],
       "metadata": {
         "description": "Artifactory-vm image version to deploy."
@@ -778,7 +781,7 @@
       "type": "Microsoft.Compute/virtualMachineScaleSets",
       "name": "[variables('scaleSetPrimaryName')]",
       "location": "[parameters('location')]",
-      "apiVersion": "2018-10-01",
+      "apiVersion": "2020-06-01",
       "dependsOn": [
         "[resourceId('Microsoft.Network/loadBalancers/', variables('lbName'))]",
         "[resourceId('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
@@ -876,7 +879,7 @@
       "type": "Microsoft.Compute/virtualMachineScaleSets",
       "name": "[variables('scaleSetMemberName')]",
       "location": "[parameters('location')]",
-      "apiVersion": "2018-10-01",
+      "apiVersion": "2020-06-01",
       "dependsOn": [
         "[resourceId('Microsoft.Network/loadBalancers/', variables('lbName'))]",
         "[resourceId('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
