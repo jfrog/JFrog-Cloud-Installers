@@ -2,7 +2,9 @@
 
 Template to deploy/manage JFrog Artifactory enterprise cluster on various cloud providers.
 
-* [Terraform](Terraform/README.md)
-* [CloudFormation](CloudFormation/README.md)
-* [Azure Resource Manager](AzureResourceManager/README.md)
 * [Ansible](Ansible/README.md)
+* [Azure Resource Manager](AzureResourceManager/README.md)
+* [AWS CloudFormation](CloudFormation/README.md)
+* [Openshift 4](Openshift4/README.md)
+* [Terraform](Terraform/README.md)
+
