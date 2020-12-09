@@ -3,8 +3,6 @@ xray:
   unifiedUpgradeAllowed: true
   replicaCount: 1
   xray:
-    masterKey: "OVERRIDE"
-    joinKey: "OVERRIDE"
     consoleLog: false
     jfrogUrl: "OVERRIDE"
   postgresql:
@@ -13,15 +11,30 @@ xray:
     url: "OVERRIDE"
     user: "OVERRIDE"
     password: "OVERRIDE"
+  initContainerImage: registry.connect.redhat.com/jfrog/init:1.0.1
   common:
     xrayUserId: "1000721035"
     xrayGroupId: "1000721035"
+    xrayVersion: "3.12.0-1"
+    customInitContainers: |
+      - name: "prepare-uid-persistent-volume"
+        image: "{{ .Values.initContainerImage }}"
+        imagePullPolicy: "{{ .Values.imagePullPolicy }}"
+        command:
+          - 'sh'
+          - '-c'
+          - >
+            chown -Rv {{ .Values.common.xrayUserId }}:{{ .Values.common.xrayGroupId }} {{ .Values.xray.persistence.mountPath }}
+        securityContext:
+            runAsUser: 0
+        volumeMounts:
+          - mountPath: "{{ .Values.xray.persistence.mountPath }}"
+            name: data-volume
   analysis:
     name: xray-analysis
     image:
       registry: registry.connect.redhat.com
       repository: jfrog/xray-analysis
-      tag: 3.8.8
     updateStrategy: RollingUpdate
     podManagementPolicy: Parallel
     preStartCommand:
@@ -30,7 +43,6 @@ xray:
     image:
       registry: registry.connect.redhat.com
       repository: jfrog/xray-indexer
-      tag: 3.8.8
     updateStrategy: RollingUpdate
     podManagementPolicy: Parallel
   persist:
@@ -38,7 +50,6 @@ xray:
     image:
       registry: registry.connect.redhat.com
       repository: jfrog/xray-persist
-      tag: 3.8.8
     updateStrategy: RollingUpdate
     podManagementPolicy: Parallel
     persistence:
@@ -49,7 +60,6 @@ xray:
     image:
       registry: registry.connect.redhat.com
       repository: jfrog/xray-server
-      tag: 3.8.8
     updateStrategy: RollingUpdate
     podManagementPolicy: Parallel
     replicaCount: 1
@@ -58,14 +68,14 @@ xray:
     image:
       registry: registry.connect.redhat.com
       repository: jfrog/xray-router
-      tag: 1.4.3
       imagePullPolicy: IfNotPresent
+      tag: 3.12.0-1
   rabbitmq-ha:
     enabled: true
     replicaCount: 1
     image:
       repository: registry.connect.redhat.com/jfrog/xray-rabbitmq
-      tag: 3.8.9
+      tag: 3.12.0-1
     rabbitmqEpmdPort: 4369
     rabbitmqNodePort: 5672
     rabbitmqManagerPort: 15672

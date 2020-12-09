@@ -3,16 +3,14 @@
 # and applies various things like initContainers, nginx mainConf, etc
 # to enable the artifactory-ha helm chart to work in an openshift environment
 artifactory-ha:
-  ###################################
-  # EDIT TO YOUR DB CONFIGURATION
-  ###################################
+  databaseUpgradeReady: true
   database:
     type: "OVERRIDE"
     driver: "OVERRIDE"
     url: "OVERRIDE"
     user: "OVERRIDE"
     password: "OVERRIDE"
-  initContainerImage: registry.connect.redhat.com/jfrog/init:1.0.1
+  initContainerImage: registry.connect.redhat.com/jfrog/init:7.11.5-1
   waitForDatabase: true
   installerInfo: '{ "productId": "Openshift_artifactory-ha/{{ .Chart.Version }}", "features": [ { "featureId": "ArtifactoryVersion/{{ default .Chart.AppVersion .Values.artifactory.image.version }}" }, { "featureId": "{{ if .Values.postgresql.enabled }}postgresql{{ else }}{{ .Values.database.type }}{{ end }}/0.0.0" }, { "featureId": "Platform/Openshift" }, { "featureId": "Partner/ACC-006983" }, { "featureId": "Channel/Openshift" } ] }'
   artifactory:
@@ -21,13 +19,27 @@ artifactory-ha:
     image:
       registry: registry.connect.redhat.com
       repository: jfrog/artifactory-pro
-      tag: 7.9.0
+      tag: 7.11.5-1
     node:
       replicaCount: 2
       waitForPrimaryStartup:
         enabled: false
     masterKey: "OVERRIDE"
     joinKey: "OVERRIDE"
+    customInitContainersBegin: |
+      - name: "prepare-uid-persistent-volume"
+        image: "{{ .Values.initContainerImage }}"
+        imagePullPolicy: "{{ .Values.artifactory.image.pullPolicy }}"
+        command:
+          - 'sh'
+          - '-c'
+          - >
+            chown -Rv {{ .Values.artifactory.uid }}:{{ .Values.artifactory.uid }} {{ .Values.artifactory.persistence.mountPath }}
+        securityContext:
+            runAsUser: 0
+        volumeMounts:
+          - mountPath: "{{ .Values.artifactory.persistence.mountPath }}"
+            name: volume
   postgresql:
     enabled: false
   nginx:

@@ -1,0 +1,1291 @@
+apiVersion: charts.my.domain/v1alpha1
+kind: OpenshiftPipelines
+metadata:
+  name: openshiftpipelines-sample
+spec:
+  # Default values copied from <project_dir>/helm-charts/openshift-pipelines/values.yaml
+  pipelines:
+    buildPlane:
+      dynamic:
+        customer:
+          accountId: ""
+          nodePoolName: ""
+          nodelimit: ""
+        provider:
+          aws:
+            accessKey: ""
+            enabled: false
+            instanceType: c4.xlarge
+            keyPairName: testaccountSSHKeyPair
+            nodePoolName: aws-dynamic-node-pool
+            nodelimit: "3"
+            region: us-east-1
+            secretKey: ""
+            securityGroupId: testsecuritygroupId
+            subnetId: test-subnetId
+            vpcId: testVPCId
+          k8s:
+            cpu: "1"
+            enabled: false
+            kubeconfig: ""
+            memory: "1000"
+            namespace: default
+            nodePoolName: k8s-dynamic-node-pool
+            nodelimit: "3"
+            storageClass: standard
+    filebeat:
+      enabled: false
+      filebeatYml: |
+        logging.level: info
+        path.data: {{ .Values.pipelines.logPath }}/filebeat
+        name: pipelines-filebeat
+        queue.spool: ~
+        filebeat.inputs:
+        - type: log
+          enabled: true
+          close_eof: ${CLOSE:false}
+          paths:
+             - {{ .Values.pipelines.logPath }}/*.log
+          fields:
+            service: "jfpip"
+            log_type: "pipelines"
+        output:
+          logstash:
+             hosts: ["{{ .Values.filebeat.logstashUrl }}"]
+      image:
+        repository: docker.elastic.co/beats/filebeat
+        version: 7.5.1
+      livenessProbe:
+        exec:
+          command:
+          - sh
+          - -c
+          - |
+            #!/usr/bin/env bash -e
+            curl --fail 127.0.0.1:5066
+        failureThreshold: 3
+        initialDelaySeconds: 10
+        periodSeconds: 10
+        timeoutSeconds: 5
+      logstashUrl: logstash:5044
+      name: pipelines-filebeat
+      readinessProbe:
+        exec:
+          command:
+          - sh
+          - -c
+          - |
+            #!/usr/bin/env bash -e
+            filebeat test output
+        failureThreshold: 3
+        initialDelaySeconds: 10
+        periodSeconds: 10
+        timeoutSeconds: 5
+      resources: {}
+      terminationGracePeriod: 10
+    global:
+      postgresql:
+        database: OVERRIDE
+        host: OVERRIDE
+        password: OVERRIDE
+        port: OVERRIDE
+        ssl: OVERRIDE
+        user: OVERRIDE
+      vault: {}
+    imageRegistry: registry.connect.redhat.com
+    initContainer:
+      image: registry.connect.redhat.com/jfrog/pipelines-init:1.8.0
+      pullPolicy: IfNotPresent
+    initContainers:
+      resources: {}
+    pipelines:
+      accessControlAllowOrigins_0: OVERRIDE
+      accessControlAllowOrigins_1: OVERRIDE
+      affinity: {}
+      api:
+        image:
+          pullPolicy: IfNotPresent
+          repository: jfrog/pipelines-api
+        ingress:
+          annotations: {}
+          enabled: false
+          hosts:
+          - chart-example.local
+          path: /
+          tls: []
+        livenessProbe:
+          enabled: true
+          failureThreshold: 10
+          initialDelaySeconds: 20
+          path: /
+          periodSeconds: 10
+          port: api
+          successThreshold: 1
+          timeoutSeconds: 10
+        readinessProbe:
+          enabled: true
+          failureThreshold: 10
+          initialDelaySeconds: 20
+          path: /
+          periodSeconds: 10
+          port: api
+          successThreshold: 1
+          timeoutSeconds: 10
+        resources: {}
+        service:
+          loadBalancerSourceRanges: []
+          port: 30000
+          type: ClusterIP
+      artifactoryHealthCheckIntervalInMins: 1
+      artifactoryServiceId: FFFFFFFFFFFF
+      authToken: c7595edd-b63d-4fd6-9e1e-13924d6637f0
+      autoscaling:
+        enabled: false
+        maxReplicas: 3
+        minReplicas: 1
+        targetCPUUtilizationPercentage: 70
+      configMaps: ""
+      cron:
+        image:
+          pullPolicy: IfNotPresent
+          repository: jfrog/pipelines-micro
+        resources: {}
+      customInitContainers: ""
+      customInitContainersBegin: |
+        - name: "redhat-custom-setup"
+          image: {{ .Values.initContainer.image }}
+          imagePullPolicy: Always
+          command:
+            - 'sh'
+            - '-c'
+            - 'chown -R {{ .Values.securityContext.uid }}:{{ .Values.securityContext.gid }} {{ .Values.pipelines.mountPath }} && chown -R {{ .Values.securityContext.uid }}:{{ .Values.securityContext.gid }} {{ .Values.pipelines.logPath }}'
+          securityContext:
+              runAsUser: 0
+          volumeMounts:
+            - name: jfrog-pipelines-folder
+              mountPath: "{{ .Values.pipelines.mountPath }}"
+            - name: jfrog-pipelines-logs
+              mountPath: {{ .Values.pipelines.logPath }}
+      customSidecarContainers: ""
+      customVolumeMounts: ""
+      customVolumes: ""
+      extensionSync:
+        image:
+          pullPolicy: IfNotPresent
+          repository: jfrog/pipelines-micro
+        resources: {}
+      hookHandler:
+        image:
+          pullPolicy: IfNotPresent
+          repository: jfrog/pipelines-micro
+        resources: {}
+      jfrogUrl: OVERRIDE
+      jfrogUrlUI: OVERRIDE
+      joinKey: OVERRIDE
+      licenseId: FFFFFFFFF
+      logPath: /opt/jfrog/pipelines/var/log
+      logup:
+        image:
+          pullPolicy: IfNotPresent
+          repository: jfrog/pipelines-micro
+        resources: {}
+      marshaller:
+        image:
+          pullPolicy: IfNotPresent
+          repository: jfrog/pipelines-micro
+        resources: {}
+      masterKey: OVERRIDE
+      mountPath: /opt/jfrog/pipelines/var/etc
+      msg:
+        uiUser: OVERRIDE
+        uiUserPassword: OVERRIDE
+      nexec:
+        image:
+          pullPolicy: IfNotPresent
+          repository: jfrog/pipelines-micro
+        resources: {}
+      nodeSelector: {}
+      pipelineSync:
+        image:
+          pullPolicy: Always
+          repository: jfrog/pipelines-micro
+        resources: {}
+      pipelinesInit:
+        image:
+          pullPolicy: IfNotPresent
+          repository: jfrog/pipelines-installer
+        resources: {}
+      rabbitmqHealthCheckIntervalInMins: 1
+      rbac:
+        role:
+          rules:
+          - apiGroups:
+            - ""
+            - extensions
+            - apps
+            resources:
+            - deployments
+            - persistentvolumes
+            - persistentvolumeclaims
+            - pods
+            - deployments/scale
+            verbs:
+            - '*'
+      replicaCount: 1
+      rootBucket: jfrogpipelines
+      router:
+        externalPort: 8082
+        image:
+          pullPolicy: IfNotPresent
+          repository: jfrog/pipelines-router
+        internalPort: 8046
+        mountPath: /opt/jfrog/router/var/etc
+        resources: {}
+      runTrigger:
+        image:
+          pullPolicy: IfNotPresent
+          repository: jfrog/pipelines-micro
+        resources: {}
+      serviceId: jfpip@12345
+      stepTrigger:
+        image:
+          pullPolicy: IfNotPresent
+          repository: jfrog/pipelines-micro
+        resources: {}
+      systemYaml: |
+        {{- if .Values.router.routerConfiguration }}
+        router:
+          ## Router configuration
+          topology:
+            external:
+              refresh:
+                interval: "{{ .Values.router.topology.external.refresh.interval }}"
+          serviceRegistry:
+            url: "{{ .Values.router.serviceRegistry.url }}"
+        {{- end }}
+        shared:
+          ## Artifactory configuration
+          ##
+          artifactory:
+            ## Artifactory URL
+            ##
+            baseUrl: "{{ tpl (required "\n\npipelines.jfrogUrl is required!\n" .Values.pipelines.jfrogUrl) . }}"
+            ## Unified UI URL
+            ##
+            baseUrlUI: "{{ tpl (required "\n\npipelines.jfrogUrlUI is required!\n" .Values.pipelines.jfrogUrlUI) . }}"
+            ## Pipelines Service ID
+            ##
+            serviceId: "{{ .Values.pipelines.serviceId }}"
+            ## Artifactory Service ID
+            ##
+            artifactoryServiceId: "{{ .Values.pipelines.artifactoryServiceId }}"
+            ## Artifactory License ID
+            ##
+            licenseId: "{{ .Values.pipelines.licenseId }}"
+            ## Proxy to connect to Artifactory
+            ##
+            proxy:
+              url: ""
+              username: ""
+              password: ""
+  
+          ## Router configuration
+          ##
+          router:
+            ip: ""
+            accessPort: {{ .Values.pipelines.router.internalPort }}
+            dataPort: {{ .Values.pipelines.router.externalPort }}
+            joinKey: "{{ .Values.pipelines.joinKey }}"
+  
+          security:
+            masterKey: "{{ .Values.pipelines.masterKey }}"
+  
+          ## Database configuration
+          ##
+          db:
+            type: "postgres"
+            {{- if .Values.postgresql.enabled }}
+            ip: {{ tpl .Release.Name . }}-postgresql
+            port: "{{ .Values.postgresql.service.port }}"
+            name: {{ .Values.postgresql.postgresqlDatabase }}
+            username: {{ .Values.postgresql.postgresqlUsername }}
+            password: {{ .Values.postgresql.postgresqlPassword }}
+            {{- else }}
+            ip: {{ tpl .Values.global.postgresql.host . }}
+            port: "{{ .Values.global.postgresql.port }}"
+            name: {{ .Values.global.postgresql.database }}
+            username: {{ .Values.global.postgresql.user }}
+            password: {{ .Values.global.postgresql.password }}
+            {{- end }}
+            externalUrl: ""
+            {{- if .Values.postgresql.enabled }}
+            connectionString: "{{ tpl (printf "postgres://%s:%s@%s-postgresql:%v/%s" .Values.postgresql.postgresqlUsername .Values.postgresql.postgresqlPassword .Release.Name .Values.postgresql.service.port .Values.postgresql.postgresqlDatabase) . }}"
+            {{- else if and (not .Values.postgresql.enabled) (.Values.global.postgresql.ssl) }}
+            connectionString: "{{ tpl (printf "postgres://%s:%s@%v:%v/%s?sslmode=require" .Values.global.postgresql.user .Values.global.postgresql.password .Values.global.postgresql.host .Values.global.postgresql.port .Values.global.postgresql.database) . }}"
+            {{- else }}
+            connectionString: "{{ tpl (printf "postgres://%s:%s@%v:%v/%s" .Values.global.postgresql.user .Values.global.postgresql.password .Values.global.postgresql.host .Values.global.postgresql.port .Values.global.postgresql.database) . }}"
+            {{- end }}
+  
+          ## RabbitMQ configuration
+          ##
+          msg:
+            {{- if .Values.rabbitmq.enabled }}
+            ip: {{ .Release.Name }}-rabbitmq
+            port: {{ .Values.rabbitmq.service.port }}
+            adminPort: {{ .Values.rabbitmq.service.managerPort }}
+            erlangCookie: {{ .Values.rabbitmq.rabbitmq.erlangCookie }}
+            username: {{ .Values.rabbitmq.rabbitmq.username }}
+            password: {{ .Values.rabbitmq.rabbitmq.password }}
+            defaultExchange: pipelinesEx
+            amqpVhost: pipelines
+            amqpRootVhost: pipelinesRoot
+            {{- else }}
+            ip: {{ tpl .Values.rabbitmq.internal_ip . }}
+            port: {{ .Values.rabbitmq.port}}
+            adminPort: {{ .Values.rabbitmq.manager_port }}
+            erlangCookie: {{ .Values.rabbitmq.erlang_cookie }}
+            username: {{ .Values.rabbitmq.ms_username }}
+            password: {{ .Values.rabbitmq.ms_password }}
+            defaultExchange: {{ .Values.rabbitmq.root_vhost_exchange_name }}
+            amqpVhost: {{ .Values.rabbitmq.build_vhost_name}}
+            amqpRootVhost: {{ .Values.rabbitmq.root_vhost_name }}
+            protocol: {{ .Values.rabbitmq.protocol }}
+            {{- end }}
+            queues:
+              - "core.pipelineSync"
+              - "core.runTrigger"
+              - "core.stepTrigger"
+              - "core.marshaller"
+              - "cluster.init"
+              - "core.logup"
+              - "www.signals"
+              - "core.nexec"
+              - "core.hookHandler"
+              - "core.extensionSync"
+            ui:
+              {{- if .Values.rabbitmq.enabled }}
+              username: {{ .Values.pipelines.msg.uiUser }}
+              password: {{ .Values.pipelines.msg.uiUserPassword }}
+              {{- else }}
+              protocol: http
+              username: {{ .Values.rabbitmq.cp_username }}
+              password: {{ .Values.rabbitmq.cp_password }}
+              {{- end }}
+            external:
+              ## URL for build plane VMs to access RabbitMQ
+              {{- if .Values.rabbitmq.externalUrl }}
+              url: {{ .Values.rabbitmq.externalUrl }}
+              {{- else if (and .Values.rabbitmq.serviceVmLb.enabled .Values.rabbitmq.serviceVmLb.loadBalancerIP) }}
+              url: amqp://{{ .Values.rabbitmq.serviceVmLb.loadBalancerIP }}
+              {{- else if .Values.rabbitmq.enabled }}
+              url: amqp://{{ tpl .Release.Name . }}-rabbitmq
+              {{- else }}
+              url: {{ .Values.rabbitmq.protocol }}://{{ tpl .Values.rabbitmq.msg_hostname . }}:{{ .Values.rabbitmq.port }}
+              {{- end }}
+              rootUrl: ""
+              adminUrl: ""
+            {{- if not .Values.rabbitmq.enabled }}
+            build:
+              username: {{ .Values.rabbitmq.build_username }}
+              password: {{ .Values.rabbitmq.build_password }}
+            {{- end }}
+  
+          ## Vault configuration
+          ##
+          vault:
+            {{- if .Values.vault.enabled }}
+            ip: {{ include "pipelines.vault.name" . }}
+            port: {{ .Values.vault.service.port }}
+            {{- else }}
+            ip: {{ .Values.global.vault.host }}
+            port: {{ .Values.global.vault.port }}
+            {{- end }}
+            ## DO NOT CHANGE THE TOKEN VALUE!!!
+            token: "_VAULT_TOKEN_"
+            unsealKeys:
+              - ""
+              - ""
+              - ""
+              - ""
+              - ""
+  
+          ## Redis configuration
+          ##
+          redis:
+            ip: {{ .Release.Name }}-redis-master
+            port: 6379
+            clusterEnabled: false
+  
+        ## This section is used for bringing up the core services and setting up
+        ## configurations required by the installer & the services
+        ##
+        core:
+          ## id is automatically determined based on the current hostname
+          ## or set using the SHARED_NODE_ID environment variable.
+          ##
+          id: "afd8df9d08bf257ae9b7d7dbbf348b7a3a574ebdd3a61d350d4b64e3129dee85"
+          installerIP: "1.2.3.4"
+          installerAuthToken: "{{ .Values.pipelines.authToken }}"
+          installerImage: "jfrog/pipelines-installer"
+          registryUrl: "{{ .Values.imageRegistry }}"
+          os: "Ubuntu_16.04"
+          osDistribution: "xenial"
+          architecture: "x86_64"
+          dockerVersion: ""
+          runMode: "{{ .Values.runMode }}"
+          user: ""
+          group: ""
+          noVerifySsl: false
+          ignoreTLSErrors: false
+          controlplaneVersion: "{{ default .Chart.AppVersion .Values.pipelines.version }}"
+          buildplaneVersion: "{{ default .Chart.AppVersion .Values.pipelines.version }}"
+          accessControlAllowOrigins:
+            - {{ .Values.pipelines.accessControlAllowOrigins_0 }}
+            - {{ .Values.pipelines.accessControlAllowOrigins_1 }}
+          rabbitmqHealthCheckIntervalInMins: {{ .Values.pipelines.rabbitmqHealthCheckIntervalInMins}}
+          artifactoryHealthCheckIntervalInMins: {{ .Values.pipelines.artifactoryHealthCheckIntervalInMins}}
+          ## Global proxy settings, to be applied to all services
+          ##
+          proxy:
+            httpProxy: ""
+            httpsProxy: ""
+            noProxy: ""
+            username: ""
+            password: ""
+  
+          ## Mailserver settings
+          ##
+          mailserver:
+            host: ""
+            port: ""
+            username: ""
+            password: ""
+            tls: ""
+            ssl: ""
+          apiRetryIntervalMs: 3000
+          accountSyncFrequencyHr: 1
+          imageRegistrySecret: "{{ .Values.imagePullSecrets }}"
+          hardDeleteIntervalInMins: 60
+          configBackupCount: 5
+          lastUpdateTime: ""
+          callHomeUrl:  "https://api.bintray.com/products/jfrog/pipelines/stats/usage"
+          allowCallHome: true
+          serviceInstanceHealthCheckIntervalInMins: 1
+          serviceInstanceStatsCutOffIntervalInHours: 24
+  
+          ## Service configuration
+          ##
+          services:
+            api:
+              name: {{ include "pipelines.api.name" . }}
+              port: {{ .Values.pipelines.api.service.port }}
+              {{- if (and .Values.pipelines.api.ingress.enabled .Values.pipelines.api.ingress.tls) }}
+              {{- range .Values.pipelines.api.ingress.hosts }}
+              externalUrl: https://{{ . }}
+              {{- end }}
+              {{- else if .Values.pipelines.api.ingress.enabled }}
+              {{- range .Values.pipelines.api.ingress.hosts }}
+              externalUrl: http://{{ . }}
+              {{- end }}
+              {{- else }}
+              externalUrl: {{ .Values.pipelines.api.externalUrl }}
+              {{- end }}
+            www:
+              name: {{ include "pipelines.www.name" . }}
+              port: {{ .Values.pipelines.www.service.port }}
+              {{- if (and .Values.pipelines.www.ingress.enabled .Values.pipelines.www.ingress.tls) }}
+              {{- range .Values.pipelines.www.ingress.hosts }}
+              externalUrl: https://{{ . }}
+              {{- end }}
+              {{- else if .Values.pipelines.www.ingress.enabled }}
+              {{- range .Values.pipelines.www.ingress.hosts }}
+              externalUrl: http://{{ . }}
+              {{- end }}
+              {{- else }}
+              externalUrl: {{ .Values.pipelines.www.externalUrl }}
+              {{- end }}
+              sessionSecret: "{{ .Values.pipelines.authToken }}"
+            pipelineSync:
+              name: pipelineSync
+            runTrigger:
+              name: runTrigger
+            stepTrigger:
+              name: stepTrigger
+            cron:
+              name: cron
+            nexec:
+              name: nexec
+            hookHandler:
+              name: hookHandler
+            marshaller:
+              name: marshaller
+            extensionSync:
+              name: extensionSync
+  
+        ## Runtime configuration
+        ##
+        runtime:
+          rootBucket: "{{ .Values.pipelines.rootBucket }}"
+          defaultMinionCount: 1
+          nodeCacheIntervalMS: 600000
+          jobConsoleBatchSize: 10
+          jobConsoleBufferIntervalMs: 3
+          maxDiskUsagePercentage: 90
+          stepTimeoutMS: 3600000
+          nodeStopDayOfWeek: 0
+          nodeStopIntervalDays: 30
+          maxNodeCheckInDelayMin: 15
+          defaultMinionInstanceSize: "c4.large"
+          allowDynamicNodes: true
+          allowCustomNodes: true
+          {{- range $key, $value := .Values.runtimeOverride }}
+          {{ $key }}: {{ $value | quote }}
+          {{- end }}
+          languageImages:
+            - architecture: x86_64
+              os: Ubuntu_16.04
+              language: node
+              registryUrl: docker.bintray.io
+              image: jfrog/pipelines-u16node
+              isDefault: true
+              defaultVersion: 10.18.0
+            - architecture: x86_64
+              os: Ubuntu_16.04
+              language: java
+              registryUrl: docker.bintray.io
+              image: jfrog/pipelines-u16java
+              defaultVersion: 13
+            - architecture: x86_64
+              os: Ubuntu_16.04
+              language: cpp
+              registryUrl: docker.bintray.io
+              image: jfrog/pipelines-u16cpp
+              defaultVersion: 9.0.0
+            - architecture: x86_64
+              os: Ubuntu_16.04
+              language: go
+              registryUrl: docker.bintray.io
+              image: jfrog/pipelines-u16go
+              defaultVersion: 1.12.14
+            - architecture: x86_64
+              os: Ubuntu_18.04
+              language: node
+              registryUrl: docker.bintray.io
+              image: jfrog/pipelines-u18node
+              isDefault: true
+              defaultVersion: 10.18.0
+            - architecture: x86_64
+              os: Ubuntu_18.04
+              language: java
+              registryUrl: docker.bintray.io
+              image: jfrog/pipelines-u18java
+              defaultVersion: 13
+            - architecture: x86_64
+              os: Ubuntu_18.04
+              language: cpp
+              registryUrl: docker.bintray.io
+              image: jfrog/pipelines-u18cpp
+              defaultVersion: 9.0.0
+            - architecture: x86_64
+              os: Ubuntu_18.04
+              language: go
+              registryUrl: docker.bintray.io
+              image: jfrog/pipelines-u18go
+              defaultVersion: 1.12.14
+            - architecture: x86_64
+              os: CentOS_7
+              language: node
+              registryUrl: docker.bintray.io
+              image: jfrog/pipelines-c7node
+              isDefault: true
+              defaultVersion: 10.18.0
+            - architecture: x86_64
+              os: CentOS_7
+              language: java
+              registryUrl: docker.bintray.io
+              image: jfrog/pipelines-c7java
+              defaultVersion: 11
+            - architecture: x86_64
+              os: CentOS_7
+              language: cpp
+              registryUrl: docker.bintray.io
+              image: jfrog/pipelines-c7cpp
+              defaultVersion: 3.4.2
+            - architecture: x86_64
+              os: CentOS_7
+              language: go
+              registryUrl: docker.bintray.io
+              image: jfrog/pipelines-c7go
+              defaultVersion: 1.12.14
+            - architecture: x86_64
+              os: WindowsServer_2019
+              language: node
+              registryUrl: docker.bintray.io
+              image: jfrog/pipelines-w19node
+              defaultVersion: 10.18.0
+            - architecture: x86_64
+              os: WindowsServer_2019
+              language: java
+              registryUrl: docker.bintray.io
+              image: jfrog/pipelines-w19java
+              defaultVersion: 11
+            - architecture: x86_64
+              os: WindowsServer_2019
+              language: cpp
+              registryUrl: docker.bintray.io
+              image: jfrog/pipelines-w19cpp
+              defaultVersion: 9.0.0
+            - architecture: x86_64
+              os: WindowsServer_2019
+              language: go
+              registryUrl: docker.bintray.io
+              image: jfrog/pipelines-w19go
+              defaultVersion: 1.12.14
+            - architecture: x86_64
+              os: WindowsServer_2019
+              language: dotnetcore
+              registryUrl: docker.bintray.io
+              image: jfrog/pipelines-w19dotnetcore
+              isDefault: true
+              defaultVersion: 3.1
+            - architecture: x86_64
+              os: RHEL_7
+              language: node
+              registryUrl: docker.bintray.io
+              image: jfrog/pipelines-c7node
+              isDefault: true
+              defaultVersion: 10.18.0
+            - architecture: x86_64
+              os: RHEL_7
+              language: java
+              registryUrl: docker.bintray.io
+              image: jfrog/pipelines-c7java
+              defaultVersion: 11
+            - architecture: x86_64
+              os: RHEL_7
+              language: cpp
+              registryUrl: docker.bintray.io
+              image: jfrog/pipelines-c7cpp
+              defaultVersion: 3.4.2
+            - architecture: x86_64
+              os: RHEL_7
+              language: go
+              registryUrl: docker.bintray.io
+              image: jfrog/pipelines-c7go
+              defaultVersion: 1.12.14
+      tolerations: []
+      updateStrategy: RollingUpdate
+      version: 1.8.0
+      www:
+        image:
+          pullPolicy: IfNotPresent
+          repository: jfrog/pipelines-www
+        ingress:
+          annotations: {}
+          enabled: false
+          hosts:
+          - chart-example.local
+          path: /
+          tls: []
+        livenessProbe:
+          enabled: true
+          failureThreshold: 10
+          initialDelaySeconds: 20
+          path: /
+          periodSeconds: 10
+          port: www
+          successThreshold: 1
+          timeoutSeconds: 10
+        readinessProbe:
+          enabled: true
+          failureThreshold: 10
+          initialDelaySeconds: 20
+          path: /
+          periodSeconds: 10
+          port: www
+          successThreshold: 1
+          timeoutSeconds: 10
+        resources: {}
+        service:
+          loadBalancerSourceRanges: []
+          port: 30001
+          type: ClusterIP
+    postgresql:
+      enabled: false
+      extraEnv: []
+      global:
+        postgresql:
+          database: OVERRIDE
+          host: OVERRIDE
+          password: OVERRIDE
+          port: OVERRIDE
+          ssl: OVERRIDE
+          user: OVERRIDE
+        vault: {}
+      image:
+        debug: false
+        pullPolicy: IfNotPresent
+        registry: docker.bintray.io
+        repository: bitnami/postgresql
+        tag: 9.6.18-debian-10-r7
+      ldap:
+        baseDN: ""
+        bindDN: ""
+        enabled: false
+        port: ""
+        prefix: ""
+        scheme: ""
+        search_attr: ""
+        search_filter: ""
+        server: ""
+        suffix: ""
+        tls: false
+        url: ""
+      livenessProbe:
+        enabled: true
+        failureThreshold: 6
+        initialDelaySeconds: 30
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 5
+      master:
+        affinity: {}
+        annotations: {}
+        extraInitContainers: []
+        extraVolumeMounts: []
+        extraVolumes: []
+        labels: {}
+        nodeSelector: {}
+        podAnnotations: {}
+        podLabels: {}
+        priorityClassName: ""
+        resources: {}
+        service: {}
+        sidecars: []
+        tolerations: []
+      metrics:
+        enabled: false
+        image:
+          pullPolicy: IfNotPresent
+          registry: docker.io
+          repository: bitnami/postgres-exporter
+          tag: 0.8.0-debian-10-r72
+        livenessProbe:
+          enabled: true
+          failureThreshold: 6
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+        prometheusRule:
+          additionalLabels: {}
+          enabled: false
+          namespace: ""
+          rules: []
+        readinessProbe:
+          enabled: true
+          failureThreshold: 6
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+        securityContext:
+          enabled: false
+          runAsUser: 1001
+        service:
+          annotations:
+            prometheus.io/port: "9187"
+            prometheus.io/scrape: "true"
+          type: ClusterIP
+        serviceMonitor:
+          additionalLabels: {}
+          enabled: false
+      networkPolicy:
+        allowExternal: true
+        enabled: false
+        explicitNamespacesSelector: {}
+      persistence:
+        accessModes:
+        - ReadWriteOnce
+        annotations: {}
+        enabled: true
+        mountPath: /bitnami/postgresql
+        size: 50Gi
+        subPath: ""
+      postgresqlDataDir: /bitnami/postgresql/data
+      postgresqlDatabase: pipelinesdb
+      postgresqlPassword: ""
+      postgresqlUsername: apiuser
+      readinessProbe:
+        enabled: true
+        failureThreshold: 6
+        initialDelaySeconds: 5
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 5
+      replication:
+        applicationName: my_application
+        enabled: false
+        numSynchronousReplicas: 0
+        password: repl_password
+        slaveReplicas: 1
+        synchronousCommit: "off"
+        user: repl_user
+      resources:
+        requests:
+          cpu: 250m
+          memory: 256Mi
+      securityContext:
+        enabled: true
+        fsGroup: 1001
+        runAsUser: 1001
+      service:
+        annotations: {}
+        port: 5432
+        type: ClusterIP
+      serviceAccount:
+        enabled: false
+      shmVolume:
+        chmod:
+          enabled: true
+        enabled: true
+      slave:
+        affinity: {}
+        annotations: {}
+        extraInitContainers: |
+          # - name: do-something
+          #   image: busybox
+          #   command: ['do', 'something']
+        extraVolumeMounts: []
+        extraVolumes: []
+        labels: {}
+        nodeSelector: {}
+        podAnnotations: {}
+        podLabels: {}
+        priorityClassName: ""
+        service: {}
+        sidecars: []
+        tolerations: []
+      updateStrategy:
+        type: RollingUpdate
+      volumePermissions:
+        enabled: false
+        image:
+          pullPolicy: Always
+          registry: docker.io
+          repository: bitnami/minideb
+          tag: buster
+        securityContext:
+          runAsUser: 0
+    rabbitmq:
+      affinity: {}
+      enabled: true
+      externalUrl: OVERRIDE
+      extraSecrets: {}
+      extraVolumeMounts: []
+      extraVolumes: []
+      forceBoot:
+        enabled: false
+      global:
+        postgresql:
+          database: OVERRIDE
+          host: OVERRIDE
+          password: OVERRIDE
+          port: OVERRIDE
+          ssl: OVERRIDE
+          user: OVERRIDE
+        vault: {}
+      image:
+        debug: false
+        pullPolicy: IfNotPresent
+        registry: quay.io
+        repository: jfrog/rabbitmq
+        tag: 3.9.1
+      ingress:
+        annotations: {}
+        enabled: false
+        path: /
+        tls: true
+        tlsSecret: myTlsSecret
+      ldap:
+        enabled: false
+        port: "389"
+        server: ""
+        tls:
+          enabled: false
+        user_dn_pattern: cn=${username},dc=example,dc=org
+      livenessProbe:
+        commandOverride: []
+        enabled: true
+        failureThreshold: 6
+        initialDelaySeconds: 120
+        periodSeconds: 30
+        successThreshold: 1
+        timeoutSeconds: 20
+      metrics:
+        enabled: false
+        plugins: rabbitmq_prometheus
+        podAnnotations:
+          prometheus.io/port: '{{ .Values.metrics.port }}'
+          prometheus.io/scrape: "true"
+        port: 9419
+        prometheusRule:
+          additionalLabels: {}
+          enabled: false
+          namespace: ""
+          rules: []
+        serviceMonitor:
+          additionalLabels: {}
+          enabled: false
+          honorLabels: false
+          interval: 30s
+      networkPolicy:
+        allowExternal: true
+        enabled: false
+      nodeSelector: {}
+      persistence:
+        accessMode: ReadWriteOnce
+        enabled: true
+        path: /opt/bitnami/rabbitmq/var/lib/rabbitmq
+        size: 20Gi
+      podAnnotations: {}
+      podDisruptionBudget: {}
+      podLabels: {}
+      podManagementPolicy: OrderedReady
+      protocol: amqps
+      rabbitmq:
+        advancedConfiguration: ""
+        clustering:
+          address_type: hostname
+          k8s_domain: cluster.local
+          rebalance: false
+        configuration: |-
+          ## Clustering
+          cluster_formation.peer_discovery_backend  = rabbit_peer_discovery_k8s
+          cluster_formation.k8s.host = kubernetes.default.svc.cluster.local
+          cluster_formation.node_cleanup.interval = 10
+          cluster_formation.node_cleanup.only_log_warning = true
+          cluster_partition_handling = autoheal
+          # queue master locator
+          queue_master_locator=min-masters
+          # enable guest user
+          loopback_users.guest = false
+        env: {}
+        erlangCookie: PIPELINESRABBITMQCLUSTER
+        extraConfiguration: |-
+          #disk_free_limit.absolute = 50MB
+          #management.load_definitions = /app/load_definition.json
+        extraPlugins: ""
+        loadDefinition:
+          enabled: false
+          secretName: load-definition
+        logs: '-'
+        maxAvailableSchedulers: 2
+        onlineSchedulers: 1
+        password: bitnami
+        plugins: rabbitmq_management rabbitmq_peer_discovery_k8s
+        setUlimitNofiles: true
+        tls:
+          caCertificate: ""
+          enabled: false
+          failIfNoPeerCert: true
+          serverCertificate: ""
+          serverKey: ""
+          sslOptionsVerify: verify_peer
+        ulimitNofiles: "65536"
+        username: user
+      rbacEnabled: true
+      readinessProbe:
+        commandOverride: []
+        enabled: true
+        failureThreshold: 3
+        initialDelaySeconds: 10
+        periodSeconds: 30
+        successThreshold: 1
+        timeoutSeconds: 20
+      replicas: 1
+      resources: {}
+      securityContext:
+        enabled: true
+        extra: {}
+        fsGroup: 1001
+        runAsUser: 1001
+      service:
+        annotations: {}
+        distPort: 25672
+        managerPort: 15672
+        port: 5672
+        tlsPort: 5671
+        type: ClusterIP
+      serviceVmLb:
+        enabled: false
+        loadBalancerSourceRanges: []
+      tolerations: []
+      updateStrategy:
+        type: RollingUpdate
+      volumePermissions:
+        enabled: false
+        image:
+          pullPolicy: Always
+          registry: docker.io
+          repository: bitnami/minideb
+          tag: buster
+        resources: {}
+    rbac:
+      create: true
+    redis:
+      cluster:
+        enabled: false
+        slaveCount: 2
+      clusterDomain: cluster.local
+      configmap: |-
+        # Enable AOF https://redis.io/topics/persistence#append-only-file
+        appendonly yes
+        # Disable RDB persistence, AOF persistence already enabled.
+        save ""
+      enabled: true
+      global:
+        postgresql:
+          database: OVERRIDE
+          host: OVERRIDE
+          password: OVERRIDE
+          port: OVERRIDE
+          ssl: OVERRIDE
+          user: OVERRIDE
+        redis: {}
+        vault: {}
+      image:
+        pullPolicy: IfNotPresent
+        registry: registry.redhat.io
+        repository: rhel8/redis-5
+        tag: 1-98
+      master:
+        affinity: {}
+        command: container-entrypoint run-redis
+        configmap: |-
+          appendonly yes
+          loglevel notice
+        disableCommands:
+        - FLUSHDB
+        - FLUSHALL
+        extraFlags: []
+        livenessProbe:
+          enabled: true
+          failureThreshold: 5
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 5
+        persistence:
+          accessModes:
+          - ReadWriteOnce
+          enabled: true
+          matchExpressions: {}
+          matchLabels: {}
+          path: /data
+          size: 8Gi
+          subPath: ""
+        podAnnotations: {}
+        podLabels: {}
+        readinessProbe:
+          enabled: true
+          failureThreshold: 5
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources: {}
+        service:
+          annotations: {}
+          labels: {}
+          port: 6379
+          type: ClusterIP
+        statefulset:
+          updateStrategy: RollingUpdate
+      metrics:
+        enabled: false
+        image:
+          pullPolicy: IfNotPresent
+          registry: docker.io
+          repository: bitnami/redis-exporter
+          tag: 1.5.2-debian-10-r21
+        podAnnotations:
+          prometheus.io/port: "9121"
+          prometheus.io/scrape: "true"
+        prometheusRule:
+          additionalLabels: {}
+          enabled: false
+          namespace: ""
+          rules: []
+        service:
+          annotations: {}
+          labels: {}
+          type: ClusterIP
+        serviceMonitor:
+          enabled: false
+          selector:
+            prometheus: kube-prometheus
+      networkPolicy:
+        enabled: false
+        ingressNSMatchLabels: {}
+        ingressNSPodMatchLabels: {}
+      password: ""
+      persistence: {}
+      podSecurityPolicy:
+        create: false
+      rbac:
+        create: false
+        role:
+          rules: []
+      redisPort: 6379
+      securityContext:
+        enabled: true
+        fsGroup: 1001
+        runAsUser: 1001
+      sentinel:
+        downAfterMilliseconds: 60000
+        enabled: false
+        failoverTimeout: 18000
+        image:
+          pullPolicy: IfNotPresent
+          registry: docker.io
+          repository: bitnami/redis-sentinel
+          tag: 5.0.8-debian-10-r25
+        initialCheckTimeout: 5
+        livenessProbe:
+          enabled: true
+          failureThreshold: 5
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 5
+        masterSet: mymaster
+        parallelSyncs: 1
+        port: 26379
+        quorum: 2
+        readinessProbe:
+          enabled: true
+          failureThreshold: 5
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 1
+        service:
+          annotations: {}
+          labels: {}
+          redisPort: 6379
+          sentinelPort: 26379
+          type: ClusterIP
+        staticID: false
+        usePassword: true
+      serviceAccount:
+        create: false
+      slave:
+        affinity: {}
+        command: /run.sh
+        configmap: null
+        disableCommands:
+        - FLUSHDB
+        - FLUSHALL
+        extraFlags: []
+        livenessProbe:
+          enabled: true
+          failureThreshold: 5
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+        persistence:
+          accessModes:
+          - ReadWriteOnce
+          enabled: true
+          matchExpressions: {}
+          matchLabels: {}
+          path: /data
+          size: 8Gi
+          subPath: ""
+        podAnnotations: {}
+        podLabels: {}
+        port: 6379
+        readinessProbe:
+          enabled: true
+          failureThreshold: 5
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 10
+        resources: {}
+        service:
+          annotations: {}
+          labels: {}
+          port: 6379
+          type: ClusterIP
+        statefulset:
+          updateStrategy: RollingUpdate
+      sysctlImage:
+        command: []
+        enabled: false
+        mountHostSys: false
+        pullPolicy: Always
+        registry: docker.io
+        repository: bitnami/minideb
+        resources: {}
+        tag: buster
+      usePassword: false
+      usePasswordFile: false
+      volumePermissions:
+        enabled: false
+        image:
+          pullPolicy: Always
+          registry: docker.io
+          repository: bitnami/minideb
+          tag: buster
+        resources: {}
+    router:
+      routerConfiguration: false
+      serviceRegistry: {}
+      topology:
+        external:
+          refresh:
+            interval: 3s
+    runMode: production
+    runtimeOverride: {}
+    securityContext:
+      enabled: true
+      gid: "1000721117"
+      uid: "1000721117"
+    vault:
+      affinity: {}
+      configMaps: ""
+      customInitContainers: ""
+      customInitContainersBegin: ""
+      customVolumeMounts: ""
+      customVolumes: ""
+      disablemlock: false
+      enabled: true
+      image:
+        pullPolicy: IfNotPresent
+        repository: registry.connect.redhat.com/jfrog/pipelines-vault
+        tag: 1.8.0
+      init:
+        image:
+          pullPolicy: IfNotPresent
+          repository: jfrog/pipelines-vault-init
+      nodeSelector: {}
+      rbac:
+        role:
+          rules:
+          - apiGroups:
+            - ""
+            resources:
+            - secrets
+            verbs:
+            - '*'
+      resources: {}
+      service:
+        port: 30100
+        type: ClusterIP
+      tolerations: []
+      updateStrategy: RollingUpdate
+  
+  

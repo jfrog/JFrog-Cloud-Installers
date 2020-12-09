@@ -58,9 +58,9 @@ JFROGURL=""
 if [[ -z "$4" ]]
 then
   # HELM
-  JFROGURL="http://artifactory-ha-nginx"
+  #JFROGURL="http://artifactory-ha-nginx"
   # OPERATOR
-  # JFROGURL="http://openshiftartifactoryha-nginx"
+  JFROGURL="http://openshiftartifactoryha-nginx"
 else
   JFROGURL=$4
 fi
@@ -72,5 +72,5 @@ helm install xray . \
                --set xray.database.user=$DBUSER \
                --set xray.database.password=$DBPASS \
                --set xray.xray.jfrogUrl=$JFROGURL \
-               --set xray.xray.joinKey=EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE \
-               --set xray.xray.masterKey=FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+               --set xray.xray.joinKey=$JOIN_KEY \
+               --set xray.xray.masterKey=$MASTER_KEY

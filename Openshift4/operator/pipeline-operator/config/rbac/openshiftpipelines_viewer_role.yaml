@@ -1,0 +1,20 @@
+# permissions for end users to view openshiftpipelines.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: openshiftpipelines-viewer-role
+rules:
+- apiGroups:
+  - charts.my.domain
+  resources:
+  - openshiftpipelines
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - charts.my.domain
+  resources:
+  - openshiftpipelines/status
+  verbs:
+  - get

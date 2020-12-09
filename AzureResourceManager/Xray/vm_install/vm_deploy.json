@@ -1,0 +1,262 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "type": "String"
+        },
+        "networkInterfaceName": {
+            "type": "String"
+        },
+        "networkSecurityGroupName": {
+            "type": "String"
+        },
+        "networkSecurityGroupRules": {
+            "type": "Array"
+        },
+        "subnetName": {
+            "type": "String"
+        },
+        "virtualNetworkName": {
+            "type": "String"
+        },
+        "addressPrefixes": {
+            "type": "Array"
+        },
+        "subnets": {
+            "type": "Array"
+        },
+        "publicIpAddressName": {
+            "type": "String"
+        },
+        "publicIpAddressType": {
+            "type": "String"
+        },
+        "publicIpAddressSku": {
+            "type": "String"
+        },
+        "virtualMachineName": {
+            "type": "String"
+        },
+        "virtualMachineComputerName": {
+            "type": "String"
+        },
+        "storageAccountName": {
+            "type": "String"
+        },
+        "virtualMachineSize": {
+            "type": "String"
+        },
+        "adminUsername": {
+            "type": "String"
+        },
+        "adminPassword": {
+            "type": "SecureString"
+        },
+        "diagnosticsStorageAccountName": {
+            "type": "String"
+        },
+        "diagnosticsStorageAccountId": {
+            "type": "String"
+        },
+        "diagnosticsStorageAccountType": {
+            "type": "String"
+        },
+        "diagnosticsStorageAccountKind": {
+            "type": "String"
+        },
+        "_artifactsLocation": {
+            "type": "string",
+            "metadata": {
+                "description": "The base URI where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
+            },
+            "defaultValue": "https://raw.githubusercontent.com/jfrog/JFrog-Cloud-Installers/vm-image-templates/AzureResourceManager/Xray/"
+        },
+        "_artifactsLocationSasToken": {
+            "type": "securestring",
+            "metadata": {
+                "description": "The sasToken required to access _artifactsLocation.  When the template is deployed using the accompanying scripts, a sasToken will be automatically generated."
+        },
+        "defaultValue": ""
+        },
+        "xrayVersion": {
+            "type": "String"
+        },
+        "scriptName": {
+            "type": "String"
+        },
+        "baseTime": {
+            "type": "string",
+            "defaultValue": "[utcNow()]"
+        }
+    },
+    "variables": {
+        "nsgId": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]",
+        "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
+        "subnetRef": "[concat(variables('vnetId'), '/subnets/', parameters('subnetName'))]",
+        "storageContainerUri": "[concat(concat('https://', parameters('storageAccountName'), '.blob.core.windows.net/'), 'vhds/')]",
+        "scriptName": "[parameters('scriptName')]",
+        "commandToExecute": "[concat('bash ', variables('scriptName'), ' ', parameters('xrayVersion'))]",
+        "fileLocation": "[uri(parameters('_artifactsLocation'), concat('vm_install/', variables('scriptName'), parameters('_artifactsLocationSasToken')))]",
+        "diskNameSalt": "[concat(parameters('xrayVersion'), '-', parameters('baseTime'))]"
+
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2019-07-01",
+            "name": "[parameters('networkInterfaceName')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkSecurityGroups/', parameters('networkSecurityGroupName'))]",
+                "[concat('Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'))]",
+                "[concat('Microsoft.Network/publicIpAddresses/', parameters('publicIpAddressName'))]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "subnet": {
+                                "id": "[variables('subnetRef')]"
+                            },
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIpAddress": {
+                                "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', parameters('publicIpAddressName'))]"
+                            }
+                        }
+                    }
+                ],
+                "networkSecurityGroup": {
+                    "id": "[variables('nsgId')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2019-02-01",
+            "name": "[parameters('networkSecurityGroupName')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "securityRules": "[parameters('networkSecurityGroupRules')]"
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2019-09-01",
+            "name": "[parameters('virtualNetworkName')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": "[parameters('addressPrefixes')]"
+                },
+                "subnets": "[parameters('subnets')]"
+            }
+        },
+        {
+            "type": "Microsoft.Network/publicIpAddresses",
+            "apiVersion": "2019-02-01",
+            "name": "[parameters('publicIpAddressName')]",
+            "location": "[parameters('location')]",
+            "sku": {
+                "name": "[parameters('publicIpAddressSku')]"
+            },
+            "properties": {
+                "publicIpAllocationMethod": "[parameters('publicIpAddressType')]"
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2019-07-01",
+            "name": "[parameters('virtualMachineName')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkInterfaces/', parameters('networkInterfaceName'))]",
+                "[concat('Microsoft.Storage/storageAccounts/', parameters('diagnosticsStorageAccountName'))]"
+            ],
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "[parameters('virtualMachineSize')]"
+                },
+                "storageProfile": {
+                    "osDisk": {
+                        "createOption": "fromImage",
+                        "vhd": {
+                            "uri": "[concat(variables('storageContainerUri'), parameters('virtualMachineName'), variables('diskNameSalt'), '.vhd')]"
+                        },
+                        "name": "[parameters('virtualMachineName')]"
+                    },
+                    "imageReference": {
+                        "publisher": "Canonical",
+                        "offer": "UbuntuServer",
+                        "sku": "18.04-LTS",
+                        "version": "latest"
+                    }
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaceName'))]"
+                        }
+                    ]
+                },
+                "osProfile": {
+                    "computerName": "[parameters('virtualMachineComputerName')]",
+                    "adminUsername": "[parameters('adminUsername')]",
+                    "adminPassword": "[parameters('adminPassword')]"
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true,
+                        "storageUri": "[concat('https://', parameters('diagnosticsStorageAccountName'), '.blob.core.windows.net/')]"
+                    }
+                }
+            },
+            "resources":[
+                {
+          "name": "extension1",
+          "type": "extensions",
+          "apiVersion": "2015-05-01-preview",
+          "location": "[parameters('location')]",
+          "dependsOn": [
+            "[concat('Microsoft.Compute/virtualMachines/', parameters('virtualMachineName'))]"
+          ],
+          "properties": {
+            "publisher": "Microsoft.Azure.Extensions",
+            "type": "CustomScript",
+            "typeHandlerVersion": "2.0",
+            "autoUpgradeMinorVersion": true,
+            "settings": {
+              "fileUris": [
+                "[variables('fileLocation')]"
+              ],
+              "commandToExecute": "[variables('commandToExecute')]"
+            }
+          }
+    
+         }
+     ]
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2019-06-01",
+            "name": "[parameters('diagnosticsStorageAccountName')]",
+            "location": "[parameters('location')]",
+            "sku": {
+                "name": "[parameters('diagnosticsStorageAccountType')]"
+            },
+            "kind": "[parameters('diagnosticsStorageAccountKind')]",
+            "properties": {}
+        }
+    ],
+    "outputs": {
+        "adminUsername": {
+            "type": "String",
+            "value": "[parameters('adminUsername')]"
+        },
+        "commandTExecute": {
+            "type": "String",
+            "value": "[variables('commandToExecute')]"
+        }
+    }
+}

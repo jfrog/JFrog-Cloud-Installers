@@ -1,0 +1,242 @@
+project:
+  name: quickstart-jfrog-artifactory
+  owner: quickstart-eng@amazon.com
+  #lambda_source_path: functions/source
+  #lambda_zip_path: functions/packages
+  s3_object_acl: public-read
+  s3_regional_buckets: True
+  s3_bucket: tcat-422383ecc658557f9a377abae675aac0  # commercial or gov accounts
+  # s3_bucket: tcat-a3e80b6745b2547da1c745b16adf2a66    # aws-seller accounts
+  regions:
+    - us-east-1
+    #- us-gov-east-1
+    #- us-gov-west-1
+tests:
+
+  # jcr-ami-7102:
+  #   auth:
+  #     us-east-1: seller
+  #     us-gov-west-1: gov
+  #     us-gov-east-1: gov
+  #   parameters:
+  #     AvailabilityZone: "$[taskcat_genaz_1]"
+  #     KeyPairName: "vinaykey1"
+  #     ArtifactVersion: 7.10.2
+  #     RemoteAccessCidr: "0.0.0.0/0"
+  #     QsS3BucketName: "$[taskcat_autobucket]"
+  #     QsS3KeyPrefix: "quickstart-jfrog-artifactory/"
+  #     QsS3BucketRegion: "$[taskcat_current_region]"
+  #     JFrogProduct: "jfrog-artifactory-jcr"
+  #   template: templates/jfrog-ami-master.template.yaml
+  #   regions:
+  #     - us-east-1
+  #     - us-west-2
+
+    
+  # rt-ami-7102:
+  #   auth:
+  #     us-east-1: seller
+  #     us-gov-west-1: gov
+  #     us-gov-east-1: gov
+  #   parameters:
+  #     AvailabilityZone: "$[taskcat_genaz_1]"
+  #     KeyPairName: "vinaykey1"
+  #     ArtifactVersion: 7.10.2
+  #     RemoteAccessCidr: "0.0.0.0/0"
+  #     QsS3BucketName: "$[taskcat_autobucket]"
+  #     QsS3KeyPrefix: "quickstart-jfrog-artifactory/"
+  #     QsS3BucketRegion: "$[taskcat_current_region]"
+  #     JFrogProduct: "jfrog-artifactory-pro"
+  #   template: templates/jfrog-ami-master.template.yaml
+  #   regions:
+  #     - us-east-1
+  #     - us-west-2
+  #     - us-gov-east-1
+
+  # xray-ami-3103:
+  #   auth:
+  #     us-east-1: seller
+  #     us-gov-west-1: gov
+  #     us-gov-east-1: gov
+  #   parameters:
+  #     AvailabilityZone: "$[taskcat_genaz_1]"
+  #     KeyPairName: "vinaykey1"
+  #     # XrayVersion: 3.8.6
+  #     XrayVersion: 3.10.3
+  #     RemoteAccessCidr: "0.0.0.0/0"
+  #     QsS3BucketName: "$[taskcat_autobucket]"
+  #     QsS3KeyPrefix: "quickstart-jfrog-artifactory/"
+  #     QsS3BucketRegion: "$[taskcat_current_region]"
+  #   template: templates/ami-rt-xray-master.template.yaml
+  #   regions:
+  #     - us-east-1
+  #     - us-west-2
+  #     - us-gov-east-1
+
+
+  rt-xray-ec2-postgres:
+    auth:
+      us-east-1: default
+      us-gov-west-1: gov
+      us-gov-east-1: gov
+    parameters:
+      KeyPairName: "vinaykey1"
+      ArtifactoryVersion: 7.10.2
+      RemoteAccessCidr: "0.0.0.0/0"
+      DatabaseEngine: Postgres
+      AccessCidr: "0.0.0.0/0"
+      DatabasePassword: "$[taskcat_genpass_8A]"
+      QsS3BucketName: "$[taskcat_autobucket]"
+      QsS3KeyPrefix: "quickstart-jfrog-artifactory/"
+      QsS3BucketRegion: "$[taskcat_current_region]"
+      DatabaseInstance: "db.m5.large"
+      NumberOfSecondary: "2"
+      KeystorePassword: "$[taskcat_genpass_8A]"
+      AnsibleVaultPass: "$[taskcat_genpass_8A]"
+      ArtifactoryServerName: "artifactory"
+      MasterKey: "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
+      SmLicenseCertName: "jfrog-artifactory"
+      MultiAzDatabase: "false"
+      # InstallXray: "false"
+      XrayVersion: 3.10.3
+      XrayDatabasePassword: "$[taskcat_genpass_8A]"
+      # XrayNumberOfInstances: 2
+
+    #   AvailabilityZones: "$[taskcat_genaz_2]"
+    # template: templates/jfrog-artifactory-ec2-master.template.yaml
+
+    #   # # after creating a VPC, comment line above and uncomment lines below for faster iteration
+    #   # # commercial account
+      AvailabilityZones: "us-east-1a, us-east-1b"
+      VpcId           : "vpc-06fcc5cee261e2b5e"
+      PublicSubnet1Id : "subnet-0d3b79b392dd1c24b"
+      PrivateSubnet1Id: "subnet-052de6286d774f2d2"
+      PublicSubnet2Id : "subnet-0c0405f3f9bff01ec"
+      PrivateSubnet2Id: "subnet-0ea49aaf81e25fd33"
+    # template: templates/jfrog-artifactory-ec2-existing-vpc.template.yaml
+    template: templates/jfrog-artifactory-ec2-marketplace-master.template.yaml
+    regions:
+      - us-east-1
+
+  # rt-xray-ec2-marketplace:
+  #   parameters:
+  #     KeyPairName: "vinaykey1"
+  #     ArtifactoryVersion: 7.10.2
+  #     RemoteAccessCidr: "0.0.0.0/0"
+  #     DatabaseEngine: Postgres
+  #     AccessCidr: "0.0.0.0/0"
+  #     DatabasePassword: "$[taskcat_genpass_8A]"
+  #     QsS3BucketName: "$[taskcat_autobucket]"
+  #     QsS3KeyPrefix: "quickstart-jfrog-artifactory/"
+  #     QsS3BucketRegion: "$[taskcat_current_region]"
+  #     DatabaseInstance: "db.m5.large"
+  #     NumberOfSecondary: "2"
+  #     KeystorePassword: "$[taskcat_genpass_8A]"
+  #     AnsibleVaultPass: "$[taskcat_genpass_8A]"
+  #     ArtifactoryServerName: "artifactory"
+  #     MasterKey: "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
+  #     SmLicenseCertName: "jfrog-artifactory"
+  #     MultiAzDatabase: "true"
+  #     # InstallXray: "false"
+  #     XrayVersion: 3.10.3
+  #     XrayDatabasePassword: "$[taskcat_genpass_8A]"
+  #     # XrayNumberOfInstances: 2
+  #     AvailabilityZones: "us-east-1a, us-east-1b"
+
+  #     #commercial account
+  #     VpcId           : "vpc-06d7f8e7fd74c254c"
+  #     PublicSubnet1Id : "subnet-004f207945f5a30e7"
+  #     PrivateSubnet1Id: "subnet-0b3599d1838916726"
+  #     PublicSubnet2Id : "subnet-0f4b1c9fdf1ae77e2"
+  #     PrivateSubnet2Id: "subnet-0fbe8d14f1082cf2d"
+
+  #   template: templates/jfrog-artifactory-ec2-marketplace-master.template.yaml
+  #   regions:
+  #     - us-east-1
+
+  # rt-simple:
+  #   parameters:
+  #     KeyPairName: "vinaykey1"
+  #     AvailabilityZones: "$[taskcat_genaz_2]"
+  #     DatabasePassword: "$[taskcat_genpass_8A]"
+  #     QsS3BucketName: "$[taskcat_autobucket]"
+  #     QsS3KeyPrefix: "quickstart-jfrog-artifactory/"
+  #     QsS3BucketRegion: "$[taskcat_current_region]"
+  #   template: templates/jfrog-artifactory-ec2-simple-master.template.yaml
+  #   regions:
+  #     - us-east-2
+
+  # rt-ecs-postgres:
+  #   parameters:
+  #     KeyPairName: "vinaykey1"
+  #     RemoteAccessCidr: "0.0.0.0/0"
+  #     AccessCidr: "0.0.0.0/0"
+  #     DatabasePassword: "$[taskcat_genpass_8A]"
+  #     QsS3BucketName: "$[taskcat_autobucket]"
+  #     QsS3KeyPrefix: "quickstart-jfrog-artifactory/"
+  #     QsS3BucketRegion: "$[taskcat_current_region]"
+  #     # DatabaseInstance: "db.m5.large"
+  #     # DatabaseEngine: MySQL
+  #     ArtifactoryVersion: "7.10.2"
+  #     # ReleaseStage: "GA"
+  #     NumberOfSecondary: "2"
+  #     AnsibleVaultPass: "$[taskcat_genpass_8A]"
+  #     ArtifactoryServerName: "artifactory"
+  #     MasterKey: "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
+  #     SmLicenseCertName: "jfrog-artifactory"
+  #     MultiAzDatabase: "false"
+
+  #   #   AvailabilityZones: "$[taskcat_genaz_2]"
+  #   # template: templates/jfrog-artifactory-ecs-master.template.yaml
+
+  #     # after creating a VPC, comment line above and uncomment lines below for faster iteration
+  #     # commercial account
+  #     AvailabilityZones: "us-east-2a, us-east-2b"
+  #     VpcId           : "vpc-0f1ba9d9e6125f50e"
+  #     PublicSubnet1Id : "subnet-0428a0b682504e234"
+  #     PrivateSubnet1Id: "subnet-08b2941d6a9a85579"
+  #     PublicSubnet2Id : "subnet-0dd6c76f09924a8c1"
+  #     PrivateSubnet2Id: "subnet-05a004086f004dfa1"
+  #   template: templates/jfrog-artifactory-ecs-existing-vpc.template.yaml
+
+  #   regions:
+  #     - us-east-2
+
+  # rt-eks:
+  #   auth:
+  #     default: temp
+  #   parameters:
+  #     KeyPairName: "vinaykey1"
+  #     RemoteAccessCidr: "0.0.0.0/0"
+  #     AccessCidr: "0.0.0.0/0"
+  #     AvailabilityZones: "$[taskcat_genaz_3]"
+  #     DatabasePassword: "$[taskcat_genpass_8A]"
+  #     QsS3BucketName: "$[taskcat_autobucket]"
+  #     QsS3KeyPrefix: "quickstart-jfrog-artifactory/"
+  #     QsS3BucketRegion: "$[taskcat_current_region]"
+  #     DatabaseInstance: "db.m5.large"
+  #     ArtifactoryVersion: "7.10.2"
+  #     NumberOfSecondary: "2"
+  #     ArtifactoryServerName: "artifactory"
+  #     MasterKey: "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
+  #     SmLicenseCertName: "jfrog-artifactory"
+  #     MultiAzDatabase: "false"
+  #     InstallXray: "true"
+  #     XrayHelmChartVersion: 3.10.3
+  #     XrayDatabasePassword: "$[taskcat_genpass_8A]"
+  #     XrayNumberOfSecondary: 1
+  #     RabbitMQPassword: "$[taskcat_genpass_8A]"
+  #   template: templates/jfrog-artifactory-eks-master.template.yaml
+  #   regions:
+  #     - us-west-2
+
+  # rt-eks-core:
+  #   parameters:
+  #     ArtifactoryDeploymentSize: Medium
+  #     ArtifactoryVersion: 7.2.1
+  #     DatabaseEngine: Postgres
+  #     DatabaseName: artdb
+  #     DatabaseUser: artifactory
+  #     KubeConfigKmsContext: JFrogArtifactory
+  #     NumberOfSecondary: 2
+  #   template: templates/jfrog-artifactory-eks-core-workload.template.yaml

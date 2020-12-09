@@ -1,0 +1,99 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "value": "westus2"
+        },
+        "networkInterfaceName": {
+            "value": "rt-nic"
+        },
+        "networkSecurityGroupName": {
+            "value": "rt-nsg"
+        },
+        "networkSecurityGroupRules": {
+            "value": [
+                {
+                    "name": "SSH",
+                    "properties": {
+                        "priority": 300,
+                        "protocol": "TCP",
+                        "access": "Allow",
+                        "direction": "Inbound",
+                        "sourceAddressPrefix": "*",
+                        "sourcePortRange": "*",
+                        "destinationAddressPrefix": "*",
+                        "destinationPortRange": "22"
+                    }
+                }
+            ]
+        },
+        "subnetName": {
+            "value": "default"
+        },
+        "virtualNetworkName": {
+            "value": "artifactory-vm-test-vnet"
+        },
+        "addressPrefixes": {
+            "value": [
+                "10.0.0.0/24"
+            ]
+        },
+        "subnets": {
+            "value": [
+                {
+                    "name": "default",
+                    "properties": {
+                        "addressPrefix": "10.0.0.0/24"
+                    }
+                }
+            ]
+        },
+        "publicIpAddressName": {
+            "value": "rt-public-ip"
+        },
+        "publicIpAddressType": {
+            "value": "Dynamic"
+        },
+        "publicIpAddressSku": {
+            "value": "Basic"
+        },
+        "virtualMachineName": {
+            "value": "artifactory-vm"
+        },
+        "virtualMachineComputerName": {
+            "value": "rtvm"
+        },
+        "storageAccountName": {
+            "value": "mpstoragevhd"
+        },
+        "virtualMachineSize": {
+            "value": "Standard_B4ms"
+        },
+
+        "diagnosticsStorageAccountName": {
+            "value": "artifactoryvmtestdiag"
+        },
+        "diagnosticsStorageAccountId": {
+            "value": "Microsoft.Storage/storageAccounts/artifactoryvmtestdiag"
+        },
+        "diagnosticsStorageAccountType": {
+            "value": "Standard_LRS"
+        },
+        "diagnosticsStorageAccountKind": {
+            "value": "Storage"
+        },
+        "adminUsername": {
+            "value": "vmuser"
+        },
+        "adminPassword": {
+            "value": "OWERWRITE_THE_PASSWORD"
+        },
+        "artifactoryVersion": {
+            "value": "7.11.5"
+        },
+        "scriptName": {
+            "value": "install_pro7_to_vm.sh"
+        }
+    }
+}

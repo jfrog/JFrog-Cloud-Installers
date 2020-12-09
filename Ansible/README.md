@@ -10,8 +10,10 @@ This Ansible directory consists of the following directories that support the JF
  ## Tested Artifactory and Xray Versions
  The following versions of Artifactory and Xray have been validated with this collection. Other versions and combinations may also work.
  
+ 
 | collection_version | artifactory_version | xray_version |
 |--------------------|---------------------|--------------|
+| 1.1.2              | 7.10.2              | 3.10.3       |
 | 1.1.1              | 7.10.2              | 3.9.1        |
 | 1.1.0              | 7.7.8               | 3.8.6        |
 | 1.0.9              | 7.7.3               | 3.8.0        |
@@ -116,3 +118,7 @@ The Artifactory and Xray roles support software updates. To use a role to perfor
 ```
 ansible-galaxy collection build
 ```
+
+## OS support 
+* Current ansible collection only supports ubuntu and its flavours
+* Centos/RHEL and SELinux support is coming soon, stay tuned :)
