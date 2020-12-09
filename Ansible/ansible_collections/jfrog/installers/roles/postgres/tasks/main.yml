@@ -29,16 +29,18 @@
     mode: a=rx
     content: "export PATH=$PATH:/usr/pgsql-{{ postgres_server_version }}/bin"
   become: yes
-
+ 
 - name: initialize PostgreSQL database cluster
   environment:
     LC_ALL: "en_US.UTF-8"
+    PGDATA: "{{ postgres_server_data_location }}"
   vars:
-    ansible_become: "{{ postgres_server_initdb_become }}"
     ansible_become_user: "{{ postgres_server_user }}"
-  command: "{{ postgres_server_cmd_initdb }} {{ postgres_server_data_location }}"
+    ansible_become_method: sudo
+  command: "{{ postgres_server_cmd_initdb }}"
   args:
     creates: "{{ postgres_server_data_location }}/PG_VERSION"
+  become: yes
 
 - name: install postgres configuration
   template:
@@ -48,12 +50,12 @@
     group: postgres
     mode: u=rw,go=r
   vars:
-    ansible_become: "{{ postgres_server_initdb_become }}"
     ansible_become_user: "{{ postgres_server_user }}"
   loop:
     - pg_hba.conf
     - postgresql.conf
-
+  become: yes
+  
 - name: enable postgres service
   systemd:
     name: "{{ postgres_server_service_name }}"

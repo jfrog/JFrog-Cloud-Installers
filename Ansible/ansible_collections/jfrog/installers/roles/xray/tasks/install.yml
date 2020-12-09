@@ -34,8 +34,8 @@
   until: downloadxray is succeeded
   retries: 3
 
-- name: MV untar directory to xray home
-  command: "mv {{ xray_untar_home }} {{ xray_home }}"
+- name: cp untar directory to xray home
+  command: "cp -R {{ xray_untar_home }} {{ xray_home }}"
   become: yes
 
 - debug:
@@ -98,6 +98,15 @@
   template:
     src: installer-info.json.j2
     dest: "{{ xray_home }}/var/etc/info/installer-info.json"
+  become: yes
+
+- name: Ensure permissions are correct
+  file:
+    path: "{{ jfrog_home_directory }}"
+    state: directory
+    owner: "{{ xray_user }}"
+    group: "{{ xray_group }}"
+    recurse: yes
   become: yes
 
 - name: create xray service

@@ -15,6 +15,7 @@
       - wget
       - perl
     state: present
+  become: yes
 
 - name: install python3 psycopg2
   yum:
@@ -24,6 +25,7 @@
       - wget
       - perl
     state: present
+  become: yes
 
 - name: fixup some locale issues
   lineinfile:
@@ -34,6 +36,7 @@
   loop:
     - 'en_US:en'
     - 'en_us.UTF-8'
+  become: yes
 
 - name: get latest version
   vars:

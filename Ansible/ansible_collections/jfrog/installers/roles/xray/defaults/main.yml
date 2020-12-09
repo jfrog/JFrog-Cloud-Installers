@@ -16,7 +16,7 @@ jfrog_home_directory: /opt/jfrog
 xray_tar: https://dl.bintray.com/jfrog/jfrog-xray/xray-linux/{{ xray_version }}/jfrog-xray-{{ xray_version }}-linux.tar.gz
 
 #The xray install directory
-xray_untar_home: "{{ jfrog_home_directory }}/jfrog-xray-{{ xray_version }}-linux"
+xray_untar_home: "{{ jfrog_home_directory }}/xray-{{ xray_version }}"
 xray_home: "{{ jfrog_home_directory }}/xray"
 
 #xray users and groups
