@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.3] - 2020-12-9
+- Improved OS version detection for correct package installation
+- Correct var issues
+- Updated default version of Xray to 3.13.0
+- Migrated from using mv's to copies so that files weren't over written.
+
 ## [1.1.2] - 2020-10-29
 - Updated default versions to RT 7.10.2 and Xray 3.10.3.
 - Removed obsolete gradle tests.

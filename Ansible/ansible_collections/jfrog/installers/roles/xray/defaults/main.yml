@@ -4,7 +4,7 @@
 ansible_marketplace: standalone
 
 # The version of xray to install
-xray_version: 3.10.3
+xray_version: 3.13.0
 
 # whether to enable HA
 xray_ha_enabled: true
