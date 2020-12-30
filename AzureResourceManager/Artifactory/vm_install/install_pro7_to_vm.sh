@@ -37,7 +37,7 @@ EOF
 #Install database drivers (for Java 11, path is different for RT6 and RT7)
 curl --retry 5 -L -o /opt/jfrog/artifactory/app/artifactory/tomcat/lib/mysql-connector-java-5.1.38.jar https://bintray.com/artifact/download/bintray/jcenter/mysql/mysql-connector-java/5.1.38/mysql-connector-java-5.1.38.jar >> /tmp/install-databse-driver.log 2>&1
 curl --retry 5 -L -o /opt/jfrog/artifactory/app/artifactory/tomcat/lib/mssql-jdbc-7.4.1.jre11.jar https://bintray.com/artifact/download/bintray/jcenter/com/microsoft/sqlserver/mssql-jdbc/7.4.1.jre11/mssql-jdbc-7.4.1.jre11.jar >> /tmp/install-databse-driver.log 2>&1
-curl --retry 5 -L -o /opt/jfrog/artifactory/app/artifactory/tomcat/lib/postgresql-9.4.1212.jar https://jdbc.postgresql.org/download/postgresql-9.4.1212.jar >> /tmp/install-databse-driver.log 2>&1
+curl --retry 5 -L -o /opt/jfrog/artifactory/app/artifactory/tomcat/lib/postgresql-42.2.18.jar https://jdbc.postgresql.org/download/postgresql-42.2.18.jar >> /tmp/install-databse-driver.log 2>&1
 
 #Configuring nginx
 rm /etc/nginx/sites-enabled/default

@@ -32,7 +32,7 @@
     },
     "skuSizeMB": {
       "type": "int",
-      "defaultValue": 5120
+      "defaultValue": 204800
     },
     "skuTier": {
       "type": "string",

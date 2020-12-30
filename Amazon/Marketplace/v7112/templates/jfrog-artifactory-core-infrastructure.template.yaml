@@ -1,0 +1,378 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'JFrog Artifactory Quick Start Deployment (qs-1qpmmjh61)'
+Parameters:
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+  VpcCidr:
+    Description: CIDR block for the VPC
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    Default: 10.0.0.0/16
+    Type: String
+  PrivateSubnet1Cidr:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    Default: 10.0.0.0/19
+    Type: String
+  PrivateSubnet2Cidr:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    Default: 10.0.32.0/19
+    Type: String
+  PrivateSubnet3Cidr:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    Default: 10.0.64.0/19
+    Type: String
+  SubnetIds:
+    Type: List<AWS::EC2::Subnet::Id>
+  DatabaseAllocatedStorage:
+    Type: Number
+  MultiAzDatabase:
+    Type: String
+  DatabaseEngine:
+    Type: String
+  DatabaseUser:
+    Type: String
+  DatabasePassword:
+    NoEcho: 'true'
+    Type: String
+  DatabaseInstance:
+    Type: String
+  DatabaseName:
+    Type: String
+  ArtifactoryS3IAMUser:
+    NoEcho: 'true'
+    Type: String
+  ArtifactoryProduct:
+    Default: JFrog-Artifactory-Pro
+    Type: String
+  ReleaseStage:
+    Default: GA
+    Type: String
+  InstanceType:
+    Default: m5.xlarge
+    Type: String
+
+Mappings:
+  DatabaseMap:
+    Postgres:
+      Name: postgresql
+      DatabaseVersion: 11.5
+      Driver: "org.postgresql.Driver"
+      Plugin: postgresql-42.2.9.jar
+      PluginURL: https://jdbc.postgresql.org/download/
+      port: "5432"
+      extraDatabaseOps: ""
+  ReleaseStageMap:
+    BETA:
+      ProDockerRepo: "earlyaccess-docker.jfrog.io/jfrog/artifactory-pro"
+      JcrDockerRepo: "earlyaccess-docker.jfrog.io/jfrog/artifactory-jcr"
+      NginxDockerRepo: "earlyaccess-docker.jfrog.io/jfrog/nginx-artifactory-pro"
+    GA:
+      ProDockerRepo: "docker.bintray.io/jfrog/artifactory-pro"
+      JcrDockerRepo: "docker.bintray.io/jfrog/artifactory-jcr"
+      NginxDockerRepo: "docker.bintray.io/jfrog/nginx-artifactory-pro"
+  ProductMap:
+    JFrog-Container-Registry:
+      RepoName: JcrDockerRepo
+    JFrog-Artifactory-Pro:
+      RepoName: ProDockerRepo
+  JavaOptionstoInstance:
+    m5.large:
+      Min: 4
+      Max: 4
+      DeploymentSize: xxSmall
+    m5.xlarge:
+      Min: 8
+      Max: 12
+      DeploymentSize: xSmall
+    m5.2xlarge:
+      Min: 16
+      Max: 24
+      DeploymentSize: Small
+    m5.4xlarge:
+      Min: 32
+      Max: 48
+      DeploymentSize: Medium
+    m5.8xlarge:
+      Min: 64
+      Max: 96
+      DeploymentSize: Large
+    m5.12xlarge:
+      Min: 96
+      Max: 144
+      DeploymentSize: xLarge
+    m5.16xlarge:
+      Min: 128
+      Max: 192
+      DeploymentSize: xxLarge
+    m5.24xlarge:
+      Min: 192
+      Max: 288
+      DeploymentSize: xxxLarge
+    m5.metal:
+      Min: 192
+      Max: 288
+      DeploymentSize: xxxLarge
+    m5d.large:
+      Min: 4
+      Max: 4
+      DeploymentSize: xxSmall
+    m5d.xlarge:
+      Min: 8
+      Max: 12
+      DeploymentSize: xSmall
+    m5d.2xlarge:
+      Min: 16
+      Max: 24
+      DeploymentSize: Small
+    m5d.4xlarge:
+      Min: 32
+      Max: 48
+      DeploymentSize: Medium
+    m5d.8xlarge:
+      Min: 64
+      Max: 96
+      DeploymentSize: Large
+    m5d.12xlarge:
+      Min: 96
+      Max: 144
+      DeploymentSize: xLarge
+    m5d.16xlarge:
+      Min: 128
+      Max: 192
+      DeploymentSize: xxLarge
+    m5d.24xlarge:
+      Min: 192
+      Max: 288
+      DeploymentSize: xxxLarge
+    m5d.metal:
+      Min: 192
+      Max: 288
+      DeploymentSize: xxxLarge
+    m5a.large:
+      Min: 4
+      Max: 4
+      DeploymentSize: xxSmall
+    m5a.xlarge:
+      Min: 8
+      Max: 12
+      DeploymentSize: xSmall
+    m5a.2xlarge:
+      Min: 16
+      Max: 24
+      DeploymentSize: Small
+    m5a.4xlarge:
+      Min: 32
+      Max: 48
+      DeploymentSize: Medium
+    m5a.8xlarge:
+      Min: 64
+      Max: 96
+      DeploymentSize: Large
+    m5a.12xlarge:
+      Min: 96
+      Max: 144
+      DeploymentSize: xLarge
+    m5a.16xlarge:
+      Min: 128
+      Max: 192
+      DeploymentSize: xxLarge
+    m5a.24xlarge:
+      Min: 192
+      Max: 288
+      DeploymentSize: xxxLarge
+    m5ad.large:
+      Min: 4
+      Max: 4
+      DeploymentSize: xxSmall
+    m5ad.xlarge:
+      Min: 8
+      Max: 12
+      DeploymentSize: xSmall
+    m5ad.2xlarge:
+      Min: 16
+      Max: 24
+      DeploymentSize: Small
+    m5ad.4xlarge:
+      Min: 32
+      Max: 48
+      DeploymentSize: Medium
+    m5ad.12xlarge:
+      Min: 96
+      Max: 144
+      DeploymentSize: xLarge
+    m5ad.24xlarge:
+      Min: 192
+      Max: 288
+      DeploymentSize: xxxLarge
+Resources:
+  ArtifactoryDatabaseSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Private Subnets available to the RDS Instance(s)
+      SubnetIds: !Ref SubnetIds
+  ArtifactoryDatabase:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      AllocatedStorage: !Ref DatabaseAllocatedStorage
+      MultiAZ: !Ref MultiAzDatabase
+      Engine: !Ref DatabaseEngine
+      EngineVersion: !FindInMap
+        - DatabaseMap
+        - !Ref DatabaseEngine
+        - DatabaseVersion
+      MasterUsername: !Ref DatabaseUser
+      MasterUserPassword: !Ref DatabasePassword
+      DBInstanceClass: !Ref DatabaseInstance
+      DBName: !Ref DatabaseName
+      DBSubnetGroupName: !Ref  ArtifactoryDatabaseSubnetGroup
+      VPCSecurityGroups:
+        - !Ref ArtifactoryDatabaseSG
+  ArtifactoryDatabaseSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      Tags:
+        - Key: Name
+          Value: artifactory-rds-sg
+      GroupDescription: SG for RDS Instance to allow communication from the Bastion and Artifactory servers.
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref VpcCidr
+        - IpProtocol: tcp
+          FromPort: !FindInMap
+            - DatabaseMap
+            - !Ref DatabaseEngine
+            - port
+          ToPort: !FindInMap
+            - DatabaseMap
+            - !Ref DatabaseEngine
+            - port
+          CidrIp: !Ref PrivateSubnet1Cidr
+        - IpProtocol: tcp
+          FromPort: !FindInMap
+            - DatabaseMap
+            - !Ref DatabaseEngine
+            - port
+          ToPort: !FindInMap
+            - DatabaseMap
+            - !Ref DatabaseEngine
+            - port
+          CidrIp: !Ref PrivateSubnet2Cidr
+        - IpProtocol: tcp
+          FromPort: !FindInMap
+            - DatabaseMap
+            - !Ref DatabaseEngine
+            - port
+          ToPort: !FindInMap
+            - DatabaseMap
+            - !Ref DatabaseEngine
+            - port
+          CidrIp: !Ref PrivateSubnet3Cidr
+      SecurityGroupEgress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+  ArtifactoryS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: Private
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+  ArtifactoryS3IAMPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: S3BucketPermissions
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Sid: S3BucketPermissions
+            Effect: Allow
+            Action:
+              - s3:*
+            Resource:
+              - Fn::Join:
+                - ''
+                - - !Sub "arn:${AWS::Partition}:s3:::"
+                  - !Ref ArtifactoryS3Bucket
+              - Fn::Join:
+                - ''
+                - - !Sub "arn:${AWS::Partition}:s3:::"
+                  - !Ref ArtifactoryS3Bucket
+                  - "/*"
+      Users:
+        - !Ref ArtifactoryS3IAMUser
+Outputs:
+  S3Bucket:
+    Value: !Ref ArtifactoryS3Bucket
+    Description: Actual S3 bucket created for Artifactory
+  DatabaseDriver:
+    Value: !FindInMap [DatabaseMap, !Ref DatabaseEngine, Driver]
+  DatabasePlugin:
+    Value: !FindInMap [DatabaseMap, !Ref DatabaseEngine, Plugin]
+  DatabasePluginUrl:
+    Value: !Sub
+      - "${MainURL}${PluginVersion}"
+      - {
+        MainURL: !FindInMap [DatabaseMap, !Ref DatabaseEngine, PluginURL],
+        PluginVersion: !FindInMap [DatabaseMap, !Ref DatabaseEngine, Plugin]
+        }
+  DatabaseType:
+    Value: !FindInMap [DatabaseMap, !Ref DatabaseEngine, Name]
+  DatabaseUrl:
+    Value: !Sub
+      - "jdbc:${DatabaseType}://${ArtifactoryDatabaseEndpointAddress}:${port}/${DatabaseName}${extraDatabaseOps}"
+      - {
+        DatabaseType: !FindInMap [DatabaseMap, !Ref DatabaseEngine, Name],
+        ArtifactoryDatabaseEndpointAddress: !GetAtt ArtifactoryDatabase.Endpoint.Address,
+        port: !FindInMap [DatabaseMap, !Ref DatabaseEngine, port],
+        extraDatabaseOps: !FindInMap [DatabaseMap, !Ref DatabaseEngine, extraDatabaseOps],
+        }
+  XrayMasterDatabaseUrl:
+    Value: !Sub
+      - "${ArtifactoryDatabaseEndpointAddress}:${port}/${DatabaseName}?sslmode=disable"
+      - {
+        ArtifactoryDatabaseEndpointAddress: !GetAtt ArtifactoryDatabase.Endpoint.Address,
+        port: !FindInMap [DatabaseMap, !Ref DatabaseEngine, port],
+        }
+  XrayDatabaseUrl:
+    Value: !Sub
+      - "${ArtifactoryDatabaseEndpointAddress}:${port}/xraydb?sslmode=disable"
+      - {
+        ArtifactoryDatabaseEndpointAddress: !GetAtt ArtifactoryDatabase.Endpoint.Address,
+        port: !FindInMap [DatabaseMap, !Ref DatabaseEngine, port],
+        }
+  ProDockerRepo:
+    Value: !FindInMap
+      - ReleaseStageMap
+      - !Ref ReleaseStage
+      - !FindInMap
+        - ProductMap
+        - !Ref ArtifactoryProduct
+        - RepoName
+  NginxDockerRepo:
+    Value: !FindInMap [ReleaseStageMap, !Ref ReleaseStage, NginxDockerRepo]
+  JavaOpts:
+    Value: !Sub
+      - "-Xms${min}g -Xmx${max}g"
+      - {
+        min: !FindInMap [JavaOptionstoInstance, !Ref InstanceType, Min],
+        max: !FindInMap [JavaOptionstoInstance, !Ref InstanceType, Max]
+      }
+  DeploymentSize:
+    Value: !FindInMap [JavaOptionstoInstance, !Ref InstanceType, DeploymentSize]

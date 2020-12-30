@@ -25,13 +25,17 @@
     },
     "artifactoryVersion": {
       "type": "string",
-      "defaultValue": "0.0.3",
+      "defaultValue": "0.0.7",
       "allowedValues": [
         "7.2.1",
         "7.3.2",
         "7.4.3",
         "0.0.2",
-        "0.0.3"
+        "0.0.3",
+        "0.0.4",
+	"0.0.5",
+	"0.0.61",
+        "0.0.7"
       ],
       "metadata": {
         "description": "JFrog Container Registry-vm image version to deploy."
@@ -519,7 +523,7 @@
       "type": "Microsoft.Compute/virtualMachineScaleSets",
       "name": "[variables('scaleSetPrimaryName')]",
       "location": "[parameters('location')]",
-      "apiVersion": "2018-10-01",
+      "apiVersion": "2020-06-01",
       "dependsOn": [
         "[resourceId('Microsoft.Network/loadBalancers/', variables('lbName'))]",
         "[resourceId('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",

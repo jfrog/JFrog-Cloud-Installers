@@ -101,7 +101,7 @@
             "name": "artifactoryVersion",
             "type": "Microsoft.Common.DropDown",
             "label": "JFrog Container Registry-vm image version to deploy.",
-            "defaultValue": "7.10.2",
+            "defaultValue": "7.11.2",
             "toolTip": "Version of JFrog Container Registry to deploy",
             "constraints": {
               "allowedValues": [
@@ -124,6 +124,18 @@
                 {
                   "label": "7.10.2",
                   "value": "0.0.3"
+                },
+                {
+                  "label": "7.10.5",
+                  "value": "0.0.4"
+                },
+                {
+                  "label": "7.10.6",
+                  "value": "0.0.5"
+                },
+                {
+                  "label": "7.11.2",
+                  "value": "0.0.61"
                 }
               ],
               "required": true
@@ -178,6 +190,7 @@
               "validationMessage": "Provide SSL Certificate Key."
             },
             "options": {
+              
               "hideConfirmation": true
             }
           },
