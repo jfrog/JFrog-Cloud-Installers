@@ -25,6 +25,15 @@ To deploy this helm chart you will need to be a cluster admin w/ access to the a
 oc adm policy add-scc-to-user anyuid -z my_user_name
 ````
 
+## Deploying the Helm Chart
+
+To deploy the helm chart from this folder first pull the dependency charts with:
+
+````bash
+helm dep build
+````
+
+
 ## Prerequisites Details
 
 * Kubernetes 1.12+
