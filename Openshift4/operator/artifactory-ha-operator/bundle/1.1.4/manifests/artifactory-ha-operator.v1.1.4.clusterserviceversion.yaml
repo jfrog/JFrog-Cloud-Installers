@@ -123,10 +123,15 @@ spec:
 
     ```
 
-    oc adm policy add-scc-to-user anyuid -z artifactory-ha-operator
+    oc adm policy add-scc-to-user anyuid -z artifactory-ha-operator -n openshift-operators
 
     ```
 
+    Using "artifactory" as the example namespace:
+
+    ```
+    oc adm policy add-scc-to-user anyuid -z openshiftartifactoryha-artifactory-ha -n artifactory
+    ```
 
     ## Usage
 
