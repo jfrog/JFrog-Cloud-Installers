@@ -1,6 +1,7 @@
 # JFrog Artifactory High Availability Helm Chart
 
 ## Openshift
+
 The Artifactory HA chart has been made a subchart of this chart.
 
 Note due to this change we now reference values through the subchart name as shown below:
@@ -22,17 +23,28 @@ This is due to helm referencing them through the subchart artifactory-ha now.
 To deploy this helm chart you will need to be a cluster admin w/ access to the anyuid scc.
 
 ````bash
-oc adm policy add-scc-to-user anyuid -z my_user_name
+oc adm policy add-scc-to-user anyuid -z my_service_account -n my_namespace
 ````
 
 ## Deploying the Helm Chart
 
-To deploy the helm chart from this folder first pull the dependency charts with:
+1. Deploy a Postgresql to use an external database. You can find additional information on how to configure your Postgresql database for Artifactory [here](https://www.jfrog.com/confluence/display/JFROG/Configuring+the+Database).
+2. Run `helm dep build` to pull the subchart referenced by the `requirements.yaml`
+3. Update POSTGRES_HOST variable below and install `openshift-artifactory-ha` with the example commands:
 
 ````bash
-helm dep build
+POSTGRES_HOST=postgres-postgresql
+MASTER_KEY=$(openssl rand -hex 32)
+JOIN_KEY=$(openssl rand -hex 32)
+helm upgrade --install openshift-artifactory-ha . \
+               --set artifactory-ha.database.type=postgresql \
+               --set artifactory-ha.database.driver=org.postgresql.Driver \
+               --set artifactory-ha.database.url=jdbc:postgresql://$POSTGRES_HOST:5432/artifactory \
+               --set artifactory-ha.database.user=artifactory \
+               --set artifactory-ha.database.password=password \
+               --set artifactory-ha.artifactory.joinKey=$JOIN_KEY \
+               --set artifactory-ha.artifactory.masterKey=$MASTER_KEY
 ````
-
 
 ## Prerequisites Details
 

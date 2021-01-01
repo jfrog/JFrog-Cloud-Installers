@@ -1,72 +1,87 @@
 # JFrog Unified Platform On Openshift 
 
-This code base is intended to deploy JFrog Unified Platform products as either helm or an operator to an Openshift4 cluster. 
+JFrog Unified Platform on Openshift official support is for the operator deployment only through Openshift's Operatorhub.
 
-You can run the operator either through the operator-sdk, operator.yaml, or the OperatorHub OLM (CSV).
+Openshift OperatorHub will contain the latest official supported version. We strive to always release every minor version to Openshift's Operatorhub.
 
-Openshift OperatorHub has the latest official supported version to deploy via the GUI.
+## Repo Layout
 
-Optionally you can deploy into Openshift4 as helm.
+| Folder                          | Purpose                                                 |
+|---------------------------------|---------------------------------------------------------|
+| helm                            | Contains the Openshift Helm charts used by the Operator |
+| helm/openshift-artifactory-ha   | Openshift Artifactory HA helm chart                     |
+| helm/openshift-xray             | Openshift Xray helm chart                               |
+| helm/openshift-pipelines        | Opneshift Pipelines helm chart                          | 
+| operator                        | Contains the Openshift certified operators code base    |
+| operator/artifactory-ha-operator| Artifactory Enterprise Operator                         |
+| operator/xray-operator          | Xray Enterprise Operator                                |
+| operator/pipeline-operator      | Pipelines Operator (Beta)                               |
 
-## Prerequisites
+## How to install?
 
-###### Openshift 4 Cluster
+You can find the Redhat certified Operators in the Operatorhub in your Openshift web console.
 
-Available on AWS, GCP, or Azure. Follow the Cloud installer guide available here:
+You will need to be an administrator of your Openshift cluster to install our operator.
 
-[Openshift 4 Installers](https://cloud.redhat.com/openshift/install)
+Additional steps can be found at [JFrog Partner support wiki](https://www.jfrog.com/confluence/display/JFROG/JFrog+Partner+Integrations#JFrogPartnerIntegrations-redhatopenshift]).
 
-Or run it locally using CodeReadyContainers or your own on-perm solution.
+## Security Context Constraints
 
-[Code Ready Container Installer](https://cloud.redhat.com/openshift/install/crc/installer-provisioned)
+The `restricted` security context constraint will prevent the helm or operator from deploying into Openshift on most namespaces.
 
-Note if you are going to use CRC / On-prem to run the Operators you will need to ensure:
+To enable either the helm chart or operator to deploy into your Openshift cluster access to the `anyuid` security context constraint will need to be apply to the relevant service account in the associated namespace.
 
-``` 
- - create at least one Persistent volume of 200Gi per Artifactory node used in HA configuration
- - create at least 3 or more additional Persistent volumes 100Gi in size or more for Postgresql, Rabbitmq, and other components used.
-```
+Below is an example of applying the `anyuid` scc to the service account `openshiftartifactoryha-artifactory-ha` in the namespace `artifactory`:
 
-###### Openshift 4 Command Line Tools
+`oc adm policy add-scc-to-user anyuid -z openshiftartifactoryha-artifactory-ha -n artifactory`
 
-Download and install the Openshift command line tool: oc
+Once the `anyuid` scc has been applied to the correct service accounts the helm charts or operators will deploy into your Openshift cluster.
 
-[Getting Started with CLI](https://docs.openshift.com/container-platform/4.2/cli_reference/openshift_cli/getting-started-cli.html)
+## Custom User or Group Ids
 
-## Next Steps
+The images uploaded to `registry.redhat.connect.com` that the helm charts and operators use have been modified from the standard docker images available at `docker.bintray.io`
 
-To install JFrog Operators please use the web console's OperatorHub to install the official operators. This is the easiest way to install it. 
+These images have been customized to run in the Openshift user id and group id range of `1000720000/10000`
 
-If you wish to install the operator(s) locally please refer to the instructions that can be found in the README under artifactory-ha-operator.
+If you need to use another custom user id and/or group id range you can change the `uid` and `gid` values in `values.yaml` of the relevant helm chart or operator yaml deployment.
 
-## Helm Deployments
+## No Root Environments
 
-The necessary helm fixes for it to work in Openshift have been patched for each product in the following subfolders:
+Some environments do not allow root. In these scenarios users can remove the `customInitContainersBegin` from the example values.yaml below:
 
-Artifactory HA Helm Chart:
-```
-openshift-artifactory-ha
-```
+````text
+    customInitContainersBegin: |
+      - name: "prepare-uid-persistent-volume"
+        image: "{{ .Values.initContainerImage }}"
+        imagePullPolicy: "{{ .Values.artifactory.image.pullPolicy }}"
+        command:
+          - 'sh'
+          - '-c'
+          - >
+            chown -Rv {{ .Values.artifactory.uid }}:{{ .Values.artifactory.uid }} {{ .Values.artifactory.persistence.mountPath }}
+        securityContext:
+            runAsUser: 0
+        volumeMounts:
+          - mountPath: "{{ .Values.artifactory.persistence.mountPath }}"
+            name: volume
+````
 
-Xray Helm Chart:
-``` 
-openshift-xray
-```
+Once this has been removed there is no other root user permissions are required to deploy into Openshift.
 
-However to use helm you will need to apply RunAsAny shown below:
+## Why are there different helm charts?
 
-```
-oc patch scc restricted --patch '{"fsGroup":{"type":"RunAsAny"},"runAsUser":{"type":"RunAsAny"},"seLinuxContext":{"type":"RunAsAny"}}' --type=merge
-```
+The charts in the helm folder are used specifically to create the helm based operator for the certification process to enable it into the Openshift Operatorhub as a certified operator.
 
-Once your cluster has been patched you can then deploy via helm using the openshift charts shown above.
+The `values.yaml` contained in those relevant charts have been modified to work in Redhat Openshift. The base chart however has not been changed only made a sub-chart.
+
+Helm users can reference the `values.yaml` to modify their own deployments to work with Openshift.
 
 ## Contributing
-Please read [CONTRIBUTING.md](JFrog-Cloud-Installers/Openshift4/artifactory-ha-operator/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
+Please read [CONTRIBUTING.md](JFrog-Cloud-Installers/Openshift4/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
 ## Versioning
 We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/jfrog/JFrog-Cloud-Installers/tags).
 
 ## Contact
 
-Github issues
+Github issues are the preferred way to communicate with the team. The team is notified via Slack when a new issue is created.
