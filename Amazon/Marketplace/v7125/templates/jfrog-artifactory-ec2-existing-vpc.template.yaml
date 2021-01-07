@@ -609,7 +609,7 @@ Resources:
   ArtifactoryCoreInfraStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://awsmp-fulfillment-cf-templates-prod.s3-external-1.amazonaws.com/aecfe1d1-907c-4812-b7b8-91497013cb16-jfrog-artifactory-core-infrastructure.template
+      TemplateURL: !Sub https://${QsS3BucketName}.s3.${QsS3BucketRegion}.${AWS::URLSuffix}/${QsS3KeyPrefix}templates/jfrog-artifactory-core-infrastructure.template.yaml
       Parameters:
         VpcId: !Ref VpcId
         VpcCidr: !Ref VpcCidr
@@ -780,7 +780,7 @@ Resources:
   ArtifactoryMaster:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://awsmp-fulfillment-cf-templates-prod.s3-external-1.amazonaws.com/aecfe1d1-907c-4812-b7b8-91497013cb16-jfrog-artifactory-ec2-instance.template
+      TemplateURL: !Sub https://${QsS3BucketName}.s3.${QsS3BucketRegion}.${AWS::URLSuffix}/${QsS3KeyPrefix}templates/jfrog-artifactory-ec2-instance.template.yaml
       Parameters:
         PrivateSubnet1Id: !Ref PrivateSubnet1Id
         PrivateSubnet2Id: !Ref PrivateSubnet2Id
@@ -842,7 +842,7 @@ Resources:
     DependsOn: ArtifactoryMaster
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://awsmp-fulfillment-cf-templates-prod.s3-external-1.amazonaws.com/aecfe1d1-907c-4812-b7b8-91497013cb16-jfrog-artifactory-ec2-instance.template
+      TemplateURL: !Sub https://${QsS3BucketName}.s3.${QsS3BucketRegion}.${AWS::URLSuffix}/${QsS3KeyPrefix}templates/jfrog-artifactory-ec2-instance.template.yaml
       Parameters:
         PrivateSubnet1Id: !Ref PrivateSubnet1Id
         PrivateSubnet2Id: !Ref PrivateSubnet2Id
@@ -927,7 +927,7 @@ Resources:
     DependsOn: ArtifactorySecondary
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://awsmp-fulfillment-cf-templates-prod.s3-external-1.amazonaws.com/aecfe1d1-907c-4812-b7b8-91497013cb16-jfrog-xray-ec2-instance.template
+      TemplateURL: !Sub https://${QsS3BucketName}.s3.${QsS3BucketRegion}.${AWS::URLSuffix}/${QsS3KeyPrefix}templates/jfrog-xray-ec2-instance.template.yaml
       Parameters:
         PrivateSubnet1Id: !Ref PrivateSubnet1Id
         PrivateSubnet2Id: !Ref PrivateSubnet2Id
