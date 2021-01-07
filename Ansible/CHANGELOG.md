@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.3] - 2021-01-07
+- Fixed installation for standalone (PRO and PRO X). 
+
 ## [1.1.2] - 2020-10-29
 - Updated default versions to RT 7.10.2 and Xray 3.10.3.
 - Removed obsolete gradle tests.

@@ -129,6 +129,7 @@
     src: master.key.j2
     dest: "{{ artifactory_home }}/var/etc/security/master.key"
   become: yes
+  when: artifactory_ha_enabled == true
 
 - name: configure join key
   template:
@@ -169,14 +170,28 @@
     src: "{{ artifactory_license_file }}"
     dest: "{{ artifactory_home }}/var/etc/artifactory/artifactory.cluster.license"
   become: yes
-  when: artifactory_license_file is defined and artifactory_is_primary == true
+  when: artifactory_license_file is defined and artifactory_is_primary == true and artifactory_ha_enabled == true
+
+- name: use license file for standalone installation
+  copy:
+    src: "{{ artifactory_license_file }}"
+    dest: "{{ artifactory_home }}/var/etc/artifactory/artifactory.lic"
+  become: yes
+  when: artifactory_license_file is defined and artifactory_ha_enabled == false 
 
 - name: use license strings
   template:
     src: artifactory.cluster.license.j2
     dest: "{{ artifactory_home }}/var/etc/artifactory/artifactory.cluster.license"
   become: yes
-  when: artifactory_license_file is not defined and artifactory_is_primary == true
+  when: artifactory_license_file is not defined and artifactory_is_primary == true and artifactory_ha_enabled == true
+
+- name: use license string for standalone
+  template:
+    src: artifactory.cluster.license.j2
+    dest: "{{ artifactory_home }}/var/etc/artifactory/artifactory.lic"
+  become: yes
+  when: artifactory_license_file is not defined and artifactory_ha_enabled == false 
 
 - name: Copy local database driver
   copy:

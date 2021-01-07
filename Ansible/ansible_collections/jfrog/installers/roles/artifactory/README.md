@@ -26,6 +26,10 @@ The artifactory role installs the Artifactory Pro software onto the host. Per th
 ### secondary vars (vars used by the secondary Artifactory server)
 * _artifactory_is_primary_: For the secondary node(s) this must be set to **false**.
 
+### standalone vars (PRO or PRO X licenses)
+* _artifactory_ha_enabled_: must be set to **false** 
+* _artifactory_license1_: specify your PRO or PRO X license.
+
 Additional variables can be found in [defaults/main.yml](./defaults/main.yml).
 
 ## Example Playbook
