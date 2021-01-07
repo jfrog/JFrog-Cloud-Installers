@@ -68,37 +68,37 @@ Parameters:
 Mappings:
   AWSAMIRegionMap:
     us-east-1:
-      "3112": ami-04954176e0e714377
+      "3151": ami-0569c7c79a4dcf3e8
     us-east-2:
-      "3112": ami-0dde651cd599d64e8
+      "3151": ami-0dde651cd599d64e8
     us-west-1:
-      "3112": ami-0926fb027c339d991
+      "3151": ami-03fdb28548522d872
     us-west-2:
-      "3112": ami-0e48dd6310c205c33
+      "3151": ami-0e48dd6310c205c33
     ca-central-1:
-      "3112": ami-056bafb407aa8e445
+      "3151": ami-056bafb407aa8e445
     eu-central-1:
-      "3112": ami-05ab6de966f830b8a
+      "3151": ami-05ab6de966f830b8a
     eu-west-1:
-      "3112": ami-055507b35a350806d
+      "3151": ami-055507b35a350806d
     eu-west-2:
-      "3112": ami-007c8adf17c3bee79
+      "3151": ami-007c8adf17c3bee79
     eu-west-3:
-      "3112": ami-033e74f7f2e7b43ae
+      "3151": ami-033e74f7f2e7b43ae
     ap-southeast-1:
-      "3112": ami-0114ff3241c5a86a8
+      "3151": ami-0114ff3241c5a86a8
     ap-southeast-2:
-      "3112": ami-0c753f85c64c4169d
+      "3151": ami-0c753f85c64c4169d
     ap-south-1:
-      "3112": ami-09f40817a8786b93c
+      "3151": ami-09f40817a8786b93c
     ap-northeast-1:
-      "3112": ami-00f6ec6314c6ddd27
+      "3151": ami-00f6ec6314c6ddd27
     ap-northeast-2:
-      "3112": ami-05a10d14c3289f2b3
+      "3151": ami-05a10d14c3289f2b3
     sa-east-1:
-      "3112": ami-0c2acb2f23c3e6743
+      "3151": ami-0c2acb2f23c3e6743
     us-gov-west-1:
-      "3112": ami-0f0208b759ab47734
+      "3151": ami-019ab5372c3e3c7ea
 
 Resources:
   XrayScalingGroup:
