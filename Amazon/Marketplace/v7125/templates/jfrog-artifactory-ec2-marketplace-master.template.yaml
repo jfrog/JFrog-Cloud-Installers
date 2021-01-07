@@ -1,0 +1,456 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'JFrog Artifactory Quick Start Deployment (qs-1qpmmjh2f)'
+Metadata:
+  QuickStartDocumentation:
+    EntrypointName: "Launch into a new VPC"
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Security configuration
+        Parameters:
+          - KeyPairName
+          - AccessCidr
+          - RemoteAccessCidr
+      - Label:
+          default: Network configuration
+        Parameters:
+          - PrivateSubnet1Cidr
+          - PrivateSubnet2Cidr
+          - VpcId
+          - VpcCidr
+          - PublicSubnet1Id
+          - PublicSubnet2Id
+          - PrivateSubnet1Id
+          - PrivateSubnet2Id
+      - Label:
+          default: Amazon EC2 configuration
+        Parameters:
+          - VolumeSize
+          - InstanceType
+      - Label:
+          default: JFrog Artifactory configuration
+        Parameters:
+          - ArtifactoryVersion
+          - NumberOfSecondary
+          - SmLicenseCertName
+          - ArtifactoryServerName
+          - MasterKey
+          - ExtraJavaOptions
+          - DefaultJavaMemSettings
+          - KeystorePassword
+          - AnsibleVaultPass
+      - Label:
+          default: Amazon RDS configuration
+        Parameters:
+          - DatabaseName
+          - DatabaseEngine
+          - DatabaseUser
+          - DatabasePassword
+          - DatabaseInstance
+          - DatabaseAllocatedStorage
+          - MultiAzDatabase
+      - Label:
+          default: JFrog Xray Configuration
+        Parameters:
+          - InstallXray
+          - XrayVersion
+          - XrayNumberOfInstances
+          - XrayInstanceType
+          - XrayDatabaseUser
+          - XrayDatabasePassword
+    ParameterLabels:
+      KeyPairName:
+        default: SSH key name
+      PrivateSubnet1Cidr:
+        default: Private subnet 1 CIDR
+      PrivateSubnet2Cidr:
+        default: Private subnet 2 CIDR
+      AccessCidr:
+        default: Permitted IP range
+      RemoteAccessCidr:
+        default: Remote access CIDR
+      VpcId:
+        default: VPC ID
+      VpcCidr:
+        default: VPC CIDR
+      PublicSubnet1Id:
+        default: Public subnet 1 ID
+      PublicSubnet2Id:
+        default: Public subnet 2 ID
+      PrivateSubnet1Id:
+        default: Private subnet 1 ID
+      PrivateSubnet2Id:
+        default: Private subnet 2 ID
+      VolumeSize:
+        default: EBS root volume size
+      InstanceType:
+        default: EC2 instance type
+      NumberOfSecondary:
+        default: Secondary instances
+      ArtifactoryVersion:
+        default: Artifactory version
+      SmLicenseCertName:
+        default: Artifactory licenses and certificate secret name
+      ArtifactoryServerName:
+        default: Artifactory server name
+      MasterKey:
+        default: Master server key
+      ExtraJavaOptions:
+        default: Extra Java options
+      DefaultJavaMemSettings:
+        default: Default Java memory settings
+      KeystorePassword:
+        default: Java key store password
+      AnsibleVaultPass:
+        default: Ansible Vault password
+      DatabaseName:
+        default: Database name
+      DatabaseEngine:
+        default: Database engine
+      DatabaseUser:
+        default: Database user
+      DatabasePassword:
+        default: Database password
+      DatabaseInstance:
+        default: Database instance type
+      DatabaseAllocatedStorage:
+        default: Database allocated storage
+      MultiAzDatabase:
+        default: High-availability database
+      InstallXray:
+        default: Install JFrog Xray
+      XrayVersion:
+        default: Version of Xray to install
+      XrayNumberOfInstances:
+        default: Number of JFrog XrayNumberOfInstances
+      XrayInstanceType:
+        default: Xray instance type
+      XrayDatabaseUser:
+        default: Xray Database user
+      XrayDatabasePassword:
+        default: Xray Database password
+Parameters:
+  VpcId:
+    Description: ID of your existing VPC (e.g., vpc-0343606e).
+    Type: "AWS::EC2::VPC::Id"
+  VpcCidr:
+    Description: CIDR block for the VPC.
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    Default: 10.0.0.0/16
+    Type: String
+  PublicSubnet1Id:
+    Description: ID of the public subnet in Availability Zone 1 of your existing VPC (e.g., subnet-z0376dab).
+    Type: "AWS::EC2::Subnet::Id"
+  PublicSubnet2Id:
+    Description: ID of the public subnet in Availability Zone 2 of your existing VPC (e.g., subnet-a29c3d84).
+    Type: "AWS::EC2::Subnet::Id"
+  PrivateSubnet1Id:
+    Description: ID of the private subnet in Availability Zone 1 of your existing VPC (e.g., subnet-a0246dcd).
+    Type: "AWS::EC2::Subnet::Id"
+  PrivateSubnet2Id:
+    Description: ID of the private subnet in Availability Zone 2 of your existing VPC (e.g., subnet-b58c3d67).
+    Type: "AWS::EC2::Subnet::Id"
+  KeyPairName:
+    Description: Name of an existing key pair,
+      which allows you to connect securely to your instance after it launches.
+      This is the key pair you created in your preferred Region.
+    Type: AWS::EC2::KeyPair::KeyName
+  PrivateSubnet1Cidr:
+    Description: CIDR block for private subnet 1, located in Availability Zone 1.
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    Default: 10.0.0.0/19
+    Type: String
+  PrivateSubnet2Cidr:
+    Description: CIDR block for private subnet 2, located in Availability Zone 2.
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    Default: 10.0.32.0/19
+    Type: String
+  AccessCidr:
+    Description: CIDR IP range permitted to access Artifactory.
+      It is recommended that you set this value to a trusted IP range.
+      For example, you may want to limit software access to your corporate network.
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    Type: String
+  RemoteAccessCidr:
+    Description: Remote CIDR range that allows you to connect to the bastion instance by using SSH.
+      It is recommended that you set this value to a trusted IP range.
+      For example, you may want to grant specific ranges from within your corporate network that use the SSH protocol.
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    Type: String
+  VolumeSize:
+    Description: Size in gigabytes of available storage (min 10GB). The Quick Start creates an
+      Amazon Elastic Block Store (Amazon EBS) volumes of this size.
+    Default: 200
+    Type: Number
+  InstanceType:
+    Description: EC2 type for the Artifactory instances.
+    AllowedValues:
+      - m5.large
+      - m5.xlarge
+      - m5.2xlarge
+      - m5.4xlarge
+      - m5.8xlarge
+      - m5.12xlarge
+      - m5.16xlarge
+      - m5.24xlarge
+      - m5.metal
+      - m5d.large
+      - m5d.xlarge
+      - m5d.2xlarge
+      - m5d.4xlarge
+      - m5d.8xlarge
+      - m5d.12xlarge
+      - m5d.16xlarge
+      - m5d.24xlarge
+      - m5d.metal
+      - m5a.large
+      - m5a.xlarge
+      - m5a.2xlarge
+      - m5a.4xlarge
+      - m5a.8xlarge
+      - m5a.12xlarge
+      - m5a.16xlarge
+      - m5a.24xlarge
+    ConstraintDescription: Must contain valid instance type.
+    Default: m5.xlarge
+    Type: String
+  NumberOfSecondary:
+    Description: Number of secondary Artifactory servers to complete your
+      HA deployment. To align with Artifactory best practices, the minimum number
+      is two, and the maximum is seven. Do not select more instances than you
+      have licenses for.
+    AllowedValues:
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+    Default: 2
+    Type: Number
+  ArtifactoryVersion:
+    Description: Version of Artifactory that you want to deploy into the Quick Start.
+      To select the correct version, see the release notes at
+      https://www.jfrog.com/confluence/display/RTF/Release+Notes.
+    AllowedPattern: ^(([0-9]|[1-9][0-9])\.){2}([1-9][0-9]|[0-9])$
+    ConstraintDescription: A version that matches X.X.X per Artifactory releases.
+    Default: 7.12.5
+    Type: String
+  SmLicenseCertName:
+    Description: Secret name created in AWS Secrets Manager that contains the SSL certificate, certificate key, and Artifactory licenses.
+    Default: ''
+    Type: String
+  ArtifactoryServerName:
+    Description: Name of your Artifactory server. Ensure that this matches your certificate.
+    Type: String
+  MasterKey:
+    Description: Master key for the Artifactory cluster. Generate a master key by using the command '$openssl rand -hex 16'.
+    AllowedPattern: ^[a-zA-Z0-9]+$
+    MinLength: '1'
+    MaxLength: '64'
+    ConstraintDescription: Only capital or lowercase letters and numbers, with a Max of 64 characters.
+    NoEcho: 'true'
+    Type: String
+  ExtraJavaOptions:
+    Description: Set Java options to pass to the JVM for Artifactory. For more information, see the Artifactory
+      system requirements at https://www.jfrog.com/confluence/display/RTF/System+Requirements#SystemRequirements-RecommendedHardware.
+      Do not add Xms or Xmx settings without disabling DefaultJavaMemSettings.
+    Default: -Xss256k -XX:+UseG1GC
+    Type: String
+  DefaultJavaMemSettings:
+    Description: Choose false to overwrite the standard memory-calculation options to pass to the Artifactory JVM.
+      If you plan to overwrite them, ensure they are added to the ExtraJavaOptions to prevent the stack provision from failing.
+    ConstraintDescription: True or False
+    AllowedValues:
+      - "true"
+      - "false"
+    Default: "true"
+    Type: String
+  KeystorePassword:
+    Description: Java key store password. For better security, the password that you specify will
+      replace the default Java key store password.
+    NoEcho: 'true'
+    Type: String
+  AnsibleVaultPass:
+    Description: Ansible Vault password to protect the Artifactory YAML configuration file
+      generated during the Artifactory deployment. This YAML file is stored on the EC2 nodes
+      and secured with this password.
+    NoEcho: 'true'
+    Type: String
+  DatabaseName:
+    Description: Name of your database instance. The name must be unique across all instances
+      owned by your AWS account in the current Region. The database instance identifier is case-insensitive,
+      but it's stored in lowercase (as in "mydbinstance").
+    AllowedPattern: ^[a-zA-Z]([a-zA-Z0-9])+$
+    MinLength: '1'
+    MaxLength: '60'
+    ConstraintDescription: 1 to 60 alphanumeric characters First character must be a letter.
+    Default: artdb
+    Type: String
+  DatabaseEngine:
+    Description: Database engine that you want to run.
+    AllowedValues:
+      - Postgres
+    Default: Postgres
+    Type: String
+  DatabaseUser:
+    Description: Login ID for the master user of your database instance.
+    MinLength: '1'
+    MaxLength: '16'
+    AllowedPattern: ^[a-zA-Z]([a-zA-Z0-9])+$
+    ConstraintDescription: 1 to 16 alphanumeric characters. The first character must be a letter.
+    Default: artifactory
+    Type: String
+  DatabasePassword:
+    Description: Password for the Artifactory database user.
+    AllowedPattern: ^[^ \\']+$
+    MinLength: '8'
+    MaxLength: '12'
+    ConstraintDescription: Must be at least 8 and no more than
+      12 characters containing letters and (minimum 1 capital letter), numbers and
+      symbols.
+    NoEcho: 'true'
+    Type: String
+  DatabaseInstance:
+    Description: Size of the database to be deployed as part of the Quick Start.
+    AllowedValues:
+      - db.m5.large
+      - db.m5.xlarge
+      - db.m5.2xlarge
+      - db.m5.10xlarge
+      - db.m5.16xlarge
+      - db.m5.large
+      - db.m5.xlarge
+      - db.m5.2xlarge
+      - db.m5.4xlarge
+      - db.m5.12xlarge
+      - db.m5.24xlarge
+    ConstraintDescription: Must be a valid database Instance Type.
+    Default: db.m5.large
+    Type: String
+  DatabaseAllocatedStorage:
+    Description: Size in gigabytes of available storage for the database instance.
+    MinValue: 5
+    MaxValue: 1024
+    Default: 10
+    Type: Number
+  MultiAzDatabase:
+    Description: Choose false to create an Amazon RDS instance in a single Availability Zone.
+    ConstraintDescription: True or False
+    AllowedValues:
+      - "true"
+      - "false"
+    Default: "true"
+    Type: String
+  InstallXray:
+    Description: Choose true to install JFrog Xray instance(s).
+    ConstraintDescription: True or False
+    AllowedValues:
+      - "true"
+      - "false"
+    Default: "true"
+    Type: String
+  XrayVersion:
+    Description: The version of Xray that you want to deploy into the Quick Start.
+    AllowedPattern: ^(([0-9]|[1-9][0-9])\.){2}([1-9][0-9]|[0-9])$
+    ConstraintDescription: A version that matches X.X.X per Xray releases.
+    Default: 3.12.1
+    Type: String
+  XrayNumberOfInstances:
+    Description: The number of Xray instances servers to complete your
+      HA deployment. The minimum number is one; the maximum is seven.
+      Do not select more than instances than you have licenses for.
+    MinValue: 1
+    MaxValue: 7
+    Default: 1
+    Type: Number
+  XrayInstanceType:
+    Description: The EC2 instance type for the Xray instances.
+    AllowedValues:
+      - c5.2xlarge
+      - c5.4xlarge
+    ConstraintDescription: Must contain valid instance type.
+    Default: c5.2xlarge
+    Type: String
+  XrayDatabaseUser:
+    Description: The login ID for the Xray database user.
+    MinLength: '1'
+    MaxLength: '16'
+    AllowedPattern: ^[a-zA-Z]([a-zA-Z0-9])+$
+    ConstraintDescription: 1 to 16 alphanumeric characters. First character must be a letter.
+    Default: xray
+    Type: String
+  XrayDatabasePassword:
+    Description: The password for the Xray database user.
+    AllowedPattern: ^[^ \\']+$
+    MinLength: '8'
+    MaxLength: '12'
+    ConstraintDescription: Must be at least 8 and no more than
+      12 characters containing letters and (minimum 1 capital letter), numbers and
+      symbols.
+    NoEcho: 'true'
+    Type: String
+Resources:
+  ArtifactoryExistingVpcStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://awsmp-fulfillment-cf-templates-prod.s3-external-1.amazonaws.com/aecfe1d1-907c-4812-b7b8-91497013cb16-jfrog-artifactory-ec2-existing-vpc.template
+      Parameters:
+        KeyPairName: !Ref KeyPairName
+        VpcId: !Ref VpcId
+        VpcCidr: !Ref VpcCidr
+        PublicSubnet1Id: !Ref PublicSubnet1Id
+        PublicSubnet2Id: !Ref PublicSubnet2Id
+        PrivateSubnet1Id: !Ref PrivateSubnet1Id
+        PrivateSubnet2Id: !Ref PrivateSubnet2Id
+        PrivateSubnet1Cidr: !Ref PrivateSubnet1Cidr
+        PrivateSubnet2Cidr: !Ref PrivateSubnet2Cidr
+        AccessCidr: !Ref AccessCidr
+        RemoteAccessCidr: !Ref RemoteAccessCidr
+        ProvisionBastionHost: "Disabled"
+        BastionInstanceType: "t3.micro"
+        BastionRootVolumeSize: 10
+        BastionEnableTcpForwarding: "true"
+        BastionEnableX11Forwarding: "false"
+        BastionOs: "Amazon-Linux2-HVM"
+        NumBastionHosts: "1"
+        VolumeSize: !Ref VolumeSize
+        InstanceType: !Ref InstanceType
+        NumberOfSecondary: !Ref NumberOfSecondary
+        ArtifactoryProduct: "JFrog-Artifactory-Pro"
+        ArtifactoryVersion: !Ref ArtifactoryVersion
+        SmLicenseCertName: !Ref SmLicenseCertName
+        ArtifactoryServerName: !Ref ArtifactoryServerName
+        MasterKey: !Ref MasterKey
+        ExtraJavaOptions: !Ref ExtraJavaOptions
+        DefaultJavaMemSettings: !Ref DefaultJavaMemSettings
+        KeystorePassword: !Ref KeystorePassword
+        AnsibleVaultPass: !Ref AnsibleVaultPass
+        DatabaseName: !Ref DatabaseName
+        DatabaseEngine: !Ref DatabaseEngine
+        DatabaseUser: !Ref DatabaseUser
+        DatabasePassword: !Ref DatabasePassword
+        DatabaseInstance: !Ref DatabaseInstance
+        DatabaseAllocatedStorage: !Ref DatabaseAllocatedStorage
+        MultiAzDatabase: !Ref MultiAzDatabase
+        QsS3BucketName: "jfrog-aws-test"
+        QsS3KeyPrefix: "artifactory7/v7112/"
+        QsS3BucketRegion: "us-east-1"
+        InstallXray: !Ref InstallXray
+        XrayVersion: !Ref XrayVersion
+        XrayNumberOfInstances: !Ref XrayNumberOfInstances
+        XrayInstanceType: !Ref XrayInstanceType
+        XrayDatabaseUser: !Ref XrayDatabaseUser
+        XrayDatabasePassword: !Ref XrayDatabasePassword
+Outputs:
+  ArtifactoryUrl:
+    Description: URL of the ELB to access Artifactory
+    Value: !Sub ${ArtifactoryExistingVpcStack.Outputs.ArtifactoryUrl}
+  BastionIp:
+    Value: !Sub ${ArtifactoryExistingVpcStack.Outputs.BastionIp}
+    Description: Bastion host IP, for admin access via SSH

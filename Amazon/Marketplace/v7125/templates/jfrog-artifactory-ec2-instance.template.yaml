@@ -1,0 +1,345 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Deploys the EC2 Autoscaling, LaunchConfig and Instance for Artifactory (qs-1qpmmjh5o)"
+Parameters:
+  PrivateSubnet1Id:
+    Type: 'AWS::EC2::Subnet::Id'
+  PrivateSubnet2Id:
+    Type: 'AWS::EC2::Subnet::Id'
+  MinScalingNodes:
+    Type: Number
+  MaxScalingNodes:
+    Type: Number
+  DeploymentTag:
+    Type: String
+  HostRole:
+    Type: String
+  AmiId:
+    Type: String
+  ArtifactoryProduct:
+    Type: String
+  QsS3BucketName:
+    Type: String
+  QsS3KeyPrefix:
+    Type: String
+  QsS3Uri:
+    Type: String
+  ArtifactoryLicense1:
+    Type: String
+  ArtifactoryLicense2:
+    Type: String
+  ArtifactoryLicense3:
+    Type: String
+  ArtifactoryLicense4:
+    Type: String
+  ArtifactoryLicense5:
+    Type: String
+  ArtifactoryLicense6:
+    Type: String
+  ArtifactoryServerName:
+    Type: String
+  Certificate:
+    Type: String
+  CertificateKey:
+    Type: String
+    NoEcho: 'true'
+  CertificateDomain:
+    Type: String
+  EnableSSL:
+    Type: String
+  ArtifactoryIamAcessKey:
+    Type: String
+    NoEcho: 'true'
+  SecretAccessKey:
+    Type: String
+    NoEcho: 'true'
+  ArtifactoryS3Bucket:
+    Type: String
+  DatabaseUrl:
+    Type: String
+  DatabaseDriver:
+    Type: String
+  DatabasePluginUrl:
+    Type: String
+  DatabasePlugin:
+    Type: String
+  DatabaseType:
+    Type: String
+  DatabaseUser:
+    Type: String
+  DatabasePassword:
+    Type: String
+    NoEcho: 'true'
+  ArtifactoryPrimary:
+    Type: String
+  MasterKey:
+    Type: String
+    NoEcho: 'true'
+  ExtraJavaOptions:
+    Type: String
+  ArtifactoryVersion:
+    Type: String
+  KeyPairName:
+    Type: AWS::EC2::KeyPair::KeyName
+  TargetGroupARN:
+    Type: String
+  SSLTargetGroupARN:
+    Type: String
+  InternalTargetGroupARN:
+    Type: String
+  HostProfile:
+    Type: String
+  SecurityGroups:
+    Type: String
+  InstanceType:
+    Type: String
+  VolumeSize:
+    Type: Number
+  KeystorePassword:
+    Description: Default Keystore from Java in which we upgrade.
+    Type: String
+    NoEcho: 'true'
+  AnsibleVaultPass:
+    Description: Ansiblevault Password to secure the artifactory.yml
+    Type: String
+    NoEcho: 'true'
+Mappings:
+  AWSAMIRegionMap:
+    us-east-1:
+      "Artifactory7112": ami-0ea7d62825c941e92
+    us-east-2:
+      "Artifactory7112": ami-0a282b74eef1c84b5
+    us-west-1:
+      "Artifactory7112": ami-02fa6dd21f023b9e3
+    us-west-2:
+      "Artifactory7112": ami-0ea26f5ddc490f184
+    ca-central-1:
+      "Artifactory7112": ami-0f422f5980aeba60f
+    eu-central-1:
+      "Artifactory7112": ami-05df4fbab56afe702
+    eu-west-1:
+      "Artifactory7112": ami-05386b580a110a49a
+    eu-west-2:
+      "Artifactory7112": ami-094b79d303c9e1e0d
+    eu-west-3:
+      "Artifactory7112": ami-0ed4d6971439caf27
+    ap-southeast-1:
+      "Artifactory7112": ami-01ec4e8b4ffbf7dc1
+    ap-southeast-2:
+      "Artifactory7112": ami-0ccb1a939c83d8062
+    ap-south-1:
+      "Artifactory7112": ami-078c43a083b6500be
+    ap-northeast-1:
+      "Artifactory7112": ami-0695fd32ca193cccd
+    ap-northeast-2:
+      "Artifactory7112": ami-0a03d23e6dc213b5e
+    sa-east-1:
+      "Artifactory7112": ami-0b831f8403d6979d4
+    us-gov-west-1:
+      "Artifactory7112": ami-0842d7e7becc59c39
+  ArtifactoryProductMap:
+    JFrog-Container-Registry:
+      "7112": "Jcr7112"
+      product: "jcr"
+    JFrog-Artifactory-Pro:
+      "7112": "Artifactory7112"
+      product: "artifactory"
+Resources:
+  ArtifactoryScalingGroup:
+    Type: 'AWS::AutoScaling::AutoScalingGroup'
+    Properties:
+      LaunchConfigurationName: !Ref ArtifactoryLaunchConfiguration
+      VPCZoneIdentifier:
+        - !Ref PrivateSubnet1Id
+        - !Ref PrivateSubnet2Id
+      MinSize: !Ref MinScalingNodes
+      MaxSize: !Ref MaxScalingNodes
+      Cooldown: '300'
+      DesiredCapacity: !Ref MinScalingNodes
+      TargetGroupARNs:
+        - !Ref TargetGroupARN
+        - !Ref SSLTargetGroupARN
+        - !Ref InternalTargetGroupARN
+      HealthCheckType: ELB
+      HealthCheckGracePeriod: 900
+      Tags:
+        - Key: Name
+          Value: !Ref DeploymentTag
+          PropagateAtLaunch: true
+    CreationPolicy:
+      ResourceSignal:
+        Count: 1
+        Timeout: PT30M
+
+  ArtifactoryLaunchConfiguration:
+    Type: 'AWS::AutoScaling::LaunchConfiguration'
+    Metadata:
+      'AWS::CloudFormation::Authentication':
+        S3AccessCreds:
+          type: S3
+          roleName:
+            - !Ref HostRole  # !Ref ArtifactoryHostRole
+          buckets:
+            - !Ref QsS3BucketName
+      'AWS::CloudFormation::Init':
+        configSets:
+          artifactory_install:
+            - "config-artifactory-master"
+            - "secure-artifactory"
+        config-artifactory-master:
+          files:
+            /root/.jfrog_ami/artifactory.yml:
+              content: !Sub
+                - |
+                  # Base install for Artifactory
+                  - import_playbook: site-artifactory.yml
+                    vars:
+                      artifactory_license1: ${ArtifactoryLicense1}
+                      artifactory_license2: ${ArtifactoryLicense2}
+                      artifactory_license3: ${ArtifactoryLicense3}
+                      artifactory_license4: ${ArtifactoryLicense4}
+                      artifactory_license5: ${ArtifactoryLicense5}
+                      artifactory_license6: ${ArtifactoryLicense6}
+                      artifactory_product: ${product}
+                      artifactory_flavour: "{{ 'pro' if '${product}' == 'artifactory' else 'jcr' if '${product}' == 'jcr' }}"
+                      artifactory_server_name: ${ArtifactoryServerName}
+                      server_name: ${ArtifactoryServerName}.${CertificateDomain}
+                      s3_region: ${AWS::Region}
+                      s3_access_key: ${ArtifactoryIamAcessKey}
+                      s3_access_secret_key: ${SecretAccessKey}
+                      s3_bucket: ${ArtifactoryS3Bucket}
+                      certificate: ${Certificate}
+                      certificate_key: ${CertificateKey}
+                      certificate_domain: ${CertificateDomain}
+                      enable_ssl: ${EnableSSL}
+                      ssl_dir: /etc/pki/tls/certs
+                      db_type: ${DatabaseType}
+                      db_driver: ${DatabaseDriver}
+                      db_url: ${DatabaseUrl}
+                      db_user: ${DatabaseUser}
+                      db_password: ${DatabasePassword}
+                      # db_download_url: https://jdbc.postgresql.org/download/postgresql-42.2.12.jar
+                      art_primary: ${ArtifactoryPrimary}
+                      master_key: ${MasterKey}
+                      join_key: ${MasterKey}
+                      extra_java_opts: ${ExtraJavaOptions}
+                      artifactory_version: ${ArtifactoryVersion}
+                      artifactory_keystore:
+                        path: /opt/jfrog/artifactory/app/third-party/java/lib/security/cacerts
+                        default_password: changeit
+                        new_keystore_pass: ${KeystorePassword}
+                      artifactory_java_db_drivers:
+                        - name: ${DatabasePlugin}
+                          url: ${DatabasePluginUrl}
+                          owner: artifactory
+                          group: artifactory
+                - {
+                  product: !FindInMap [ArtifactoryProductMap, !Ref ArtifactoryProduct, product]
+                }
+              mode: "0400"
+            /root/.vault_pass.txt:
+              content: !Sub |
+                ${AnsibleVaultPass}
+              mode: "0400"
+            /root/.secureit.sh:
+              content:
+                ansible-vault encrypt /root/.jfrog_ami/artifactory.yml --vault-id /root/.vault_pass.txt
+              mode: "0770"
+        secure-artifactory:
+          commands:
+            'secure ansible playbook':
+              command: '/root/.secureit.sh'
+              ignoreErrors: 'false'
+    Properties:
+      AssociatePublicIpAddress: false
+      KeyName: !Ref KeyPairName
+      IamInstanceProfile: !Ref HostProfile
+      ImageId: !FindInMap
+        - AWSAMIRegionMap
+        - !Ref 'AWS::Region'
+        - !FindInMap
+          - ArtifactoryProductMap
+          - !Ref ArtifactoryProduct
+          - !Ref AmiId
+      SecurityGroups:
+        - !Ref SecurityGroups
+      InstanceType: !Ref InstanceType
+      BlockDeviceMappings:
+        - DeviceName: /dev/xvda
+          Ebs:
+            VolumeSize: !Ref VolumeSize
+            VolumeType: gp2
+            DeleteOnTermination: true
+      UserData:
+        'Fn::Base64':
+          !Sub |
+            #!/bin/bash -x
+
+            #CFN Functions
+
+            function cfn_fail
+
+            {
+
+            cfn-signal -e 1 --stack ${AWS::StackName} --region ${AWS::Region} --resource ArtifactoryScalingGroup
+
+            exit 1
+
+            }
+
+            function cfn_success
+
+            {
+
+            cfn-signal -e 0 --stack ${AWS::StackName} --region ${AWS::Region} --resource ArtifactoryScalingGroup
+
+            exit 0
+
+            }
+
+            S3URI=${QsS3Uri}
+
+            # yum install -y git
+
+            echo $PATH
+
+            PATH=/opt/aws/bin:$PATH
+
+            echo $PATH
+            echo \'[Cloning: Load QuickStart Common Utils]\'
+
+            # git clone https://github.com/aws-quickstart/quickstart-linux-utilities.git
+
+            source /quickstart-linux-utilities/quickstart-cfn-tools.source
+
+            echo \'[Loaded: Load QuickStart Common Utils]\'
+
+            echo \'[Update Operating System]\'
+
+            qs_update-os || qs_err
+
+            qs_bootstrap_pip || qs_err
+
+            qs_aws-cfn-bootstrap || qs_err
+
+            source ~/venv/bin/activate &> /var/log/userdata.activate_venv.log || qs_err " activate venv failed "
+
+            # CentOS cloned virtual machines do not create a new machine id
+            # https://www.thegeekdiary.com/centos-rhel-7-how-to-change-the-machine-id/
+            rm -f /etc/machine-id
+            systemd-machine-id-setup
+
+            # mkdir ~/.artifactory_ansible
+
+            # aws s3 --region ${AWS::Region} sync s3://${QsS3BucketName}/${QsS3KeyPrefix}cloudInstallerScripts/ ~/.artifactory_ansible/
+
+            cfn-init -v --stack ${AWS::StackName} --resource ArtifactoryLaunchConfiguration --configsets artifactory_install --region ${AWS::Region} || cfn_fail
+
+            export ANSIBLE_VAULT_PASSWORD_FILE="/root/.vault_pass.txt"
+
+            setsebool httpd_can_network_connect 1 -P
+
+            ansible-playbook /root/.jfrog_ami/artifactory.yml || qs_err " ansible execution failed "
+
+            rm -rf /root/.secureit.sh
+
+            [ $(qs_status) == 0 ] && cfn_success || cfn_fail
