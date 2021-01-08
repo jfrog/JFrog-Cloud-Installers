@@ -26,7 +26,10 @@ explain why.
 **Which installer**:
 
 
-**Which product and version**:
+**Which product and version** (eg: ansible & collection version - 1.1.2):
+
+
+**Which operating system and version**(eg: ubuntu & version - 20.4):
 
 
 **What happened**:
