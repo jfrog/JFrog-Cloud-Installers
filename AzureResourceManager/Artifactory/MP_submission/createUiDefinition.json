@@ -132,53 +132,17 @@
             "name": "artifactoryVersion",
             "type": "Microsoft.Common.DropDown",
             "label": "Artifactory-vm image version to deploy.",
-            "defaultValue": "7.11.2",
+            "defaultValue": "7.12.5",
             "toolTip": "Version of Artifactory to deploy",
             "constraints": {
               "allowedValues": [
                 {
-                  "label": "6.16.0",
-                  "value": "0.16.0"
-                },
-                {
-                  "label": "6.17.0",
-                  "value": "0.17.0"
-                },
-                {
-                  "label": "6.18.0",
-                  "value": "6.18.0"
-                },
-                {
-                  "label": "7.2.1",
-                  "value": "7.2.1"
-                },
-                {
-                  "label": "7.3.2",
-                  "value": "0.3.2"
-                },
-                {
-                  "label": "7.4.3",
-                  "value": "7.4.30"
-                },
-                {
-                  "label": "7.6.2",
-                  "value": "0.0.1"
-                },
-                {
-                  "label": "7.7.3",
-                  "value": "0.0.2"
-                },
-                {
-                  "label": "7.10.2",
-                  "value": "0.0.31"
-                },
-                {
-                  "label": "7.10.5",
-                  "value": "0.0.4"
+                  "label": "7.12.5",
+                  "value": "0.0.8"
                 },
 		        {
-                  "label": "7.10.6",
-                  "value": "0.0.52"
+                  "label": "7.12.6",
+                  "value": "0.0.9"
                 },
                 {                                                                                                                                                                         "label": "7.11.2",                                                                                                                                                      "value": "0.0.6"                                                                                                                                                     }         
               ],

@@ -79,27 +79,10 @@
     },
     "artifactoryVersion": {
       "type": "string",
-      "defaultValue": "0.0.6",
+      "defaultValue": "0.0.8",
       "allowedValues": [
-        "6.6.0",
-        "6.6.1",
-        "6.7.0",
-        "6.8.0",
-        "6.11.3",
-        "6.15.0",
-        "0.16.0",
-        "0.17.0",
-        "6.18.0",
-        "7.2.1",
-        "0.3.2",
-        "7.4.3",
-        "7.4.30",
-        "0.0.1",
-        "0.0.2",
-        "0.0.31",
-        "0.0.4",
-	    "0.0.52",
-	    "0.0.6"
+	    "0.0.8",
+	    "0.0.9"
       ],
       "metadata": {
         "description": "Artifactory-vm image version to deploy."
@@ -860,9 +843,7 @@
                   "autoUpgradeMinorVersion": false,
                   "settings": {
                     "fileUris": [
-                      "[uri(parameters('_artifactsLocation'), concat('scripts/install_artifactory.sh', parameters('_artifactsLocationSasToken')))]",
-                      "[uri(parameters('_artifactsLocation'), concat('scripts/install_artifactory7.sh', parameters('_artifactsLocationSasToken')))]",
-                      "[uri(parameters('_artifactsLocation'), concat('scripts/version_selector.sh', parameters('_artifactsLocationSasToken')))]"
+                      "[uri(parameters('_artifactsLocation'), concat('scripts/install_artifactory7.sh', parameters('_artifactsLocationSasToken')))]"
                     ]
                   },
                   "protectedSettings": {
@@ -959,9 +940,7 @@
                   "autoUpgradeMinorVersion": false,
                   "settings": {
                     "fileUris": [
-                      "[uri(parameters('_artifactsLocation'), concat('scripts/install_artifactory.sh', parameters('_artifactsLocationSasToken')))]",
-                      "[uri(parameters('_artifactsLocation'), concat('scripts/install_artifactory7.sh', parameters('_artifactsLocationSasToken')))]",
-                      "[uri(parameters('_artifactsLocation'), concat('scripts/version_selector.sh', parameters('_artifactsLocationSasToken')))]"
+                      "[uri(parameters('_artifactsLocation'), concat('scripts/install_artifactory7.sh', parameters('_artifactsLocationSasToken')))]"
                     ]
                   },
                   "protectedSettings": {
