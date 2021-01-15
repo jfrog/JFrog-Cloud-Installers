@@ -847,7 +847,7 @@
                     ]
                   },
                   "protectedSettings": {
-                    "commandToExecute": "bash version_selector.sh && ls -al && pwd >> /var/lib/cloud/instance/user-data.txt"
+                    "commandToExecute": "bash install_artifactory7.sh && ls -al && pwd >> /var/lib/cloud/instance/user-data.txt"
                   }
                 }
               }
@@ -944,7 +944,7 @@
                     ]
                   },
                   "protectedSettings": {
-                    "commandToExecute": "bash version_selector.sh && ls -al && pwd >> /var/lib/cloud/instance/user-data.txt"
+                    "commandToExecute": "bash install_artifactory7.sh && ls -al && pwd >> /var/lib/cloud/instance/user-data.txt"
                   }
                 }
               }

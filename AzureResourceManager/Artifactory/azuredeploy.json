@@ -79,7 +79,7 @@
     },
     "artifactoryVersion": {
       "type": "string",
-      "defaultValue": "0.0.9",
+      "defaultValue": "0.0.8",
       "allowedValues": [
 	    "0.0.8",
         "0.0.9"
@@ -847,7 +847,7 @@
                     ]
                   },
                   "protectedSettings": {
-                    "commandToExecute": "bash version_selector.sh && ls -al && pwd >> /var/lib/cloud/instance/user-data.txt"
+                    "commandToExecute": "bash install_artifactory7.sh && ls -al && pwd >> /var/lib/cloud/instance/user-data.txt"
                   }
                 }
               }
@@ -944,7 +944,7 @@
                     ]
                   },
                   "protectedSettings": {
-                    "commandToExecute": "bash version_selector.sh && ls -al && pwd >> /var/lib/cloud/instance/user-data.txt"
+                    "commandToExecute": "bash install_artifactory7.sh && ls -al && pwd >> /var/lib/cloud/instance/user-data.txt"
                   }
                 }
               }
