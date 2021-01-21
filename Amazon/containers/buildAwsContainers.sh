@@ -5,8 +5,8 @@ EDITIONS=( artifactory-pro artifactory-jcr )
 #for loop start: editoins
 for EDITION in "${EDITIONS[@]}"
 do
-  UPSTREAM_IMAGE_NAME=docker.bintray.io/jfrog/$EDITION
-  BUILD_IMAGE_NAME=partnership-public-images.jfrog.io/aws/$EDITION
+  UPSTREAM_IMAGE_NAME=releases-docker.jfrog.io/jfrog/$EDITION
+  BUILD_IMAGE_NAME=709825985650.dkr.ecr.us-east-1.amazonaws.com/jfrog/$EDITION
   ARTIFACTORY_PASSWORD=corona1831
 
   # Logic starts here
