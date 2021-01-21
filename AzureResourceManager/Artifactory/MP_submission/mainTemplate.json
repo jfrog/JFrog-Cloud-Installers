@@ -79,7 +79,7 @@
     },
     "artifactoryVersion": {
       "type": "string",
-      "defaultValue": "0.0.8",
+      "defaultValue": "0.0.9",
       "allowedValues": [
 	    "0.0.8",
 	    "0.0.9"
