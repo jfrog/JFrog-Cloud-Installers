@@ -233,7 +233,7 @@ cat <<EOF >/var/opt/jfrog/artifactory/etc/artifactory/binarystore.xml
     <provider id="azure-blob-storage" type="azure-blob-storage">
         <accountName>${STORAGE_ACCT}</accountName>
         <accountKey>${STORAGE_ACCT_KEY}</accountKey>
-        <endpoint>https://${STORAGE_ACCT}.blob.core.windows.net/</endpoint>
+        <endpoint>https://${STORAGE_ACCT}.blob.core.usgovcloudapi.net/</endpoint>
         <containerName>${STORAGE_CONTAINER}</containerName>
     </provider>
 </config>
