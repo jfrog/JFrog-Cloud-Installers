@@ -189,7 +189,7 @@ spec:
 
     ```
     oc create secret tls my_tls_secret --cert=tls.crt --key=tls.key --namespace=my_namespace
-
+    ```
 
     Click Create for Artifactory Enterprise to deploy into OpenShift and connect to
     it on the external IP exposed by the load balancer.
@@ -212,7 +212,7 @@ spec:
 
     https://docs.openshift.com/container-platform/4.6/networking/routes/route-configuration.html
 
-    
+
     '
   displayName: JFrog Artifactory Enterprise Operator
   icon:
