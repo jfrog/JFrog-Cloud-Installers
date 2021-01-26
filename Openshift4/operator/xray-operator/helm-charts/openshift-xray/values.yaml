@@ -15,7 +15,7 @@ xray:
   common:
     xrayUserId: "1000721035"
     xrayGroupId: "1000721035"
-    xrayVersion: "3.12.0-1"
+    xrayVersion: "3.15.1-1"
     customInitContainers: |
       - name: "prepare-uid-persistent-volume"
         image: "{{ .Values.initContainerImage }}"
@@ -69,13 +69,13 @@ xray:
       registry: registry.connect.redhat.com
       repository: jfrog/xray-router
       imagePullPolicy: IfNotPresent
-      tag: 3.12.0-1
+      tag: 3.15.1-1
   rabbitmq-ha:
     enabled: true
     replicaCount: 1
     image:
       repository: registry.connect.redhat.com/jfrog/xray-rabbitmq
-      tag: 3.12.0-1
+      tag: 3.15.1-1
     rabbitmqEpmdPort: 4369
     rabbitmqNodePort: 5672
     rabbitmqManagerPort: 15672

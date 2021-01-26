@@ -16,7 +16,7 @@ metadata:
                 "image": {
                   "registry": "registry.connect.redhat.com",
                   "repository": "jfrog/artifactory-pro",
-                  "tag": "7.11.5-1"
+                  "tag": "7.12.6-1"
                 },
                 "joinKey": "OVERRIDE",
                 "masterKey": "OVERRIDE",
@@ -36,7 +36,7 @@ metadata:
                 "url": "OVERRIDE",
                 "user": "OVERRIDE"
               },
-              "initContainerImage": "registry.connect.redhat.com/jfrog/init:7.11.5-1",
+              "initContainerImage": "registry.connect.redhat.com/jfrog/init:7.12.6-1",
               "nginx": {
                 "uid": "1000720104",
                 "gid": "1000720107",
@@ -67,18 +67,18 @@ metadata:
         }
       ]
     capabilities: Seamless Upgrades
-    operators.operatorframework.io/builder: operator-sdk-v1.0.1
+    operators.operatorframework.io/builder: operator-sdk-v1.3.0
     operators.operatorframework.io/project_layout: helm.sdk.operatorframework.io/v1
     categories: Developer Tools,Integration & Delivery
     certified: 'true'
-    containerImage: registry.connect.redhat.com/jfrog/artifactory-operator:7.11.5
+    containerImage: registry.connect.redhat.com/jfrog/artifactory-operator:7.12.6-1
     createdAt: 2020-03-25 00:00:00+00:00
     description: JFrog Artifactory Enterprise deploys Artifactory in a high availability
       environment across multiple pods
     repository: https://github.com/jfrog/JFrog-Cloud-Installers/tree/openshift4/Openshift4
     support: JFrog
   creationTimestamp: null
-  name: artifactory-ha-operator.v1.1.4
+  name: artifactory-ha-operator.v1.1.5
   namespace: default
 spec:
   apiservicedefinitions: {}
@@ -120,14 +120,13 @@ spec:
 
     To deploy this helm chart you will need to be a cluster admin w/ access to the anyuid scc and add the operator service account to the anyuid scc.
 
-
     ```
 
     oc adm policy add-scc-to-user anyuid -z artifactory-ha-operator -n openshift-operators
 
     ```
 
-    Using "artifactory" as the example namespace:
+    Add the service account for the Artifactory chart to deploy successfully:
 
     ```
     oc adm policy add-scc-to-user anyuid -z openshiftartifactoryha-artifactory-ha -n artifactory
@@ -186,12 +185,33 @@ spec:
     To use TLS you will need to first create a k8s tls secret to store
     your .crt and .key file into.
 
-
     Then supply the value of this k8s secret into the TLS_SECRET field.
 
+    ```
+    oc create secret tls my_tls_secret --cert=tls.crt --key=tls.key --namespace=my_namespace
+    ```
 
     Click Create for Artifactory Enterprise to deploy into OpenShift and connect to
     it on the external IP exposed by the load balancer.
+
+    # Create a route
+
+    To expose Artifactory from Openshift we recommend you create a new route in Openshift.
+
+    You can either use the oc command line tool or the Openshift web console to generate a new route.
+
+    Depending upon where you terminate TLS you will need to either specify pass through or edge.
+
+    Command Line (Edge):
+
+    ```
+    oc create route edge --service=openshiftartifactory-ha --cert=tls.crt --key=tls.key --ca-cert=ca.crt --hostname=www.example.com
+    ```
+
+    Or for more information visit the official Openshift documentation on routes here:
+
+    https://docs.openshift.com/container-platform/4.6/networking/routes/route-configuration.html
+
 
     '
   displayName: JFrog Artifactory Enterprise Operator
@@ -226,10 +246,10 @@ spec:
                 - name: OPERATOR_NAME
                   value: artifactory-ha-operator
                 - name: RELATED_IMAGE_ARTIFACTORY_IMAGE_REPOSITORY
-                  value: registry.connect.redhat.com/jfrog/artifactory-pro:7.11.5-1
+                  value: registry.connect.redhat.com/jfrog/artifactory-pro:7.12.6-1
                 - name: RELATED_IMAGE_NGINX_IMAGE_REPOSITORY
                   value: registry.redhat.io/rhel8/nginx-116:latest
-                image: registry.connect.redhat.com/jfrog/artifactory-operator:7.11.5
+                image: registry.connect.redhat.com/jfrog/artifactory-operator:7.12.6-1
                 imagePullPolicy: Always
                 name: artifactory-ha-operator
                 resources: {}
@@ -392,8 +412,8 @@ spec:
   maturity: alpha
   provider:
     name: JFrog
-  replaces: artifactory-ha-operator.v1.1.3
-  version: 1.1.4
+  replaces: artifactory-ha-operator.v1.1.4
+  version: 1.1.5
 status:
   certsLastUpdated: null
   certsRotateAt: null

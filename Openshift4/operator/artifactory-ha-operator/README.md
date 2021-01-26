@@ -10,7 +10,7 @@ Openshift OperatorHub has the latest official supported Cluster Service Version 
 To deploy this helm chart you will need to be a cluster admin w/ access to the anyuid scc.
 
 ````bash
-oc adm policy add-scc-to-user anyuid -z artifactory-ha-operator
+oc adm policy add-scc-to-user anyuid -z artifactory-ha-operator -n namespace
 ````
 
 ## Getting Started
