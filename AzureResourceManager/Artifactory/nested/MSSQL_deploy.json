@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "db_user": {
@@ -46,7 +46,6 @@
     {
       "name": "[parameters('db_server')]",
       "type": "Microsoft.Sql/servers",
-      "kind": "v12.0",
       "location": "[parameters('db_location')]",
       "apiVersion": "2020-08-01-preview",
       "tags": {
