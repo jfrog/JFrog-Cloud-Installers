@@ -30,7 +30,17 @@ EOF
 # Xray should have the same join key as the Artifactory instance
 # Both application should be deployed in the same Virtual Networks
 HOSTNAME=$(hostname -i)
-yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.database.url postgres://${DB_SERVER}.postgres.database.azure.com:5432/${DB_NAME}?sslmode=disable
+
+regex_location_gov="usgov.*"
+regex_location_dod="usdod.*"
+
+if [[ "${LOCATION}" =~ $regex_location_gov ]] || [[ "${LOCATION}" =~ $regex_location_dod ]]; then
+  DB_DOMAIN=usgovcloudapi.net
+else
+  DB_DOMAIN=azure.com
+fi
+
+yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.database.url postgres://${DB_SERVER}.postgres.database.${DB_DOMAIN}:5432/${DB_NAME}?sslmode=disable
 yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.database.username ${DB_USER}
 yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.database.actualUsername ${ACTUAL_DB_USER}
 yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.database.password ${DB_PASSWORD}
