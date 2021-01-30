@@ -157,7 +157,7 @@
       "metadata": {
         "description": "The base URI where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
       },
-      "defaultValue": "https://raw.githubusercontent.com/jfrog/JFrog-Cloud-Installers/master/AzureResourceManager/Xray/"
+      "defaultValue": "https://raw.githubusercontent.com/jfrog/JFrog-Cloud-Installers/arm-7.12.6-gov/AzureResourceManager/Xray/"
     },
     "_artifactsLocationSasToken": {
       "type": "securestring",
@@ -352,7 +352,7 @@
             "computerNamePrefix": "[variables('namingInfix')]",
             "adminUsername": "[parameters('adminUsername')]",
             "adminPassword": "[parameters('adminPassword')]",
-            "customData": "[base64(concat('#INSTALL SCRIPT INPUTS\nXRAY_VERSION=', parameters('xrayVersion'),'\nARTIFACTORY_URL=',variables('artifactoryURL'),'\nDB_SERVER=',variables('db_server'),'\nDB_NAME=',variables('db_name'),'\nDB_ADMIN_USER=',variables('db_user'),'\nACTUAL_DB_ADMIN_USER=',variables('actual_db_user'),'\nDB_ADMIN_PASSWD=',variables('db_password'),'\nMASTER_KEY=',variables('masterKey'),'\nJOIN_KEY=',variables('joinKey'),'\n'))]"
+            "customData": "[base64(concat('#INSTALL SCRIPT INPUTS\nXRAY_VERSION=', parameters('xrayVersion'),'\nARTIFACTORY_URL=',variables('artifactoryURL'),'\nDB_SERVER=',variables('db_server'),'\nDB_NAME=',variables('db_name'),'\nDB_ADMIN_USER=',variables('db_user'),'\nACTUAL_DB_ADMIN_USER=',variables('actual_db_user'),'\nDB_ADMIN_PASSWD=',variables('db_password'),'\nMASTER_KEY=',variables('masterKey'),'\nLOCATION=',parameters('location'),'\nJOIN_KEY=',variables('joinKey'),'\n'))]"
           },
           "networkProfile": {
             "networkInterfaceConfigurations": [
