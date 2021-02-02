@@ -14,6 +14,7 @@ CERTIFICATE=$(cat /var/lib/cloud/instance/user-data.txt | grep "^CERTIFICATE=" |
 CERTIFICATE_KEY=$(cat /var/lib/cloud/instance/user-data.txt | grep "^CERTIFICATE_KEY=" | sed "s/CERTIFICATE_KEY=//")
 MASTER_KEY=$(cat /var/lib/cloud/instance/user-data.txt | grep "^MASTER_KEY=" | sed "s/MASTER_KEY=//")
 IS_PRIMARY=$(cat /var/lib/cloud/instance/user-data.txt | grep "^IS_PRIMARY=" | sed "s/IS_PRIMARY=//")
+LOCATION=$(cat /var/lib/cloud/instance/user-data.txt | grep "^LOCATION=" | sed "s/LOCATION=//")
 ARTIFACTORY_LICENSE_1=$(cat /var/lib/cloud/instance/user-data.txt | grep "^LICENSE1=" | sed "s/LICENSE1=//")
 ARTIFACTORY_LICENSE_2=$(cat /var/lib/cloud/instance/user-data.txt | grep "^LICENSE2=" | sed "s/LICENSE2=//")
 ARTIFACTORY_LICENSE_3=$(cat /var/lib/cloud/instance/user-data.txt | grep "^LICENSE3=" | sed "s/LICENSE3=//")
@@ -227,13 +228,23 @@ EOF
 # Azure Blob Storage configuration
 # https://www.jfrog.com/confluence/display/JFROG/Configuring+the+Filestore#ConfiguringtheFilestore-AzureBlobStorageClusterBinaryProvider
 mkdir -p /var/opt/jfrog/artifactory/etc/artifactory/
+
+regex_location_gov="usgov.*"
+regex_location_dod="usdod.*"
+
+if [[ "${LOCATION}" =~ $regex_location_gov ]] || [[ "${LOCATION}" =~ $regex_location_dod ]]; then
+  STORAGE_DOMAIN=usgovcloudapi.net
+else
+  STORAGE_DOMAIN=windows.net
+fi
+
 cat <<EOF >/var/opt/jfrog/artifactory/etc/artifactory/binarystore.xml
 <config version="2">
     <chain template="cluster-azure-blob-storage"/>
     <provider id="azure-blob-storage" type="azure-blob-storage">
         <accountName>${STORAGE_ACCT}</accountName>
         <accountKey>${STORAGE_ACCT_KEY}</accountKey>
-        <endpoint>https://${STORAGE_ACCT}.blob.core.windows.net/</endpoint>
+        <endpoint>https://${STORAGE_ACCT}.blob.core.${STORAGE_DOMAIN}/</endpoint>
         <containerName>${STORAGE_CONTAINER}</containerName>
     </provider>
 </config>

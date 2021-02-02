@@ -18,7 +18,10 @@ This template can help you setup the [Artifactory Enterprise](https://jfrog.com/
 2. Enter a valid values to parameters. At least 1 license has to be provided.
 
 
-![screenshot](images/Parameters.png)
+![screenshot](images/Parameters0.png)
+![screenshot](images/Parameters1.png)
+![screenshot](images/Parameters2.png)
+![screenshot](images/Parameters3.png)
 
 3. Click on Review + Create, then on Create to start deploying resources. It will deploy MsSQL or Postgresql database (or it can use existing), Azure Blob storage container, VM installing Nginx and Artifactory and Load balancer.
 
@@ -33,7 +36,7 @@ This template can help you setup the [Artifactory Enterprise](https://jfrog.com/
 2. Turn off daily backups. Read Documentation provided [here](https://www.jfrog.com/confluence/display/RTF/Managing+Backups)
 3. Use SSL Certificate with valid wild card to you artifactory as docker registry with subdomain method.
 4. Input values for 'adminUsername' and 'adminPassword' parameters needs to follow azure VM access rules.
-5. One primary node is configured automatically. And, Minimum 1 member node is expected for the Artifactory HA installation.
+5. One primary node is configured automatically. And, minimum 1 member node is expected for the Artifactory HA installation.
 6. This template provides support for max 5 licenses. To add more licenses, Edit the template (input fields, CustomScript sections) and install_artifactory.sh script.
 7. Refer to [System Requirements](https://www.jfrog.com/confluence/display/RTF/System+Requirements) for changing 'extraJavaOptions' input parameter value. 
 
@@ -72,7 +75,7 @@ Note: Use load balancer's NAT entries under Azure resources, to get the allocate
 
 ------
 #### Note:
-Supported locations: `East US 2`, `Central US`, `West Central US` and `West Europe`.  
+Supported locations: `East US 2`, `Central US`, `West Central US`, `West US`, `West US 2` and `West Europe`.  
 Please check the Azure region support for `Standard Sku` property in load balancer for this template to work properly.  
 Check for SQL server support on specified location. If SQL server is not available in the location, Use 'DB_Location' to specify the location with SQL server support.  
 

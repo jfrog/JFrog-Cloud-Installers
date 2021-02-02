@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "db_user": {
@@ -46,9 +46,8 @@
     {
       "name": "[parameters('db_server')]",
       "type": "Microsoft.Sql/servers",
-      "kind": "v12.0",
       "location": "[parameters('db_location')]",
-      "apiVersion": "2020-02-02-preview",
+      "apiVersion": "2020-08-01-preview",
       "tags": {
         "displayName": "artifactoryDB"
       },
@@ -62,7 +61,7 @@
           "name": "[uniqueString(parameters('db_server'), 'AllowAllWindowsAzureIps' )]",
           "type": "firewallrules",
           "location": "[parameters('db_location')]",
-          "apiVersion": "2020-02-02-preview",
+          "apiVersion": "2020-08-01-preview",
           "dependsOn": [
             "[resourceId('Microsoft.Sql/servers/', parameters('db_server'))]"
           ],
@@ -76,7 +75,7 @@
           "type": "databases",
           "kind": "v12.0,user",
           "location": "[parameters('db_location')]",
-          "apiVersion": "2020-02-02-preview",
+          "apiVersion": "2020-08-01-preview",
           "dependsOn": [
             "[parameters('db_server')]"
           ],

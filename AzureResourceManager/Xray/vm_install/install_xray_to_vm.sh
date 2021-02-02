@@ -10,8 +10,9 @@ apt-get upgrade -y
 
 # Download Xray
 cd /opt/
-wget -O jfrog-xray-${XRAY_VERSION}-deb.tar.gz 'https://bintray.com/jfrog/jfrog-xray/download_file?agree=true&artifactPath=/jfrog/jfrog-xray/xray-deb/'${XRAY_VERSION}'/jfrog-xray-'${XRAY_VERSION}'-deb.tar.gz&callback_id=&product=org.grails.taglib.NamespacedTagDispatcher' \
+wget -O jfrog-xray-${XRAY_VERSION}-deb.tar.gz 'https://releases.jfrog.io/artifactory/jfrog-xray/xray-deb/'${XRAY_VERSION}'/jfrog-xray-'${XRAY_VERSION}'-deb.tar.gz' \
 >> /var/log/download-xray.log 2>&1
+
 tar -xvf jfrog-xray-${XRAY_VERSION}-deb.tar.gz
 rm jfrog-xray-${XRAY_VERSION}-deb.tar.gz
 cd jfrog-xray-${XRAY_VERSION}-deb
