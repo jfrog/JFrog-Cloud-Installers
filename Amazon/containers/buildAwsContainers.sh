@@ -7,7 +7,7 @@ for EDITION in "${EDITIONS[@]}"
 do
   UPSTREAM_IMAGE_NAME=releases-docker.jfrog.io/jfrog/$EDITION
   BUILD_IMAGE_NAME=709825985650.dkr.ecr.us-east-1.amazonaws.com/jfrog/$EDITION
-  ARTIFACTORY_PASSWORD=corona1831
+  ARTIFACTORY_PASSWORD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1)
 
   # Logic starts here
   if [ -z "$VERSION" ]
