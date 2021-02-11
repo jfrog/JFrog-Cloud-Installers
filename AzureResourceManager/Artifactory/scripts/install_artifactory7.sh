@@ -271,7 +271,7 @@ else
   CALLHOME_SUFFIX=template
 fi
 
-cat <<EOF >installer-info.json
+cat <<EOF >/var/opt/jfrog/artifactory/etc/info/installer-info.json
 {
   "productId": "ARM_artifactory-pro-${CALLHOME_SUFFIX}/1.0.0",
   "features": [
