@@ -264,9 +264,16 @@ cat /tmp/temp.key | sed 's/KEY----- /&\n/' | sed 's/ -----END/\n-----END/' | awk
     rm /tmp/temp.key
 fi
 
+
+if [[ "${LOCATION}" =~ $regex_location_gov ]] || [[ "${LOCATION}" =~ $regex_location_dod ]]; then
+  CALLHOME_SUFFIX=gov
+else
+  CALLHOME_SUFFIX=template
+fi
+
 cat <<EOF >/var/opt/jfrog/artifactory/etc/info/installer-info.json
 {
-  "productId": "ARM_artifactory-pro-template/1.0.0",
+  "productId": "ARM_artifactory-pro-${CALLHOME_SUFFIX}/1.0.0",
   "features": [
     {
       "featureId": "Partner/ACC-007221"
