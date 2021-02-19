@@ -64,11 +64,11 @@ Parameters:
 Mappings:
   AWSAMIRegionMap:
     us-east-1:
-      "3174": ami-023ca6575274f7100
+      "3174": ami-028555fa3b9469dc3
     us-east-2:
-      "3174": ami-0592fa8e68995ea08
+      "3174": ami-0f4980801d180776a
     us-west-1:
-      "3174": ami-00d52c51cbf22a2fc
+      "3174": ami-006041db0f601e438
     us-west-2:
       "3174": ami-0d67b78b4f09fa9a7
     ca-central-1:

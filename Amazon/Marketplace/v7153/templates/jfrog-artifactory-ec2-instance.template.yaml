@@ -86,11 +86,11 @@ Parameters:
 Mappings:
   AWSAMIRegionMap:
     us-east-1:
-      "Artifactory7153": ami-03ebf7aac08335c84
+      "Artifactory7153": ami-07a437a0be21eb6c8
     us-east-2:
-      "Artifactory7153": ami-055521cc288bb4106
+      "Artifactory7153": ami-08f834139a150fb62
     us-west-1:
-      "Artifactory7153": ami-00ecacc68cf47a87a
+      "Artifactory7153": ami-0afdf2d63fc2c0895
     us-west-2:
       "Artifactory7153": ami-09274621c30cae078
     ca-central-1:
