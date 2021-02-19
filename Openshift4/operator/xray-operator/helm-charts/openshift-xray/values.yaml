@@ -84,7 +84,7 @@ xray:
       create: true
     image:
       registry: registry.connect.redhat.com
-      repository: xray-rabbitmq
+      repository: jfrog/xray-rabbitmq
       tag: 3.17.4-1
     podSecurityContext:
       fsGroup: 1000721001
