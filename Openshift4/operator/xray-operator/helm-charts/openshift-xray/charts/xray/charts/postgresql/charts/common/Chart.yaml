@@ -1,0 +1,21 @@
+annotations:
+  category: Infrastructure
+apiVersion: v1
+appVersion: 0.6.2
+description: A Library Helm Chart for grouping common logic between bitnami charts.
+  This chart is not deployable by itself.
+home: http://www.bitnami.com/
+icon: https://bitnami.com/downloads/logos/bitnami-mark.png
+keywords:
+- common
+- helper
+- template
+- function
+- bitnami
+maintainers:
+- email: containers@bitnami.com
+  name: Bitnami
+name: common
+sources:
+- https://github.com/bitnami/charts
+version: 0.6.2
