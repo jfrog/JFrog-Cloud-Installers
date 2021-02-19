@@ -14,14 +14,15 @@ Metadata:
       - Label:
           default: Network configuration
         Parameters:
-          - PrivateSubnet1Cidr
-          - PrivateSubnet2Cidr
           - VpcId
           - VpcCidr
+          - AvailabilityZones
           - PublicSubnet1Id
           - PublicSubnet2Id
           - PrivateSubnet1Id
+          - PrivateSubnet1Cidr
           - PrivateSubnet2Id
+          - PrivateSubnet2Cidr
       - Label:
           default: Amazon EC2 configuration
         Parameters:
@@ -32,13 +33,12 @@ Metadata:
         Parameters:
           - ArtifactoryVersion
           - NumberOfSecondary
-          - SmLicenseCertName
+          - SmLicenseName
+          - SmCertName
           - ArtifactoryServerName
           - MasterKey
           - ExtraJavaOptions
           - DefaultJavaMemSettings
-          - KeystorePassword
-          - AnsibleVaultPass
       - Label:
           default: Amazon RDS configuration
         Parameters:
@@ -48,7 +48,6 @@ Metadata:
           - DatabasePassword
           - DatabaseInstance
           - DatabaseAllocatedStorage
-          - MultiAzDatabase
       - Label:
           default: JFrog Xray Configuration
         Parameters:
@@ -59,6 +58,8 @@ Metadata:
           - XrayDatabaseUser
           - XrayDatabasePassword
     ParameterLabels:
+      AvailabilityZones:
+        default: Availability Zones
       KeyPairName:
         default: SSH key name
       PrivateSubnet1Cidr:
@@ -89,8 +90,10 @@ Metadata:
         default: Secondary instances
       ArtifactoryVersion:
         default: Artifactory version
-      SmLicenseCertName:
-        default: Artifactory licenses and certificate secret name
+      SmLicenseName:
+        default: Artifactory licenses secret name
+      SmCertName:
+        default: Artifactory certificate secret name
       ArtifactoryServerName:
         default: Artifactory server name
       MasterKey:
@@ -99,10 +102,6 @@ Metadata:
         default: Extra Java options
       DefaultJavaMemSettings:
         default: Default Java memory settings
-      KeystorePassword:
-        default: Java key store password
-      AnsibleVaultPass:
-        default: Ansible Vault password
       DatabaseName:
         default: Database name
       DatabaseEngine:
@@ -115,8 +114,6 @@ Metadata:
         default: Database instance type
       DatabaseAllocatedStorage:
         default: Database allocated storage
-      MultiAzDatabase:
-        default: High-availability database
       InstallXray:
         default: Install JFrog Xray
       XrayVersion:
@@ -130,6 +127,10 @@ Metadata:
       XrayDatabasePassword:
         default: Xray Database password
 Parameters:
+  AvailabilityZones:
+    Description: List of Availability Zones to use for the subnets in the VPC. Two
+      Availability Zones are used for this deployment.
+    Type: List<AWS::EC2::AvailabilityZone::Name>
   VpcId:
     Description: ID of your existing VPC (e.g., vpc-0343606e).
     Type: "AWS::EC2::VPC::Id"
@@ -173,6 +174,7 @@ Parameters:
       It is recommended that you set this value to a trusted IP range.
       For example, you may want to limit software access to your corporate network.
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    Default: 0.0.0.0/0
     Type: String
   RemoteAccessCidr:
     Description: Remote CIDR range that allows you to connect to the bastion instance by using SSH.
@@ -239,10 +241,17 @@ Parameters:
       https://www.jfrog.com/confluence/display/RTF/Release+Notes.
     AllowedPattern: ^(([0-9]|[1-9][0-9])\.){2}([1-9][0-9]|[0-9])$
     ConstraintDescription: A version that matches X.X.X per Artifactory releases.
-    Default: 7.12.5
+    AllowedValues:
+      - 7.2.1
+      - 7.15.3
+    Default: 7.15.3
     Type: String
-  SmLicenseCertName:
-    Description: Secret name created in AWS Secrets Manager that contains the SSL certificate, certificate key, and Artifactory licenses.
+  SmLicenseName:
+    Description: Secret name created in AWS Secrets Manager, which contains the Artifactory licenses.
+    Default: ''
+    Type: String
+  SmCertName:
+    Description: Secret name created in AWS Secrets Manager, which contains the SSL certificate and certificate key.
     Default: ''
     Type: String
   ArtifactoryServerName:
@@ -270,17 +279,6 @@ Parameters:
       - "true"
       - "false"
     Default: "true"
-    Type: String
-  KeystorePassword:
-    Description: Java key store password. For better security, the password that you specify will
-      replace the default Java key store password.
-    NoEcho: 'true'
-    Type: String
-  AnsibleVaultPass:
-    Description: Ansible Vault password to protect the Artifactory YAML configuration file
-      generated during the Artifactory deployment. This YAML file is stored on the EC2 nodes
-      and secured with this password.
-    NoEcho: 'true'
     Type: String
   DatabaseName:
     Description: Name of your database instance. The name must be unique across all instances
@@ -339,14 +337,6 @@ Parameters:
     MaxValue: 1024
     Default: 10
     Type: Number
-  MultiAzDatabase:
-    Description: Choose false to create an Amazon RDS instance in a single Availability Zone.
-    ConstraintDescription: True or False
-    AllowedValues:
-      - "true"
-      - "false"
-    Default: "true"
-    Type: String
   InstallXray:
     Description: Choose true to install JFrog Xray instance(s).
     ConstraintDescription: True or False
@@ -359,7 +349,9 @@ Parameters:
     Description: The version of Xray that you want to deploy into the Quick Start.
     AllowedPattern: ^(([0-9]|[1-9][0-9])\.){2}([1-9][0-9]|[0-9])$
     ConstraintDescription: A version that matches X.X.X per Xray releases.
-    Default: 3.12.1
+    AllowedValues:
+      - 3.17.4
+    Default: 3.17.4
     Type: String
   XrayNumberOfInstances:
     Description: The number of Xray instances servers to complete your
@@ -399,8 +391,12 @@ Resources:
   ArtifactoryExistingVpcStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://awsmp-fulfillment-cf-templates-prod.s3-external-1.amazonaws.com/aecfe1d1-907c-4812-b7b8-91497013cb16-jfrog-artifactory-ec2-existing-vpc.template
+      TemplateURL: https://jfrog-marketplace-test-us-east-1.s3.amazonaws.com/marketplace-jfrog-artifactory/templates/jfrog-artifactory-ec2-existing-vpc.template.yaml
       Parameters:
+        AvailabilityZones:
+          Fn::Join:
+            - ','
+            - Ref: AvailabilityZones
         KeyPairName: !Ref KeyPairName
         VpcId: !Ref VpcId
         VpcCidr: !Ref VpcCidr
@@ -424,22 +420,21 @@ Resources:
         NumberOfSecondary: !Ref NumberOfSecondary
         ArtifactoryProduct: "JFrog-Artifactory-Pro"
         ArtifactoryVersion: !Ref ArtifactoryVersion
-        SmLicenseCertName: !Ref SmLicenseCertName
+        SmLicenseName: !Ref SmLicenseName
+        SmCertName: !Ref SmCertName
         ArtifactoryServerName: !Ref ArtifactoryServerName
         MasterKey: !Ref MasterKey
         ExtraJavaOptions: !Ref ExtraJavaOptions
         DefaultJavaMemSettings: !Ref DefaultJavaMemSettings
-        KeystorePassword: !Ref KeystorePassword
-        AnsibleVaultPass: !Ref AnsibleVaultPass
         DatabaseName: !Ref DatabaseName
         DatabaseEngine: !Ref DatabaseEngine
         DatabaseUser: !Ref DatabaseUser
         DatabasePassword: !Ref DatabasePassword
         DatabaseInstance: !Ref DatabaseInstance
         DatabaseAllocatedStorage: !Ref DatabaseAllocatedStorage
-        MultiAzDatabase: !Ref MultiAzDatabase
+        MultiAzDatabase: "true"
         QsS3BucketName: "jfrog-aws-test"
-        QsS3KeyPrefix: "artifactory7/v7112/"
+        QsS3KeyPrefix: "artifactory7/pro/v7153/"
         QsS3BucketRegion: "us-east-1"
         InstallXray: !Ref InstallXray
         XrayVersion: !Ref XrayVersion

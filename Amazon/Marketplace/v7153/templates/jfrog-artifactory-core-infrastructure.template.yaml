@@ -1,6 +1,10 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: 'JFrog Artifactory Quick Start Deployment (qs-1qpmmjh61)'
 Parameters:
+  AvailabilityZones:
+    Description: List of Availability Zones to use for the subnets in the VPC. Two
+      Availability Zones are used for this deployment.
+    Type: List<AWS::EC2::AvailabilityZone::Name>
   VpcId:
     Type: AWS::EC2::VPC::Id
   VpcCidr:
@@ -29,6 +33,11 @@ Parameters:
   DatabaseAllocatedStorage:
     Type: Number
   MultiAzDatabase:
+    Description: Choose false to create an Amazon RDS instance in a single Availability Zone.
+    ConstraintDescription: True or False
+    AllowedValues:
+      - "true"
+      - "false"
     Type: String
   DatabaseEngine:
     Type: String
@@ -41,9 +50,6 @@ Parameters:
     Type: String
   DatabaseName:
     Type: String
-  ArtifactoryS3IAMUser:
-    NoEcho: 'true'
-    Type: String
   ArtifactoryProduct:
     Default: JFrog-Artifactory-Pro
     Type: String
@@ -53,6 +59,10 @@ Parameters:
   InstanceType:
     Default: m5.xlarge
     Type: String
+  ArtifactoryHostRole:
+    Type: String
+  VolumeSize:
+    Type: Number
 
 Mappings:
   DatabaseMap:
@@ -207,6 +217,7 @@ Mappings:
       Min: 192
       Max: 288
       DeploymentSize: xxxLarge
+
 Resources:
   ArtifactoryDatabaseSubnetGroup:
     Type: AWS::RDS::DBSubnetGroup
@@ -228,6 +239,7 @@ Resources:
       DBInstanceClass: !Ref DatabaseInstance
       DBName: !Ref DatabaseName
       DBSubnetGroupName: !Ref  ArtifactoryDatabaseSubnetGroup
+      StorageEncrypted: true
       VPCSecurityGroups:
         - !Ref ArtifactoryDatabaseSG
   ArtifactoryDatabaseSG:
@@ -315,8 +327,24 @@ Resources:
                 - - !Sub "arn:${AWS::Partition}:s3:::"
                   - !Ref ArtifactoryS3Bucket
                   - "/*"
-      Users:
-        - !Ref ArtifactoryS3IAMUser
+      Roles:
+        - !Ref ArtifactoryHostRole
+  ArtifactoryEbsVolume:
+    Type: AWS::EC2::Volume
+    Properties:
+      AvailabilityZone:
+        !Select
+        - '0'
+        - !Ref AvailabilityZones
+      Encrypted: false
+      Size: !Ref VolumeSize
+      Tags:
+        - Key: Name
+          Value: !Sub "Artifactory-${AWS::StackName}"
+      VolumeType: gp2
+    DeletionPolicy: Snapshot
+    UpdateReplacePolicy: Snapshot
+
 Outputs:
   S3Bucket:
     Value: !Ref ArtifactoryS3Bucket
@@ -376,3 +404,5 @@ Outputs:
       }
   DeploymentSize:
     Value: !FindInMap [JavaOptionstoInstance, !Ref InstanceType, DeploymentSize]
+  ArtifactoryEbsVolume:
+    Value: !Ref ArtifactoryEbsVolume
