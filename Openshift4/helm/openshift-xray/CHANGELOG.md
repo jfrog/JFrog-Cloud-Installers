@@ -1,6 +1,8 @@
 # JFrog  Openshift Artifactory-Xray Chart Changelog
 All changes to this chart will be documented in this file.
 
+## [7.0.2] Feb 19th, 2021
+* BREAKING CHANGE rabbitmq ha deprecation for rabbitmq
 
 ## [6.10.0] Feb 3, 2021
 * Updating to Xray chart version 6.10.0 and Xray app version 3.16.0

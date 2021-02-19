@@ -1,6 +1,9 @@
 # JFrog  Openshift Xray Chart Changelog
 All changes to this chart will be documented in this file.
 
+## [2.0.0] Feb 19th, 2021
+* BREAKING CHANGE - Rabbitmq ha deprecated for Rabbitmq
+
 ## [1.1.8] Feb 9nd, 2021
 * Deploying JFrog Xray 3.17.2 as an Operator into Openshift
 
