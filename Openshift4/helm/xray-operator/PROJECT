@@ -1,4 +1,0 @@
-domain: my.domain
-layout: helm.sdk.operatorframework.io/v1
-projectName: xray-operator
-version: 3-alpha

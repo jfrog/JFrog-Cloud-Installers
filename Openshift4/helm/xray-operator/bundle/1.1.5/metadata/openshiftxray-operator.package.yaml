@@ -1,5 +1,0 @@
-channels:
-- currentCSV: xray-operator.v1.1.5
-  name: alpha
-defaultChannel: ''
-packageName: openshiftxray-operator
