@@ -11,7 +11,7 @@ xray:
     url: "OVERRIDE"
     user: "OVERRIDE"
     password: "OVERRIDE"
-  initContainerImage: registry.connect.redhat.com/jfrog/init:7.12.8-0
+  initContainerImage: registry.connect.redhat.com/jfrog/init:7.15.3-1
   common:
     rabbitmq:
       connectionConfigFromEnvironment: true
