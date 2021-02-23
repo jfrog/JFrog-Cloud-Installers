@@ -153,14 +153,14 @@
 - name: use specified binary store
   copy:
     src: "{{ binary_store_file }}"
-    dest: "{{ artifactory_home }}/var/etc/binarystore.xml"
+    dest: "{{ artifactory_home }}/var/etc/artifactory/binarystore.xml"
   become: yes
   when: binary_store_file is defined
 
 - name: use default binary store
   template:
     src: binarystore.xml.j2
-    dest: "{{ artifactory_home }}/var/etc/binarystore.xml"
+    dest: "{{ artifactory_home }}/var/etc/artifactory/binarystore.xml"
   become: yes
   when: binary_store_file is not defined
 

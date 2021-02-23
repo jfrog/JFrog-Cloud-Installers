@@ -674,7 +674,7 @@
                 "group"  : "artifactory"
               },
 
-              "/var/opt/jfrog/artifactory/etc/binarystore.xml" : {
+              "/var/opt/jfrog/artifactory/etc/artifactory/binarystore.xml" : {
                 "content" : { "Fn::Join" : ["", [
                   "<config version=\"2\">\n",
                   "<chain> <!--template=\"cluster-s3\"-->\n",
@@ -1102,7 +1102,7 @@
                 "group"  : "artifactory"
               },
 
-              "/var/opt/jfrog/artifactory/etc/binarystore.xml" : {
+              "/var/opt/jfrog/artifactory/etc/artifactory/binarystore.xml" : {
                 "content" : { "Fn::Join" : ["", [
                   "<config version=\"2\">\n",
                   "<chain> <!--template=\"cluster-s3\"-->\n",

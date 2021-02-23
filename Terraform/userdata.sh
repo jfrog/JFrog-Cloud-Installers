@@ -14,7 +14,7 @@ yum install -y nginx>> /tmp/yum-nginx.log 2>&1
 curl -L -o  /opt/jfrog/artifactory/tomcat/lib/mysql-connector-java-5.1.38.jar https://bintray.com/artifact/download/bintray/jcenter/mysql/mysql-connector-java/5.1.38/mysql-connector-java-5.1.38.jar
 openssl req -nodes -x509 -newkey rsa:4096 -keyout /etc/pki/tls/private/example.key -out /etc/pki/tls/certs/example.pem -days 356 -subj "/C=US/ST=California/L=SantaClara/O=IT/CN=*.localhost"
 
-cat <<EOF >/var/opt/jfrog/artifactory/etc/binarystore.xml
+cat <<EOF >/var/opt/jfrog/artifactory/etc/artifactory/binarystore.xml
 <config version="2">
     <chain> <!--template="cluster-s3"-->
         <provider id="cache-fs-eventual-s3" type="cache-fs">

@@ -138,7 +138,7 @@ cat <<EOF >/var/opt/jfrog/artifactory/etc/security/master.key
 ${MASTER_KEY}
 EOF
 
-cat <<EOF >/var/opt/jfrog/artifactory/etc/binarystore.xml
+cat <<EOF >/var/opt/jfrog/artifactory/etc/artifactory/binarystore.xml
 <config version="2">
     <chain>
        <provider id="cache-fs-eventual-azure-blob-storage" type="cache-fs">
