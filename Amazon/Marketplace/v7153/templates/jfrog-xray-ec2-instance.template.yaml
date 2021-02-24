@@ -64,7 +64,7 @@ Mappings:
     us-west-1:
       "3174": ami-006041db0f601e438
     us-west-2:
-      "3174": ami-0d67b78b4f09fa9a7
+      "3174": ami-05019f9185d4f809e
     ca-central-1:
       "3174": ami-056bafb407aa8e445
     eu-central-1:
@@ -90,7 +90,7 @@ Mappings:
     us-gov-east-1:
       "3174": ami-0349215efccd0d9f6
     us-gov-west-1:
-      "3174": ami-0b52a6d3379d2c20c
+      "3174": ami-006010831d25af96b
 
 Resources:
   XrayScalingGroup:

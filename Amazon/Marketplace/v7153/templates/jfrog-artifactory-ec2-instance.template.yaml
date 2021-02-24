@@ -86,7 +86,7 @@ Mappings:
     us-west-1:
       "Artifactory7153": ami-0afdf2d63fc2c0895
     us-west-2:
-      "Artifactory7153": ami-09274621c30cae078
+      "Artifactory7153": ami-03c0e58806c907dee
     ca-central-1:
       "Artifactory7153": ami-0f422f5980aeba60f
     eu-central-1:
@@ -112,7 +112,7 @@ Mappings:
     us-gov-east-1:
       "Artifactory7153": ami-0ec712ae031edcb34
     us-gov-west-1:
-      "Artifactory7153": ami-0b6229d13d677cd16
+      "Artifactory7153": ami-08343af72f1764764
   ArtifactoryProductMap:
     JFrog-Container-Registry:
       "7153": "Jcr7153"
