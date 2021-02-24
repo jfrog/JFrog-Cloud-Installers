@@ -386,7 +386,7 @@ Resources:
   ArtifactoryCoreInfraStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://jfrog-marketplace-test-us-east-1.s3.amazonaws.com/marketplace-jfrog-artifactory/templates/jfrog-artifactory-core-infrastructure.template.yaml
+      TemplateURL: https://jfrog-marketplace-test-us-east-1.s3.amazonaws.com/marketplace-jfrog-artifactory/v7153/templates/jfrog-artifactory-core-infrastructure.template.yaml
       Parameters:
         AvailabilityZones:
           Fn::Join:
@@ -500,7 +500,7 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub ${ArtifactoryProduct}-ec2-instances-sg
-      GroupDescription: SG for EC2 instances (also permits access using SSH from the bastion host)
+      GroupDescription: SG for EC2 instances
       VpcId: !Ref VpcId
       SecurityGroupIngress:
         - IpProtocol: tcp
@@ -579,21 +579,17 @@ Resources:
                   - "logs:CreateLogStream"
                   - "logs:PutLogEvents"
                   - "logs:DescribeLogStreams"
-                Resource: "arn:aws:logs:*:*:*"
-              - Effect: "Allow"
-                Action:
-                  - "s3:GetObject"
-                Resource: "*"
-        - PolicyName: 'SecretsMaanger-policy'
+                Resource: !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:*:*"
+        - PolicyName: 'SecretsManager-policy'
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
               - Effect: "Allow"
                 Action:
                   - "secretsmanager:GetSecretValue"
-                Resource: "arn:aws:secretsmanager:*:*:secret:*"
+                Resource: !Sub "arn:${AWS::Partition}:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:*"
   ArtifactoryHostProfile:
-    Type: 'AWS::IAM::InstanceProfile'
+    Type: AWS::IAM::InstanceProfile
     Properties:
       Roles:
         - !Ref ArtifactoryHostRole
@@ -601,11 +597,11 @@ Resources:
   ArtifactoryPrimary:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://jfrog-marketplace-test-us-east-1.s3.amazonaws.com/marketplace-jfrog-artifactory/templates/jfrog-artifactory-ec2-instance.template.yaml
+      TemplateURL: https://jfrog-marketplace-test-us-east-1.s3.amazonaws.com/marketplace-jfrog-artifactory/v7153/templates/jfrog-artifactory-ec2-instance.template.yaml
       Parameters:
         PrivateSubnetIds: !Join [',', [!Ref PrivateSubnet1Id]]
-        MinScalingNodes: '1'  # Always have 1 MasterNode
-        MaxScalingNodes: '1'  # Always have 1 MasterNode
+        MinScalingNodes: '1'  # Always have 1 Primary Node
+        MaxScalingNodes: '1'  # Always have 1 Primary Node
         DeploymentTag: !If [IsArtifactory, "ArtifactoryPrimary", "JcrPrimary"]
         HostRole: !Ref ArtifactoryHostRole
         ArtifactoryProduct: !Ref ArtifactoryProduct
@@ -643,7 +639,7 @@ Resources:
     DependsOn: ArtifactoryPrimary
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://jfrog-marketplace-test-us-east-1.s3.amazonaws.com/marketplace-jfrog-artifactory/templates/jfrog-artifactory-ec2-instance.template.yaml
+      TemplateURL: https://jfrog-marketplace-test-us-east-1.s3.amazonaws.com/marketplace-jfrog-artifactory/v7153/templates/jfrog-artifactory-ec2-instance.template.yaml
       Parameters:
         PrivateSubnetIds: !Join [',', [!Ref PrivateSubnet1Id, !Ref PrivateSubnet2Id]]
         MinScalingNodes: !Ref NumberOfSecondary
@@ -725,11 +721,7 @@ Resources:
                   - "logs:CreateLogStream"
                   - "logs:PutLogEvents"
                   - "logs:DescribeLogStreams"
-                Resource: "arn:aws:logs:*:*:*"
-              - Effect: "Allow"
-                Action:
-                  - "s3:GetObject"
-                Resource: "*"
+                Resource: !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:*:*"
   XrayHostProfile:
     Condition: EnableXray
     Type: 'AWS::IAM::InstanceProfile'
@@ -742,7 +734,7 @@ Resources:
     DependsOn: ArtifactoryPrimary
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://jfrog-marketplace-test-us-east-1.s3.amazonaws.com/marketplace-jfrog-artifactory/templates/jfrog-xray-ec2-instance.template.yaml
+      TemplateURL: https://jfrog-marketplace-test-us-east-1.s3.amazonaws.com/marketplace-jfrog-artifactory/v7153/templates/jfrog-xray-ec2-instance.template.yaml
       Parameters:
         PrivateSubnet1Id: !Ref PrivateSubnet1Id
         PrivateSubnet2Id: !Ref PrivateSubnet2Id

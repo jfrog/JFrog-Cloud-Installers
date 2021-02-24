@@ -182,7 +182,7 @@ Resources:
       IamInstanceProfile: !Ref XrayHostProfile
       ImageId: !FindInMap
         - AWSAMIRegionMap
-        - !Ref 'AWS::Region'
+        - !Ref AWS::Region
         - !Ref XrayAmiId
       SecurityGroups:
         - !Ref SecurityGroups
