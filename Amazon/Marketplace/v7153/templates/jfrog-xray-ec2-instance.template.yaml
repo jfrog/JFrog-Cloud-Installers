@@ -228,30 +228,8 @@ Resources:
 
             echo $PATH
 
-            # Create virtual env and activate
-            python3 -m venv ~/venv --system-site-packages
+            # Activate virtual env
             source ~/venv/bin/activate
-
-            pip install --upgrade pip
-            pip install wheel
-
-            S3URI=${QsS3Uri}
-
-            yum update --security -y &> /var/log/userdata.yum_security_update.log
-
-            yum install -y git python3 libselinux-python3
-            yum install -y postgresql-server postgresql-devel
-
-            # Install Cloudformation helper scripts
-            pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-py3-latest.tar.gz 2>&1 | tee /var/log/userdata.aws_cfn_bootstrap_install.log
-
-            pip install awscli &> /var/log/userdata.awscli_install.log
-
-            pip install ansible &> /var/log/userdata.ansible_install.log
-
-            mkdir ~/.xray_ami
-
-            aws s3 --region ${AWS::Region} sync s3://${QsS3BucketName}/${QsS3KeyPrefix}cloudInstallerScripts/ ~/.xray_ami/
 
             setsebool httpd_can_network_connect 1 -P
 
@@ -268,8 +246,6 @@ Resources:
             ./awslogs-agent-setup.py -n -r ${AWS::Region} -c /root/cloudwatch.conf
 
             lsblk # debug
-
-            ansible-galaxy collection install community.general ansible.posix
 
             ansible-playbook /root/.xray_ami/xray.yml --vault-id /root/.vault_pass.txt 2>&1 | tee /var/log/xray.log || cfn_fail
 

@@ -329,17 +329,9 @@ Resources:
 
             }
 
-            S3URI=${QsS3Uri}
-
-            # Update OS
-            yum update -y
-
-            # Install git
-            yum install -y epel-release git policycoreutils-python
-
-            yum update --security -y 2>&1 | tee /var/log/userdata.yum_security_update.log
-
-            yum install -y jq python3 libselinux-python3
+            # Install jq
+            yum install -y epel-release
+            yum install -y jq
 
             echo $PATH
 
@@ -347,23 +339,8 @@ Resources:
 
             echo $PATH
 
-            # Create virtual env and activate
-            python3 -m venv ~/venv --system-site-packages
+            # Activate virtual env
             source ~/venv/bin/activate
-
-            pip install --upgrade pip
-            pip install jmespath wheel
-
-            # Install Cloudformation helper scripts
-            pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-py3-latest.tar.gz 2>&1 | tee /var/log/userdata.aws_cfn_bootstrap_install.log
-
-            pip install awscli 2>&1 | tee /var/log/userdata.awscli_install.log
-
-            pip install ansible 2>&1 | tee /var/log/userdata.ansible_install.log
-
-            mkdir ~/.jfrog_ami
-
-            aws s3 --region ${AWS::Region} sync s3://${QsS3BucketName}/${QsS3KeyPrefix}cloudInstallerScripts/ ~/.jfrog_ami/ || cfn_fail
 
             setsebool httpd_can_network_connect 1 -P
 
@@ -380,8 +357,6 @@ Resources:
             ./awslogs-agent-setup.py -n -r ${AWS::Region} -c /root/cloudwatch.conf 2>&1 | tee /var/log/userdata.cloudwatch_agent_install.log
 
             /root/attach_volume.sh || cfn_fail
-
-            ansible-galaxy collection install community.general ansible.posix
 
             setsebool httpd_can_network_connect 1 -P
 
