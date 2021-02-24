@@ -58,7 +58,7 @@ Parameters:
 Mappings:
   AWSAMIRegionMap:
     us-east-1:
-      "3174": ami-028555fa3b9469dc3
+      "3174": ami-0cfe501ba23b450bd
     us-east-2:
       "3174": ami-0f4980801d180776a
     us-west-1:
@@ -88,7 +88,7 @@ Mappings:
     sa-east-1:
       "3174": ami-0c2acb2f23c3e6743
     us-gov-east-1:
-      "3174": ami-0349215efccd0d9f6
+      "3174": ami-06e63f61fa6c13b25
     us-gov-west-1:
       "3174": ami-006010831d25af96b
 

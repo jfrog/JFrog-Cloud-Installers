@@ -80,7 +80,7 @@ Parameters:
 Mappings:
   AWSAMIRegionMap:
     us-east-1:
-      "Artifactory7153": ami-07a437a0be21eb6c8
+      "Artifactory7153": ami-0e25fbf67a59cc92b
     us-east-2:
       "Artifactory7153": ami-08f834139a150fb62
     us-west-1:
@@ -110,7 +110,7 @@ Mappings:
     sa-east-1:
       "Artifactory7153": ami-0b831f8403d6979d4
     us-gov-east-1:
-      "Artifactory7153": ami-0ec712ae031edcb34
+      "Artifactory7153": ami-0d91ab5cda810462b
     us-gov-west-1:
       "Artifactory7153": ami-08343af72f1764764
   ArtifactoryProductMap:
