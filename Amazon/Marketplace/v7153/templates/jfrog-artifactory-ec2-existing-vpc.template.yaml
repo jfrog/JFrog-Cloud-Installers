@@ -10,7 +10,6 @@ Metadata:
         Parameters:
           - KeyPairName
           - AccessCidr
-          - RemoteAccessCidr
       - Label:
           default: Network configuration
         Parameters:
@@ -24,16 +23,6 @@ Metadata:
           - PrivateSubnet1Cidr
           - PrivateSubnet2Cidr
           - ELBScheme
-      - Label:
-          default: Bastion configuration
-        Parameters:
-          - ProvisionBastionHost
-          - BastionInstanceType
-          - BastionOs
-          - BastionRootVolumeSize
-          - BastionEnableTcpForwarding
-          - NumBastionHosts
-          - BastionEnableX11Forwarding
       - Label:
           default: Amazon EC2 configuration
         Parameters:
@@ -92,24 +81,8 @@ Metadata:
         default: Private subnet 2 CIDR
       AccessCidr:
         default: Permitted IP range
-      RemoteAccessCidr:
-        default: Remote access CIDR
       ELBScheme:
         default: Elastic Load Balancing scheme
-      ProvisionBastionHost:
-        default: Bastion instance
-      BastionInstanceType:
-        default: Bastion instance type
-      BastionRootVolumeSize:
-        default: Bastion root volume size
-      BastionEnableTcpForwarding:
-        default: Bastion enable TCP forwarding
-      BastionEnableX11Forwarding:
-        default: Bastion enable X11 forwarding
-      BastionOs:
-        default: Bastion operating system
-      NumBastionHosts:
-        default: Number of bastion instances
       VolumeSize:
         default: EBS root volume size
       InstanceType:
@@ -205,80 +178,12 @@ Parameters:
       For example, you might want to grant only your corporate network access to the software.
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     Type: String
-  RemoteAccessCidr:
-    Description: Remote CIDR range that allows you to connect to the bastion instance by using SSH.
-      We recommend that you set this value to a trusted IP range.
-      For example, you might want to grant specific ranges inside your corporate network SSH access.
-    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
-    Type: String
   ELBScheme:
     Description: Choose whether this is internet facing or internal.
     AllowedValues:
       - internal
       - internet-facing
     Default: internet-facing
-    Type: String
-  ProvisionBastionHost:
-    Description: Choose Disabled to skip creating a bastion instance. Due to the JFrog Container Registry nodes being
-      created in private subnets, the default setting of Enabled this is highly recommended.
-    AllowedValues:
-      - "Enabled"
-      - "Disabled"
-    Default: "Enabled"
-    Type: String
-  BastionInstanceType:
-    Description: Size of the bastion instances.
-    AllowedValues:
-      - t3.nano
-      - t3.micro
-      - t3.small
-      - t3.medium
-      - t3.large
-      - m5.large
-      - m5.xlarge
-      - m5.2xlarge
-      - m5.4xlarge
-    Default: "t3.micro"
-    Type: String
-  BastionRootVolumeSize:
-    Description: Size of the root volume on the bastion instances.
-    Default: 10
-    Type: Number
-  BastionEnableTcpForwarding:
-    Description: Choose whether to enable TCPForwarding via the bootstrapping of the bastion instance
-      or not.
-    AllowedValues:
-      - "true"
-      - "false"
-    Default: "true"
-    Type: String
-  BastionEnableX11Forwarding:
-    Description: Choose true to enable X11 via the bootstrapping of the bastion host.
-      Setting this value to true will enable X Windows over SSH.
-      X11 forwarding can be useful, but it is also a security risk, so it's recommended
-      that you keep the default (false) setting.
-    AllowedValues:
-      - "true"
-      - "false"
-    Default: "false"
-    Type: String
-  BastionOs:
-    Description: Linux distribution for the Amazon Machine Image (AMI) to be used for the bastion instances.
-    AllowedValues:
-      - "Amazon-Linux2-HVM"
-      - "CentOS-7-HVM"
-      - "Ubuntu-Server-20.04-LTS-HVM"
-      - "SUSE-SLES-15-HVM"
-    Default: "Amazon-Linux2-HVM"
-    Type: String
-  NumBastionHosts:
-    Description: Number of bastion instances to create.
-    AllowedValues:
-      - '1'
-      - '2'
-      - '3'
-      - '4'
-    Default: '1'
     Type: String
   VolumeSize:
     Description: Size in gigabytes of the available storage (min 10GB); the Quick Start will create an
@@ -491,7 +396,6 @@ Parameters:
     Type: String
 
 Conditions:
-  EnableBastion: !Equals [!Ref 'ProvisionBastionHost', 'Enabled']
   IsArtifactory: !Not [!Equals [!Ref ArtifactoryProduct, 'JFrog-Container-Registry']]
   HasSecondaryNodes: !Not [!Equals [!Ref NumberOfSecondary, '0']]
   DefaultJava: !Equals [!Ref DefaultJavaMemSettings, "true"]
@@ -499,63 +403,6 @@ Conditions:
   SmCertNameExists: !Not [!Equals [!Ref 'SmCertName', '']]
 
 Resources:
-  BastionRole:
-    Condition: EnableBastion
-    Type: "AWS::IAM::Role"
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: ec2.amazonaws.com
-            Action: sts:AssumeRole
-      Policies:
-        - PolicyName: QSBucketAccess
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action: s3:GetObject
-                Resource: !Sub "arn:${AWS::Partition}:s3:::${QsS3BucketName}/*"
-              - Effect: Allow
-                Action:
-                  - logs:CreateLogStream
-                  - logs:GetLogEvents
-                  - logs:PutLogEvents
-                  - logs:DescribeLogGroups
-                  - logs:DescribeLogStreams
-                  - logs:PutRetentionPolicy
-                  - logs:PutMetricFilter
-                  - logs:CreateLogGroup
-                Resource: !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:*:*"
-              - Effect: Allow
-                Action:
-                  - ec2:AssociateAddress
-                  - ec2:DescribeAddresses
-                Resource: "*"
-  BastionStack:
-    Condition: EnableBastion
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: https://aws-quickstart.s3.amazonaws.com/quickstart-jfrog-artifactory/submodules/quickstart-linux-bastion/templates/linux-bastion.template
-      Parameters:
-        VPCID: !Ref VpcId
-        PublicSubnet1ID: !Ref PublicSubnet1Id
-        PublicSubnet2ID: !Ref PublicSubnet2Id
-        KeyPairName: !Ref KeyPairName
-        QSS3BucketName: !Ref QsS3BucketName
-        QSS3KeyPrefix: !Sub '${QsS3KeyPrefix}submodules/quickstart-linux-bastion/'
-        QSS3BucketRegion: !Ref QsS3BucketRegion
-        RemoteAccessCIDR: !Ref RemoteAccessCidr
-        BastionInstanceType: !Ref BastionInstanceType
-        RootVolumeSize: !Ref BastionRootVolumeSize
-        BastionAMIOS: !Ref BastionOs
-        EnableTCPForwarding: !Ref BastionEnableTcpForwarding
-        EnableX11Forwarding: !Ref BastionEnableX11Forwarding
-        AlternativeIAMRole: !Ref BastionRole
-        NumBastionHosts: !Ref NumBastionHosts
-
   ArtifactoryCoreInfraStack:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -981,11 +828,6 @@ Outputs:
     Value: !Ref ArtifactoryEc2Sg
     Export:
       Name: !Sub '${AWS::StackName}-ArtifactoryEc2Sg'
-  BastionIp:
-    Value: !If
-      - EnableBastion
-      - !GetAtt BastionStack.Outputs.EIP1
-      - ""
   XrayMasterDatabaseUrl:
     Description: Database driver
     Value: !GetAtt ArtifactoryCoreInfraStack.Outputs.XrayMasterDatabaseUrl
