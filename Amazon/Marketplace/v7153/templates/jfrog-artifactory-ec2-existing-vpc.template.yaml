@@ -32,7 +32,6 @@ Metadata:
           default: JFrog Artifactory configuration
         Parameters:
           - ArtifactoryProduct
-          - ArtifactoryVersion
           - NumberOfSecondary
           - SmLicenseName
           - SmCertName
@@ -53,7 +52,6 @@ Metadata:
           default: JFrog Xray Configuration
         Parameters:
           - InstallXray
-          - XrayVersion
           - XrayNumberOfInstances
           - XrayInstanceType
           - XrayDatabaseUser
@@ -91,8 +89,6 @@ Metadata:
         default: Secondary instances
       ArtifactoryProduct:
         default: Artifactory product to install
-      ArtifactoryVersion:
-        default: Artifactory version
       SmLicenseName:
         default: Artifactory licenses secret name
       SmCertName:
@@ -130,8 +126,6 @@ Metadata:
 Parameters:
   AvailabilityZones:
     Description: List of Availability Zones to use for the subnets in the VPC. Two
-      XrayVersion:
-        default: Version of Xray to install
       Availability Zones are used for this deployment.
     Type: List<AWS::EC2::AvailabilityZone::Name>
   KeyPairName:
@@ -245,14 +239,6 @@ Parameters:
       - JFrog-Container-Registry
     Default: JFrog-Artifactory-Pro
     Type: String
-  ArtifactoryVersion:
-    Description: Version of Artifactory that you want to deploy into the Quick Start.
-      See the release notes to select the version you want to deploy at
-      https://www.jfrog.com/confluence/display/RTF/Release+Notes.
-    AllowedPattern: ^(([0-9]|[1-9][0-9])\.){2}([1-9][0-9]|[0-9])$
-    ConstraintDescription: A version that matches X.X.X per Artifactory releases
-    Default: 7.15.3
-    Type: String
   SmLicenseName:
     Description: Secret name created in AWS Secrets Manager, which contains the Artifactory licenses.
     Default: ''
@@ -353,12 +339,6 @@ Parameters:
       - "true"
       - "false"
     Default: "true"
-    Type: String
-  XrayVersion:
-    Description: The version of Xray that you want to deploy into the Quick Start.
-    AllowedPattern: ^(([0-9]|[1-9][0-9])\.){2}([1-9][0-9]|[0-9])$
-    ConstraintDescription: A version that matches X.X.X per Xray releases.
-    Default: 3.17.4
     Type: String
   XrayNumberOfInstances:
     Description: The number of Xray instances servers to complete your
@@ -646,7 +626,8 @@ Resources:
         ArtifactoryPrimary: true
         MasterKey: !Ref MasterKey
         ExtraJavaOptions: !If [DefaultJava, !Sub "${ArtifactoryCoreInfraStack.Outputs.JavaOpts} ${ExtraJavaOptions}", !Ref ExtraJavaOptions]
-        ArtifactoryVersion: !Ref ArtifactoryVersion
+        AmiId: "7153"
+        ArtifactoryVersion: "7.15.3"
         KeyPairName: !Ref KeyPairName
         HostProfile: !Ref ArtifactoryHostProfile
         SecurityGroups: !Ref ArtifactoryEc2Sg
@@ -669,7 +650,6 @@ Resources:
         MaxScalingNodes: !Ref NumberOfSecondary
         DeploymentTag: ArtifactorySecondary
         HostRole: !Ref ArtifactoryHostRole
-        AmiId: !Join ['', !Split [".", !Ref ArtifactoryVersion]]
         ArtifactoryProduct: !Ref ArtifactoryProduct
         ArtifactoryLicensesSecretName: !Ref SmLicenseName
         ArtifactoryServerName: !Ref ArtifactoryServerName
@@ -688,7 +668,8 @@ Resources:
         ArtifactoryPrimary: false
         MasterKey: !Ref MasterKey
         ExtraJavaOptions: !If [DefaultJava, !Sub "${ArtifactoryCoreInfraStack.Outputs.JavaOpts} ${ExtraJavaOptions}", !Ref ExtraJavaOptions]
-        ArtifactoryVersion: !Ref ArtifactoryVersion
+        AmiId: "7153"
+        ArtifactoryVersion: "7.15.3"
         KeyPairName: !Ref KeyPairName
         HostProfile: !Ref ArtifactoryHostProfile
         SecurityGroups: !Ref ArtifactoryEc2Sg
@@ -783,8 +764,8 @@ Resources:
         XrayDatabasePassword: !Ref XrayDatabasePassword
         XrayMasterDatabaseUrl: !GetAtt ArtifactoryCoreInfraStack.Outputs.XrayMasterDatabaseUrl
         XrayDatabaseUrl: !GetAtt ArtifactoryCoreInfraStack.Outputs.XrayDatabaseUrl
-        XrayVersion: !Ref XrayVersion
-        XrayAmiId: !Join ['', !Split [".", !Ref XrayVersion]]
+        XrayVersion: "3.17.4"
+        XrayAmiId: "3174"
         XrayHostRole: !Ref XrayHostRole
         XrayHostProfile: !Ref XrayHostProfile
 Outputs:
