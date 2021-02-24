@@ -62,11 +62,6 @@ Metadata:
           - DatabaseAllocatedStorage
           - MultiAzDatabase
       - Label:
-          default: AWS Quick Start configuration
-        Parameters:
-          - QsS3BucketName
-          - QsS3KeyPrefix
-      - Label:
           default: JFrog Xray Configuration
         Parameters:
           - InstallXray
@@ -152,16 +147,8 @@ Metadata:
         default: Database allocated storage
       MultiAzDatabase:
         default: High-availability database
-      QsS3BucketName:
-        default: Quick Start S3 bucket name
-      QsS3KeyPrefix:
-        default: Quick Start S3 key prefix
-      QsS3BucketRegion:
-        default: Quick Start S3 bucket region
       InstallXray:
         default: Install JFrog Xray
-      XrayVersion:
-        default: Version of Xray to install
       XrayNumberOfInstances:
         default: Number of JFrog Xray instances
       XrayInstanceType:
@@ -173,6 +160,8 @@ Metadata:
 Parameters:
   AvailabilityZones:
     Description: List of Availability Zones to use for the subnets in the VPC. Two
+      XrayVersion:
+        default: Version of Xray to install
       Availability Zones are used for this deployment.
     Type: List<AWS::EC2::AvailabilityZone::Name>
   KeyPairName:
@@ -460,28 +449,6 @@ Parameters:
       - "true"
       - "false"
     Default: "true"
-    Type: String
-  QsS3BucketName:
-    Description: S3 bucket name for the Quick Start assets. This string can include
-      numbers, lowercase letters, and hyphens (-). It cannot start
-      or end with a hyphen (-).
-    AllowedPattern: ^[0-9a-z]+([0-9a-z-]*[0-9a-z])*$
-    ConstraintDescription: Quick Start bucket name can include numbers, lowercase
-      letters, and hyphens (-). It cannot start or end with a hyphen (-).
-    Default: aws-quickstart
-    Type: String
-  QsS3KeyPrefix:
-    Description: S3 key prefix for the Quick Start assets. Quick Start key prefix
-      can include numbers, lowercase letters, uppercase letters, hyphens (-), and
-      forward slash (/).
-    AllowedPattern: ^[0-9a-zA-Z-/]*$
-    ConstraintDescription: Quick Start key prefix can include numbers, lowercase letters,
-      uppercase letters, hyphens (-), and forward slash (/).
-    Default: quickstart-jfrog-artifactory/
-    Type: String
-  QsS3BucketRegion:
-    Default: 'us-east-1'
-    Description: AWS Region where the Quick Start S3 bucket (QSS3BucketName) is hosted. If you use your own bucket, you must specify your own value.
     Type: String
   InstallXray:
     Description: Choose true to install JFrog Xray instance(s).
@@ -824,10 +791,6 @@ Resources:
         MaxScalingNodes: '1'  # Always have 1 MasterNode
         DeploymentTag: !If [IsArtifactory, "ArtifactoryPrimary", "JcrPrimary"]
         HostRole: !Ref ArtifactoryHostRole
-        QsS3BucketName: !Ref QsS3BucketName
-        QsS3KeyPrefix: !Ref QsS3KeyPrefix
-        QsS3Uri: !Sub https://${QsS3BucketName}.s3.${AWS::URLSuffix}/${QsS3KeyPrefix}
-        AmiId: !Join ['', !Split [".", !Ref ArtifactoryVersion]]
         ArtifactoryProduct: !Ref ArtifactoryProduct
         ArtifactoryLicensesSecretName: !Ref SmLicenseName
         ArtifactoryServerName: !Ref ArtifactoryServerName
@@ -898,9 +861,6 @@ Resources:
         TargetGroupARN: !Ref ArtifactoryTargetGroup
         SSLTargetGroupARN: !Ref ArtifactorySslTargetGroup
         InternalTargetGroupARN: !Ref ArtifactoryInternalTargetGroup
-        QsS3BucketName: !Ref QsS3BucketName
-        QsS3KeyPrefix: !Ref QsS3KeyPrefix
-        QsS3Uri: !Sub https://${QsS3BucketName}.s3.${AWS::URLSuffix}/${QsS3KeyPrefix}
   XrayHostRole:
     Condition: EnableXray
     Type: AWS::IAM::Role
@@ -972,9 +932,6 @@ Resources:
         MinScalingNodes: !Ref XrayNumberOfInstances
         MaxScalingNodes: !Ref XrayNumberOfInstances
         DeploymentTag: 'xray'
-        QsS3BucketName: !Ref QsS3BucketName
-        QsS3KeyPrefix: !Ref QsS3KeyPrefix
-        QsS3Uri: !Sub https://${QsS3BucketName}.s3.${AWS::URLSuffix}/${QsS3KeyPrefix}
         DatabaseDriver: !GetAtt ArtifactoryCoreInfraStack.Outputs.DatabaseDriver
         DatabaseType: !GetAtt ArtifactoryCoreInfraStack.Outputs.DatabaseType
         DatabaseUser: !Ref DatabaseUser

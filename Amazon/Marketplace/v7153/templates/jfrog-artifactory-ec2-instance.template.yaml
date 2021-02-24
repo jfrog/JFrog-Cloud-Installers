@@ -15,12 +15,6 @@ Parameters:
     Type: String
   ArtifactoryProduct:
     Type: String
-  QsS3BucketName:
-    Type: String
-  QsS3KeyPrefix:
-    Type: String
-  QsS3Uri:
-    Type: String
   ArtifactoryLicensesSecretName:
     Type: String
   ArtifactoryServerName:
@@ -164,13 +158,6 @@ Resources:
   ArtifactoryLaunchConfiguration:
     Type: 'AWS::AutoScaling::LaunchConfiguration'
     Metadata:
-      AWS::CloudFormation::Authentication:
-        S3AccessCreds:
-          type: S3
-          roleName:
-            - !Ref HostRole  # !Ref ArtifactoryHostRole
-          buckets:
-            - !Ref QsS3BucketName
       AWS::CloudFormation::Init:
         configSets:
           artifactory_install:

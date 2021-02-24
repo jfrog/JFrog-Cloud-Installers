@@ -13,12 +13,6 @@ Parameters:
     Type: Number
   DeploymentTag:
     Type: String
-  QsS3BucketName:
-    Type: String
-  QsS3KeyPrefix:
-    Type: String
-  QsS3Uri:
-    Type: String
   DatabaseDriver:
     Type: String
   DatabaseType:
@@ -129,13 +123,6 @@ Resources:
   XrayLaunchConfiguration:
     Type: AWS::AutoScaling::LaunchConfiguration
     Metadata:
-      AWS::CloudFormation::Authentication:
-        S3AccessCreds:
-          type: S3
-          roleName:
-            - !Ref XrayHostRole
-          buckets:
-            - !Ref QsS3BucketName
       AWS::CloudFormation::Init:
         configSets:
           xray_install:
@@ -235,13 +222,6 @@ Resources:
 
             }
 
-            S3URI=${QsS3Uri}
-
-            yum update --security -y &> /var/log/userdata.yum_security_update.log
-
-            yum install -y git python3 libselinux-python3
-            yum install -y postgresql-server postgresql-devel
-
             echo $PATH
 
             PATH=/opt/aws/bin:$PATH
@@ -254,6 +234,13 @@ Resources:
 
             pip install --upgrade pip
             pip install wheel
+
+            S3URI=${QsS3Uri}
+
+            yum update --security -y &> /var/log/userdata.yum_security_update.log
+
+            yum install -y git python3 libselinux-python3
+            yum install -y postgresql-server postgresql-devel
 
             # Install Cloudformation helper scripts
             pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-py3-latest.tar.gz 2>&1 | tee /var/log/userdata.aws_cfn_bootstrap_install.log
