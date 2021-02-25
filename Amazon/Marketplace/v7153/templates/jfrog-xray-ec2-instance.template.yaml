@@ -13,12 +13,6 @@ Parameters:
     Type: Number
   DeploymentTag:
     Type: String
-  QsS3BucketName:
-    Type: String
-  QsS3KeyPrefix:
-    Type: String
-  QsS3Uri:
-    Type: String
   DatabaseDriver:
     Type: String
   DatabaseType:
@@ -64,13 +58,13 @@ Parameters:
 Mappings:
   AWSAMIRegionMap:
     us-east-1:
-      "3174": ami-028555fa3b9469dc3
+      "3174": ami-0cfe501ba23b450bd
     us-east-2:
       "3174": ami-0f4980801d180776a
     us-west-1:
       "3174": ami-006041db0f601e438
     us-west-2:
-      "3174": ami-0d67b78b4f09fa9a7
+      "3174": ami-05019f9185d4f809e
     ca-central-1:
       "3174": ami-056bafb407aa8e445
     eu-central-1:
@@ -94,9 +88,9 @@ Mappings:
     sa-east-1:
       "3174": ami-0c2acb2f23c3e6743
     us-gov-east-1:
-      "3174": ami-0349215efccd0d9f6
+      "3174": ami-06e63f61fa6c13b25
     us-gov-west-1:
-      "3174": ami-0b52a6d3379d2c20c
+      "3174": ami-006010831d25af96b
 
 Resources:
   XrayScalingGroup:
@@ -129,13 +123,6 @@ Resources:
   XrayLaunchConfiguration:
     Type: AWS::AutoScaling::LaunchConfiguration
     Metadata:
-      AWS::CloudFormation::Authentication:
-        S3AccessCreds:
-          type: S3
-          roleName:
-            - !Ref XrayHostRole
-          buckets:
-            - !Ref QsS3BucketName
       AWS::CloudFormation::Init:
         configSets:
           xray_install:
@@ -195,7 +182,7 @@ Resources:
       IamInstanceProfile: !Ref XrayHostProfile
       ImageId: !FindInMap
         - AWSAMIRegionMap
-        - !Ref 'AWS::Region'
+        - !Ref AWS::Region
         - !Ref XrayAmiId
       SecurityGroups:
         - !Ref SecurityGroups
@@ -235,36 +222,14 @@ Resources:
 
             }
 
-            S3URI=${QsS3Uri}
-
-            yum update --security -y &> /var/log/userdata.yum_security_update.log
-
-            yum install -y git python3 libselinux-python3
-            yum install -y postgresql-server postgresql-devel
-
             echo $PATH
 
             PATH=/opt/aws/bin:$PATH
 
             echo $PATH
 
-            # Create virtual env and activate
-            python3 -m venv ~/venv --system-site-packages
+            # Activate virtual env
             source ~/venv/bin/activate
-
-            pip install --upgrade pip
-            pip install wheel
-
-            # Install Cloudformation helper scripts
-            pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-py3-latest.tar.gz 2>&1 | tee /var/log/userdata.aws_cfn_bootstrap_install.log
-
-            pip install awscli &> /var/log/userdata.awscli_install.log
-
-            pip install ansible &> /var/log/userdata.ansible_install.log
-
-            mkdir ~/.xray_ami
-
-            aws s3 --region ${AWS::Region} sync s3://${QsS3BucketName}/${QsS3KeyPrefix}cloudInstallerScripts/ ~/.xray_ami/
 
             setsebool httpd_can_network_connect 1 -P
 
@@ -281,8 +246,6 @@ Resources:
             ./awslogs-agent-setup.py -n -r ${AWS::Region} -c /root/cloudwatch.conf
 
             lsblk # debug
-
-            ansible-galaxy collection install community.general ansible.posix
 
             ansible-playbook /root/.xray_ami/xray.yml --vault-id /root/.vault_pass.txt 2>&1 | tee /var/log/xray.log || cfn_fail
 
