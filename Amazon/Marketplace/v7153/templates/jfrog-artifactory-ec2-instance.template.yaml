@@ -80,7 +80,7 @@ Parameters:
 Mappings:
   AWSAMIRegionMap:
     us-east-1:
-      "Artifactory7153": ami-0e25fbf67a59cc92b
+      "Artifactory7153": ami-004f3ebc532d08212
     us-east-2:
       "Artifactory7153": ami-08f834139a150fb62
     us-west-1:
@@ -112,7 +112,7 @@ Mappings:
     us-gov-east-1:
       "Artifactory7153": ami-0d91ab5cda810462b
     us-gov-west-1:
-      "Artifactory7153": ami-08343af72f1764764
+      "Artifactory7153": ami-09112068dcdb85138
   ArtifactoryProductMap:
     JFrog-Container-Registry:
       "7153": "Jcr7153"
