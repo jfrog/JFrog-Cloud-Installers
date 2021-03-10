@@ -1,0 +1,265 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'JFrog Product AMI creation into an existing VPC'
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Security configuration
+        Parameters:
+          - KeyPairName
+          - RemoteAccessCidr
+      - Label:
+          default: Network Configuration
+        Parameters:
+          - VpcId
+          - PublicSubnet1Id
+      - Label:
+          default: JFrog Product AMI info
+        Parameters:
+          - InstanceType
+          - XrayVersion
+      - Label:
+          default: AWS Quick Start Configuration
+        Parameters:
+          - QsS3BucketName
+          - QsS3KeyPrefix
+          - QsS3BucketRegion
+    ParameterLabels:
+      KeyPairName:
+        default: SSH key name
+      RemoteAccessCidr:
+        default: Remote access CIDR
+      VpcId:
+        default: VPC ID
+      PublicSubnet1Id:
+        default: Public subnet 1 ID
+      InstanceType:
+        default: EC2 instance type
+      XrayVersion:
+        default: Xray version
+      QsS3BucketName:
+        default: Quick Start S3 bucket name
+      QsS3KeyPrefix:
+        default: Quick Start S3 key prefix
+      QsS3BucketRegion:
+        default: Quick Start S3 bucket region
+Parameters:
+  KeyPairName:
+    Description: The name of an existing public/private key pair, which allows you
+      to securely connect to your instance after it launches.
+    Type: AWS::EC2::KeyPair::KeyName
+  RemoteAccessCidr:
+    Description: The remote CIDR range for allowing SSH into the Bastion instance.
+      We recommend that you set this value to a trusted IP range.
+      For example, you might want to grant specific ranges inside your corporate network SSH access.
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    Type: String
+  VpcId:
+    Description: The ID of your existing VPC (e.g., vpc-0343606e).
+    Type: "AWS::EC2::VPC::Id"
+  PublicSubnet1Id:
+    Description: The ID of the public subnet in Availability Zone 1 in your existing VPC (e.g., subnet-z0376dab).
+    Type: "AWS::EC2::Subnet::Id"
+  XrayVersion:
+    Description: The version of the Jfrog product line that you want to deploy into an AMI.
+      Please see the release notes to select the version you want to deploy.
+      https://www.jfrog.com/confluence/display/RTF/Release+Notes
+    AllowedPattern: ^(([0-9]|[1-9][0-9])\.){2}([1-9][0-9]|[0-9])(-([a-z][0-9][0-9][0-9]))?$
+    ConstraintDescription: A version that matches X.X.X per Xray releases.
+    Default: 3.17.4
+    Type: String
+  InstanceType:
+    Description: The EC2 instance type for the AMI.
+    AllowedValues:
+      - m5.xlarge
+      - m5.2xlarge
+      - m5.4xlarge
+      - m5.8xlarge
+    ConstraintDescription: Must contain valid instance type.
+    Default: m5.xlarge
+    Type: String
+  QsS3BucketName:
+    Description: S3 bucket name for the Quick Start assets. This string can include
+      numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start
+      or end with a hyphen (-).
+    AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
+    ConstraintDescription: Quick Start bucket name can include numbers, lowercase
+      letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen
+      (-).
+    Default: aws-quickstart
+    Type: String
+  QsS3KeyPrefix:
+    Description: S3 key prefix for the Quick Start assets. Quick Start key prefix
+      can include numbers, lowercase letters, uppercase letters, hyphens (-), and
+      forward slash (/).
+    AllowedPattern: ^[0-9a-zA-Z-/]*$
+    ConstraintDescription: Quick Start key prefix can include numbers, lowercase letters,
+      uppercase letters, hyphens (-), and forward slash (/).
+    Default: quickstart-jfrog-artifactory/
+    Type: String
+  QsS3BucketRegion:
+    Default: 'us-east-1'
+    Description: The AWS Region where the Quick Start S3 bucket (QSS3BucketName) is hosted. When using your own bucket, you must specify this value.
+    Type: String
+Mappings:
+  AWSAMIRegionMap:
+    us-west-2:
+      AMI: "ami-0bc06212a56393ee1"
+    us-east-1:
+      AMI: "ami-0affd4508a5d2481b"
+    us-east-2:
+      AMI: "ami-01e36b7901e884a10"
+    us-gov-east-1:
+      AMI: "ami-00e30c71"
+    us-gov-west-1:
+      AMI: "ami-bbba86da"
+Conditions:
+  UsingDefaultBucket: !Equals [!Ref QsS3BucketName, 'aws-quickstart']
+Resources:
+  JFrogAMIIamRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "ec2.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Path: "/"
+      Policies:
+        - PolicyName: "JFrogAMI-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action: "ec2:Describe*"
+                Resource: "*"
+              - Effect: "Allow"
+                Action:
+                  - "s3:GetObject"
+                  - "s3:ListObject"
+                  - "s3:ListBucket"
+                Resource: "*"
+  JFrogAMIInstanceProfile:
+    Type: "AWS::IAM::InstanceProfile"
+    Properties:
+      Path: "/"
+      Roles:
+        - Ref: "JFrogAMIIamRole"
+  JFrogAMISecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: AMI Bootstrap Security Group
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref RemoteAccessCidr
+      VpcId: !Ref VpcId
+
+  JFrogAMIInstance:
+    Type: AWS::EC2::Instance
+    Metadata:
+      AWS::CloudFormation::Init:
+        configSets:
+          xray_ami_setup:
+            - "config-ansible-xray-ami"
+        config-ansible-xray-ami:
+          files:
+            /root/.xray_ami/xray-ami-setup.yml:
+              content: !Sub |
+                # Base install for Xray
+                - import_playbook: xray-ami.yml
+                  vars:
+                    ami_creation: true
+                    db_type: postgresql
+                    db_driver: org.postgresql.Driver
+                    xray_version: ${XrayVersion}
+              mode: "0400"
+    Properties:
+      KeyName: !Ref KeyPairName
+      ImageId: !FindInMap
+        - AWSAMIRegionMap
+        - !Ref AWS::Region
+        - AMI
+      IamInstanceProfile: !Ref JFrogAMIInstanceProfile
+      InstanceType: !Ref InstanceType
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: True
+          DeviceIndex: "0"
+          GroupSet:
+            - !Ref "JFrogAMISecurityGroup"
+          SubnetId: !Ref "PublicSubnet1Id"
+      UserData:
+        Fn::Base64: !Sub
+          - |
+            #!/bin/bash -x
+
+            #CFN Functions
+
+            function cfn_fail
+
+            {
+
+            cfn-signal -e 1 --stack ${AWS::StackName} --region ${AWS::Region} --resource JFrogAMIInstance
+
+            exit 1
+
+            }
+
+            function cfn_success
+
+            {
+
+            cfn-signal -e 0 --stack ${AWS::StackName} --region ${AWS::Region} --resource JFrogAMIInstance
+
+            exit 0
+
+            }
+
+            S3URI=https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QsS3KeyPrefix}
+
+            yum update --security -y &> /var/log/userdata.yum_security_update.log
+
+            yum install -y git python3 libselinux-python3
+
+            yum install -y postgresql-server postgresql-devel
+
+            echo $PATH
+
+            PATH=/opt/aws/bin:$PATH
+
+            echo $PATH
+
+            # Create virtual env and activate
+            python3 -m venv ~/venv --system-site-packages
+            source ~/venv/bin/activate
+
+            pip install --upgrade pip
+            pip install wheel
+
+            # Install Cloudformation helper scripts
+            pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-py3-latest.tar.gz 2>&1 | tee /var/log/userdata.aws_cfn_bootstrap_install.log
+
+            cfn-init -v --stack ${AWS::StackName} --resource JFrogAMIInstance --configsets xray_ami_setup --region ${AWS::Region} || cfn_fail
+
+            pip install awscli &> /var/log/userdata.awscli_install.log || cfn_fail
+            pip install ansible &> /var/log/userdata.ansible_install.log || cfn_fail
+
+            mkdir -p ~/.xray_ami
+
+            aws s3 --region ${AWS::Region} sync s3://${QsS3BucketName}/${QsS3KeyPrefix}cloudInstallerScripts/ ~/.xray_ami/
+
+            setsebool httpd_can_network_connect 1 -P
+
+            ansible-playbook /root/.xray_ami/xray-ami-setup.yml &> /var/log/xray-ami.log || cfn_fail
+
+            cfn_success &> /var/log/cfn_success.log || cfn_fail
+          - S3Bucket: !If [UsingDefaultBucket, !Sub '{QsS3BucketName}-${AWS::Region}', !Ref 'QsS3BucketName']
+            S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref 'QsS3BucketRegion']
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-Xray-${XrayVersion}

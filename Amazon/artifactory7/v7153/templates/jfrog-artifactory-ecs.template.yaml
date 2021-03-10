@@ -1,0 +1,235 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Deploys the ECS Artifactory Service and Task (qs-1qpmmjh73)"
+Parameters:
+  EcsCluster:
+    Type: String
+  ServiceName:
+    Type: String
+  ArtifactoryTargetGroupArn:
+    Type: String
+  ArtifactorySslTargetGroupArn:
+    Type: String
+  MasterKey:
+    Type: String
+    NoEcho: 'true'
+  ExtraJavaOptions:
+    Type: String
+  ArtifactoryPrimary:
+    Type: String
+  NumberNodes:
+    Type: Number
+  DeploymentSize:
+    Type: String
+  DatabaseUrl:
+    Type: String
+  DatabaseDriver:
+    Type: String
+  DatabasePluginUrl:
+    Type: String
+  DatabasePlugin:
+    Type: String
+  ProDockerRepoUrl:
+    Type: String
+  NginxDockerRepoUrl:
+    Type: String
+  InfoFile:
+    Type: String
+  DatabaseType:
+    Type: String
+  DatabaseUser:
+    Type: String
+  DatabasePassword:
+    Type: String
+    NoEcho: 'true'
+  EcsRoleArn:
+    Type: String
+  EcsLogGroup:
+    Type: String
+  YQVersion:
+    Default: "3.0.1"
+    Type: String
+  QsS3Uri:
+    Type: String
+
+Mappings:
+  DeploymentSize:
+    xxxLarge:
+      Memory: "294912"
+      Cpu: "10240"
+    xxLarge:
+      Memory: "196608"
+      Cpu: "10240"
+    xLarge:
+      Memory: "147456"
+      Cpu: "10240"
+    Large:
+      Memory: "98304"
+      Cpu: "10240"
+    Medium:
+      Memory: "49152"
+      Cpu: "10240"
+    Small:
+      Memory: "24576"
+      Cpu: "8192"
+    xSmall:
+      Memory: "12288"
+      Cpu: "4096"
+    xxSmall:
+      Memory: "4096"
+      Cpu: "2048"
+Resources:
+  ECSService:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster: !Ref EcsCluster
+      ServiceName: !Ref ServiceName
+      LaunchType: EC2
+      DesiredCount: !Ref NumberNodes
+      LoadBalancers:
+        - ContainerName: nginx
+          ContainerPort: 80
+          TargetGroupArn: !Ref ArtifactoryTargetGroupArn
+        - ContainerName: nginx
+          ContainerPort: 443
+          TargetGroupArn: !Ref ArtifactorySslTargetGroupArn
+      TaskDefinition:
+        Ref: ArtifactoryTaskDefinition
+      HealthCheckGracePeriodSeconds: 300
+
+  ArtifactoryTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Cpu: !FindInMap [DeploymentSize, !Ref DeploymentSize, Cpu]
+      Family: !Sub ${ServiceName}-Task
+      Memory: !FindInMap [DeploymentSize, !Ref DeploymentSize, Memory]
+      NetworkMode: bridge
+      RequiresCompatibilities:
+        - EC2
+      ExecutionRoleArn: !Ref EcsRoleArn
+      Volumes:
+        - Name: etc
+          Host:
+            SourcePath: /data/jfrog/artifactory/etc/
+        - Name: temp-plugins
+          Host:
+            SourcePath: /data/jfrog/artifactory/tmp/plugins
+        - Name: java-certs
+          Host:
+            SourcePath: /data/jfrog/artifactory/java_certs
+        - Name: nginx
+          Host:
+            SourcePath: /data/jfrog/nginx
+      ContainerDefinitions:
+        - Name: artifactory
+          EntryPoint:
+            - /bin/bash
+            - "-c"
+          Command:
+            - !Sub |
+              wget ${QsS3Uri}scripts/configure_ecs_container.sh -O /tmp/source;
+              echo '' >> /tmp/source;
+              echo export HA_HOST_IP=`wget -q -O - http://169.254.169.254/latest/meta-data/local-ipv4` >> /tmp/source;
+              echo wget -O /var/opt/jfrog/artifactory/bootstrap/artifactory/tomcat/lib/${DatabasePlugin} ${DatabasePluginUrl} >> /tmp/source;
+              echo mkdir /var/opt/jfrog/artifactory/etc/artifactory/info/ >> /tmp/source;
+              echo wget ${QsS3Uri}scripts/roles/artifactory/files/${InfoFile} -O /var/opt/jfrog/artifactory/etc/artifactory/info/installer-info.json >> /tmp/source;
+              echo cp /tmp/plugins/inactiveServerCleaner.groovy /var/opt/jfrog/artifactory/etc/artifactory/plugins/ >> /tmp/source;
+              echo /entrypoint-artifactory.sh >> /tmp/source;
+              chmod +x /tmp/source;
+              /tmp/source
+          Image: !Sub ${ProDockerRepoUrl}
+          PortMappings:
+            - ContainerPort: 8081
+              HostPort: 8081
+              Protocol: tcp
+            - ContainerPort: 8082
+              HostPort: 8082
+              Protocol: tcp
+          MountPoints:
+            - ContainerPath: /artifactory_extra_conf
+              ReadOnly: False
+              SourceVolume: etc
+            - ContainerPath: /tmp/plugins
+              ReadOnly: False
+              SourceVolume: temp-plugins
+            - ContainerPath: /artifactory_extra_certs
+              ReadOnly: False
+              SourceVolume: java-certs
+          Ulimits:
+            - Name: nproc
+              SoftLimit: 65535
+              HardLimit: 65535
+            - Name: nofile
+              SoftLimit: 32000
+              HardLimit: 40000
+          HealthCheck:
+            Command:
+              - CMD-SHELL
+              - (printf 'GET /artifactory/api/system/ping HTTP/1.0\r\n\r\n'; sleep 1) | nc 127.0.0.1 8081 | grep OK || exit 1
+            Interval: 5
+            Retries: 3
+            StartPeriod: 60
+            Timeout: 10
+          Environment:
+            - Name: EXTRA_JAVA_OPTIONS
+              Value: !Ref ExtraJavaOptions
+            - Name: ARTIFACTORY_MASTER_KEY
+              Value: !Ref MasterKey
+            - Name: HA_IS_PRIMARY
+              Value: !Ref ArtifactoryPrimary
+            - Name: DB_URL
+              Value: !Ref DatabaseUrl
+            - Name: DB_TYPE
+              Value: !Ref DatabaseType
+            - Name: DB_USER
+              Value: !Ref DatabaseUser
+            - Name: DB_PASSWORD
+              Value: !Ref DatabasePassword
+            - Name: DB_DRIVER
+              Value: !Ref DatabaseDriver
+            - Name: YQ_VERSION
+              Value: !Ref YQVersion
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref EcsLogGroup
+              awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: artifactory
+        - Name: nginx
+          Image: !Sub ${NginxDockerRepoUrl}
+          PortMappings:
+            - ContainerPort: 80
+              HostPort: 80
+              Protocol: tcp
+            - ContainerPort: 443
+              HostPort: 443
+              Protocol: tcp
+          Essential: false
+          DependsOn:
+            - Condition: HEALTHY
+              ContainerName: artifactory
+          Links:
+            - artifactory:artifactory
+          MountPoints:
+            - ContainerPath: /var/opt/jfrog/nginx
+              ReadOnly: False
+              SourceVolume: nginx
+          Ulimits:
+            - Name: nproc
+              SoftLimit: 65535
+              HardLimit: 65535
+            - Name: nofile
+              SoftLimit: 32000
+              HardLimit: 40000
+          Environment:
+            - Name: ART_BASE_URL
+              Value: http://artifactory:8081/artifactory
+            - Name: SSL
+              Value: "true"
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group:
+                Ref: EcsLogGroup
+              awslogs-region:
+                Ref: AWS::Region
+              awslogs-stream-prefix: nginx

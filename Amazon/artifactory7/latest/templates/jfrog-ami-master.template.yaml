@@ -1,0 +1,138 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'JFrog Product AMI creation into an existing VPC'
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Security configuration
+        Parameters:
+          - KeyPairName
+          - RemoteAccessCidr
+      - Label:
+          default: Network Configuration
+        Parameters:
+          - AvailabilityZone
+      - Label:
+          default: JFrog Product AMI info
+        Parameters:
+          - InstanceType
+          - JFrogProduct
+          - ArtifactoryVersion
+      - Label:
+          default: AWS Quick Start Configuration
+        Parameters:
+          - QsS3BucketName
+          - QsS3KeyPrefix
+          - QsS3BucketRegion
+    ParameterLabels:
+      KeyPairName:
+        default: SSH key name
+      RemoteAccessCidr:
+        default: Remote access CIDR
+      AvailabilityZone:
+        default: Availability zone
+      InstanceType:
+        default: EC2 instance type
+      JFrogProduct:
+        default: JFrog Product to install
+      ArtifactoryVersion:
+        default: Artifactory version
+      QsS3BucketName:
+        default: Quick Start S3 bucket name
+      QsS3KeyPrefix:
+        default: Quick Start S3 key prefix
+      QsS3BucketRegion:
+        default: Quick Start S3 bucket region
+Parameters:
+  AvailabilityZone:
+    Description: The Availability Zone to use for the public subnet in the VPC.
+    Default: us-west-2a
+    Type: AWS::EC2::AvailabilityZone::Name
+  KeyPairName:
+    Description: The name of an existing public/private key pair, which allows you
+      to securely connect to your instance after it launches.
+    Type: AWS::EC2::KeyPair::KeyName
+  RemoteAccessCidr:
+    Description: The remote CIDR range for allowing SSH into the Bastion instance.
+      We recommend that you set this value to a trusted IP range.
+      For example, you might want to grant specific ranges inside your corporate network SSH access.
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    Type: String
+  JFrogProduct:
+    Description: The Jfrog product you wish to install into an AMI.
+    AllowedValues:
+      - jfrog-artifactory-pro
+      - jfrog-artifactory-jcr
+    Default: jfrog-artifactory-pro
+    Type: String
+  ArtifactoryVersion:
+    Description: The version of the Jfrog product line that you want to deploy into an AMI.
+      Please see the release notes to select the version you want to deploy.
+      https://www.jfrog.com/confluence/display/RTF/Release+Notes
+    AllowedPattern: ^(([0-9]|[1-9][0-9])\.){2}([1-9][0-9]|[0-9])(-([a-z][0-9][0-9][0-9]))?$
+    ConstraintDescription: A version that matches X.X.X per Artifactory releases.
+    Default: 7.15.3
+    Type: String
+  InstanceType:
+    Description: The EC2 instance type for the AMI.
+    AllowedValues:
+      - m5.xlarge
+      - m5.2xlarge
+      - m5.4xlarge
+      - m5.10xlarge
+    ConstraintDescription: Must contain valid instance type.
+    Default: m5.xlarge
+    Type: String
+  QsS3BucketName:
+    Description: S3 bucket name for the Quick Start assets. This string can include
+      numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start
+      or end with a hyphen (-).
+    AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
+    ConstraintDescription: Quick Start bucket name can include numbers, lowercase
+      letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen
+      (-).
+    Default: aws-quickstart
+    Type: String
+  QsS3KeyPrefix:
+    Description: S3 key prefix for the Quick Start assets. Quick Start key prefix
+      can include numbers, lowercase letters, uppercase letters, hyphens (-), and
+      forward slash (/).
+    AllowedPattern: ^[0-9a-zA-Z-/]*$
+    ConstraintDescription: Quick Start key prefix can include numbers, lowercase letters,
+      uppercase letters, hyphens (-), and forward slash (/).
+    Default: quickstart-jfrog-artifactory/
+    Type: String
+  QsS3BucketRegion:
+    Default: 'us-east-1'
+    Description: The AWS Region where the Quick Start S3 bucket (QSS3BucketName) is hosted. When using your own bucket, you must specify this value.
+    Type: String
+Conditions:
+  UsingDefaultBucket: !Equals [!Ref QsS3BucketName, 'aws-quickstart']
+Resources:
+  VPCStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub
+        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QsS3KeyPrefix}templates/jfrog-ami-vpc.template.yaml
+        - S3Bucket: !If [UsingDefaultBucket, !Sub '${QsS3BucketName}-${AWS::Region}', !Ref 'QsS3BucketName']
+          S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref 'QsS3BucketRegion']
+      Parameters:
+        AvailabilityZone: !Ref AvailabilityZone
+  AMIStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub
+        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QsS3KeyPrefix}templates/jfrog-ami-creation.template.yaml
+        - S3Bucket: !If [UsingDefaultBucket, !Sub '${QsS3BucketName}-${AWS::Region}', !Ref 'QsS3BucketName']
+          S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref 'QsS3BucketRegion']
+      Parameters:
+        KeyPairName: !Ref KeyPairName
+        RemoteAccessCidr: !Ref RemoteAccessCidr
+        VpcId: !GetAtt VPCStack.Outputs.VpcId
+        PublicSubnet1Id: !GetAtt VPCStack.Outputs.PublicSubnetID
+        InstanceType: !Ref InstanceType
+        JFrogProduct: !Ref JFrogProduct
+        ArtifactoryVersion: !Ref ArtifactoryVersion
+        QsS3BucketName: !Ref QsS3BucketName
+        QsS3KeyPrefix: !Ref QsS3KeyPrefix
+        QsS3BucketRegion: !Ref QsS3BucketRegion

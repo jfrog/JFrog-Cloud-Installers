@@ -1,0 +1,52 @@
+- name: initialize Postgres DB
+  block:
+    - name: check if user/role exists
+      command: psql -A -t {{db_master_url}} -c "SELECT 1 FROM pg_roles WHERE rolname='{{db_user}}'"
+      register: user_exists
+
+    - debug:
+        var: user_exists.stdout_lines
+
+    - name: create user/role
+      command: psql {{db_master_url}} -c "CREATE USER {{db_user}} WITH PASSWORD '{{db_password}}'"
+      register: shell_output
+      when: user_exists.stdout != "1"
+
+    - debug:
+        var: shell_output.stdout_lines
+      when: user_exists.stdout != "1"
+
+    - name: grant membership role
+      command: psql {{db_master_url}} -c "GRANT {{db_user}} TO {{db_master_user}}"
+      register: shell_output
+      when: user_exists.stdout != "1"
+
+    - debug:
+        var: shell_output.stdout_lines
+      when: user_exists.stdout != "1"
+
+    - name: check if xraydb exists
+      command: psql -A -t {{db_master_url}} -c "SELECT 1 FROM pg_database WHERE datname='xraydb'"
+      register: db_exists
+
+    - debug:
+        var: db_exists.stdout_lines
+
+    - name: create xraydb database
+      command: psql {{db_master_url}} -c "CREATE DATABASE xraydb WITH OWNER={{db_user}} ENCODING='UTF8'"
+      register: shell_output
+      when: db_exists.stdout != "1"
+
+    - debug:
+        var: shell_output.stdout_lines
+      when: db_exists.stdout != "1"
+
+    - name: grant xraydb privileges to role
+      command: psql {{db_master_url}} -c "GRANT ALL PRIVILEGES ON DATABASE xraydb TO {{db_user}}"
+      register: shell_output
+      when: db_exists.stdout != "1"
+
+    - debug:
+        var: shell_output.stdout_lines
+      when: db_exists.stdout != "1"
+  become: yes
