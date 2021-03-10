@@ -66,8 +66,8 @@
             "[resourceId('Microsoft.Sql/servers/', parameters('db_server'))]"
           ],
           "properties": {
-            "startIpAddress": "0.0.0.0",
-            "endIpAddress": "0.0.0.0"
+            "startIpAddress": "10.0.1.0",
+            "endIpAddress": "10.0.2.255"
           }
         },
         {
