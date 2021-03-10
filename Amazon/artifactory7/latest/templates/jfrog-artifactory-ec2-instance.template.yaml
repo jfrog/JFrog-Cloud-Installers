@@ -345,7 +345,7 @@ Resources:
         Fn::Base64:
           !Sub |
             #!/bin/bash -x
-
+            echo "template version v7153"
             #CFN Functions
 
             function cfn_fail
