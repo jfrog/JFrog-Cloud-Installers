@@ -1,6 +1,9 @@
 # JFrog  Openshift Xray Chart Changelog
 All changes to this chart will be documented in this file.
 
+## [2.0.1] Mar 11th, 2021
+* Bug fix for Rabbitmq user id and group id in the operator not matching helm values
+
 ## [2.0.0] Feb 19th, 2021
 * BREAKING CHANGE - Rabbitmq ha deprecated for Rabbitmq
 
