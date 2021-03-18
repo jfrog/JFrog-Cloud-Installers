@@ -30,7 +30,7 @@ do
   then
     cat <<EOF > installer-info.json
     {
-      "productId": "CloudFormation_artifactory-ha/$VERSION",
+      "productId": "container_artifactory-ha/$VERSION",
       "features": [
         {
           "featureId": "Partner/ACC-006973"
@@ -41,7 +41,7 @@ EOF
   else
     cat <<EOF > installer-info.json
     {
-      "productId": "CloudFormation_artifactory-jcr/$VERSION",
+      "productId": "container_artifactory-jcr/$VERSION",
       "features": [
         {
           "featureId": "Partner/ACC-006973"
