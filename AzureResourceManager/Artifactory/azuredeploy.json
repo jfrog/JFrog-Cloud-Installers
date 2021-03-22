@@ -79,12 +79,13 @@
     },
     "artifactoryVersion": {
       "type": "string",
-      "defaultValue": "0.0.11",
+      "defaultValue": "0.0.12",
       "allowedValues": [
 	    "0.0.8",
             "0.0.9",
 	    "0.0.10",
-	    "0.0.11"
+	    "0.0.11",
+	    "0.0.12"
       ],
       "metadata": {
         "description": "Artifactory-vm image version to deploy."
@@ -305,19 +306,6 @@
     "nsgName": "[concat(variables('namingInfix'), 'nsg')]"
   },
   "resources": [
-    {
-      "apiVersion": "2019-05-01",
-      "name": "pid-04c1c376-5d4b-4771-9a7f-054f5910dcef",
-      "type": "Microsoft.Resources/deployments",
-      "properties": {
-        "mode": "Incremental",
-        "template": {
-          "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-          "contentVersion": "1.0.0.0",
-          "resources": []
-        }
-      }
-    },
     {
       "type": "Microsoft.Network/networkSecurityGroups",
       "location": "[parameters('location')]",
