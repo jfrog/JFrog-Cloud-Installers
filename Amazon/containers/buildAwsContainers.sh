@@ -53,7 +53,7 @@ EOF
   cat installer-info.json
 
   # Create the new docker image
-  docker build --no-cache --build-arg UPSTREAM_TAG=$VERSION -t $BUILD_IMAGE_NAME:$VERSION .
+  docker build --no-cache --build-arg UPSTREAM_IMAGE=$UPSTREAM_IMAGE_NAME --build-arg UPSTREAM_TAG=$VERSION -t $BUILD_IMAGE_NAME:$VERSION .
 
   # Run minimal test
   set -x
