@@ -1,0 +1,326 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Deploys the EC2 Autoscaling, LaunchConfig and Instance for Xray"
+Parameters:
+  PrivateSubnet1Id:
+    Type: 'AWS::EC2::Subnet::Id'
+  PrivateSubnet2Id:
+    Type: 'AWS::EC2::Subnet::Id'
+  KeyPairName:
+    Type: AWS::EC2::KeyPair::KeyName
+  MinScalingNodes:
+    Type: Number
+  MaxScalingNodes:
+    Type: Number
+  DeploymentTag:
+    Type: String
+  ArtifactoryProduct:
+    Description: JFrog Artifactory product you want to install into an AMI.
+    AllowedValues:
+      - JFrog-Artifactory-Pro
+      - JFrog-Artifactory-Enterprise
+      - JFrog-Container-Registry
+    Default: JFrog-Artifactory-Enterprise
+    Type: String
+  QsS3BucketName:
+    Type: String
+  QsS3KeyPrefix:
+    Type: String
+  QsS3Uri:
+    Type: String
+  DatabaseDriver:
+    Type: String
+  DatabaseType:
+    Type: String
+  DatabaseUser:
+    Type: String
+  DatabasePassword:
+    Type: String
+    NoEcho: 'true'
+  MasterKey:
+    Type: String
+    NoEcho: 'true'
+  ExtraJavaOptions:
+    Type: String
+  SecurityGroups:
+    Type: String
+  XrayHostProfile:
+    Type: String
+  XrayHostRole:
+    Type: String
+  XrayInstanceType:
+    Type: String
+  JfrogInternalUrl:
+    Type: String
+  VolumeSize:
+    Type: Number
+  XrayDatabaseUser:
+    Type: String
+  XrayDatabasePassword:
+    Type: String
+    NoEcho: 'true'
+  XrayMasterDatabaseUrl:
+    Type: String
+  XrayDatabaseUrl:
+    Type: String
+  XrayVersion:
+    Type: String
+  UserDataDirectory:
+    Description: Directory to store Artifactory data. Can be used to store data (via symlink) in detachable volume
+    Type: String
+    Default: '/xray-user-data'
+
+# To populate additional mappings use the following with the desired --region
+# aws --region us-west-2 ec2 describe-images --owners amazon --filters 'Name=name,Values=amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2' 'Name=state,Values=available' --output json | jq -r '.Images | sort_by(.CreationDate) | last(.[]).ImageId'
+Mappings:
+  AWSAMIRegionMap:
+    ap-northeast-1:
+      CentOS7HVM: "ami-00a5245b4816c38e6"
+    ap-northeast-2:
+      CentOS7HVM: "ami-00dc207f8ba6dc919"
+    ap-south-1:
+      CentOS7HVM: "ami-0ad42f4f66f6c1cc9"
+    ap-southeast-1:
+      CentOS7HVM: "ami-05b3bcf7f311194b3"
+    ap-southeast-2:
+      CentOS7HVM: "ami-02fd0b06f06d93dfc"
+    ca-central-1:
+      CentOS7HVM: "ami-07423fb63ea0a0930"
+    eu-central-1:
+      CentOS7HVM: "ami-0cfbf4f6db41068ac"
+    eu-west-1:
+      CentOS7HVM: "ami-08935252a36e25f85"
+    sa-east-1:
+      CentOS7HVM: "ami-05145e0b28ad8e0b2"
+    us-east-1:
+      CentOS7HVM: "ami-0affd4508a5d2481b"
+    us-east-2:
+      CentOS7HVM: "ami-01e36b7901e884a10"
+    us-west-1:
+      CentOS7HVM: "ami-098f55b4287a885ba"
+    us-west-2:
+      CentOS7HVM: "ami-0bc06212a56393ee1"
+
+Conditions:
+  IsArtifactoryPro: !Equals [!Ref ArtifactoryProduct, 'JFrog-Artifactory-Pro']
+
+Resources:
+  XrayScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      LaunchConfigurationName: !Ref XrayLaunchConfiguration
+      VPCZoneIdentifier:
+        !If [IsArtifactoryPro, [!Ref PrivateSubnet1Id], [!Ref PrivateSubnet1Id, !Ref PrivateSubnet2Id]]
+      MinSize: !Ref MinScalingNodes
+      MaxSize: !Ref MaxScalingNodes
+      Cooldown: '300'
+      DesiredCapacity: !Ref MinScalingNodes
+      HealthCheckType: EC2
+      HealthCheckGracePeriod: 1800
+      Tags:
+        - Key: Name
+          Value: !Ref DeploymentTag
+          PropagateAtLaunch: true
+        - Key: XrayVersion
+          Value: !Ref XrayVersion
+          PropagateAtLaunch: true
+      TerminationPolicies:
+        - OldestInstance
+        - Default
+    CreationPolicy:
+      ResourceSignal:
+        Count: !Ref MinScalingNodes
+        Timeout: PT60M
+  XrayLaunchConfiguration:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Metadata:
+      AWS::CloudFormation::Authentication:
+        S3AccessCreds:
+          type: S3
+          roleName:
+            - !Ref XrayHostRole
+          buckets:
+            - !Ref QsS3BucketName
+      AWS::CloudFormation::Init:
+        configSets:
+          xray_ami_setup:
+            - "config-cloudwatch"
+            - "config-ansible-xray-ami"
+          xray_install:
+            - "config-cloudwatch"
+            - "config-ansible-xray-ami"
+            - "config-xray"
+            - "secure-xray"
+        config-cloudwatch:
+          files:
+            /root/cloudwatch.conf:
+              content: |
+                [general]
+                state_file = /var/awslogs/state/agent-state
+
+                [/var/log/messages]
+                file = /var/log/messages
+                log_group_name = /xray/instances/{instance_id}
+                log_stream_name = /var/log/messages/
+                datetime_format = %b %d %H:%M:%S
+
+                [/var/log/xray-ami-setup.log]
+                file = /var/log/messages
+                log_group_name = /xray/instances/{instance_id}
+                log_stream_name = /var/log/xray-ami-setup.log
+                datetime_format = %b %d %H:%M:%S
+
+                [/var/log/xray.log]
+                file = /var/log/messages
+                log_group_name = /xray/instances/{instance_id}
+                log_stream_name = /var/log/xray.log
+                datetime_format = %b %d %H:%M:%S
+              mode: "0400"
+        config-ansible-xray-ami:
+          files:
+            /root/.xray_ami/xray-ami-setup.yml:
+              content: !Sub |
+                  # Base install for Xray
+                  - import_playbook: xray-ami.yml
+                    vars:
+                      ami_creation: false
+                      db_type: postgresql
+                      db_driver: org.postgresql.Driver
+                      xray_version: ${XrayVersion}
+                      xray_ha_enabled: false
+              mode: "0400"
+        config-xray:
+          files:
+            /root/.xray_ami/xray.yml:
+              content: !Sub |
+                  # Base install for Xray
+                  - import_playbook: site-xray.yml
+                    vars:
+                      jfrog_url: ${JfrogInternalUrl}
+                      use_custom_data_directory: true
+                      custom_data_directory: "${UserDataDirectory}"
+                      master_key: ${MasterKey}
+                      join_key: ${MasterKey}
+                      extra_java_opts: ${ExtraJavaOptions}
+                      db_type: ${DatabaseType}
+                      db_driver: ${DatabaseDriver}
+                      db_master_url: postgresql://${DatabaseUser}:${DatabasePassword}@${XrayMasterDatabaseUrl}
+                      db_url: postgres://${XrayDatabaseUrl}
+                      db_master_user: ${DatabaseUser}
+                      db_user: ${XrayDatabaseUser}
+                      db_password: ${XrayDatabasePassword}
+                      xray_version: ${XrayVersion}
+              mode: "0400"
+            /root/.vault_pass.txt:
+              content: !Sub |
+                ${DatabasePassword}
+              mode: "0400"
+            /root/.secureit.sh:
+              content:
+                ansible-vault encrypt /root/.xray_ami/xray.yml --vault-id /root/.vault_pass.txt
+              mode: "0770"
+        secure-xray:
+          commands:
+            'secure ansible playbook':
+              command: '/root/.secureit.sh'
+              ignoreErrors: 'false'
+    Properties:
+      KeyName: !Ref KeyPairName
+      IamInstanceProfile: !Ref XrayHostProfile
+      ImageId: !FindInMap
+        - AWSAMIRegionMap
+        - !Ref AWS::Region
+        - 'CentOS7HVM'
+      SecurityGroups:
+        - !Ref SecurityGroups
+      InstanceType: !Ref XrayInstanceType
+      BlockDeviceMappings:
+        - DeviceName: /dev/xvda
+          Ebs:
+            VolumeSize: !Ref VolumeSize
+            VolumeType: gp2
+            DeleteOnTermination: true
+            Encrypted: true
+      UserData:
+        Fn::Base64:
+          !Sub |
+            #!/bin/bash -x
+            exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
+
+            #CFN Functions
+
+            function cfn_fail
+
+            {
+
+            cfn-signal -e 1 --stack ${AWS::StackName} --region ${AWS::Region} --resource XrayScalingGroup
+
+            exit 1
+
+            }
+
+            function cfn_success
+
+            {
+
+            cfn-signal -e 0 --stack ${AWS::StackName} --region ${AWS::Region} --resource XrayScalingGroup
+
+            exit 0
+
+            }
+
+            S3URI=${QsS3Uri}
+
+            yum update --security -y &> /var/log/userdata.yum_security_update.log
+
+            yum install -y git python3 libselinux-python3
+            yum install -y postgresql-server postgresql-devel
+
+            echo $PATH
+
+            PATH=/opt/aws/bin:$PATH
+
+            echo $PATH
+
+            # Create virtual env and activate
+            python3 -m venv ~/venv --system-site-packages
+            source ~/venv/bin/activate
+
+            pip install --upgrade pip
+            pip install wheel
+
+            # Install Cloudformation helper scripts
+            pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-py3-latest.tar.gz 2>&1 | tee /var/log/userdata.aws_cfn_bootstrap_install.log
+
+            pip install awscli &> /var/log/userdata.awscli_install.log
+
+            pip install ansible &> /var/log/userdata.ansible_install.log
+
+            mkdir ~/.xray_ami
+
+            aws s3 --region ${AWS::Region} sync s3://${QsS3BucketName}/${QsS3KeyPrefix}cloudInstallerScripts/ ~/.xray_ami/
+
+            setsebool httpd_can_network_connect 1 -P
+
+            # CentOS cloned virtual machines do not create a new machine id
+            # https://www.thegeekdiary.com/centos-rhel-7-how-to-change-the-machine-id/
+            rm -f /etc/machine-id
+            systemd-machine-id-setup
+
+            cfn-init -v --stack ${AWS::StackName} --resource XrayLaunchConfiguration --configsets xray_install --region ${AWS::Region} || cfn_fail
+
+            # Setup CloudWatch Agent
+            curl https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py -O
+            chmod +x ./awslogs-agent-setup.py
+            ./awslogs-agent-setup.py -n -r ${AWS::Region} -c /root/cloudwatch.conf
+
+            lsblk # debug
+
+            ansible-galaxy collection install community.general ansible.posix
+
+            ansible-playbook /root/.xray_ami/xray-ami-setup.yml --vault-id /root/.vault_pass.txt 2>&1 | tee /var/log/xray-ami.log || cfn_fail
+            ansible-playbook /root/.xray_ami/xray.yml --vault-id /root/.vault_pass.txt 2>&1 | tee /var/log/xray.log || cfn_fail
+
+            rm -rf /root/.secureit.sh
+
+            cfn_success &> /var/log/cfn_success.log
+            cfn_success || cfn_fail
