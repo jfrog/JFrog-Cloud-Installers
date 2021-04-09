@@ -305,7 +305,7 @@ Parameters:
     Default: c5.2xlarge
     Type: String
 Conditions:
-  UsingDefaultBucket: !Equals [!Ref QsS3BucketName, 'jfrog-aws']
+  UsingDefaultBucket: !Equals [!Ref QsS3BucketName, 'aws-quickstart']
 Resources:
   ArtifactoryExistingVpcStack:
     Type: AWS::CloudFormation::Stack

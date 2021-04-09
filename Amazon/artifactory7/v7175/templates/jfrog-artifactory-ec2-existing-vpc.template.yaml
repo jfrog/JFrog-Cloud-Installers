@@ -546,7 +546,7 @@ Conditions:
   IsArtifactory: !Not [!Equals [!Ref ArtifactoryProduct, 'JFrog-Container-Registry']]
   HasSecondaryNodes: !Not [!Equals [!Ref NumberOfSecondary, '0']]
   DefaultJava: !Equals [!Ref DefaultJavaMemSettings, "true"]
-  UsingDefaultBucket: !Equals [!Ref QsS3BucketName, 'jfrog-aws']
+  UsingDefaultBucket: !Equals [!Ref QsS3BucketName, 'aws-quickstart']
   EnableXray: !Equals [!Ref InstallXray, 'true']
   SmCertNameNotExists: !Equals [!Ref 'SmCertName', '']
   SmCertNameExists: !Not [!Equals [!Ref 'SmCertName', '']]
