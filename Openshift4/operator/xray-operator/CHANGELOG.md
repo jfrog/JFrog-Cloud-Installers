@@ -1,6 +1,13 @@
 # JFrog  Openshift Xray Chart Changelog
 All changes to this chart will be documented in this file.
 
+
+## [2.0.3] Mar 31, 2021
+* Bug fix for updating Rabbitmq home env variable 
+
+## [2.0.2] Mar 12, 2021
+* Deploying JFrog Xray 3.18.1 as an Operator into Openshift
+
 ## [2.0.1] Mar 11th, 2021
 * Bug fix for Rabbitmq user id and group id in the operator not matching helm values
 
