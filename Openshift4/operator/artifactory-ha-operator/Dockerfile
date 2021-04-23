@@ -7,6 +7,25 @@ LABEL name="JFrog Artifactory Enterprise Operator" \
       summary="JFrog Artifactory Enterprise Operator" \
       com.jfrog.license_terms="https://jfrog.com/artifactory/eula/"
 
+# Adding security checks for container vulnerability scan
+
+USER root
+
+RUN microdnf install yum \
+     && yum -y update-minimal --security --sec-severity=Important --sec-severity=Critical \
+     && yum clean all \
+     && microdnf remove yum \
+     && microdnf clean all \
+     && microdnf install gnutls \
+     && microdnf install nettle  \
+     && microdnf update openssl-libs 
+
+RUN microdnf install sudo 
+RUN sudo -u helm bash
+
+USER helm
+
+
 COPY  licenses/ /licenses
 ENV HOME=/opt/helm
 COPY watches.yaml ${HOME}/watches.yaml
