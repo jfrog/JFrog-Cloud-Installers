@@ -19,14 +19,15 @@
     },
     "xrayVersion": {
       "type": "string",
-      "defaultValue": "0.0.17",
+      "defaultValue": "0.0.18",
       "allowedValues": [
         "0.0.10",
         "0.0.11",
 	"0.0.13",
 	"0.0.14",
 	"0.0.15",
-	"0.0.17"
+	"0.0.17",
+	"0.0.18"
       ],
       "metadata": {
         "description": "Xray-vm image version to deploy."
