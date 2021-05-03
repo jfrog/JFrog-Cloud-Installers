@@ -1,4 +1,4 @@
-# JFrog Ansible Installers Collection
+# JFrog Ansible Installers Collection [Deprecated]
 
 This Ansible directory consists of the following directories that support the JFrog Ansible collection.
  
