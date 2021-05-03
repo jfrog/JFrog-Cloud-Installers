@@ -1,0 +1,12 @@
+- hosts: localhost
+  gather_facts: true
+  become: true
+  tasks:
+    - include_role:
+        name: artifactory
+    - include_role:
+        name: artifactory-nginx
+      when: "enable_ssl != true"
+    - include_role:
+        name: artifactory-nginx-ssl
+      when: "enable_ssl == true"
