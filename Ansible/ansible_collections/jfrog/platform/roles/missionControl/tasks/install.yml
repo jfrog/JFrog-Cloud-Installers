@@ -1,0 +1,150 @@
+---
+- debug:
+    msg: "Performing installation of missionControl version - {{ missionControl_version }}"
+
+- name: Install expect dependency
+  become: yes
+  yum:
+    name: expect
+    state: present
+  when: ansible_os_family == 'Redhat'
+
+- name: Install expect dependency 
+  become: yes
+  apt:
+    name: expect
+    state: present
+    update_cache: yes
+  when: ansible_os_family == 'Debian'
+
+- name: Ensure group jfmc exist
+  become: yes
+  group:
+    name: "{{ mc_group }}"
+    gid: "{{ mc_gid }}"
+    state: present
+
+- name: Ensure user jfmc exist
+  become: yes
+  user:
+    uid: "{{ mc_uid }}"
+    name: "{{ mc_user }}"
+    group: "{{ mc_group }}"
+    create_home: yes
+    home: "{{ mc_home }}"
+    shell: /bin/bash
+    state: present
+
+- name: Download mc
+  become: yes
+  unarchive:
+    src: "{{ mc_tar }}"
+    dest: "{{ jfrog_home_directory }}"
+    remote_src: yes
+    owner: "{{ mc_user }}"
+    group: "{{ mc_group }}"
+    creates: "{{ mc_untar_home }}"
+  register: downloadmc
+  until: downloadmc is succeeded
+  retries: 3
+
+- name: Check if app directory exists
+  become: yes
+  stat:
+    path: "{{ mc_home }}/app"
+  register: app_dir_check
+
+- name: Copy untar directory to mc home
+  become: yes
+  command: "cp -r {{ mc_untar_home }}/. {{ mc_home }}"
+  when: not app_dir_check.stat.exists
+
+- name: Create required directories 
+  become: yes
+  file:
+    path: "{{ item }}"
+    state: directory
+    recurse: yes
+    owner: "{{ mc_user }}"
+    group: "{{ mc_group }}"
+  loop:
+    - "{{ mc_home }}/var/etc"
+    - "{{ mc_home }}/var/etc/security/"
+    - "{{ mc_home }}/var/etc/info/"
+
+- name: Configure master key
+  become: yes
+  copy:
+    dest: "{{ mc_home }}/var/etc/security/master.key"
+    content: |
+      {{ master_key }}
+    owner: "{{ mc_user }}"
+    group: "{{ mc_group }}"
+    mode: 0640
+
+- name: Setup elasticsearch
+  import_tasks: setup-elasticsearch.yml
+
+- name: Check if install.sh wrapper script exist
+  become: yes
+  stat:
+    path: "{{ mc_install_script_path }}/install.sh"
+  register: install_wrapper_script
+
+- name: Include interactive installer scripts
+  include_vars: script/archive.yml
+
+- name: Install JFMC
+  include_tasks: expect.yml
+  vars:
+    exp_executable_cmd: "./install.sh -u {{ mc_user }} -g {{ mc_group }}"
+    exp_dir: "{{ mc_install_script_path }}"
+    exp_scenarios: "{{ mc_installer_scenario['main'] }}"
+  args: 
+    apply:
+      environment: 
+        YQ_PATH: "{{ mc_thirdparty_path }}/yq" 
+  when: install_wrapper_script.stat.exists
+
+- name: Configure installer info
+  become: yes
+  template:
+    src: installer-info.json.j2
+    dest: "{{ mc_home }}/var/etc/info/installer-info.json"
+  notify: restart missioncontrol
+
+- name: Configure systemyaml
+  become: yes
+  template:
+    src: "{{ mc_system_yaml_template }}"
+    dest: "{{ mc_home }}/var/etc/system.yaml"
+  notify: restart missioncontrol
+
+- name: Update correct permissions
+  become: yes
+  file:
+    path: "{{ mc_home }}"
+    state: directory
+    recurse: yes
+    owner: "{{ mc_user }}"
+    group: "{{ mc_group }}"
+    mode: '0755'
+
+- name: Install mc as a service
+  become: yes
+  shell: |
+    {{ mc_archive_service_cmd }}
+  args:
+    chdir: "{{ mc_install_script_path }}"
+  register: check_service_status_result
+  ignore_errors: yes
+
+- name: Restart missioncontrol
+  meta: flush_handlers
+
+- name : Wait for missionControl to be fully deployed  
+  uri: url=http://127.0.0.1:8082/router/api/v1/system/health timeout=130
+  register: result
+  until: result.status == 200
+  retries: 25
+  delay: 5

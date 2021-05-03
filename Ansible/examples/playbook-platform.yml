@@ -1,0 +1,30 @@
+---
+- hosts: postgres_servers
+  collections:
+    - jfrog.platform
+  roles:
+    - postgres
+
+- hosts: artifactory_servers
+  collections:
+    - jfrog.platform
+  roles:
+    - artifactory
+
+- hosts: xray_servers
+  collections:
+    - jfrog.platform
+  roles:
+    - xray
+
+- hosts: distribution_servers
+  collections:
+    - jfrog.platform
+  roles:
+    - distribution
+
+- hosts: missionControl_servers
+  collections:
+    - jfrog.platform
+  roles:
+    - missionControl

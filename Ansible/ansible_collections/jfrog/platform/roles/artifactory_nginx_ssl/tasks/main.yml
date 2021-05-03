@@ -1,0 +1,40 @@
+---
+# tasks file for artifactory_nginx
+- name: Configure the artifactory nginx conf
+  become: yes
+  template:
+    src: artifactory.conf.j2
+    dest: /etc/nginx/conf.d/artifactory.conf
+    owner: root
+    group: root
+    mode: '0755'
+  notify: restart nginx
+
+- name: Ensure nginx dir exists
+  become: yes
+  file:
+    path: "/var/opt/jfrog/nginx/ssl"
+    state: directory
+
+- name: Configure certificate
+  become: yes
+  template:
+    src: certificate.pem.j2
+    dest: "/var/opt/jfrog/nginx/ssl/cert.pem"
+  notify: restart nginx
+
+- name: Ensure pki exists
+  become: yes
+  file:
+    path: "/etc/pki/tls"
+    state: directory
+
+- name: Configure key
+  become: yes
+  template:
+    src: certificate.key.j2
+    dest: "/etc/pki/tls/cert.key"
+  notify: restart nginx
+
+- name: Restart nginx
+  meta: flush_handlers

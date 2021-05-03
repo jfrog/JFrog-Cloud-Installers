@@ -1,0 +1,9 @@
+loopback_users.guest = false
+listeners.tcp.default = 5672
+hipe_compile = false
+management.listener.port = 15672
+management.listener.ssl = false
+cluster_partition_handling = autoheal
+default_user = {{ xray_rabbitmq_user }}
+
+default_pass = {{ xray_rabbitmq_password }}

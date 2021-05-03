@@ -1,0 +1,6 @@
+---
+postgresql_bin_path: "/usr/pgsql-{{ postgres_version }}/bin"
+postgresql_data_dir: "/var/lib/pgsql/{{ postgres_version}}/data"
+postgresql_config_path: "/var/lib/pgsql/{{ postgres_version}}/data"
+postgresql_daemon: postgresql-{{ postgres_version}}.service
+postgresql_external_pid_file: "/var/run/postgresql/{{ postgres_version }}-main.pid"

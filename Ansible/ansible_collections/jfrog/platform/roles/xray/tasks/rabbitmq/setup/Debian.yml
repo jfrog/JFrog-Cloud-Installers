@@ -1,0 +1,102 @@
+- name: Find libssl package
+  find:
+    paths: "{{ xray_home }}/app/third-party/rabbitmq/"
+    patterns: "^libssl.+\\.deb$"
+    use_regex: yes
+    file_type: file
+  register: check_libssl_package_result
+
+- name: Set libssl package file name
+  set_fact:
+    xray_libssl_package: "{{ check_libssl_package_result.files[0].path }}"
+  when: check_libssl_package_result.matched > 0
+
+- name: Install libssl package
+  become: yes
+  apt:
+    deb: "{{ xray_libssl_package }}"
+  register: install_libssl_package_result
+  when:
+    - ansible_distribution_release == 'xenial'
+    - check_libssl_package_result.matched > 0
+
+- name: Find socat package
+  find:
+    paths: "{{ xray_home }}/app/third-party/rabbitmq/"
+    patterns: "^socat.+\\.deb$"
+    use_regex: yes
+    file_type: file
+  register: check_socat_package_result
+
+- name: Set socat package file name
+  set_fact:
+    xray_socat_package: "{{ check_socat_package_result.files[0].path }}"
+  when: check_socat_package_result.matched > 0
+
+- name: Install socat package
+  become: yes
+  ignore_errors: yes
+  apt:
+    deb: "{{ xray_socat_package }}"
+  register: install_socat_package_result
+  when: check_socat_package_result.matched > 0
+
+- name: Find erlang package
+  find:
+    paths: "{{ xray_home }}/app/third-party/rabbitmq/"
+    patterns: "^(esl-)?erlang.+{{ ansible_distribution_release }}.+\\.deb$"
+    use_regex: yes
+    file_type: file
+  register: check_erlang_package_result
+
+- name: Set erlang package file name
+  set_fact:
+    xray_erlang_package: "{{ check_erlang_package_result.files[0].path }}"
+  when: check_erlang_package_result.matched > 0
+
+- name: Install erlang package
+  become: yes
+  apt:
+    deb: "{{ xray_erlang_package }}"
+  register: install_erlang_package_result
+  when: check_erlang_package_result.matched > 0
+
+- name: Find db5-util package
+  find:
+    paths: "{{ xray_home }}/app/third-party/misc/"
+    patterns: ["{{ xray_db_util_search_filter[linux_distro]['db5'] }}"]
+    use_regex: yes
+    file_type: file
+  register: check_db5_util_package_result
+
+- name: Set db5-util package file name
+  set_fact:
+    xray_db5_util_package: "{{ check_db5_util_package_result.files[0].path }}"
+  when: check_db5_util_package_result.matched > 0
+
+- name: Install db5-util package
+  become: yes
+  apt:
+    deb: "{{ xray_db5_util_package }}"
+  register: install_db5_util_package_result
+  when: check_db5_util_package_result.matched > 0
+
+- name: Find db-util package
+  find:
+    paths: "{{ xray_home }}/app/third-party/misc/"
+    patterns: ["{{ xray_db_util_search_filter[linux_distro]['db'] }}"]
+    use_regex: yes
+    file_type: file
+  register: check_db_util_package_result
+
+- name: Set db-util package file name
+  set_fact:
+    xray_db_util_package: "{{ check_db_util_package_result.files[0].path }}"
+  when: check_db_util_package_result.matched > 0
+
+- name: Install db-util package
+  become: yes
+  apt:
+    deb: "{{ xray_db_util_package }}"
+  register: install_db_util_package_result
+  when: check_db_util_package_result.matched > 0

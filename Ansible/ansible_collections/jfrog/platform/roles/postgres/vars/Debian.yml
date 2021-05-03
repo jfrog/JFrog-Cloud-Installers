@@ -1,0 +1,6 @@
+---
+postgresql_data_dir: "/var/lib/postgresql/{{ postgres_version }}/main"
+postgresql_bin_path: "/usr/lib/postgresql/{{ postgres_version }}/bin"
+postgresql_config_path: "/etc/postgresql/{{ postgres_version }}/main"
+postgresql_daemon: postgresql@{{ postgres_version}}-main
+postgresql_external_pid_file: "/var/run/postgresql/{{ postgres_version }}-main.pid"

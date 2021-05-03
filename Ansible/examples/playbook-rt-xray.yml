@@ -1,18 +1,18 @@
 ---
-- hosts: database
+- hosts: postgres-servers
   collections:
-    - jfrog.installers
+    - jfrog.platform
   roles:
     - postgres
 
-- hosts: artifactory
+- hosts: artifactory-servers
   collections:
-    - jfrog.installers
+    - jfrog.platform
   roles:
     - artifactory
 
-- hosts: xray
+- hosts: xray-servers
   collections:
-    - jfrog.installers
+    - jfrog.platform
   roles:
     - xray

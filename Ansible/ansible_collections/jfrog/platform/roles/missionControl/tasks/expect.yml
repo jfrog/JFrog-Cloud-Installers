@@ -1,0 +1,44 @@
+- name: Prepare expect scenario script
+  set_fact:
+    expect_scenario: |
+        set timeout 300
+        spawn {{ exp_executable_cmd }}
+        expect_before timeout { exit 1 }
+        set CYCLE_END 0
+        set count 0
+
+        while { $CYCLE_END == 0 } {
+            expect {
+                {% for each_request in exp_scenarios %}
+                    -nocase -re {{ '{' }}{{ each_request.expecting }}.*} {
+                        send "{{ each_request.sending }}\n"
+                    }
+                {% endfor %}
+                eof {
+                    set CYCLE_END 1
+                }
+            }
+            set count "[expr $count + 1]"
+            if { $count > 16} {
+                exit 128
+            }
+        }
+
+        expect eof
+        lassign [wait] pid spawnid os_error_flag value
+
+        if {$os_error_flag == 0} {
+            puts "INSTALLER_EXIT_STATUS-$value"
+        } else {
+            puts "INSTALLER_EXIT_STATUS-$value"
+        }
+
+- name: Interactive with expect
+  become: yes
+  ignore_errors: yes
+  shell: |
+    {{ expect_scenario }}
+  args:
+    executable: /usr/bin/expect
+    chdir: "{{ exp_dir }}"
+  register: exp_result

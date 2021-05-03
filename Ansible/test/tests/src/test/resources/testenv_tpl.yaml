@@ -1,6 +1,0 @@
-artifactory:
-  url: urlval
-  external_ip: ipval
-  distribution: artifactory_ha
-  rt_username: admin
-  rt_password: passval

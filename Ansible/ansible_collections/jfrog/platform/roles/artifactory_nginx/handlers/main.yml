@@ -1,0 +1,8 @@
+---
+# handlers file for artifactory_nginx
+- name: restart nginx
+  become: yes
+  systemd:
+    name: "{{ nginx_daemon }}"
+    state: restarted
+    enabled: yes

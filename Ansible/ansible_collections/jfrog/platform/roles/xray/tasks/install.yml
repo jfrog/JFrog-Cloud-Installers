@@ -1,0 +1,165 @@
+---
+- debug:
+    msg: "Performing installation of Xray version : {{ xray_version }}"
+
+- debug:
+    msg: "ansible_os_family: {{ ansible_os_family }}"
+
+- name: Install expect dependency
+  become: yes
+  yum:
+    name: expect
+    state: present
+  when: ansible_os_family == 'RedHat'
+
+- name: Install expect dependency
+  become: yes
+  apt:
+    name: expect
+    state: present
+    update_cache: yes
+  when: ansible_os_family == 'Debian'
+
+- name: Ensure group xray exist
+  become: yes
+  group:
+    name: "{{ xray_group }}"
+    gid: "{{ xray_gid }}"
+    state: present
+
+- name: Ensure user xray exist
+  become: yes
+  user:
+    uid: "{{ xray_uid }}"
+    name: "{{ xray_user }}"
+    group: "{{ xray_group }}"
+    create_home: yes
+    home: "{{ xray_home }}"
+    shell: /bin/bash
+    state: present
+
+- name: Download xray
+  become: yes
+  unarchive:
+    src: "{{ xray_tar }}"
+    dest: "{{ jfrog_home_directory }}"
+    remote_src: yes
+    owner: "{{ xray_user }}"
+    group: "{{ xray_group }}"
+    creates: "{{ xray_untar_home }}"
+  register: downloadxray
+  until: downloadxray is succeeded
+  retries: 3
+
+- name: Check if app directory exists
+  become: yes
+  stat:
+    path: "{{ xray_home }}/app"
+  register: app_dir_check
+
+- name: Copy untar directory to xray home
+  become: yes
+  command: "cp -r {{ xray_untar_home }}/. {{ xray_home }}"
+  when: not app_dir_check.stat.exists
+
+- name: Create required directories 
+  become: yes
+  file:
+    path: "{{ item }}"
+    state: directory
+    recurse: yes
+    owner: "{{ xray_user }}"
+    group: "{{ xray_group }}"
+  loop:
+    - "{{ xray_home }}/var/etc"
+    - "{{ xray_home }}/var/etc/info/"
+    - "{{ xray_home }}/var/etc/security/"
+
+- name: Configure master key
+  become: yes
+  copy:
+    dest: "{{ xray_home }}/var/etc/security/master.key"
+    content: |
+      {{ master_key }}
+    owner: "{{ xray_user }}"
+    group: "{{ xray_group }}"
+    mode: 0640
+
+- name: Setup rabbitmq
+  import_tasks: rabbitmq/setup/RedHat.yml
+  when: ansible_os_family == 'RedHat'
+
+- name: Setup rabbitmq
+  import_tasks: rabbitmq/setup/Debian.yml
+  when: ansible_os_family == 'Debian'
+
+- name: Check if install.sh wrapper script exist
+  become: yes
+  stat:
+    path: "{{ xray_install_script_path }}/install.sh"
+  register: install_wrapper_script
+
+- name: Include interactive installer scripts
+  include_vars: script/archive.yml
+
+- name: Install xray
+  include_tasks: expect.yml
+  vars:
+    exp_executable_cmd: "./install.sh -u {{ xray_user }} -g {{ xray_group }}"
+    exp_dir: "{{ xray_install_script_path }}"
+    exp_scenarios: "{{ xray_installer_scenario['main'] }}"
+  args: 
+    apply:
+      environment: 
+        YQ_PATH: "{{ xray_thirdparty_path }}/yq" 
+  when: install_wrapper_script.stat.exists
+  ignore_errors: yes
+
+- name: Configure rabbitmq config
+  become: yes
+  template:
+    src: "rabbitmq.conf.j2"
+    dest: "{{ xray_home }}/app/bin/rabbitmq/rabbitmq.conf"
+  notify: restart xray
+
+- name: Configure systemyaml
+  become: yes
+  template:
+    src: "{{ xray_system_yaml_template }}"
+    dest: "{{ xray_home }}/var/etc/system.yaml"
+  notify: restart xray
+
+- name: Configure installer info
+  become: yes
+  template:
+    src: installer-info.json.j2
+    dest: "{{ xray_home }}/var/etc/info/installer-info.json"
+  notify: restart xray
+
+- name: Ensure permissions are correct
+  become: yes
+  file:
+    path: "{{ jfrog_home_directory }}"
+    state: directory
+    owner: "{{ xray_user }}"
+    group: "{{ xray_group }}"
+    recurse: yes
+
+- name: Install xray as a service
+  become: yes
+  shell: |
+    {{ xray_archive_service_cmd }}
+  args:
+    chdir: "{{ xray_install_script_path }}"
+  register: check_service_status_result
+  ignore_errors: yes
+
+- name: Restart xray
+  meta: flush_handlers
+
+- name : Wait for xray to be fully deployed  
+  uri: url=http://127.0.0.1:8082/router/api/v1/system/health timeout=130
+  register: result
+  until: result.status == 200
+  retries: 25
+  delay: 5

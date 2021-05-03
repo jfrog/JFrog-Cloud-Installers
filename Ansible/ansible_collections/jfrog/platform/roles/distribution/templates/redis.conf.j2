@@ -1,0 +1,15 @@
+{{ ansible_managed | comment }}
+# Redis configuration file
+
+# data directory for redis
+dir {{ distribution_home }}/var/data/redis
+
+# log directory for redis
+logfile {{ distribution_home }}/var/log/redis/redis.log
+
+# pid file location for redis
+pidfile {{ distribution_home }}/app/run/redis.pid
+
+# password for redis
+# if changed, the same should be set as value for shared.redis.password in JF_PRODUCT_HOME/var/etc/system.yaml
+requirepass {{ distribution_redis_password }}

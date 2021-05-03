@@ -1,0 +1,20 @@
+- name: Find erlang package
+  find:
+    paths: "{{ xray_home }}/app/third-party/rabbitmq/"
+    patterns: "^(esl-)?erlang.+{{ ansible_distribution_release }}.+\\.deb$"
+    use_regex: yes
+    file_type: file
+  register: check_erlang_package_result
+
+- name: Set erlang package file name
+  set_fact:
+    xray_erlang_package: "{{ check_erlang_package_result.files[0].path }}"
+  when: check_erlang_package_result.matched > 0
+
+- name: Install erlang package
+  become: yes
+  apt:
+    deb: "{{ xray_erlang_package }}"
+    state: present
+  register: install_erlang_package_result
+  when: check_erlang_package_result.matched > 0

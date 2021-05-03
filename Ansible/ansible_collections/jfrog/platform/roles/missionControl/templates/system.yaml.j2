@@ -1,0 +1,35 @@
+configVersion: 1
+shared:
+  jfrogUrl: {{ jfrog_url }}
+  node:
+    ip: {{ mc_primary_ip }}
+    id: {{ ansible_date_time.iso8601_micro | to_uuid }}
+  database:
+    type: "{{ mc_db_type }}"
+    driver: "{{ mc_db_driver }}"
+    url: "{{ mc_db_url }}"
+  elasticsearch:
+    unicastFile: {{ mc_es_conf_base }}/config/unicast_hosts.txt
+    password: {{ mc_es_password }}
+    url: {{ mc_es_url }}
+    username: {{ mc_es_user }}
+  security:
+    joinKey: {{ join_key }}
+mc:
+  database:
+    username: "{{ mc_db_user }}"
+    password: "{{ mc_db_password }}"
+    schema: "jfmc_server"
+insight-scheduler:
+  database:
+    username: "{{ mc_db_user }}"
+    password: "{{ mc_db_password }}"
+    schema: "insight_scheduler"
+insight-server:
+  database:
+    username: "{{ mc_db_user }}"
+    password: "{{ mc_db_password }}"
+    schema: "insight_server"
+router:
+  entrypoints:
+    internalPort: 8046

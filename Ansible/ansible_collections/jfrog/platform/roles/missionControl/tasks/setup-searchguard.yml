@@ -1,0 +1,100 @@
+- name: Copy elasticsearch certificate
+  become: yes
+  copy:
+    mode: 0600
+    src: files/searchguard/localhost.pem
+    dest: "{{ mc_es_conf_base }}/localhost.pem"
+    owner: elasticsearch
+    group: elasticsearch
+
+- name: Copy elasticsearch private key
+  become: yes
+  copy:
+    mode: 0600
+    src: files/searchguard/localhost.key
+    dest: "{{ mc_es_conf_base }}/localhost.key"
+    owner: elasticsearch
+    group: elasticsearch
+
+- name: Copy searchguard root ca
+  become: yes
+  copy:
+    mode: 0600
+    src: files/searchguard/root-ca.pem
+    dest: "{{ mc_es_conf_base }}/root-ca.pem"
+    owner: elasticsearch
+    group: elasticsearch
+
+- name: Find searchguard bundle
+  find:
+    paths: "{{ mc_home }}/app/third-party/elasticsearch/"
+    patterns: "^search-guard-.+\\.zip$"
+    use_regex: yes
+    file_type: file
+  register: check_searchguard_bundle_result
+
+- name: Install searchguard plugin
+  become: yes
+  become_user: elasticsearch
+  ignore_errors: yes
+  shell: |
+    {{ mc_es_script_path }}/elasticsearch-plugin install \
+    -b file://{{ check_searchguard_bundle_result.files[0].path }}
+  environment:
+    JAVA_HOME: "{{ mc_es_java_home }}"
+    ES_PATH_CONF: "{{ mc_es_conf_base }}/"
+  register: install_searchguard_result
+  when: check_searchguard_bundle_result.matched == 1
+
+- name: Copy searchguard admin certificate
+  become: yes
+  copy:
+    mode: 0600
+    src: files/searchguard/sgadmin.pem
+    dest: "{{ mc_es_searchgaurd_home }}/tools/sgadmin.pem"
+    owner: elasticsearch
+    group: elasticsearch
+
+- name: Copy searchguard admin private key
+  become: yes
+  copy:
+    mode: 0600
+    src: files/searchguard/sgadmin.key
+    dest: "{{ mc_es_searchgaurd_home }}/tools/sgadmin.key"
+    owner: elasticsearch
+    group: elasticsearch
+
+- name: Copy searchguard root ca
+  become: yes
+  copy:
+    mode: 0600
+    src: files/searchguard/root-ca.pem
+    dest: "{{ mc_es_searchgaurd_home }}/tools/root-ca.pem"
+    owner: elasticsearch
+    group: elasticsearch
+
+- name: Copy roles template
+  become: yes
+  copy:
+    mode: 0600
+    src: files/searchguard/sg_roles.yml
+    dest: "{{ mc_es_searchgaurd_home }}/sgconfig/sg_roles.yml"
+    owner: elasticsearch
+    group: elasticsearch
+
+- name: Copy roles template
+  become: yes
+  copy:
+    mode: 0600
+    src: files/searchguard/sg_roles_mapping.yml
+    dest: "{{ mc_es_searchgaurd_home }}/sgconfig/sg_roles_mapping.yml"
+    owner: elasticsearch
+    group: elasticsearch
+
+- name: Check execution bit
+  become: yes
+  file:
+    path: "{{ mc_es_searchgaurd_home }}/tools/sgadmin.sh"
+    owner: elasticsearch
+    group: elasticsearch
+    mode: 0700

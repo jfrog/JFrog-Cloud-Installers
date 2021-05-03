@@ -1,0 +1,16 @@
+galaxy_info:
+  author: "JFrog Maintainers Team <installers@jfrog.com>"
+  description: "The xray role will install Xray software onto the host. An Artifactory server and Postgress database is required."
+  company: JFrog
+
+  issue_tracker_url: "https://github.com/jfrog/JFrog-Cloud-Installers/issues"
+
+  license: license (Apache-2.0)
+
+  min_ansible_version: 2.9
+
+  galaxy_tags:
+    - xray
+    - jfrog
+
+dependencies: []

@@ -1,0 +1,9 @@
+---
+- name: apt-get update
+  become: yes
+  apt:
+    update_cache: yes
+  register: package_res
+  retries: 5
+  delay: 60
+  until: package_res is success

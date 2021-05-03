@@ -1,0 +1,35 @@
+---
+- name: Install dependencies
+  include_tasks: "{{ ansible_os_family }}.yml"
+
+- name: Install nginx after dependency installation
+  become: yes
+  package:
+    name: nginx
+    state: present
+  register: package_res
+  retries: 5
+  delay: 60
+  until: package_res is success
+
+- name: Configure main nginx conf file.
+  become: yes
+  copy:
+    src: nginx.conf
+    dest: /etc/nginx/nginx.conf
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Configure the artifactory nginx conf
+  become: yes
+  template:
+    src: artifactory.conf.j2
+    dest: /etc/nginx/conf.d/artifactory.conf
+    owner: root
+    group: root
+    mode: '0755'
+  notify: restart nginx
+
+- name: Restart nginx
+  meta: flush_handlers

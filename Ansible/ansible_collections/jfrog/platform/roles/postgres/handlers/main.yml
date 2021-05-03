@@ -1,0 +1,6 @@
+---
+- name: restart postgresql
+  become: yes
+  systemd:
+    name: "{{ postgresql_daemon }}"
+    state: restarted

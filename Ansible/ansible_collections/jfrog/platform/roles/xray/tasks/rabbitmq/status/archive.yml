@@ -1,0 +1,12 @@
+- name: Get rabbitmq ha cluster status
+  become: yes
+  ignore_errors: yes
+  shell: |
+    ./rabbitmqctl --erlang-cookie {{ xray_rabbitmq_default_cookie }} \
+        --formatter json cluster_status | jq .
+  args:
+    chdir: "{{ xray_home }}/app/third-party/rabbitmq/sbin/"
+  environment:
+    LC_ALL: en_US.UTF-8
+    LC_CTYPE: en_US.UTF-8
+  register: ha_rabbitmq_cluster_status

@@ -1,0 +1,33 @@
+---
+- name: install acl, python3-psycopg2
+  become: yes
+  apt:
+    name:
+      - acl
+      - python3-psycopg2
+    state: present
+    update_cache: yes
+  ignore_errors: yes
+
+- name: add postgres apt key
+  become: yes
+  apt_key:
+    url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+    id: "0x7FCC7D46ACCC4CF8"
+    validate_certs: no
+    state: present
+
+- name: register APT repository
+  become: yes
+  apt_repository:
+    repo: deb http://apt.postgresql.org/pub/repos/apt/ {{ ansible_distribution_release }}-pgdg main
+    state: present
+    filename: pgdg
+
+- name: install postgres packages
+  become: yes
+  apt:
+    name:
+      - postgresql-{{ postgres_version }}
+      - postgresql-contrib-{{ postgres_version }}
+    state: present

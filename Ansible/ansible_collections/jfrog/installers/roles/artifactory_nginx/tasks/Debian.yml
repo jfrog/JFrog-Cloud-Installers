@@ -1,9 +1,0 @@
----
-- name: apt-get update
-  apt:
-    update_cache: yes
-  register: package_res
-  retries: 5
-  delay: 60
-  become: yes
-  until: package_res is success

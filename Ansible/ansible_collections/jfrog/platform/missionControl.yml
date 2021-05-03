@@ -1,0 +1,4 @@
+---
+- hosts: missionControl_servers
+  roles:
+    - missionControl
