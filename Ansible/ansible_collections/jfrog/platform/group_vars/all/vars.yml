@@ -1,0 +1,74 @@
+---
+# Defaults
+## Note : These values are global and can be overridden in role/<product>/defaults/main.yaml file
+## For production deployments,You may want to generate your master amd join keys and apply it to all the nodes.
+master_key: ee69d96880726d3abf6b42b97d2ae589111ea95c2a8bd5876ec5cd9e8ee34f86
+join_key: 83da88eaaa08dfed5b86888fcec85f19ace0c3ff8747bcefcec2c9769ad4043d
+
+jfrog_url: >-
+    {%- for host in groups['artifactory_servers'] -%}
+        "http://{{ hostvars[host]['ansible_host'] }}:8082"
+    {%- endfor -%}
+
+# Artifactory DB details
+artifactory_db_type: postgresql
+artifactory_db_driver: org.postgresql.Driver
+artifactory_db_name: artifactory
+artifactory_db_user: artifactory
+artifactory_db_password: password
+artifactory_db_url: >-
+    {%- for item in groups['postgres_servers'] -%}
+        jdbc:postgresql://{{ hostvars[item]['ansible_host'] }}:5432/{{ artifactory_db_name }}
+    {%- endfor -%}
+
+# Xray DB details
+xray_db_type: postgresql
+xray_db_driver: org.postgresql.Driver
+xray_db_name: xray
+xray_db_user: xray
+xray_db_password: password
+xray_db_url: >-
+    {%- for item in groups['postgres_servers'] -%}
+        postgres://{{ hostvars[item]['ansible_host'] }}:5432/{{ xray_db_name }}?sslmode=disable
+    {%- endfor -%}
+
+# Distribution DB details
+distribution_db_type: postgresql
+distribution_db_driver: org.postgresql.Driver
+distribution_db_name: distribution
+distribution_db_user: distribution
+distribution_db_password: password
+distribution_db_url: >-
+    {%- for item in groups['postgres_servers'] -%}
+        jdbc:postgresql://{{ hostvars[item]['ansible_host'] }}:5432/{{ distribution_db_name }}?sslmode=disable
+    {%- endfor -%}
+
+# MissionControl DB details
+mc_db_type: postgresql
+mc_db_driver: org.postgresql.Driver
+mc_db_name: mc
+mc_db_user: mc
+mc_db_password: password
+mc_db_url: >-
+    {%- for item in groups['postgres_servers'] -%}
+        jdbc:postgresql://{{ hostvars[item]['ansible_host'] }}:5432/{{ mc_db_name }}?sslmode=disable
+    {%- endfor -%}
+
+# Postgresql users and databases/schemas
+db_users: 
+  - { db_user: "{{ artifactory_db_user }}", db_password: "{{ artifactory_db_password }}" }
+  - { db_user: "{{ xray_db_user }}", db_password: "{{ xray_db_password }}" }
+  - { db_user: "{{ distribution_db_user }}", db_password: "{{ distribution_db_password }}" }
+  - { db_user: "{{ mc_db_user }}", db_password: "{{ mc_db_password }}" }
+dbs: 
+  - { db_name: "{{ artifactory_db_name }}", db_owner: "{{ artifactory_db_user }}" }
+  - { db_name: "{{ xray_db_name }}", db_owner: "{{ xray_db_user }}" }
+  - { db_name: "{{ distribution_db_name }}", db_owner: "{{ distribution_db_user }}" }
+  - { db_name: "{{ mc_db_name }}", db_owner: "{{ mc_db_user }}" }
+mc_schemas:
+  - jfmc_server
+  - insight_server
+  - insight_scheduler
+
+# For Centos/RHEL-7, Set this to "/usr/bin/python"
+ansible_python_interpreter: "/usr/bin/python3"

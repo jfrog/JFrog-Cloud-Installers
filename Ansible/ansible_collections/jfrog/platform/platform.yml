@@ -1,0 +1,16 @@
+---
+- hosts: postgres_servers
+  roles:
+    - postgres
+- hosts: artifactory_servers
+  roles:
+    - artifactory
+- hosts: xray_servers
+  roles:
+    - xray
+- hosts: distribution_servers
+  roles:
+    - distribution
+- hosts: missioncontrol_servers
+  roles:
+    - missioncontrol

@@ -1,0 +1,9 @@
+{{ ansible_managed | comment }}
+{
+  "productId": "Ansible_Distribution/{{ platform_collection_version }}-{{ distribution_version }}",
+  "features": [
+    {
+      "featureId": "Channel/{{ ansible_marketplace }}"
+    }
+  ]
+}

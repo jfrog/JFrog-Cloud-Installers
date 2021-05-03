@@ -1,0 +1,96 @@
+---
+- debug:
+    msg: "Performing Upgrade of missionControl version - {{ missioncontrol_version }}"
+
+- name: Stop mc service
+  become: yes
+  systemd:
+    name: "{{ mc_daemon }}"
+    state: stopped
+
+- name: Download mc for upgrade
+  unarchive:
+    src: "{{ mc_tar }}"
+    dest: "{{ jfrog_home_directory }}"
+    remote_src: yes
+    owner: "{{ mc_user }}"
+    group: "{{ mc_group }}"
+    creates: "{{ mc_untar_home }}"
+  become: yes
+  register: downloadmc
+  until: downloadmc is succeeded
+  retries: 3
+
+- name: Delete current app folder
+  become: yes
+  file:
+    path: "{{ mc_home }}/app"
+    state: absent
+
+- name: Copy new app to mc app
+  command: "cp -r {{ mc_untar_home }}/app/. {{ mc_home }}/app"
+  become: yes
+
+- name: Delete untar directory
+  file:
+    path: "{{ mc_untar_home }}"
+    state: absent
+  become: yes
+
+- name: Upgrade elasticsearch
+  import_tasks: upgrade-elasticsearch.yml
+
+- name: Check if install.sh wrapper script exist
+  become: yes
+  stat:
+    path: "{{ mc_install_script_path }}/install.sh"
+  register: upgrade_wrapper_script
+
+- name: Include interactive installer scripts
+  include_vars: script/archive.yml
+
+- name: Upgrade JFMC
+  include_tasks: expect.yml
+  vars:
+    exp_executable_cmd: "./install.sh -u {{ mc_user }} -g {{ mc_group }}"
+    exp_dir: "{{ mc_install_script_path }}"
+    exp_scenarios: "{{ mc_installer_scenario['main'] }}"
+  args: 
+    apply:
+      environment: 
+        YQ_PATH: "{{ mc_thirdparty_path }}/yq" 
+  when: upgrade_wrapper_script.stat.exists
+
+- name: Configure installer info
+  become: yes
+  template:
+    src: installer-info.json.j2
+    dest: "{{ mc_home }}/var/etc/info/installer-info.json"
+  notify: restart missioncontrol
+
+- name: Configure systemyaml
+  template:
+    src: "{{ mc_system_yaml_template }}"
+    dest: "{{ mc_home }}/var/etc/system.yaml"
+  become: yes
+  notify: restart missioncontrol
+
+- name: Update correct permissions
+  become: yes
+  file:
+    path: "{{ mc_home }}"
+    state: directory
+    recurse: yes
+    owner: "{{ mc_user }}"
+    group: "{{ mc_group }}"
+    mode: '0755'
+
+- name: Restart missioncontrol
+  meta: flush_handlers
+
+- name : Wait for missionControl to be fully deployed  
+  uri: url=http://127.0.0.1:8082/router/api/v1/system/health timeout=130
+  register: result
+  until: result.status == 200
+  retries: 25
+  delay: 5

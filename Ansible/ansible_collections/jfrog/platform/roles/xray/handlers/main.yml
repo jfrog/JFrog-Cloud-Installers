@@ -1,0 +1,7 @@
+---
+# handlers file for xray
+- name: restart xray
+  become: yes
+  systemd:
+    name: "{{ xray_daemon }}"
+    state: restarted

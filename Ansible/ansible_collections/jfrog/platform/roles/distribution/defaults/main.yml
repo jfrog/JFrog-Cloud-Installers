@@ -1,0 +1,43 @@
+---
+# defaults file for distribution
+# indicates were this collection was downlaoded from (galaxy, automation_hub, standalone)
+ansible_marketplace: standalone
+
+# whether to enable HA
+distribution_ha_enabled: false
+
+distribution_ha_node_type : master
+
+# The location where distribution should install.
+jfrog_home_directory: /opt/jfrog
+
+# The remote distribution download file
+distribution_tar: https://releases.jfrog.io/artifactory/jfrog-distribution/distribution-linux/{{ distribution_version }}/jfrog-distribution-{{ distribution_version }}-linux.tar.gz
+
+#The distribution install directory
+distribution_untar_home: "{{ jfrog_home_directory }}/jfrog-distribution-{{ distribution_version }}-linux"
+distribution_home: "{{ jfrog_home_directory }}/distribution"
+
+distribution_install_script_path: "{{ distribution_home }}/app/bin"
+distribution_thirdparty_path: "{{ distribution_home }}/app/third-party"
+distribution_archive_service_cmd: "{{ distribution_install_script_path }}/installService.sh"
+
+#distribution users and groups
+distribution_user: distribution
+distribution_group: distribution
+
+distribution_uid: 1040
+distribution_gid: 1040
+
+distribution_daemon: distribution
+
+flow_type: archive
+
+# Redis details
+distribution_redis_url: "redis://localhost:6379"
+distribution_redis_password: password
+
+# if this is an upgrade
+distribution_upgrade_only: false
+
+distribution_system_yaml_template: system.yaml.j2

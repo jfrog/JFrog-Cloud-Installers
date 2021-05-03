@@ -1,0 +1,17 @@
+configVersion: 1
+shared:
+  extraJavaOpts: "{{ artifactory_extra_java_opts }}"
+  node:
+    id: {{ ansible_date_time.iso8601_micro | to_uuid }}
+    ip: {{ ansible_host }}
+    taskAffinity: {{ artifactory_taskAffinity }}
+    haEnabled: {{ artifactory_ha_enabled }}
+  database:
+    type: "{{ artifactory_db_type }}"
+    driver: "{{ artifactory_db_driver }}"
+    url: "{{ artifactory_db_url }}"
+    username: "{{ artifactory_db_user }}"
+    password: "{{ artifactory_db_password }}"
+router:
+  entrypoints:
+    internalPort: 8046

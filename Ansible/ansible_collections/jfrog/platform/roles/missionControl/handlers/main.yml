@@ -1,0 +1,7 @@
+---
+# handlers file for missioncontrol
+- name: restart missioncontrol
+  become: yes
+  systemd:
+    name: "{{ mc_daemon }}"
+    state: restarted

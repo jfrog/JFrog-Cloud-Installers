@@ -1,12 +1,12 @@
 ---
-- hosts: database
+- hosts: postgres_servers
   collections:
-    - jfrog.installers
+    - jfrog.platform
   roles:
     - postgres
 
-- hosts: primary
+- hosts: artifactory_servers
   collections:
-    - jfrog.installers
+    - jfrog.platform
   roles:
     - artifactory

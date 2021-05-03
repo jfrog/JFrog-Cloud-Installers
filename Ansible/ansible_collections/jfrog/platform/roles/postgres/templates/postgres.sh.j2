@@ -1,0 +1,4 @@
+{{ ansible_managed | comment }}
+export PGDATA={{ postgresql_data_dir }}
+export LC_ALL={{ postgres_locale }}
+export PATH=$PATH:{{ postgresql_bin_path }}

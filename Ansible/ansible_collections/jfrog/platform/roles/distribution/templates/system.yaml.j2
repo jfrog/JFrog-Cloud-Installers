@@ -1,0 +1,20 @@
+configVersion: 1
+shared:
+  jfrogUrl: {{ jfrog_url }}
+  node:
+    ip: {{ ansible_host }}
+    id: {{ ansible_date_time.iso8601_micro | to_uuid }}
+  database:
+    type: "{{ distribution_db_type }}"
+    driver: "{{ distribution_db_driver }}"
+    url: "{{ distribution_db_url }}"
+    username: "{{ distribution_db_user }}"
+    password: "{{ distribution_db_password }}"
+  redis:
+    connectionString: "{{ distribution_redis_url }}"
+    password: "{{ distribution_redis_password }}"
+  security:
+    joinKey: {{ join_key }}
+router:
+  entrypoints:
+    internalPort: 8046

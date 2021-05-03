@@ -1,0 +1,7 @@
+---
+# handlers file for distribution
+- name: restart distribution
+  become: yes
+  systemd:
+    name: "{{ distribution_daemon }}"
+    state: restarted

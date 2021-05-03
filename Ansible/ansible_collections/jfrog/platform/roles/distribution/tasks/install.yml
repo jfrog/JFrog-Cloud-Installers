@@ -1,0 +1,155 @@
+---
+- debug:
+    msg: "Performing installation of Distribution version - {{ distribution_version }}"
+
+- name: Install expect dependency
+  yum:
+    name: expect
+    state: present
+  become: yes
+  when: ansible_os_family == 'Redhat'
+
+- name: Install expect dependency 
+  apt:
+    name: expect
+    state: present
+    update_cache: yes
+  become: yes
+  when: ansible_os_family == 'Debian'
+
+- name: Ensure group jfdistribution exist
+  become: yes
+  group:
+    name: "{{ distribution_group }}"
+    gid: "{{ distribution_gid }}"
+    state: present
+
+- name: Ensure user distribution exist
+  become: yes
+  user:
+    uid: "{{ distribution_uid }}"
+    name: "{{ distribution_user }}"
+    group: "{{ distribution_group }}"
+    create_home: yes
+    home: "{{ distribution_home }}"
+    shell: /bin/bash
+    state: present
+
+- name: Download distribution
+  become: yes
+  unarchive:
+    src: "{{ distribution_tar }}"
+    dest: "{{ jfrog_home_directory }}"
+    remote_src: yes
+    owner: "{{ distribution_user }}"
+    group: "{{ distribution_group }}"
+    creates: "{{ distribution_untar_home }}"
+  register: downloaddistribution
+  until: downloaddistribution is succeeded
+  retries: 3
+
+- name: Check if app directory exists
+  become: yes
+  stat:
+    path: "{{ distribution_home }}/app"
+  register: app_dir_check
+
+- name: Copy untar directory to distribution home
+  become: yes
+  command: "cp -r {{ distribution_untar_home }}/. {{ distribution_home }}"
+  when: not app_dir_check.stat.exists
+
+- name: Create required directories 
+  become: yes
+  file:
+    path: "{{ item }}"
+    state: directory
+    recurse: yes
+    owner: "{{ distribution_user }}"
+    group: "{{ distribution_group }}"
+  loop:
+    - "{{ distribution_home }}/var/etc"
+    - "{{ distribution_home }}/var/etc/security/"
+    - "{{ distribution_home }}/var/etc/info/"
+    - "{{ distribution_home }}/var/etc/redis/"
+
+- name: Configure master key
+  become: yes
+  copy:
+    dest: "{{ distribution_home }}/var/etc/security/master.key"
+    content: |
+      {{ master_key }}
+    owner: "{{ distribution_user }}"
+    group: "{{ distribution_group }}"
+    mode: 0640
+
+- name: Check if install.sh wrapper script exist
+  become: yes
+  stat:
+    path: "{{ distribution_install_script_path }}/install.sh"
+  register: install_wrapper_script
+
+- name: Include interactive installer scripts
+  include_vars: script/archive.yml
+
+- name: Install Distribution
+  include_tasks: expect.yml
+  vars:
+    exp_executable_cmd: "./install.sh -u {{ distribution_user }} -g {{ distribution_group }}"
+    exp_dir: "{{ distribution_install_script_path }}"
+    exp_scenarios: "{{ distribution_installer_scenario['main'] }}"
+  args: 
+    apply:
+      environment: 
+        YQ_PATH: "{{ distribution_thirdparty_path }}/yq" 
+  when: install_wrapper_script.stat.exists
+
+- name: Configure redis config
+  become: yes
+  template:
+    src: "redis.conf.j2"
+    dest: "{{ distribution_home }}/var/etc/redis/redis.conf"
+  notify: restart distribution
+
+- name: Configure systemyaml
+  become: yes
+  template:
+    src: "{{ distribution_system_yaml_template }}"
+    dest: "{{ distribution_home }}/var/etc/system.yaml"
+  notify: restart distribution
+
+- name: Configure installer info
+  become: yes
+  template:
+    src: installer-info.json.j2
+    dest: "{{ distribution_home }}/var/etc/info/installer-info.json"
+  notify: restart distribution
+
+- name: Update distribution permissions
+  become: yes
+  file:
+    path: "{{ distribution_home }}"
+    state: directory
+    recurse: yes
+    owner: "{{ distribution_user }}"
+    group: "{{ distribution_group }}"
+    mode: '0755'
+
+- name: Install Distribution as a service
+  become: yes
+  shell: |
+    {{ distribution_archive_service_cmd }}
+  args:
+    chdir: "{{ distribution_install_script_path }}"
+  register: check_service_status_result
+  ignore_errors: yes
+
+- name: Restart distribution
+  meta: flush_handlers
+
+- name : Wait for distribution to be fully deployed  
+  uri: url=http://127.0.0.1:8082/router/api/v1/system/health timeout=130
+  register: result
+  until: result.status == 200
+  retries: 25
+  delay: 5

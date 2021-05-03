@@ -1,0 +1,95 @@
+---
+# Default version of Postgres server to install.
+postgres_version: 13
+
+# Default listen_addresses of Postgres server
+postgres_listen_addresses: 0.0.0.0
+
+# Default port of Postgres server
+postgres_port: 5432
+
+# Server version in package:
+postgres_server_pkg_version: "{{ postgres_version|replace('.', '') }}"
+
+# Whether or not the files are on ZFS.
+postgres_server_volume_is_zfs: false
+
+# Postgres setting max_connections.
+postgres_server_max_connections: 1000
+
+# Postgres setting shared_buffers.
+postgres_server_shared_buffers: 128MB
+
+# Postgres setting maintenance_work_mem.
+postgres_server_maintenance_work_mem: 64MB
+
+# Postgres setting effective_io_concurrency.
+postgres_server_effective_io_concurrency: 1
+
+# Postgres setting max_worker_processes.
+postgres_server_max_worker_processes: 8
+
+# Postgres setting max_parallel_maintenance_workers.
+postgres_server_max_parallel_maintenance_workers: 2
+
+# Postgres setting max_parallel_workers_per_gather.
+postgres_server_max_parallel_workers_per_gather: 2
+
+# Postgres setting parallel_leader_participation.
+postgres_server_parallel_leader_participation: true
+
+# Postgres setting max_parallel_workers.
+postgres_server_max_parallel_workers: 8
+
+# Postgres setting max_locks_per_transaction.
+postgres_server_max_locks_per_transaction: 64
+
+# Configuration for "random access" cost.
+postgres_server_random_page_cost: "4.0"
+
+# User name that the postgres user runs as.
+postgres_user: postgres
+
+postgres_locale: "en_US.UTF-8"
+# Whether or not to lock checkpoints.
+postgres_server_log_checkpoints: false
+
+# Whether or not to lock connects.
+postgres_server_log_connections: false
+
+# Whether or not to lock disconnects.
+postgres_server_log_disconnections: false
+
+# Whether or not to log duration
+postgres_server_log_duration: false
+
+# Error logging verbosity.
+postgres_server_log_error_verbosity: "default"
+
+# Whether or not to log the host name.
+postgres_server_log_hostname: false
+
+# Whether or not to lock waits.
+postgres_server_log_lock_waits: false
+
+# Which statements to log.
+postgres_server_log_statements: "none"
+
+# Whether or not to enable the auto_explain module.
+postgres_server_auto_explain_enabled: false
+
+# Minimal duration to log auto explain for.
+postgres_server_auto_explain_log_min_duration: -1
+
+# Whether or not to use EXPLAIN ANALYZE.
+postgres_server_auto_explain_log_analyze: true
+
+# Sets the hosts that can access the database
+postgres_allowed_hosts:
+  - {
+      type: "host",
+      database: "all",
+      user: "all",
+      address: "0.0.0.0/0",
+      method: "trust",
+    }

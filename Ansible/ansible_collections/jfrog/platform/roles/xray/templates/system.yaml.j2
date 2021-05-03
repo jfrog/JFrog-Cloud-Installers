@@ -1,0 +1,24 @@
+configVersion: 1
+shared:
+  jfrogUrl: {{ jfrog_url }}
+  node:
+    ip: {{ ansible_host }}
+    id: {{ ansible_date_time.iso8601_micro | to_uuid }}
+  database:
+    type: "{{ xray_db_type }}"
+    driver: "{{ xray_db_driver }}"
+    url: "{{ xray_db_url }}"
+    username: "{{ xray_db_user }}"
+    password: "{{ xray_db_password }}"
+  rabbitMq:
+    autoStop: true
+    erlangCookie:
+      value: "{{ xray_rabbitmq_default_cookie }}"
+    url: "{{ xray_rabbitmq_url }}"
+    username: "{{ xray_rabbitmq_user }}"
+    password: "{{xray_rabbitmq_password }}"
+  security:
+    joinKey: {{ join_key }}
+router:
+  entrypoints:
+    internalPort: 8046

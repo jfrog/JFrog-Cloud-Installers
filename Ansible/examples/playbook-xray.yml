@@ -1,6 +1,12 @@
 ---
-- hosts: xray
+- hosts: postgres_servers
   collections:
-    - jfrog.installers
+    - jfrog.platform
+  roles:
+    - postgres
+
+- hosts: xray_servers
+  collections:
+    - jfrog.platform
   roles:
     - xray

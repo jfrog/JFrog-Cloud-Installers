@@ -1,0 +1,105 @@
+---
+- debug:
+    msg: "Performing upgrade of Artifactory version to : {{ artifactory_version }} "
+
+- name: Stop artifactory
+  become: yes
+  systemd:
+    name: "{{ artifactory_daemon }}"
+    state: stopped
+
+- name: Ensure jfrog_home_directory exists
+  become: yes
+  file:
+    path: "{{ jfrog_home_directory }}"
+    state: directory
+
+- name: Download artifactory for upgrade
+  become: yes
+  unarchive:
+    src: "{{ artifactory_tar }}"
+    dest: "{{ jfrog_home_directory }}"
+    remote_src: yes
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+    creates: "{{ artifactory_untar_home }}"
+  when: artifactory_tar is defined
+  register: downloadartifactory
+  until: downloadartifactory is succeeded
+  retries: 3
+
+- name: Delete artifactory app directory
+  become: yes
+  file:
+    path: "{{ artifactory_home }}/app"
+    state: absent
+
+- name: Copy new app to artifactory app
+  become: yes
+  command: "cp -r {{ artifactory_untar_home }}/app/. {{ artifactory_home }}/app"
+
+- name: Configure join key
+  become: yes
+  copy:
+    dest: "{{ artifactory_home }}/var/etc/security/join.key"
+    content: |
+      {{ join_key }}
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+    mode: 0640
+  notify: restart artifactory
+
+- name: Configure single license
+  become: yes
+  template:
+    src: artifactory.lic.j2
+    dest: "{{ artifactory_home }}/var/etc/artifactory/artifactory.lic"
+  when: artifactory_single_license is defined
+  notify: restart artifactory
+
+- name: Configure HA licenses 
+  become: yes
+  template:
+    src: artifactory.cluster.license.j2
+    dest: "{{ artifactory_home }}/var/etc/artifactory/artifactory.cluster.license"
+  when: artifactory_licenses is defined
+  notify: restart artifactory
+
+- name: Configure installer info
+  become: yes
+  template:
+    src: installer-info.json.j2
+    dest: "{{ artifactory_home }}/var/etc/artifactory/info/installer-info.json"
+  notify: restart artifactory
+
+- name: Configure binary store
+  become: yes
+  template:
+    src: binarystore.xml.j2
+    dest: "{{ artifactory_home }}/var/etc/artifactory/binarystore.xml"
+  notify: restart artifactory
+
+- name: Configure systemyaml
+  become: yes
+  template:
+    src: "{{ artifactory_system_yaml_template }}"
+    dest: "{{ artifactory_home }}/var/etc/system.yaml"
+  notify: restart artifactory
+
+- name: Ensure permissions are correct
+  become: yes
+  file:
+    path: "{{ jfrog_home_directory }}"
+    group: "{{ artifactory_group }}"
+    owner: "{{ artifactory_user }}"
+    recurse: yes
+
+- name: Restart artifactory
+  meta: flush_handlers
+
+- name : Wait for artifactory to be fully deployed  
+  uri: url=http://127.0.0.1:8082/router/api/v1/system/health timeout=130
+  register: result
+  until: result.status == 200
+  retries: 25
+  delay: 5

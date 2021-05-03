@@ -1,0 +1,4 @@
+---
+- hosts: distribution_servers
+  roles:
+    - distribution
