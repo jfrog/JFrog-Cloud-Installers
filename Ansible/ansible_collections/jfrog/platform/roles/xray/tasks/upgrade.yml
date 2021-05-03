@@ -5,7 +5,7 @@
 - name: stop xray
   become: yes
   systemd:
-    name: {{ xray_daemon }}
+    name: "{{ xray_daemon }}"
     state: stopped
 
 - name: download xray for upgrade

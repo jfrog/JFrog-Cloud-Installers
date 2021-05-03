@@ -23,8 +23,8 @@
   roles:
     - distribution
 
-- hosts: missionControl_servers
+- hosts: missioncontrol_servers
   collections:
     - jfrog.platform
   roles:
-    - missionControl
+    - missioncontrol

@@ -43,7 +43,7 @@ tags:
   - application
   - artifactory
   - distribution
-  - missionControl
+  - missioncontrol
   - xray
 
 # Collections that this collection requires to be installed for it to be usable. The key of the dict is the

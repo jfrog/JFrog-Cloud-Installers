@@ -2,7 +2,7 @@
 artifactory_version: 7.18.5
 xray_version: 3.24.2
 distribution_version: 2.7.1
-missionControl_version: 4.7.3
+missioncontrol_version: 4.7.3
 
 # platform collection version
 platform_collection_version: 7.18.5

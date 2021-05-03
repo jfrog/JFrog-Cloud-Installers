@@ -1,4 +1,4 @@
 ---
-- hosts: missionControl_servers
+- hosts: missioncontrol_servers
   roles:
-    - missionControl
+    - missioncontrol

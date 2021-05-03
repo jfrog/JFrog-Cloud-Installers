@@ -11,6 +11,6 @@
 - hosts: distribution_servers
   roles:
     - distribution
-- hosts: missionControl_servers
+- hosts: missioncontrol_servers
   roles:
-    - missionControl
+    - missioncontrol

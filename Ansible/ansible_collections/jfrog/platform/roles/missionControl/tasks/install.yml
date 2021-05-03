@@ -1,6 +1,6 @@
 ---
 - debug:
-    msg: "Performing installation of missionControl version - {{ missionControl_version }}"
+    msg: "Performing installation of missionControl version - {{ missioncontrol_version }}"
 
 - name: Install expect dependency
   become: yes

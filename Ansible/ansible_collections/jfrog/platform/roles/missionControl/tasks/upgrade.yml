@@ -1,6 +1,6 @@
 ---
 - debug:
-    msg: "Performing Upgrade of missionControl version - {{ missionControl_version }}"
+    msg: "Performing Upgrade of missionControl version - {{ missioncontrol_version }}"
 
 - name: Stop mc service
   become: yes
