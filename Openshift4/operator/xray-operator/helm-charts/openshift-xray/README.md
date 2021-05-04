@@ -17,6 +17,38 @@ xray.xray.jfrogUrl
 
 This is due to helm referencing the value through the subchart named xray now.
 
+## Security Context Constraints
+
+To deploy this helm chart you will need to be a cluster admin w/ access to the anyuid scc.
+
+````bash
+oc adm policy add-scc-to-user anyuid -z my_service_account -n my_namespace
+````
+
+# Master and Join Key
+
+The master and join key used to deploy Artifactory must be supplied to Xray at the time of installation.
+
+## Deploying the Helm Chart
+
+1. Deploy a Postgresql to use an external database. You can find additional information on how to configure your Postgresql database [here](https://www.jfrog.com/confluence/display/JFROG/Configuring+the+Database).
+2. Run `helm dep build` to pull the subchart referenced by the `requirements.yaml`
+3. Update POSTGRES_HOST, MASTER_KEY, JOIN_KEY variables below and install `openshift-xray` with the example commands:
+
+````bash
+POSTGRES_HOST=postgres-postgresql
+MASTER_KEY=my_artifactory_master_key
+JOIN_KEY=my_artifactory_join_key
+helm upgrade --install openshift-xray . \
+               --set xray.database.url=postgres://$POSTGRES_HOST:5432/xraydb?sslmode=disable \
+               --set xray.database.user=artifactory \
+               --set xray.database.password=password \
+               --set xray.xray.jfrogUrl=http://openshift-artifactory-ha-nginx" \
+               --set xray.xray.joinKey=$JOIN_KEY \
+               --set xray.xray.masterKey=$MASTER_KEY
+````
+
+
 ## Prerequisites Details
 
 * Kubernetes 1.12+
