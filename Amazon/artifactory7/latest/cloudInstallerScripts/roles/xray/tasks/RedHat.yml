@@ -15,7 +15,7 @@
 
 - name: Install erlang
   yum:
-    name: "{{ xray_home }}/app/third-party/rabbitmq/erlang-22.3.4-1.el7.x86_64.rpm"
+    name: "{{ xray_home }}/app/third-party/rabbitmq/erlang-23.2.7-1.el7.x86_64.rpm"
     state: present
   vars:
     ansible_python_interpreter: /bin/python2
