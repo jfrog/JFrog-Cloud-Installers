@@ -1,4 +1,4 @@
-# JFrog Ansible Installers Collection
+# JFrog Ansible Installers Collection (Deprecated) 
 
 ## Getting Started
  
