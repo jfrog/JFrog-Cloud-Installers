@@ -1,0 +1,54 @@
+---
+# tasks file for artifactory-nginx
+- name: configure the artifactory nginx conf
+  template:
+    src: artifactory.conf.j2
+    dest: /etc/nginx/conf.d/artifactory.conf
+    owner: root
+    group: root
+    mode: '0755'
+  become: yes
+
+- name: ensure nginx dir exists
+  file:
+    path: "/var/opt/jfrog/nginx/ssl"
+    state: directory
+  become: yes
+
+- name: configure certificate
+  template:
+    src: certificate.pem.j2
+    dest: "/var/opt/jfrog/nginx/ssl/cert.pem"
+  become: yes
+
+- name: ensure pki exists
+  file:
+    path: "/etc/pki/tls"
+    state: directory
+  become: yes
+
+- name: configure key
+  template:
+    src: certificate.key.j2
+    dest: "/etc/pki/tls/cert.key"
+  become: yes
+
+- name: Allow apache to modify files in /srv/git_repos
+  sefcontext:
+    target: '/var/opt/jfrog/nginx/ssl/cert.pem'
+    setype: httpd_sys_content_t
+    state: present
+  vars:
+    ansible_python_interpreter: /bin/python2
+  become: yes
+
+- name: Apply new SELinux file context to filesystem
+  command: restorecon -v /var/opt/jfrog/nginx/ssl/cert.pem
+  become: yes
+
+- name: restart nginx
+  service:
+    name: nginx
+    state: restarted
+    enabled: yes
+  become: yes

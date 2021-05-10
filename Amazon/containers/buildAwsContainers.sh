@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 VERSION=$1
-EDITIONS=( artifactory-pro artifactory-jcr )
+EDITIONS=( artifactory-pro)
 
 #for loop start: editoins
 for EDITION in "${EDITIONS[@]}"
@@ -26,30 +26,16 @@ do
   perl -pe 's/^addExtraJavaArgs$/`cat extra_conf`/ge' original-entrypoint.sh > entrypoint-artifactory.sh
 
   #Create installer-info file
-  if [ "$EDITION" == "artifactory-pro" ]
-  then
-    cat <<EOF > installer-info.json
-    {
-      "productId": "container_artifactory-ha/$VERSION",
-      "features": [
-        {
-          "featureId": "Partner/ACC-006973"
-        }
-      ]
-    }
+  cat <<EOF > installer-info.json
+  {
+    "productId": "container_artifactory-ha/$VERSION",
+    "features": [
+      {
+        "featureId": "Partner/ACC-006973"
+      }
+    ]
+  }
 EOF
-  else
-    cat <<EOF > installer-info.json
-    {
-      "productId": "container_artifactory-jcr/$VERSION",
-      "features": [
-        {
-          "featureId": "Partner/ACC-006973"
-        }
-      ]
-    }
-EOF
-  fi
   cat installer-info.json
 
   # Create the new docker image

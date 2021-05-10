@@ -1,4 +1,4 @@
-ARG UPSTREAM_IMAGE=docker.bintray.io/jfrog/artifactory-jcr
+ARG UPSTREAM_IMAGE=docker.bintray.io/jfrog/artifactory-pro
 ARG UPSTREAM_TAG
 FROM ${UPSTREAM_IMAGE}:${UPSTREAM_TAG}
 USER root
