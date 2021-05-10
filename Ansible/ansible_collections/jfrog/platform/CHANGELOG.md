@@ -7,7 +7,7 @@ All changes to this collection will be documented in this file.
 
 ## [7.8.5] - May 3, 2021
 * Added new `jfrog.platform` collection with Artifactory, Distribution, Missioncontrol and Xray roles
-* `jfrog.platform` galaxy [collection] (https://galaxy.ansible.com/jfrog/platform) release
+* Published `jfrog.platform` galaxy [collection](https://galaxy.ansible.com/jfrog/platform) release
 * Added new `groups_vars/all/package_version.yml` file to define product versions
 * Added global support for masterKey and joinKey values in `groups_vars/all/vars.yml`
 * **IMPORTANT**
