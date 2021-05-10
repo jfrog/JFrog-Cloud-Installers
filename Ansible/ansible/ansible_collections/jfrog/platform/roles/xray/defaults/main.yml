@@ -1,0 +1,104 @@
+---
+# defaults file for xray
+# indicates were this collection was downlaoded from (galaxy, automation_hub, standalone)
+ansible_marketplace: standalone
+
+# whether to enable HA
+xray_ha_enabled: false
+
+xray_ha_node_type : master
+
+# The location where xray should install.
+jfrog_home_directory: /opt/jfrog
+
+# The remote xray download file
+xray_tar: https://releases.jfrog.io/artifactory/jfrog-xray/xray-linux/{{ xray_version }}/jfrog-xray-{{ xray_version }}-linux.tar.gz
+
+#The xray install directory
+xray_untar_home: "{{ jfrog_home_directory }}/jfrog-xray-{{ xray_version }}-linux"
+xray_home: "{{ jfrog_home_directory }}/xray"
+
+xray_install_script_path: "{{ xray_home }}/app/bin"
+xray_thirdparty_path: "{{ xray_home }}/app/third-party"
+xray_archive_service_cmd: "{{ xray_install_script_path }}/installService.sh"
+
+#xray users and groups
+xray_user: xray
+xray_group: xray
+
+xray_uid: 1035
+xray_gid: 1035
+
+xray_daemon: xray
+
+flow_type: archive
+
+#rabbitmq user
+xray_rabbitmq_user: guest
+xray_rabbitmq_password: guest
+xray_rabbitmq_url: "amqp://localhost:5672/"
+xray_rabbitmq_default_cookie: "XRAY_RABBITMQ_COOKIE"
+
+# if this is an upgrade
+xray_upgrade_only: false
+
+xray_system_yaml_template: system.yaml.j2
+
+linux_distro: "{{ ansible_distribution | lower }}{{ansible_distribution_major_version}}"
+
+xray_db_util_search_filter:
+  ubuntu16:
+    db5: 'db5.3-util.*ubuntu.*amd64\.deb'
+    db: 'db-util.*ubuntu.*all.deb'
+  ubuntu18:
+    db5: 'db5.3-util.*ubuntu.*amd64\.deb'
+    db: 'db-util.*ubuntu.*all.deb'
+  ubuntu20:
+    db5: 'db5.3-util.*ubuntu.*amd64\.deb'
+    db: 'db-util.*ubuntu.*all.deb'
+  debian8:
+    db5: 'db5.3-util.*deb8.*amd64\.deb'
+    db: 'db-util_([0-9]{1,3}\.?){3}_all\.deb'
+  debian9:
+    db5: 'db5.3-util.*deb9.*amd64\.deb'
+    db: 'db-util_([0-9]{1,3}\.?){3}_all\.deb'
+  debian10:
+    db5: 'TBD'
+    db: 'db-util_([0-9]{1,3}\.?){3}.*nmu1_all\.deb'
+
+
+yum_python_interpreter: >-
+    {%- if linux_distro is not defined -%}
+        /usr/bin/python3
+    {%- elif linux_distro in ['centos7', 'rhel7'] -%}
+        /usr/bin/python
+    {%- else -%}
+        /usr/bin/python3
+    {%- endif -%}
+
+# Provide systemyaml content below with 2-space indentation
+xray_systemyaml: |-
+  configVersion: 1
+  shared:
+    jfrogUrl: {{ jfrog_url }}
+    node:
+      ip: {{ ansible_host }}
+      id: {{ ansible_hostname }}
+    database:
+      type: "{{ xray_db_type }}"
+      driver: "{{ xray_db_driver }}"
+      url: "{{ xray_db_url }}"
+      username: "{{ xray_db_user }}"
+      password: "{{ xray_db_password }}"
+    rabbitMq:
+      autoStop: true
+      erlangCookie:
+        value: "{{ xray_rabbitmq_default_cookie }}"
+      url: "{{ xray_rabbitmq_url }}"
+      username: "{{ xray_rabbitmq_user }}"
+      password: "{{xray_rabbitmq_password }}"
+    security:
+      joinKey: {{ join_key }}
+  router:
+    entrypoints:
+      internalPort: 8046
