@@ -1,0 +1,8 @@
+# The version of products to install
+artifactory_version: 7.18.6
+xray_version: 3.24.2
+distribution_version: 2.7.1
+missioncontrol_version: 4.7.3
+
+# platform collection version
+platform_collection_version: 7.18.6

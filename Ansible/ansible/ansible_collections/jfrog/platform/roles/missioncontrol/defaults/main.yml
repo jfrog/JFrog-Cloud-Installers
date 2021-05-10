@@ -1,0 +1,96 @@
+---
+# defaults file for mc
+# indicates were this collection was downlaoded from (galaxy, automation_hub, standalone)
+ansible_marketplace: standalone
+
+# whether to enable HA
+mc_ha_enabled: false
+
+mc_ha_node_type : master
+
+# The location where mc should install.
+jfrog_home_directory: /opt/jfrog
+
+# The remote mc download file
+mc_tar: https://releases.jfrog.io/artifactory/jfrog-mc/linux/{{ missionControl_version }}/jfrog-mc-{{ missionControl_version }}-linux.tar.gz
+
+
+#The mc install directory
+mc_untar_home: "{{ jfrog_home_directory }}/jfrog-mc-{{ missionControl_version }}-linux"
+mc_home: "{{ jfrog_home_directory }}/mc"
+
+mc_install_script_path: "{{ mc_home }}/app/bin"
+mc_thirdparty_path: "{{ mc_home }}/app/third-party"
+mc_archive_service_cmd: "{{ mc_install_script_path }}/installService.sh"
+
+#mc users and groups
+mc_user: jfmc
+mc_group: jfmc
+
+mc_uid: 1050
+mc_gid: 1050
+
+mc_daemon: mc
+
+# MissionContol ElasticSearch Details
+es_uid: 1060
+es_gid: 1060
+
+mc_es_conf_base: "/etc/elasticsearch"
+mc_es_user: admin
+mc_es_password: admin
+mc_es_url: "http://localhost:8082"
+mc_es_base_url: "http://localhost:8082/elasticsearch"
+mc_es_transport_port: 9300
+
+mc_es_home: "/usr/share/elasticsearch"
+mc_es_data_dir: "/var/lib/elasticsearch"
+mc_es_log_dir: "/var/log/elasticsearch"
+mc_es_java_home: "/usr/share/elasticsearch/jdk"
+mc_es_script_path: "/usr/share/elasticsearch/bin"
+mc_es_searchgaurd_home: "/usr/share/elasticsearch/plugins/search-guard-7"
+
+flow_type: archive
+
+# if this is an upgrade
+mc_upgrade_only: false
+
+mc_system_yaml_template: system.yaml.j2
+
+# Provide systemyaml content below with 2-space indentation
+mc_systemyaml: |-
+  configVersion: 1
+  shared:
+    jfrogUrl: {{ jfrog_url }}
+    node:
+      ip: {{ ansible_host }}
+      id: {{ ansible_hostname }}
+    database:
+      type: "{{ mc_db_type }}"
+      driver: "{{ mc_db_driver }}"
+      url: "{{ mc_db_url }}"
+    elasticsearch:
+      unicastFile: {{ mc_es_conf_base }}/config/unicast_hosts.txt
+      password: {{ mc_es_password }}
+      url: {{ mc_es_url }}
+      username: {{ mc_es_user }}
+    security:
+      joinKey: {{ join_key }}
+  mc:
+    database:
+      username: "{{ mc_db_user }}"
+      password: "{{ mc_db_password }}"
+      schema: "jfmc_server"
+  insight-scheduler:
+    database:
+      username: "{{ mc_db_user }}"
+      password: "{{ mc_db_password }}"
+      schema: "insight_scheduler"
+  insight-server:
+    database:
+      username: "{{ mc_db_user }}"
+      password: "{{ mc_db_password }}"
+      schema: "insight_server"
+  router:
+    entrypoints:
+      internalPort: 8046
