@@ -30,7 +30,7 @@ EOF
 
 # Xray should have the same join key as the Artifactory instance
 # Both application should be deployed in the same Virtual Networks
-HOSTNAME=$(hostname -i)
+#HOSTNAME=$(hostname -i)
 
 regex_location_gov="usgov.*"
 regex_location_dod="usdod.*"
@@ -48,7 +48,7 @@ yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.database.password ${DB_PASSWO
 yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.rabbitMq.password JFXR_RABBITMQ_COOKIE
 # RabbitMQ HA configuration for VMSS
 HOSTNAME=$(hostname -s)
-ACTIVE_NODE_NAME=$(echo "$NODENAME" | sed 's/......$/000000/')
+ACTIVE_NODE_NAME=$(echo "$HOSTNAME" | sed 's/......$/000000/')
 
 if [[ $HOSTNAME =~ 000000 ]];
 then
@@ -58,8 +58,10 @@ else
   yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.rabbitMq.clean Y
   yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.rabbitMq.active.node.name ${ACTIVE_NODE_NAME}
 fi
+HOSTNAME=$(hostname -s)
 yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.jfrogUrl ${ARTIFACTORY_URL}
 yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.security.joinKey ${JOIN_KEY}
+yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.security.masterKey ${MASTER_KEY}
 yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.node.ip ${HOSTNAME}
 
 chown xray:xray -R /opt/jfrog/xray/var/etc/security/* && chown xray:xray -R /opt/jfrog/xray/var/etc/security/
