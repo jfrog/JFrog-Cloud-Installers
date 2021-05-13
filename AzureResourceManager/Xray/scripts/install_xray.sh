@@ -58,7 +58,7 @@ else
   yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.rabbitMq.clean Y
   yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.rabbitMq.active.node.name ${ACTIVE_NODE_NAME}
 fi
-HOSTNAME=$(hostname -s)
+HOSTNAME=$(hostname -i)
 yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.jfrogUrl ${ARTIFACTORY_URL}
 yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.security.joinKey ${JOIN_KEY}
 yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.security.masterKey ${MASTER_KEY}
@@ -66,7 +66,7 @@ yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.node.ip ${HOSTNAME}
 
 chown xray:xray -R /opt/jfrog/xray/var/etc/security/* && chown xray:xray -R /opt/jfrog/xray/var/etc/security/
 
-
+printenv
 # Enable and start Xray service
 sudo systemctl enable xray.service
 sudo systemctl start xray.service
