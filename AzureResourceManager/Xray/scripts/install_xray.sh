@@ -64,7 +64,7 @@ fi
 HOSTNAME=$(hostname -i)
 yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.jfrogUrl ${ARTIFACTORY_URL}
 yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.security.joinKey ${JOIN_KEY}
-yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.security.masterKey ${MASTER_KEY}
+yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.security.masterKeyFile /opt/jfrog/xray/var/etc/security/master.key
 yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.node.ip ${HOSTNAME}
 
 chown xray:xray -R /opt/jfrog/xray/var/etc/security/* && chown xray:xray -R /opt/jfrog/xray/var/etc/security/
