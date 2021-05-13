@@ -50,6 +50,9 @@ yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.rabbitMq.password JFXR_RABBIT
 HOSTNAME=$(hostname -s)
 ACTIVE_NODE_NAME=$(echo "$HOSTNAME" | sed 's/......$/000000/')
 
+echo "Printing env variables"
+printenv
+
 if [[ $HOSTNAME =~ 000000 ]];
 then
   yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.rabbitMq.erlangCookie.value JFXR_RABBITMQ_COOKIE
@@ -66,7 +69,7 @@ yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.node.ip ${HOSTNAME}
 
 chown xray:xray -R /opt/jfrog/xray/var/etc/security/* && chown xray:xray -R /opt/jfrog/xray/var/etc/security/
 
-printenv
+
 # Enable and start Xray service
 sudo systemctl enable xray.service
 sudo systemctl start xray.service
