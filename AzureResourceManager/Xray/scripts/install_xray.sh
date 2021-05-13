@@ -46,6 +46,18 @@ yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.database.username ${DB_USER}
 yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.database.actualUsername ${ACTUAL_DB_USER}
 yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.database.password ${DB_PASSWORD}
 yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.rabbitMq.password JFXR_RABBITMQ_COOKIE
+# RabbitMQ HA configuration for VMSS
+HOSTNAME=$(hostname -s)
+ACTIVE_NODE_NAME=$(echo "$NODENAME" | sed 's/......$/000000/')
+
+if [[ $HOSTNAME =~ 000000 ]];
+then
+  yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.rabbitMq.erlangCookie.value JFXR_RABBITMQ_COOKIE
+else
+  yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.rabbitMq.erlangCookie.value JFXR_RABBITMQ_COOKIE
+  yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.rabbitMq.clean Y
+  yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.rabbitMq.active.node.name ${ACTIVE_NODE_NAME}
+fi
 yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.jfrogUrl ${ARTIFACTORY_URL}
 yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.security.joinKey ${JOIN_KEY}
 yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.node.ip ${HOSTNAME}
