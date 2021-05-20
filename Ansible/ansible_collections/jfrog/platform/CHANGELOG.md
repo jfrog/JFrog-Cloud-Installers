@@ -1,6 +1,9 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [7.8.7] - May 20, 2021
+* Fixed broken variables in Ansible collection for Missioncontrol - [120](https://github.com/jfrog/JFrog-Cloud-Installer/issue/120)
+
 ## [7.8.6] - May 10, 2021
 * Fixed broken URLs in ansible galaxy - [108](https://github.com/jfrog/JFrog-Cloud-Installers/issues/108)
 * Added option to configure system.yaml (using `<product>_systemyaml` variable)  and binarystore.xml (using `artifactory_binarystore` variable)
