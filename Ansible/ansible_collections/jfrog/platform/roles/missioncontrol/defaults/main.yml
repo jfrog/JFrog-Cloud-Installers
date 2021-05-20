@@ -12,11 +12,11 @@ mc_ha_node_type : master
 jfrog_home_directory: /opt/jfrog
 
 # The remote mc download file
-mc_tar: https://releases.jfrog.io/artifactory/jfrog-mc/linux/{{ missionControl_version }}/jfrog-mc-{{ missionControl_version }}-linux.tar.gz
+mc_tar: https://releases.jfrog.io/artifactory/jfrog-mc/linux/{{ missioncontrol_version }}/jfrog-mc-{{ missioncontrol_version }}-linux.tar.gz
 
 
 #The mc install directory
-mc_untar_home: "{{ jfrog_home_directory }}/jfrog-mc-{{ missionControl_version }}-linux"
+mc_untar_home: "{{ jfrog_home_directory }}/jfrog-mc-{{ missioncontrol_version }}-linux"
 mc_home: "{{ jfrog_home_directory }}/mc"
 
 mc_install_script_path: "{{ mc_home }}/app/bin"
