@@ -2,6 +2,9 @@
 All changes to this chart will be documented in this file.
 
 
+## [107.18.6] -  May21, 2021
+* Updating to latest jfrog/artifactory-ha helm chart version 107.18.6  artifactory version 7.18.6
+
 ## [4.13.0] -  Apr 8, 2021
 * Updating to latest jfrog/artifactory-ha helm chart version 4.13.0 artifactory version 7.17.5
 
