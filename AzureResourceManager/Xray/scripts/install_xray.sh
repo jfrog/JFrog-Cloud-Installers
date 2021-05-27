@@ -72,6 +72,6 @@ chown xray:xray -R /opt/jfrog/xray/var/etc/security/* && chown xray:xray -R /opt
 
 
 # Enable and start Xray service
-#sudo systemctl enable xray.service
-#sudo systemctl start xray.service
-#sudo systemctl restart xray.service
+sudo systemctl enable xray.service
+sudo systemctl start xray.service
+sudo systemctl restart xray.service
