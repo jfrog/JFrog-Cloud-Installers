@@ -51,6 +51,7 @@ HOSTNAME=$(hostname -s)
 ACTIVE_NODE_NAME=$(echo "$HOSTNAME" | sed 's/......$/000000/')
 
 echo "Printing env variables"
+export TEST="test"
 printenv
 
 if [[ $HOSTNAME =~ 000000 ]];
