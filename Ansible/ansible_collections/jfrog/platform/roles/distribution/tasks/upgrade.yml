@@ -2,12 +2,6 @@
 - debug:
     msg: "Performing upgrade of Distribution version to {{ distribution_version }} "
 
-- name: Stop distribution
-  become: yes
-  systemd:
-    name: "{{ distribution_daemon }}"
-    state: stopped
-
 - name: Download distribution for upgrade
   become: yes
   unarchive:
@@ -21,21 +15,31 @@
   until: downloaddistribution is succeeded
   retries: 3
 
+- name: Stop distribution
+  become: yes
+  systemd:
+    name: "{{ distribution_daemon }}"
+    state: stopped
+  when: downloaddistribution.changed
+
 - name: Delete distribution app
   become: yes
   file:
     path: "{{ distribution_home }}/app"
     state: absent
+  when: downloaddistribution.changed
 
 - name: Copy new app to distribution app
   become: yes
   command: "cp -r {{ distribution_untar_home }}/app/. {{ distribution_home }}/app"
+  when: downloaddistribution.changed
 
 - name: Check if install.sh wrapper script exist
   become: yes
   stat:
     path: "{{ distribution_install_script_path }}/install.sh"
   register: install_wrapper_script
+  when: downloaddistribution.changed
 
 - name: Include interactive installer scripts
   include_vars: script/archive.yml
@@ -46,11 +50,13 @@
     exp_executable_cmd: "./install.sh -u {{ distribution_user }} -g {{ distribution_group }}"
     exp_dir: "{{ distribution_install_script_path }}"
     exp_scenarios: "{{ distribution_installer_scenario['main'] }}"
-  args: 
+  args:
     apply:
-      environment: 
-        YQ_PATH: "{{ distribution_thirdparty_path }}/yq" 
-  when: install_wrapper_script.stat.exists
+      environment:
+        YQ_PATH: "{{ distribution_thirdparty_path }}/yq"
+  when:
+    - install_wrapper_script.stat.exists
+    - downloaddistribution.changed
 
 - name: Ensure {{ distribution_home }}/var/etc/redis exists
   become: yes
@@ -74,14 +80,24 @@
     dest: "{{ distribution_home }}/var/etc/info/installer-info.json"
   notify: restart distribution
 
+- name: Check if systemyaml exists
+  become: yes
+  stat:
+    path: "{{ distribution_home }}/var/etc/system.yaml"
+  register: systemyaml
+
 - name: Configure systemyaml
   become: yes
   template:
     src: "{{ distribution_system_yaml_template }}"
     dest: "{{ distribution_home }}/var/etc/system.yaml"
+  when: 
+    - distribution_systemyaml is defined  
+    - distribution_systemyaml|length > 0
+    - distribution_systemyaml_override or (not systemyaml.stat.exists) 
   notify: restart distribution
 
-- name: Update Distribution base dir owner and group
+- name: Update distribution permissions
   become: yes
   file:
     path: "{{ distribution_home }}"
@@ -89,23 +105,14 @@
     recurse: yes
     owner: "{{ distribution_user }}"
     group: "{{ distribution_group }}"
-    mode: '0755'
-
-- name: Install Distribution as a service
-  become: yes
-  shell: |
-    {{ distribution_archive_service_cmd }}
-  args:
-    chdir: "{{ distribution_install_script_path }}"
-  register: check_service_status_result
-  ignore_errors: yes
 
 - name: Restart distribution
   meta: flush_handlers
 
-- name : Wait for distribution to be fully deployed  
+- name : Wait for distribution to be fully deployed
   uri: url=http://127.0.0.1:8082/router/api/v1/system/health timeout=130
   register: result
   until: result.status == 200
   retries: 25
   delay: 5
+  when: not ansible_check_mode

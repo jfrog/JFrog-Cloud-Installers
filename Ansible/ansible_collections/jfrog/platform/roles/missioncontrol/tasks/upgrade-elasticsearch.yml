@@ -65,7 +65,6 @@
 
 - name: Extract elasticsearch package
   become: yes
-  become_user: elasticsearch
   ignore_errors: yes
   unarchive:
     src: "{{ mc_elasticsearch_package }}"

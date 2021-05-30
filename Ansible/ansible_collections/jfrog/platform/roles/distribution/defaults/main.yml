@@ -1,7 +1,8 @@
 ---
 # defaults file for distribution
-# indicates were this collection was downlaoded from (galaxy, automation_hub, standalone)
-ansible_marketplace: standalone
+
+# The version of distribution to install
+distribution_version: 2.7.1
 
 # whether to enable HA
 distribution_ha_enabled: false
@@ -21,6 +22,7 @@ distribution_home: "{{ jfrog_home_directory }}/distribution"
 distribution_install_script_path: "{{ distribution_home }}/app/bin"
 distribution_thirdparty_path: "{{ distribution_home }}/app/third-party"
 distribution_archive_service_cmd: "{{ distribution_install_script_path }}/installService.sh"
+distribution_service_file: /lib/systemd/system/distribution.service
 
 #distribution users and groups
 distribution_user: distribution
@@ -64,3 +66,6 @@ distribution_systemyaml: |-
   router:
     entrypoints:
       internalPort: 8046
+
+# Note: distribution_systemyaml_override is by default false,  if you want to change default distribution_systemyaml
+distribution_systemyaml_override: false
