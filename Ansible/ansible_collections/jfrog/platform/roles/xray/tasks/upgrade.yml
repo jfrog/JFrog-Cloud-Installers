@@ -2,12 +2,6 @@
 - debug:
     msg: "Performing upgrade of Xray version to {{ xray_version }}..."
 
-- name: stop xray
-  become: yes
-  systemd:
-    name: "{{ xray_daemon }}"   
-    state: stopped
-
 - name: download xray for upgrade
   become: yes
   unarchive:
@@ -17,28 +11,40 @@
     owner: "{{ xray_user }}"
     group: "{{ xray_group }}"
     creates: "{{ xray_untar_home }}"
-
   register: downloadxray
   until: downloadxray is succeeded
   retries: 3
+
+- name: stop xray
+  become: yes
+  systemd:
+    name: "{{ xray_daemon }}"   
+    state: stopped
+  when: downloadxray.changed
 
 - name: Delete xray app
   become: yes
   file:
     path: "{{ xray_home }}/app"
     state: absent
+  when: downloadxray.changed
 
 - name: Copy new app to xray app
   become: yes
   command: "cp -r {{ xray_untar_home }}/app/. {{ xray_home }}/app"
+  when: downloadxray.changed
 
 - name: Upgrade rabbitmq
   import_tasks: rabbitmq/upgrade/RedHat.yml
-  when: ansible_os_family == 'RedHat'
+  when:
+    - ansible_os_family == 'RedHat'
+    - downloadxray.changed
 
 - name: Upgrade rabbitmq
   import_tasks: rabbitmq/upgrade/Debian.yml
-  when: ansible_os_family == 'Debian'
+  when:
+    - ansible_os_family == 'Debian'
+    - downloadxray.changed
 
 - name: Check if install.sh wrapper script exist
   become: yes
@@ -55,25 +61,38 @@
     exp_executable_cmd: "./install.sh -u {{ xray_user }} -g {{ xray_group }}"
     exp_dir: "{{ xray_install_script_path }}"
     exp_scenarios: "{{ xray_installer_scenario['main'] }}"
-  args: 
+  args:
     apply:
-      environment: 
-        YQ_PATH: "{{ xray_thirdparty_path }}/yq" 
-  when: install_wrapper_script.stat.exists
-  ignore_errors: yes
+      environment:
+        YQ_PATH: "{{ xray_thirdparty_path }}/yq"
+  when:
+    - install_wrapper_script.stat.exists
+    - downloadxray.changed
 
 - name: Configure rabbitmq config
   become: yes
   template:
     src: "rabbitmq.conf.j2"
     dest: "{{ xray_home }}/app/bin/rabbitmq/rabbitmq.conf"
+  when:
+    - downloadxray.changed
   notify: restart xray
+
+- name: Check if systemyaml exists
+  become: yes
+  stat:
+    path: "{{ xray_home }}/var/etc/system.yaml"
+  register: systemyaml
 
 - name: Configure systemyaml
   become: yes
   template:
     src: "{{ xray_system_yaml_template }}"
     dest: "{{ xray_home }}/var/etc/system.yaml"
+  when: 
+    - xray_systemyaml is defined  
+    - xray_systemyaml|length > 0
+    - xray_systemyaml_override or (not systemyaml.stat.exists) 
   notify: restart xray
 
 - name: configure installer info
@@ -92,21 +111,13 @@
     group: "{{ xray_group }}"
     recurse: yes
 
-- name: Install xray as a service
-  become: yes
-  shell: |
-    {{ xray_archive_service_cmd }}
-  args:
-    chdir: "{{ xray_install_script_path }}"
-  register: check_service_status_result
-  ignore_errors: yes
-
 - name: Restart xray
   meta: flush_handlers
 
-- name : wait for xray to be fully deployed  
+- name : wait for xray to be fully deployed
   uri: url=http://127.0.0.1:8082/router/api/v1/system/health timeout=130
   register: result
   until: result.status == 200
   retries: 25
   delay: 5
+  when: not ansible_check_mode

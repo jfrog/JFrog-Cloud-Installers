@@ -9,7 +9,7 @@
     state: present
   when: ansible_os_family == 'Redhat'
 
-- name: Install expect dependency 
+- name: Install expect dependency
   become: yes
   apt:
     name: expect
@@ -59,7 +59,7 @@
   command: "cp -r {{ mc_untar_home }}/. {{ mc_home }}"
   when: not app_dir_check.stat.exists
 
-- name: Create required directories 
+- name: Create required directories
   become: yes
   file:
     path: "{{ item }}"
@@ -76,8 +76,7 @@
   become: yes
   copy:
     dest: "{{ mc_home }}/var/etc/security/master.key"
-    content: |
-      {{ master_key }}
+    content: "{{ master_key }}"
     owner: "{{ mc_user }}"
     group: "{{ mc_group }}"
     mode: 0640
@@ -100,10 +99,10 @@
     exp_executable_cmd: "./install.sh -u {{ mc_user }} -g {{ mc_group }}"
     exp_dir: "{{ mc_install_script_path }}"
     exp_scenarios: "{{ mc_installer_scenario['main'] }}"
-  args: 
+  args:
     apply:
-      environment: 
-        YQ_PATH: "{{ mc_thirdparty_path }}/yq" 
+      environment:
+        YQ_PATH: "{{ mc_thirdparty_path }}/yq"
   when: install_wrapper_script.stat.exists
 
 - name: Configure installer info
@@ -113,11 +112,21 @@
     dest: "{{ mc_home }}/var/etc/info/installer-info.json"
   notify: restart missioncontrol
 
+- name: Check if systemyaml exists
+  become: yes
+  stat:
+    path: "{{ mc_home }}/var/etc/system.yaml"
+  register: systemyaml
+
 - name: Configure systemyaml
   become: yes
   template:
     src: "{{ mc_system_yaml_template }}"
     dest: "{{ mc_home }}/var/etc/system.yaml"
+  when: 
+    - mc_systemyaml is defined  
+    - mc_systemyaml|length > 0
+    - mc_systemyaml_override or (not systemyaml.stat.exists) 
   notify: restart missioncontrol
 
 - name: Update correct permissions
@@ -128,7 +137,6 @@
     recurse: yes
     owner: "{{ mc_user }}"
     group: "{{ mc_group }}"
-    mode: '0755'
 
 - name: Install mc as a service
   become: yes
@@ -136,15 +144,16 @@
     {{ mc_archive_service_cmd }}
   args:
     chdir: "{{ mc_install_script_path }}"
+    creates: "{{ mc_service_file }}"
   register: check_service_status_result
-  ignore_errors: yes
 
 - name: Restart missioncontrol
   meta: flush_handlers
 
-- name : Wait for missionControl to be fully deployed  
+- name : Wait for missionControl to be fully deployed
   uri: url=http://127.0.0.1:8082/router/api/v1/system/health timeout=130
   register: result
   until: result.status == 200
   retries: 25
   delay: 5
+  when: not ansible_check_mode

@@ -1,6 +1,6 @@
 galaxy_info:
   author: "JFrog Maintainers Team <installers@jfrog.com>"
-  description: "The artifactory role installs the Artifactory Pro software onto the host. Per the Vars below, it will configure a node as primary or secondary. This role uses secondary roles artifactory_nginx to install nginx."
+  description: "The artifactory role installs the Artifactory Pro software onto the host."
   company: JFrog
 
   issue_tracker_url: "https://github.com/jfrog/JFrog-Cloud-Installers/issues"

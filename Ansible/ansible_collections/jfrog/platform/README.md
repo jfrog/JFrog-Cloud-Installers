@@ -2,8 +2,8 @@
 
 This Ansible directory consists of the following directories that support the JFrog Platform collection.
  
- * [ansible_collections directory](ansible_collections) - This directory contains the Ansible collection package that has the Ansible roles for Artifactory, Distribution, Missioncontrol and Xray. See the roles README for details on the product roles and variables.
- * [examples directory](examples) - This directory contains example playbooks for various architectures.
+ * ansible_collections directory - This directory contains the Ansible collection package that has the Ansible roles for Artifactory, Distribution, Missioncontrol and Xray. See the roles README for details on the product roles and variables.
+ * examples directory - This directory contains example playbooks for various architectures.
  
 
  ## Getting Started
@@ -28,9 +28,9 @@ This Ansible directory consists of the following directories that support the JF
     
  2. Ansible uses SSH to connect to hosts. Ensure that your SSH private key is on your client and the public keys are installed on your Ansible hosts. 
  
- 3. Create your inventory file. Use one of the examples from the [examples directory](examples) to construct an inventory file (hosts.ini) with the host addresses
+ 3. Create your inventory file. Use one of the examples from the examples directory to construct an inventory file (hosts.ini) with the host addresses
  
- 4. Create your playbook. Use one of the examples from the [examples directory](examples) to construct a playbook using the JFrog Ansible roles. These roles will be applied to your inventory and provision software.
+ 4. Create your playbook. Use one of the examples from the examples directory to construct a playbook using the JFrog Ansible roles. These roles will be applied to your inventory and provision software.
  
  5. Then execute with the following command to provision the JFrog Platform with Ansible.
  
@@ -89,7 +89,7 @@ All JFrog product roles support software updates. To use a role to perform a sof
 ```
 
 ## Building the Collection Archive
-1. Go to the [ansible_collections/jfrog/platform directory](ansible_collections/jfrog/platform).
+1. Go to the ansible_collections/jfrog/platform directory.
 2. Update the galaxy.yml meta file as needed. Update the version.
 3. Build the archive. (Requires Ansible 2.9+)
 ```

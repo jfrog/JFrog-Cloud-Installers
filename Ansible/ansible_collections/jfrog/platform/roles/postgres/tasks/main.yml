@@ -4,7 +4,7 @@
 
 - name: perform installation
   include_tasks: "{{ ansible_os_family }}.yml"
- 
+
 - name: Set PostgreSQL environment variables.
   become: yes
   template:
@@ -96,7 +96,7 @@
   become: yes
   become_user: postgres
   postgresql_privs:
-    database: "{{ mc_db_name}}"
+    database: "{{ mc_db_name }}"
     privs: ALL
     type: schema
     roles: "{{ mc_db_user }}"
