@@ -19,7 +19,7 @@
     },
     "xrayVersion": {
       "type": "string",
-      "defaultValue": "0.0.21",
+      "defaultValue": "0.0.22",
       "allowedValues": [
         "0.0.10",
         "0.0.11",
@@ -29,7 +29,8 @@
 	"0.0.17",
 	"0.0.18",
 	"0.0.20",
-	"0.0.21"
+	"0.0.21",
+	"0.0.22"
       ],
       "metadata": {
         "description": "Xray-vm image version to deploy."
@@ -267,7 +268,7 @@
     },
     {
       "type": "Microsoft.Storage/storageAccounts",
-      "apiVersion": "2019-06-01",
+      "apiVersion": "2020-08-01-preview",
       "name": "[variables('storageAccountName')]",
       "location": "[parameters('location')]",
       "sku": {
