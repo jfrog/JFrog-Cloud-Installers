@@ -1,0 +1,60 @@
+project:
+  name: quickstart-jfrog-artifactory
+  owner: quickstart-eng@amazon.com
+  s3_object_acl: private
+  s3_regional_buckets: true
+  shorten_stack_name: true
+  regions:
+      - us-west-2
+  parameters:
+    KeyPairName         : "vinaykey1"
+    ArtifactoryVersion  : 7.18.6
+    XrayVersion         : 3.24.2
+    RemoteAccessCidr    : "0.0.0.0/0"
+    AccessCidr          : "0.0.0.0/0"
+    QsS3BucketName      : "jfrog-aws"
+    QsS3KeyPrefix       : "artifactory7/latest/"
+    QsS3BucketRegion    : "us-east-1"
+    MasterKey           : "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
+    SmLicenseName       : "jfrog-artifactory"
+    SmCertName          : "jfrog.tech-certificates"
+tests:
+  new-vpc:
+    parameters:
+      AvailabilityZone1: "us-east-1a"
+      AvailabilityZone2: "us-east-1b"
+      DatabasePassword: "$[taskcat_genpass_8A]"
+      NumberOfSecondary: 2
+      ArtifactoryServerName: "artifactory"
+      InstallXray: "true"
+      XrayDatabasePassword: "$[taskcat_genpass_8A]"
+      XrayNumberOfInstances: 2
+    template: new-vpc.yaml
+    regions:
+        - us-east-1
+  existing-vpc:
+    parameters:
+      AvailabilityZone1: "us-west-2a"
+      AvailabilityZone2: "us-west-2b"
+      DatabasePassword: "$[taskcat_genpass_8A]"
+      NumberOfSecondary: "2"
+      ArtifactoryServerName: "artifactory"
+      InstallXray: "true"
+      XrayDatabasePassword: "$[taskcat_genpass_8A]"
+      XrayNumberOfInstances: 2
+
+      MultiAzDatabase: "true"
+      DatabaseInstance: "db.m5.large"
+
+      # us-east-1
+      VpcId               : "vpc-0e577f295d10288d2"
+      PublicSubnet1Id: "subnet-02876fed3e23adca6"
+      PublicSubnet2Id: "subnet-00604281070fd1f32"
+      PrivateSubnet1Id: "subnet-088755aa140290fa8"
+      PrivateSubnet2Id: "subnet-05ef6759d603c8d32"
+
+      DatabasePreferredAz : us-west-2a
+
+    template: existing-vpc.yaml
+    regions:
+        - us-west-2
