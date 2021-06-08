@@ -1,6 +1,9 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [7.9.5] - June 8, 2021
+* Fix running elasticsearch
+
 ## [7.9.4] - May 31, 2021
 * Moved product versions from `groups_vars/all/package_version.yml` to roles/<product>/defaults
 * Added variable to configure postgres apt key (`postgres_apt_key_url`) and id (`postgres_apt_key_id`)
