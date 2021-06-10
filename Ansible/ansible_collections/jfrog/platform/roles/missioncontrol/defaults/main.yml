@@ -2,7 +2,7 @@
 # defaults file for mc
 
 # The version of missioncontrol to install
-missioncontrol_version: 4.7.4
+missioncontrol_version: 4.7.5
 
 # whether to enable HA
 mc_ha_enabled: false
