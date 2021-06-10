@@ -102,9 +102,7 @@
 
 - name: Start elasticsearch
   become: yes
-  become_user: elasticsearch
-  ignore_errors: yes
-  shell: "{{ mc_es_script_path }}/elasticsearch -d"
+  shell: "su -c '{{ mc_es_script_path }}/elasticsearch -d' elasticsearch"
   environment:
     JAVA_HOME: "{{ mc_es_java_home }}"
     ES_PATH_CONF: "{{ mc_es_conf_base }}/"
