@@ -12,15 +12,15 @@
 - name: add postgres apt key
   become: yes
   apt_key:
-    url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
-    id: "0x7FCC7D46ACCC4CF8"
+    url: "{{ postgres_apt_key_url }}"
+    id: "{{ postgres_apt_key_id }}"
     validate_certs: no
     state: present
 
 - name: register APT repository
   become: yes
   apt_repository:
-    repo: deb http://apt.postgresql.org/pub/repos/apt/ {{ ansible_distribution_release }}-pgdg main
+    repo: "{{ postgres_apt_repository_repo }}"
     state: present
     filename: pgdg
 

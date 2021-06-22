@@ -90,7 +90,7 @@
             "value": "OWERWRITE_THE_PASSWORD"
         },
         "xrayVersion": {
-            "value": "3.22.1"
+            "value": "OWERWRITE_LATEST_VERSION"
         },
         "scriptName": {
             "value": "install_xray_to_vm.sh"

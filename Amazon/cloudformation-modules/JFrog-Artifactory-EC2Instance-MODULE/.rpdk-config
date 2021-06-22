@@ -1,0 +1,5 @@
+{
+    "artifact_type": "MODULE",
+    "typeName": "JFrog::Artifactory::EC2Instance::MODULE",
+    "settings": {}
+}

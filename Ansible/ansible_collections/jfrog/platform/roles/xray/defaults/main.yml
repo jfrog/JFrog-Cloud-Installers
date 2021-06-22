@@ -1,7 +1,8 @@
 ---
 # defaults file for xray
-# indicates were this collection was downlaoded from (galaxy, automation_hub, standalone)
-ansible_marketplace: standalone
+
+# The version of xray to install
+xray_version: 3.26.1
 
 # whether to enable HA
 xray_ha_enabled: false
@@ -21,6 +22,7 @@ xray_home: "{{ jfrog_home_directory }}/xray"
 xray_install_script_path: "{{ xray_home }}/app/bin"
 xray_thirdparty_path: "{{ xray_home }}/app/third-party"
 xray_archive_service_cmd: "{{ xray_install_script_path }}/installService.sh"
+xray_service_file : /lib/systemd/system/xray.service
 
 #xray users and groups
 xray_user: xray
@@ -102,3 +104,6 @@ xray_systemyaml: |-
   router:
     entrypoints:
       internalPort: 8046
+
+# Note: xray_systemyaml_override is by default false,  if you want to change default xray_systemyaml
+xray_systemyaml_override: false

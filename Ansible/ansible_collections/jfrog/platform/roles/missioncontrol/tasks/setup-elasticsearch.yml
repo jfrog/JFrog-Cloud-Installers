@@ -16,7 +16,7 @@
     shell: /bin/bash
     state: present
 
-- name: Create required directories 
+- name: Create required directories
   become: yes
   file:
     path: "{{ item }}"
@@ -69,16 +69,15 @@
   when: check_elasticsearch_package_result.matched > 0
 
 - name: Ensure /usr/share/elasticsearch  exists
+  become: yes
   file:
     path: "{{ mc_es_home }}"
     state: directory
     owner: elasticsearch
     group: elasticsearch
-  become: yes
 
 - name: Extract elasticsearch package
   become: yes
-  become_user: elasticsearch
   ignore_errors: yes
   unarchive:
     src: "{{ mc_elasticsearch_package }}"
@@ -88,18 +87,21 @@
       - --strip-components=1
     owner: elasticsearch
     group: elasticsearch
+    creates: "{{ mc_es_java_home }}"
   register: unarchive_result
   when: check_elasticsearch_package_result.matched > 0
 
 - name: Copy elasticsearch config files to ES_PATH_CONF dir
   become: yes
   command: "cp -r {{ mc_es_home }}/config/. {{ mc_es_conf_base }}/"
+  when: unarchive_result.changed
 
 - name: Remove elasticsearch config dir
   become: yes
   file:
     path: "{{ mc_es_home }}/config"
     state: absent
+  when: unarchive_result.changed
 
 - name: Generate HA elasticsearch.yml template file
   become: yes
@@ -150,11 +152,10 @@
     - "{{ mc_es_data_dir }}"
     - "{{ mc_es_log_dir }}"
     - "{{ mc_es_home }}"
-    
+
 - name: Start elasticsearch
   become: yes
-  become_user: elasticsearch
-  shell: "{{ mc_es_script_path }}/elasticsearch -d"
+  shell: "su -c '{{ mc_es_script_path }}/elasticsearch -d' elasticsearch"
   environment:
     JAVA_HOME: "{{ mc_es_java_home }}"
     ES_PATH_CONF: "{{ mc_es_conf_base }}/"

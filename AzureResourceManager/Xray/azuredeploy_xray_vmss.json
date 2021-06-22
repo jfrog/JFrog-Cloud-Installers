@@ -19,7 +19,7 @@
     },
     "xrayVersion": {
       "type": "string",
-      "defaultValue": "0.0.21",
+      "defaultValue": "0.0.22",
       "allowedValues": [
         "0.0.10",
         "0.0.11",
@@ -28,9 +28,9 @@
         "0.0.15",
         "0.0.17",
         "0.0.18",
-        "0.0.19",
         "0.0.20",
-        "0.0.21"
+        "0.0.21",
+        "0.0.22"
       ],
       "metadata": {
         "description": "Xray-vm image version to deploy."
@@ -165,7 +165,7 @@
       "metadata": {
         "description": "The base URI where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
       },
-      "defaultValue": "https://raw.githubusercontent.com/jfrog/JFrog-Cloud-Installers/arm-xray-experiments/AzureResourceManager/Xray/"
+      "defaultValue": "https://raw.githubusercontent.com/jfrog/JFrog-Cloud-Installers/master/AzureResourceManager/Xray/"
     },
     "_artifactsLocationSasToken": {
       "type": "securestring",

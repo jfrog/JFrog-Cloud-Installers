@@ -1,7 +1,8 @@
 ---
 # defaults file for artifactory
-# indicates where this collection was downloaded from (galaxy, automation_hub, standalone)
-ansible_marketplace: standalone
+
+# The version of artifactory to install
+artifactory_version: 7.19.8
 
 # Set this to true when SSL is enabled (to use artifactory_nginx_ssl role), default to false (implies artifactory uses artifactory_nginx role )
 artifactory_nginx_ssl_enabled: false
@@ -30,9 +31,6 @@ artifactory_taskAffinity: any
 # The location where Artifactory should install.
 jfrog_home_directory: /opt/jfrog
 
-# The location where Artifactory should store data.
-artifactory_file_store_dir: /data
-
 # Pick the Artifactory flavour to install, can be also cpp-ce, jcr, pro.
 artifactory_flavour: pro
 
@@ -42,7 +40,8 @@ artifactory_tar: https://releases.jfrog.io/artifactory/artifactory-pro/org/artif
 artifactory_home: "{{ jfrog_home_directory }}/artifactory"
 artifactory_untar_home: "{{ jfrog_home_directory }}/artifactory-{{ artifactory_flavour }}-{{ artifactory_version }}"
 
-postgres_driver_download_url: https://repo1.maven.org/maven2/org/postgresql/postgresql/42.2.20/postgresql-42.2.20.jar
+postgres_driver_version: 42.2.20
+postgres_driver_download_url: https://repo1.maven.org/maven2/org/postgresql/postgresql/{{ postgres_driver_version }}/postgresql-{{ postgres_driver_version }}.jar
 
 artifactory_user: artifactory
 artifactory_group: artifactory
@@ -59,6 +58,7 @@ artifactory_upgrade_only: false
 artifactory_admin_username: admin
 artifactory_admin_password: password
 
+artifactory_service_file : /lib/systemd/system/artifactory.service
 
 # Provide binarystore XML content below with 2-space indentation
 artifactory_binarystore: |-
@@ -71,6 +71,8 @@ artifactory_binarystore: |-
 artifactory_systemyaml: |-
   configVersion: 1
   shared:
+    security:
+      joinKey: "{{ join_key }}"
     extraJavaOpts: "{{ artifactory_extra_java_opts }}"
     node:
       id: {{ ansible_hostname }}
@@ -86,3 +88,6 @@ artifactory_systemyaml: |-
   router:
     entrypoints:
       internalPort: 8046
+
+# Note: artifactory_systemyaml_override is by default false,  if you want to change default artifactory_systemyaml
+artifactory_systemyaml_override: false

@@ -4,3 +4,6 @@ postgresql_bin_path: "/usr/lib/postgresql/{{ postgres_version }}/bin"
 postgresql_config_path: "/etc/postgresql/{{ postgres_version }}/main"
 postgresql_daemon: postgresql@{{ postgres_version}}-main
 postgresql_external_pid_file: "/var/run/postgresql/{{ postgres_version }}-main.pid"
+postgres_apt_key_url: "https://www.postgresql.org/media/keys/ACCC4CF8.asc"
+postgres_apt_key_id: "0x7FCC7D46ACCC4CF8"
+postgres_apt_repository_repo: "deb http://apt.postgresql.org/pub/repos/apt/ {{ ansible_distribution_release }}-pgdg main"

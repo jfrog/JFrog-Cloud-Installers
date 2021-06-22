@@ -1,7 +1,8 @@
 ---
 # defaults file for mc
-# indicates were this collection was downlaoded from (galaxy, automation_hub, standalone)
-ansible_marketplace: standalone
+
+# The version of missioncontrol to install
+missioncontrol_version: 4.7.5
 
 # whether to enable HA
 mc_ha_enabled: false
@@ -12,16 +13,16 @@ mc_ha_node_type : master
 jfrog_home_directory: /opt/jfrog
 
 # The remote mc download file
-mc_tar: https://releases.jfrog.io/artifactory/jfrog-mc/linux/{{ missionControl_version }}/jfrog-mc-{{ missionControl_version }}-linux.tar.gz
-
+mc_tar: https://releases.jfrog.io/artifactory/jfrog-mc/linux/{{ missioncontrol_version }}/jfrog-mc-{{ missioncontrol_version }}-linux.tar.gz
 
 #The mc install directory
-mc_untar_home: "{{ jfrog_home_directory }}/jfrog-mc-{{ missionControl_version }}-linux"
+mc_untar_home: "{{ jfrog_home_directory }}/jfrog-mc-{{ missioncontrol_version }}-linux"
 mc_home: "{{ jfrog_home_directory }}/mc"
 
 mc_install_script_path: "{{ mc_home }}/app/bin"
 mc_thirdparty_path: "{{ mc_home }}/app/third-party"
 mc_archive_service_cmd: "{{ mc_install_script_path }}/installService.sh"
+mc_service_file : /lib/systemd/system/mc.service
 
 #mc users and groups
 mc_user: jfmc
@@ -94,3 +95,6 @@ mc_systemyaml: |-
   router:
     entrypoints:
       internalPort: 8046
+
+# Note: mc_systemyaml_override is by default false,  if you want to change default mc_systemyaml
+mc_systemyaml_override: false

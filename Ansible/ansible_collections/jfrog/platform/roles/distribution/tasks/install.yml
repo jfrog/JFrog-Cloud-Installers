@@ -9,7 +9,7 @@
   become: yes
   when: ansible_os_family == 'Redhat'
 
-- name: Install expect dependency 
+- name: Install expect dependency
   apt:
     name: expect
     state: present
@@ -17,7 +17,7 @@
   become: yes
   when: ansible_os_family == 'Debian'
 
-- name: Ensure group jfdistribution exist
+- name: Ensure group distribution exist
   become: yes
   group:
     name: "{{ distribution_group }}"
@@ -59,7 +59,7 @@
   command: "cp -r {{ distribution_untar_home }}/. {{ distribution_home }}"
   when: not app_dir_check.stat.exists
 
-- name: Create required directories 
+- name: Create required directories
   become: yes
   file:
     path: "{{ item }}"
@@ -77,8 +77,7 @@
   become: yes
   copy:
     dest: "{{ distribution_home }}/var/etc/security/master.key"
-    content: |
-      {{ master_key }}
+    content: "{{ master_key }}"
     owner: "{{ distribution_user }}"
     group: "{{ distribution_group }}"
     mode: 0640
@@ -98,10 +97,10 @@
     exp_executable_cmd: "./install.sh -u {{ distribution_user }} -g {{ distribution_group }}"
     exp_dir: "{{ distribution_install_script_path }}"
     exp_scenarios: "{{ distribution_installer_scenario['main'] }}"
-  args: 
+  args:
     apply:
-      environment: 
-        YQ_PATH: "{{ distribution_thirdparty_path }}/yq" 
+      environment:
+        YQ_PATH: "{{ distribution_thirdparty_path }}/yq"
   when: install_wrapper_script.stat.exists
 
 - name: Configure redis config
@@ -111,11 +110,21 @@
     dest: "{{ distribution_home }}/var/etc/redis/redis.conf"
   notify: restart distribution
 
+- name: Check if systemyaml exists
+  become: yes
+  stat:
+    path: "{{ distribution_home }}/var/etc/system.yaml"
+  register: systemyaml
+
 - name: Configure systemyaml
   become: yes
   template:
     src: "{{ distribution_system_yaml_template }}"
     dest: "{{ distribution_home }}/var/etc/system.yaml"
+  when: 
+    - distribution_systemyaml is defined  
+    - distribution_systemyaml|length > 0
+    - distribution_systemyaml_override or (not systemyaml.stat.exists) 
   notify: restart distribution
 
 - name: Configure installer info
@@ -133,7 +142,6 @@
     recurse: yes
     owner: "{{ distribution_user }}"
     group: "{{ distribution_group }}"
-    mode: '0755'
 
 - name: Install Distribution as a service
   become: yes
@@ -141,15 +149,25 @@
     {{ distribution_archive_service_cmd }}
   args:
     chdir: "{{ distribution_install_script_path }}"
+    creates: "{{ distribution_service_file }}"
   register: check_service_status_result
-  ignore_errors: yes
+
+- name: Update distribution permissions
+  become: yes
+  file:
+    path: "{{ distribution_home }}"
+    state: directory
+    recurse: yes
+    owner: "{{ distribution_user }}"
+    group: "{{ distribution_group }}"
 
 - name: Restart distribution
   meta: flush_handlers
 
-- name : Wait for distribution to be fully deployed  
+- name : Wait for distribution to be fully deployed
   uri: url=http://127.0.0.1:8082/router/api/v1/system/health timeout=130
   register: result
   until: result.status == 200
   retries: 25
   delay: 5
+  when: not ansible_check_mode
