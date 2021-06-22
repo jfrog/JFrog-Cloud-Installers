@@ -40,16 +40,28 @@
 
 - name: Download xray
   become: yes
+  get_url:
+    url: "{{ xray_tar }}"
+    dest: "{{ jfrog_home_directory }}"
+    owner: "{{ xray_user }}"
+    group: "{{ xray_group }}"
+    timeout: "{{ download_timeout }}"
+  register: downloadxray
+  until: downloadxray is succeeded
+  retries: 3
+
+- name: uncompress xray
+  become: yes
   unarchive:
-    src: "{{ xray_tar }}"
+    src: "{{ downloadxray.dest }}"
     dest: "{{ jfrog_home_directory }}"
     remote_src: yes
     owner: "{{ xray_user }}"
     group: "{{ xray_group }}"
     creates: "{{ xray_untar_home }}"
-  register: downloadxray
-  until: downloadxray is succeeded
-  retries: 3
+  when:
+  - xray_tar is defined
+  - downloadxray is succeeded
 
 - name: Check if app directory exists
   become: yes

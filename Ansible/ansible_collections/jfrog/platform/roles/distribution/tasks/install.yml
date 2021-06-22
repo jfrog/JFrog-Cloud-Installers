@@ -37,16 +37,28 @@
 
 - name: Download distribution
   become: yes
+  get_url:
+    url: "{{ distribution_tar }}"
+    dest: "{{ jfrog_home_directory }}"
+    owner: "{{ distribution_user }}"
+    group: "{{ distribution_group }}"
+    timeout: "{{ download_timeout }}"
+  register: downloaddistribution
+  until: downloaddistribution is succeeded
+  retries: 3
+
+- name: uncompress distribution
+  become: yes
   unarchive:
-    src: "{{ distribution_tar }}"
+    src: "{{ downloaddistribution.dest }}"
     dest: "{{ jfrog_home_directory }}"
     remote_src: yes
     owner: "{{ distribution_user }}"
     group: "{{ distribution_group }}"
     creates: "{{ distribution_untar_home }}"
-  register: downloaddistribution
-  until: downloaddistribution is succeeded
-  retries: 3
+  when:
+  - distribution_tar is defined
+  - downloaddistribution is succeeded
 
 - name: Check if app directory exists
   become: yes

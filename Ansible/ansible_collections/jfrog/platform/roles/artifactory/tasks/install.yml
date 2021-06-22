@@ -36,17 +36,29 @@
 
 - name: Download artifactory
   become: yes
+  get_url:
+    url: "{{ artifactory_tar }}"
+    dest: "{{ jfrog_home_directory }}"
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+    timeout: "{{ download_timeout }}"
+  when: artifactory_tar is defined
+  register: downloadartifactory
+  until: downloadartifactory is succeeded
+  retries: 3
+
+- name: uncompress artifactory
+  become: yes
   unarchive:
-    src: "{{ artifactory_tar }}"
+    src: "{{ downloadartifactory.dest }}"
     dest: "{{ jfrog_home_directory }}"
     remote_src: yes
     owner: "{{ artifactory_user }}"
     group: "{{ artifactory_group }}"
     creates: "{{ artifactory_untar_home }}"
-  when: artifactory_tar is defined
-  register: downloadartifactory
-  until: downloadartifactory is succeeded
-  retries: 3
+  when: 
+  - artifactory_tar is defined
+  - downloadartifactory is succeeded
 
 - name: Check if app directory exists
   become: yes

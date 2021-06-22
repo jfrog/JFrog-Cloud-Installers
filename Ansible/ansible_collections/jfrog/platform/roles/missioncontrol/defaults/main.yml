@@ -98,3 +98,5 @@ mc_systemyaml: |-
 
 # Note: mc_systemyaml_override is by default false,  if you want to change default mc_systemyaml
 mc_systemyaml_override: false
+
+download_timeout: 10

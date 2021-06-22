@@ -69,3 +69,5 @@ distribution_systemyaml: |-
 
 # Note: distribution_systemyaml_override is by default false,  if you want to change default distribution_systemyaml
 distribution_systemyaml_override: false
+
+download_timeout: 10

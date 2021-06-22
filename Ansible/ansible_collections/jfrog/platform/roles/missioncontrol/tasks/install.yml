@@ -37,16 +37,28 @@
 
 - name: Download mc
   become: yes
+  get_url:
+    url: "{{ mc_tar }}"
+    dest: "{{ jfrog_home_directory }}"
+    owner: "{{ mc_user }}"
+    group: "{{ mc_group }}"
+    timeout: "{{ download_timeout }}"
+  register: downloadmc
+  until: downloadmc is succeeded
+  retries: 3
+
+- name: uncompress mc
+  become: yes
   unarchive:
-    src: "{{ mc_tar }}"
+    src: "{{ downloadmc.dest }}"
     dest: "{{ jfrog_home_directory }}"
     remote_src: yes
     owner: "{{ mc_user }}"
     group: "{{ mc_group }}"
     creates: "{{ mc_untar_home }}"
-  register: downloadmc
-  until: downloadmc is succeeded
-  retries: 3
+  when:
+  - mc_tar is defined
+  - downloadmc is succeeded
 
 - name: Check if app directory exists
   become: yes

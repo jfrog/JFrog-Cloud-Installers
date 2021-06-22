@@ -107,3 +107,5 @@ xray_systemyaml: |-
 
 # Note: xray_systemyaml_override is by default false,  if you want to change default xray_systemyaml
 xray_systemyaml_override: false
+
+download_timeout: 10
