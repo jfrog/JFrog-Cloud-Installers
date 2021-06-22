@@ -135,54 +135,42 @@
                   "label": "3.15.3",
                   "value": "0.0.11"
                 },
-	        {
+                {
                   "label": "3.17.2",
-	          "value": "0.0.13"
-	        },
-	        {
+                  "value": "0.0.13"
+                },
+                {
                   "label": "3.17.4",
-	          "value": "0.0.14"
-	        },
-		{
-		  "label": "3.18.0",
-		  "value": "0.0.15"
-		},
-		{
-	          "label": "3.21.2",
-		  "value": "0.0.17"
-		},
-		{
-		  "label": "3.22.1",
-		  "value": "0.0.18"
-		},
-	        {
-	          "label": "3.23.0",
-		  "value": "0.0.20"
-		},
-		{
-	          "label": "3.24.2",
-		  "value": "0.0.21"
-		},
-		{
-		  "label": "3.25.1",
-		  "value": "0.0.22"
-		}
+                  "value": "0.0.14"
+                },
+                {
+                  "label": "3.18.0",
+                  "value": "0.0.15"
+                },
+                {
+                  "label": "3.21.2",
+                  "value": "0.0.17"
+                },
+                {
+                  "label": "3.22.1",
+                  "value": "0.0.18"
+                },
+                {
+                  "label": "3.23.0",
+                  "value": "0.0.20"
+                },
+                {
+                  "label": "3.24.2",
+                  "value": "0.0.21"
+                },
+                {
+                  "label": "3.25.1",
+                  "value": "0.0.22"
+                }
               ],
               "required": true
             },
             "visible": true
-          },
-          {
-            "name": "clusterName",
-            "type": "Microsoft.Common.TextBox",
-            "label": "Cluster name",
-            "toolTip": "Cluster name",
-            "defaultValue": "",
-            "constraints": {
-              "required": true,
-              "regex": "^[a-z0-9A-Z]{1,30}$",
-              "validationMessage": "Only alphanumeric characters are allowed, and the value must be 1-30 characters long."
-            }
           },
           {
             "name": "masterKey",
@@ -337,7 +325,6 @@
       "subnetName": "[steps('vmCredential').vnet.subnets.subnet1.name]",
       "subnetAddressPrefix": "[steps('vmCredential').vnet.subnets.subnet1.addressPrefix]",
       "xrayVersion": "[steps('xrayConfig').xrayVersion]",
-      "clusterName": "[steps('xrayConfig').clusterName]",
       "artifactoryURL": "[steps('xrayConfig').artifactoryURL]",
       "masterKey": "[steps('xrayConfig').masterKey]",
       "joinKey": "[steps('xrayConfig').joinKey]",

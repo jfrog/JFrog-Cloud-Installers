@@ -23,14 +23,14 @@
       "allowedValues": [
         "0.0.10",
         "0.0.11",
-	"0.0.13",
-	"0.0.14",
-	"0.0.15",
-	"0.0.17",
-	"0.0.18",
-	"0.0.20",
-	"0.0.21",
-	"0.0.22"
+        "0.0.13",
+        "0.0.14",
+        "0.0.15",
+        "0.0.17",
+        "0.0.18",
+        "0.0.20",
+        "0.0.21",
+        "0.0.22"
       ],
       "metadata": {
         "description": "Xray-vm image version to deploy."
@@ -347,7 +347,7 @@
             "computerNamePrefix": "[variables('namingInfix')]",
             "adminUsername": "[parameters('adminUsername')]",
             "adminPassword": "[parameters('adminPassword')]",
-            "customData": "[base64(concat('#INSTALL SCRIPT INPUTS\nXRAY_VERSION=', parameters('xrayVersion'),'\nARTIFACTORY_URL=',variables('artifactoryURL'),'\nDB_SERVER=',variables('db_server'),'\nDB_NAME=',variables('db_name'),'\nDB_ADMIN_USER=',variables('db_user'),'\nACTUAL_DB_ADMIN_USER=',variables('actual_db_user'),'\nDB_ADMIN_PASSWD=',variables('db_password'),'\nMASTER_KEY=',variables('masterKey'),'\nLOCATION=',parameters('location'),'\nJOIN_KEY=',variables('joinKey'),'\n'))]"
+            "customData": "[base64(concat('#INSTALL SCRIPT INPUTS\nXRAY_VERSION=', parameters('xrayVersion'),'\nARTIFACTORY_URL=',variables('artifactoryURL'),'\nDB_SERVER=',variables('db_server'),'\nDB_NAME=',variables('db_name'),'\nDB_ADMIN_USER=',variables('db_user'),'\nACTUAL_DB_ADMIN_USER=',variables('actual_db_user'),'\nDB_ADMIN_PASSWD=',variables('db_password'),'\nMASTER_KEY=',variables('masterKey'),'\nLOCATION=',parameters('location'),'\nCLUSTER_NAME=',parameters('clusterName'),'\nJOIN_KEY=',variables('joinKey'),'\n'))]"
           },
           "networkProfile": {
             "networkInterfaceConfigurations": [
