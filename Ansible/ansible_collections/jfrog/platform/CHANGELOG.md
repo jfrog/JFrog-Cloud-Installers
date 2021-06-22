@@ -1,6 +1,9 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [7.21.x] - June 22, 2021
+* Allow to set timeout to download tar file
+
 ## [7.19.8] - June 10, 2021
 * Fix Missioncontrol ES start issue
 
