@@ -18,25 +18,6 @@ sudo apt update -y
 sudo apt install yq -y
 sudo apt install nmap -y
 
-# record current cookie to that file - JFXR_RABBITMQ_COOKIE
-#cat <<EOF >/root/.erlang.cookie
-#JFXR_RABBITMQ_COOKIE
-#EOF
-#sudo chmod 400 /root/.erlang.cookie
-
-#cd /opt/jfrog/xray/app/third-party/rabbitmq/sbin
-#sudo ./rabbitmqctl start_app # to initialize
-#sudo ./rabbitmqctl stop_app # prepare to connect to the cluster
-## ./rabbitmqctl join_cluster ${RABBITMQ_ACTIVE_NODE}
-#sudo ./rabbitmqctl start_app
-
-#sudo ./rabbitmqctl --node rabbit@$(hostname -s) join_cluster ${RABBITMQ_ACTIVE_NODE} # should be cluster name
-# ./rabbitmqctl --node rabbit@xrayyul3n000000 join_cluster rabbit@xrayyul3n000001
-# ./rabbitmqctl join_cluster ${RABBITMQ_ACTIVE_NODE}
-
-# rm -rf /var/opt/jfrog/xray/data/rabbitmq/mnesia
-#sudo ./rabbitmqctl start_app
-
 # Create master.key on each node
 sudo mkdir -p /opt/jfrog/xray/var/etc/security/
 cat <<EOF >/opt/jfrog/xray/var/etc/security/master.key
@@ -48,10 +29,6 @@ cat <<EOF >>/opt/jfrog/xray/app/bin/xray.default
 export PARTNER_ID=Partner/ACC-007221
 export INTEGRATION_NAME=ARM_xray-template/1.0.0
 EOF
-
-# Xray should have the same join key as the Artifactory instance
-# Both application should be deployed in the same Virtual Networks
-#HOSTNAME=$(hostname -i)
 
 # Verify if the app is deploying in GovCloud
 regex_location_gov="usgov.*"
@@ -80,7 +57,8 @@ then
   yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.rabbitMq.erlangCookie.value JFXR_RABBITMQ_COOKIE
 else
   # Scan the subnet to verify if there are other Xray nodes
-  # Get the first Xray node name
+  # Get the first Xray node name, modify to met RabbitMQ requirements, add into system.yaml
+  # Modify system.yaml to make a new RabbitMQ node able to connect to the cluster
   ACTIVE_NODE_NAME=$(nmap -sn $(hostname -i)/24 | grep -i ${CLUSTER_NAME} | sort | awk 'NR==1{print $5}')
   RABBITMQ_ACTIVE_NODE=$(cat /etc/hostname | sed 's/......$//g')$(echo $ACTIVE_NODE_NAME | cut -f1 -d"." | sed -e 's/\(^.*\)\(......$\)/\2/' | tr '[:lower:]' '[:upper:]')
   yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.rabbitMq.erlangCookie.value JFXR_RABBITMQ_COOKIE
