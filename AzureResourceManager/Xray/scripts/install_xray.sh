@@ -81,6 +81,7 @@ then
 else
   # Scan the subnet to verify if there are other Xray nodes
   # Get the first Xray node name
+  ACTIVE_NODE_NAME=$(nmap -sn $(hostname -i)/24 | grep -i ${CLUSTER_NAME} | sort | awk 'NR==1{print $5}')
   RABBITMQ_ACTIVE_NODE=$(cat /etc/hostname | sed 's/......$//g')$(echo $ACTIVE_NODE_NAME | cut -f1 -d"." | sed -e 's/\(^.*\)\(......$\)/\2/' | tr '[:lower:]' '[:upper:]')
   yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.rabbitMq.erlangCookie.value JFXR_RABBITMQ_COOKIE
   yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.rabbitMq.clean Y
