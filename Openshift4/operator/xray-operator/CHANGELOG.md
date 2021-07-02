@@ -1,6 +1,12 @@
 # JFrog  Openshift Xray Chart Changelog
 All changes to this chart will be documented in this file.
 
+## [2.0.4] Jul 01, 2021
+* Deploying JFrog Xray 3.25.1 as an Operator into Openshift
+
+## [2.0.3] May 24, 2021
+* Deploying JFrog Xray 3.23.0 as an Operator into Openshift & has a major bug fix for rabbitmq pod not coming up when deleted
+
 ## [2.0.2] Mar 12, 2021
 * Deploying JFrog Xray 3.18.1 as an Operator into Openshift
 

@@ -1,4 +1,0 @@
-dependencies:
-  - name: xray
-    version: 7.1.1
-    repository: https://charts.jfrog.io/

@@ -1,6 +1,0 @@
-dependencies:
-- name: xray
-  repository: https://charts.jfrog.io/
-  version: 7.1.1
-digest: sha256:6bdbff052d42f9360f9d6a6c6a11f30834cf052c2eb1d7545fecec1e529f8378
-generated: "2021-04-28T22:48:55.7568567+05:30"
