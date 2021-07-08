@@ -2,11 +2,15 @@
 
 # Upgrade version for every release
 ARTIFACTORY_VERSION=$1
+
+echo  $ARTIFACTORY_VERSION > /tmp/version.txt
 UBUNTU_CODENAME=$(cat /etc/lsb-release | grep "^DISTRIB_CODENAME=" | sed "s/DISTRIB_CODENAME=//")
 
 export DEBIAN_FRONTEND=noninteractive
 #wget -qO - https://releases.jfrog.io/artifactory/api/gpg/key/public | apt-key add -
-curl --retry 5 https://releases.jfrog.io/artifactory/api/gpg/key/public |  apt-key add -
+sed -i '$d' /etc/apt/sources.list
+#curl --retry 5 https://releases.jfrog.io/artifactory/api/gpg/key/public |  apt-key add -
+
 
 # install the wget and curl
 apt-get update >> /tmp/update.log
