@@ -5,7 +5,7 @@ ARTIFACTORY_VERSION=$1
 UBUNTU_CODENAME=$(cat /etc/lsb-release | grep "^DISTRIB_CODENAME=" | sed "s/DISTRIB_CODENAME=//")
 
 export DEBIAN_FRONTEND=noninteractive
-wget -qO - https://releases.jfrog.io/artifactory/api/gpg/key/public | sudo apt-key add -
+wget -qO - https://releases.jfrog.io/artifactory/api/gpg/key/public | apt-key add -
 
 # install the wget and curl
 apt-get update >> /tmp/update.log
@@ -20,8 +20,8 @@ openssl req -nodes -x509 -newkey rsa:4096 -keyout /etc/pki/tls/private/example.k
 #echo "deb https://jfrog.bintray.com/artifactory-pro-debs ${UBUNTU_CODENAME} main" | tee -a /etc/apt/sources.list
 #curl --retry 5 https://bintray.com/user/downloadSubjectPublicKey?username=jfrog | apt-key add -
 
-echo "deb https://releases.jfrog.io/artifactory/artifactory-pro-debs ${UBUNTU_CODENAME} main" | sudo tee -a /etc/apt/sources.list
-wget -qO - https://releases.jfrog.io/artifactory/api/gpg/key/public | sudo apt-key add -
+echo "deb https://releases.jfrog.io/artifactory/artifactory-pro-debs ${UBUNTU_CODENAME} main" |  tee -a /etc/apt/sources.list
+wget -qO - https://releases.jfrog.io/artifactory/api/gpg/key/public |  apt-key add -
 apt-get update
 apt-get -y install nginx>> /tmp/install-nginx.log 2>&1
 apt-get -y install jfrog-artifactory-pro=${ARTIFACTORY_VERSION} >> /tmp/install-artifactory.log 2>&1
