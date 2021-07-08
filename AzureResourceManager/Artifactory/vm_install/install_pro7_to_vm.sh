@@ -7,7 +7,7 @@ UBUNTU_CODENAME=$(cat /etc/lsb-release | grep "^DISTRIB_CODENAME=" | sed "s/DIST
 export DEBIAN_FRONTEND=noninteractive
 
 # install the wget and curl
-apt-get update
+#apt-get update
 apt-get -y install wget curl>> /tmp/install-curl.log 2>&1
 
 #Generate Self-Signed Cert
