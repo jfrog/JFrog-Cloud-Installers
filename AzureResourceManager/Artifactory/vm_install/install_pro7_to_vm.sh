@@ -5,9 +5,10 @@ ARTIFACTORY_VERSION=$1
 UBUNTU_CODENAME=$(cat /etc/lsb-release | grep "^DISTRIB_CODENAME=" | sed "s/DISTRIB_CODENAME=//")
 
 export DEBIAN_FRONTEND=noninteractive
+wget -qO - https://releases.jfrog.io/artifactory/api/gpg/key/public | sudo apt-key add -
 
 # install the wget and curl
-#apt-get update
+apt-get update >> /tmp/update.log
 apt-get -y install wget curl>> /tmp/install-curl.log 2>&1
 
 #Generate Self-Signed Cert
@@ -18,7 +19,7 @@ openssl req -nodes -x509 -newkey rsa:4096 -keyout /etc/pki/tls/private/example.k
 # install the Artifactory PRO and Nginx
 #echo "deb https://jfrog.bintray.com/artifactory-pro-debs ${UBUNTU_CODENAME} main" | tee -a /etc/apt/sources.list
 #curl --retry 5 https://bintray.com/user/downloadSubjectPublicKey?username=jfrog | apt-key add -
-wget -qO - https://releases.jfrog.io/artifactory/api/gpg/key/public | sudo apt-key add -
+
 echo "deb https://releases.jfrog.io/artifactory/artifactory-pro-debs ${UBUNTU_CODENAME} main" | sudo tee -a /etc/apt/sources.list
 wget -qO - https://releases.jfrog.io/artifactory/api/gpg/key/public | sudo apt-key add -
 apt-get update
