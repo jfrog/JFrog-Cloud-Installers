@@ -1,0 +1,802 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'JFrog Artifactory Quick Start Deployment into an Existing VPC (qs-1q037efj0)'
+Metadata:
+  QuickStartDocumentation:
+    EntrypointName: "Launch into an existing VPC"
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Security configuration
+        Parameters:
+          - KeyPairName
+          - AccessCidr
+      - Label:
+          default: Network configuration
+        Parameters:
+          - AvailabilityZones
+          - VpcId
+          - VpcCidr
+          - PublicSubnet1Id
+          - PublicSubnet2Id
+          - PrivateSubnet1Id
+          - PrivateSubnet2Id
+          - PrivateSubnet1Cidr
+          - PrivateSubnet2Cidr
+          - ELBScheme
+      - Label:
+          default: Amazon EC2 configuration
+        Parameters:
+          - VolumeSize
+          - InstanceType
+      - Label:
+          default: JFrog Artifactory configuration
+        Parameters:
+          - NumberOfSecondary
+          - SmLicenseName
+          - SmCertName
+          - ArtifactoryServerName
+          - MasterKey
+          - ExtraJavaOptions
+          - DefaultJavaMemSettings
+      - Label:
+          default: Amazon RDS configuration
+        Parameters:
+          - DatabaseName
+          - DatabaseUser
+          - DatabasePassword
+          - DatabaseInstance
+          - DatabaseAllocatedStorage
+          - MultiAzDatabase
+      - Label:
+          default: JFrog Xray Configuration
+        Parameters:
+          - InstallXray
+          - XrayNumberOfInstances
+          - XrayInstanceType
+          - XrayDatabaseUser
+          - XrayDatabasePassword
+    ParameterLabels:
+      AvailabilityZones:
+        default: Availability Zones
+      KeyPairName:
+        default: SSH key name
+      VpcId:
+        default: VPC ID
+      VpcCidr:
+        default: VPC CIDR
+      PublicSubnet1Id:
+        default: Public subnet 1 ID
+      PublicSubnet2Id:
+        default: Public subnet 2 ID
+      PrivateSubnet1Id:
+        default: Private subnet 1 ID
+      PrivateSubnet2Id:
+        default: Private subnet 2 ID
+      PrivateSubnet1Cidr:
+        default: Private subnet 1 CIDR
+      PrivateSubnet2Cidr:
+        default: Private subnet 2 CIDR
+      AccessCidr:
+        default: Permitted IP range
+      ELBScheme:
+        default: Elastic Load Balancing scheme
+      VolumeSize:
+        default: EBS root volume size
+      InstanceType:
+        default: EC2 instance type
+      NumberOfSecondary:
+        default: Secondary instances
+      SmLicenseName:
+        default: Artifactory licenses secret name
+      SmCertName:
+        default: Artifactory certificate secret name
+      ArtifactoryServerName:
+        default: Artifactory server name
+      MasterKey:
+        default: Master server key
+      ExtraJavaOptions:
+        default: Extra Java options
+      DefaultJavaMemSettings:
+        default: Default Java memory settings
+      DatabaseName:
+        default: Database name
+      DatabaseUser:
+        default: Database user
+      DatabasePassword:
+        default: Database password
+      DatabaseInstance:
+        default: Database instance type
+      DatabaseAllocatedStorage:
+        default: Database allocated storage
+      MultiAzDatabase:
+        default: High-availability database
+      InstallXray:
+        default: Install JFrog Xray
+      XrayNumberOfInstances:
+        default: Number of JFrog Xray instances
+      XrayInstanceType:
+        default: Xray instance type
+      XrayDatabaseUser:
+        default: Xray Database user
+      XrayDatabasePassword:
+        default: Xray Database password
+Parameters:
+  AvailabilityZones:
+    Description: List of Availability Zones to use for the subnets in the VPC. Two
+      Availability Zones are used for this deployment.
+    Type: List<AWS::EC2::AvailabilityZone::Name>
+  KeyPairName:
+    Description: Name of an existing key pair,
+      which allows you to connect securely to your instance after it launches.
+      This is the key pair you created in your preferred Region.
+    Type: AWS::EC2::KeyPair::KeyName
+  VpcId:
+    Description: ID of your existing VPC (e.g., vpc-0343606e).
+    Type: "AWS::EC2::VPC::Id"
+  VpcCidr:
+    Description: CIDR block for the VPC.
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    Default: 10.0.0.0/16
+    Type: String
+  PublicSubnet1Id:
+    Description: ID of the public subnet in Availability Zone 1 of your existing VPC (e.g., subnet-z0376dab).
+    Type: "AWS::EC2::Subnet::Id"
+  PublicSubnet2Id:
+    Description: ID of the public subnet in Availability Zone 2 of your existing VPC (e.g., subnet-a29c3d84).
+    Type: "AWS::EC2::Subnet::Id"
+  PrivateSubnet1Id:
+    Description: ID of the private subnet in Availability Zone 1 of your existing VPC (e.g., subnet-a0246dcd).
+    Type: "AWS::EC2::Subnet::Id"
+  PrivateSubnet2Id:
+    Description: ID of the private subnet in Availability Zone 2 of your existing VPC (e.g., subnet-b58c3d67).
+    Type: "AWS::EC2::Subnet::Id"
+  PrivateSubnet1Cidr:
+    Description: CIDR of the private subnet in Availability Zone 1 of your existing VPC (e.g., 10.0.0.0/19).
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    Default: 10.0.0.0/19
+    Type: String
+  PrivateSubnet2Cidr:
+    Description: CIDR of the private subnet in Availability Zone 2 of your existing VPC (e.g., 10.0.32.0/19).
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    Default: 10.0.32.0/19
+    Type: String
+  AccessCidr:
+    Description: CIDR IP range that is permitted to access Artifactory.
+      We recommend that you set this value to a trusted IP range.
+      For example, you might want to grant only your corporate network access to the software.
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    Type: String
+  ELBScheme:
+    Description: Choose whether this is internet facing or internal.
+    AllowedValues:
+      - internal
+      - internet-facing
+    Default: internet-facing
+    Type: String
+  VolumeSize:
+    Description: Size in gigabytes of the available storage (min 10GB); the Quick Start will create an
+      Amazon Elastic Block Store (Amazon EBS) volumes of this size.
+    Default: 200
+    Type: Number
+  InstanceType:
+    Description: EC2 type for the Artifactory instances.
+    AllowedValues:
+      - m5.large
+      - m5.xlarge
+      - m5.2xlarge
+      - m5.4xlarge
+      - m5.8xlarge
+      - m5.12xlarge
+      - m5.16xlarge
+      - m5.24xlarge
+      - m5.metal
+      - m5d.large
+      - m5d.xlarge
+      - m5d.2xlarge
+      - m5d.4xlarge
+      - m5d.8xlarge
+      - m5d.12xlarge
+      - m5d.16xlarge
+      - m5d.24xlarge
+      - m5d.metal
+      - m5a.large
+      - m5a.xlarge
+      - m5a.2xlarge
+      - m5a.4xlarge
+      - m5a.8xlarge
+      - m5a.12xlarge
+      - m5a.16xlarge
+      - m5a.24xlarge
+    ConstraintDescription: Must contain valid instance type.
+    Default: m5.xlarge
+    Type: String
+  NumberOfSecondary:
+    Description: Number of secondary Artifactory servers to complete your
+      HA deployment. To align with Artifactory best practices, the minimum number
+      is two and the maximum is seven. Do not select more instances than you
+      have licenses for.
+    AllowedValues:
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+    Default: 2
+    Type: Number
+  SmLicenseName:
+    Description: Secret name created in AWS Secrets Manager, which contains the Artifactory licenses.
+    Default: ''
+    Type: String
+  SmCertName:
+    Description: Secret name created in AWS Secrets Manager, which contains the SSL certificate and certificate key.
+    Default: ''
+    Type: String
+  ArtifactoryServerName:
+    Description: Name of your Artifactory server. Ensure that this matches your certificate.
+    Type: String
+  MasterKey:
+    Description: Master key for the Artifactory cluster. Generate a master key by using the command '$openssl rand -hex 16'.
+    AllowedPattern: ^[a-zA-Z0-9]+$
+    MinLength: '1'
+    MaxLength: '64'
+    ConstraintDescription: Only capital or lowercase letters and numbers, with a Max of 64 characters.
+    NoEcho: 'true'
+    Type: String
+  ExtraJavaOptions:
+    Description: Set Java options to pass to the JVM for Artifactory. For more information, see the Artifactory
+      system requirements at https://www.jfrog.com/confluence/display/RTF/System+Requirements#SystemRequirements-RecommendedHardware.
+      Do not add Xms or Xmx settings without disabling DefaultJavaMemSettings.
+    Default: -Xss256k -XX:+UseG1GC
+    Type: String
+  DefaultJavaMemSettings:
+    Description: Choose false to overwrite the standard memory-calculation options to pass to the Artifactory JVM.
+      If you plan to overwrite them, ensure they are added to the ExtraJavaOptions to prevent the stack provision from failing.
+    ConstraintDescription: True or False
+    AllowedValues:
+      - "true"
+      - "false"
+    Default: "true"
+    Type: String
+  DatabaseName:
+    Description: Name of your database instance. The name must be unique across all instances
+      owned by your AWS account in the current Region. The database instance identifier is case-insensitive,
+      but it's stored in lowercase (as in "mydbinstance").
+    AllowedPattern: ^[a-zA-Z]([a-zA-Z0-9])+$
+    MinLength: '1'
+    MaxLength: '60'
+    ConstraintDescription: 1 to 60 alphanumeric characters First character must be a letter.
+    Default: artdb
+    Type: String
+  DatabaseUser:
+    Description: Login ID for the master user of your database instance.
+    MinLength: '1'
+    MaxLength: '16'
+    AllowedPattern: ^[a-zA-Z]([a-zA-Z0-9])+$
+    ConstraintDescription: 1 to 16 alphanumeric characters. First character must be a letter.
+    Default: artifactory
+    Type: String
+  DatabasePassword:
+    Description: Password for the Artifactory database user.
+    AllowedPattern: ^[^ \\']+$
+    MinLength: '8'
+    MaxLength: '12'
+    ConstraintDescription: Must be at least 8 and no more than
+      12 characters containing letters and (minimum 1 capital letter), numbers and
+      symbols.
+    NoEcho: 'true'
+    Type: String
+  DatabaseInstance:
+    Description: Size of the database to be deployed as part of the Quick Start.
+    AllowedValues:
+      - db.m5.large
+      - db.m5.xlarge
+      - db.m5.2xlarge
+      - db.m5.10xlarge
+      - db.m5.16xlarge
+      - db.m5.large
+      - db.m5.xlarge
+      - db.m5.2xlarge
+      - db.m5.4xlarge
+      - db.m5.12xlarge
+      - db.m5.24xlarge
+    ConstraintDescription: Must be a valid database Instance Type.
+    Default: db.m5.large
+    Type: String
+  DatabaseAllocatedStorage:
+    Description: Size in gigabytes of the available storage for the database instance.
+    MinValue: 5
+    MaxValue: 1024
+    Default: 10
+    Type: Number
+  MultiAzDatabase:
+    Description: Choose false to create an Amazon RDS instance in a single Availability Zone.
+    ConstraintDescription: True or False
+    AllowedValues:
+      - "true"
+      - "false"
+    Default: "true"
+    Type: String
+  InstallXray:
+    Description: Choose true to install JFrog Xray instance(s).
+    ConstraintDescription: True or False
+    AllowedValues:
+      - "true"
+      - "false"
+    Default: "true"
+    Type: String
+  XrayNumberOfInstances:
+    Description: The number of Xray instances servers to complete your
+      HA deployment. The minimum number is one; the maximum is seven.
+      Do not select more than instances than you have licenses for.
+    MinValue: 1
+    MaxValue: 7
+    Default: 1
+    Type: Number
+  XrayInstanceType:
+    Description: The EC2 instance type for the Xray instances.
+    AllowedValues:
+      - c5.2xlarge
+      - c5.4xlarge
+    ConstraintDescription: Must contain valid instance type.
+    Default: c5.2xlarge
+    Type: String
+  XrayDatabaseUser:
+    Description: The login ID for the Xray database user.
+    MinLength: '1'
+    MaxLength: '16'
+    AllowedPattern: ^[a-zA-Z]([a-zA-Z0-9])+$
+    ConstraintDescription: 1 to 16 alphanumeric characters. First character must be a letter.
+    Default: xray
+    Type: String
+  XrayDatabasePassword:
+    Description: The password for the Xray database user.
+    AllowedPattern: ^[^ \\']+$
+    MinLength: '8'
+    MaxLength: '12'
+    ConstraintDescription: Must be at least 8 and no more than
+      12 characters containing letters and (minimum 1 capital letter), numbers and
+      symbols.
+    NoEcho: 'true'
+    Type: String
+
+Conditions:
+  HasSecondaryNodes: !Not [!Equals [!Ref NumberOfSecondary, '0']]
+  DefaultJava: !Equals [!Ref DefaultJavaMemSettings, "true"]
+  EnableXray: !Equals [!Ref InstallXray, 'true']
+  SmCertNameExists: !Not [!Equals [!Ref 'SmCertName', '']]
+
+Resources:
+  ArtifactoryCoreInfraStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://jfrog-marketplace-test-us-east-1.s3.amazonaws.com/marketplace-jfrog-artifactory/v7215/templates/jfrog-artifactory-core-infrastructure.template.yaml
+      Parameters:
+        AvailabilityZones:
+          Fn::Join:
+            - ','
+            - Ref: AvailabilityZones
+        VpcId: !Ref VpcId
+        VpcCidr: !Ref VpcCidr
+        PrivateSubnet1Cidr: !Ref PrivateSubnet1Cidr
+        PrivateSubnet2Cidr: !Ref PrivateSubnet2Cidr
+        PrivateSubnet3Cidr: !Ref PrivateSubnet2Cidr  # This should end up in no new rule but required for EKS
+        SubnetIds: !Join [",", [!Ref PrivateSubnet1Id, !Ref PrivateSubnet2Id]]
+        DatabaseAllocatedStorage: !Ref DatabaseAllocatedStorage
+        MultiAzDatabase: !Ref MultiAzDatabase
+        DatabaseUser: !Ref DatabaseUser
+        DatabasePassword: !Ref DatabasePassword
+        DatabaseInstance: !Ref DatabaseInstance
+        DatabaseName: !Ref DatabaseName
+        InstanceType: !Ref InstanceType
+        ArtifactoryHostRole: !Ref ArtifactoryHostRole
+        VolumeSize: !Ref VolumeSize
+  ArtifactoryElb:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      IpAddressType: ipv4
+      Scheme: !Ref ELBScheme
+      Subnets:
+        - !Ref PublicSubnet1Id
+        - !Ref PublicSubnet2Id
+      Type: network
+  ArtifactorySslTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckEnabled: True
+      HealthCheckIntervalSeconds: 30
+      HealthCheckProtocol: TCP
+      HealthCheckTimeoutSeconds: 10
+      HealthyThresholdCount: 3
+      HealthCheckPort: "8082"
+      Port: 443
+      Protocol: TCP
+      TargetType: instance
+      UnhealthyThresholdCount: 3
+      VpcId: !Ref VpcId
+  ArtifactoryTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckEnabled: True
+      HealthCheckIntervalSeconds: 30
+      HealthCheckProtocol: TCP
+      HealthCheckTimeoutSeconds: 10
+      HealthyThresholdCount: 3
+      HealthCheckPort: "8082"
+      Port: 80
+      Protocol: TCP
+      TargetType: instance
+      UnhealthyThresholdCount: 3
+      VpcId: !Ref VpcId
+  ArtifactorySslElbListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - TargetGroupArn: !Ref ArtifactorySslTargetGroup
+          Type: forward
+      LoadBalancerArn: !Ref ArtifactoryElb
+      Port: 443
+      Protocol: TCP
+  ArtifactoryElbListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - TargetGroupArn: !Ref ArtifactoryTargetGroup
+          Type: forward
+      LoadBalancerArn: !Ref ArtifactoryElb
+      Port: 80
+      Protocol: TCP
+  ArtifactoryInternalElb:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      IpAddressType: ipv4
+      Scheme: internal
+      Subnets:
+        - !Ref PrivateSubnet1Id
+        - !Ref PrivateSubnet2Id
+      Type: network
+  ArtifactoryInternalTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckEnabled: True
+      HealthCheckIntervalSeconds: 30
+      HealthCheckProtocol: TCP
+      HealthCheckTimeoutSeconds: 10
+      HealthyThresholdCount: 3
+      HealthCheckPort: "8082"
+      Port: 80
+      Protocol: TCP
+      TargetType: instance
+      UnhealthyThresholdCount: 3
+      VpcId: !Ref VpcId
+  ArtifactoryInternalElbListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - TargetGroupArn: !Ref ArtifactoryInternalTargetGroup
+          Type: forward
+      LoadBalancerArn: !Ref ArtifactoryInternalElb
+      Port: 80
+      Protocol: TCP
+  ArtifactoryEc2Sg:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      Tags:
+        - Key: Name
+          Value: "JFrog-Artifactory-Pro-ec2-instances-sg"
+      GroupDescription: SG for EC2 instances
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref VpcCidr
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: !Ref VpcCidr
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: !Ref AccessCidr
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: !Ref AccessCidr
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: !Ref VpcCidr
+        - IpProtocol: tcp
+          FromPort: 8081
+          ToPort: 8082
+          CidrIp: !Ref VpcCidr
+        - IpProtocol: tcp
+          FromPort: 8046
+          ToPort: 8046
+          CidrIp: !Ref VpcCidr
+      SecurityGroupEgress:
+        - IpProtocol: "-1"
+          CidrIp: 0.0.0.0/0
+  ArtifactoryHostRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action:
+              - 'sts:AssumeRole'
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Effect: Allow
+        Version: 2012-10-17
+      ManagedPolicyArns:
+        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AmazonEC2RoleforSSM'
+      Policies:
+        - PolicyName: "JFrogAMI-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action: "ec2:Describe*"
+                Resource: "*"
+              - Effect: "Allow"
+                Action: "ec2:AttachVolume"
+                Resource: "*"
+              - Effect: "Allow"
+                Action: "ec2:DetachVolume"
+                Resource: "*"
+              - Effect: "Allow"
+                Action:
+                  - "s3:GetObject"
+                  - "s3:ListObject"
+                  - "s3:ListBucket"
+                Resource: "*"
+        - PolicyName: 'CloudWatch-policy'
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                  - "logs:DescribeLogStreams"
+                Resource: !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:*:*"
+        - PolicyName: 'SecretsManager-policy'
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "secretsmanager:GetSecretValue"
+                Resource: !Sub "arn:${AWS::Partition}:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:*"
+  ArtifactoryHostProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref ArtifactoryHostRole
+      Path: /
+  ArtifactoryPrimary:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://jfrog-marketplace-test-us-east-1.s3.amazonaws.com/marketplace-jfrog-artifactory/v7215/templates/jfrog-artifactory-ec2-instance.template.yaml
+      Parameters:
+        PrivateSubnetIds: !Join [',', [!Ref PrivateSubnet1Id]]
+        MinScalingNodes: '1'  # Always have 1 Primary Node
+        MaxScalingNodes: '1'  # Always have 1 Primary Node
+        DeploymentTag: "ArtifactoryPrimary"
+        HostRole: !Ref ArtifactoryHostRole
+        ArtifactoryProduct: "JFrog-Artifactory-Pro"
+        ArtifactoryLicensesSecretName: !Ref SmLicenseName
+        ArtifactoryServerName: !Ref ArtifactoryServerName
+        EnableSSL: !If [SmCertNameExists, true, false]
+        Certificate: !If [SmCertNameExists, !Sub '{{resolve:secretsmanager:${SmCertName}:SecretString:Certificate}}', '']
+        CertificateKey: !If [SmCertNameExists, !Sub '{{resolve:secretsmanager:${SmCertName}:SecretString:CertificateKey}}', '']
+        CertificateDomain: !If [SmCertNameExists, !Sub '{{resolve:secretsmanager:${SmCertName}:SecretString:CertificateDomain}}', '']
+        ArtifactoryS3Bucket: !GetAtt ArtifactoryCoreInfraStack.Outputs.S3Bucket
+        DatabaseUrl: !GetAtt ArtifactoryCoreInfraStack.Outputs.DatabaseUrl
+        DatabaseDriver: !GetAtt ArtifactoryCoreInfraStack.Outputs.DatabaseDriver
+        DatabasePlugin: !GetAtt ArtifactoryCoreInfraStack.Outputs.DatabasePlugin
+        DatabasePluginUrl: !GetAtt ArtifactoryCoreInfraStack.Outputs.DatabasePluginUrl
+        DatabaseType: !GetAtt ArtifactoryCoreInfraStack.Outputs.DatabaseType
+        DatabaseUser: !Ref DatabaseUser
+        DatabasePassword: !Ref DatabasePassword
+        ArtifactoryPrimary: true
+        MasterKey: !Ref MasterKey
+        ExtraJavaOptions: !If [DefaultJava, !Sub "${ArtifactoryCoreInfraStack.Outputs.JavaOpts} ${ExtraJavaOptions}", !Ref ExtraJavaOptions]
+        AmiId: "7215"
+        ArtifactoryVersion: "7.21.5"
+        KeyPairName: !Ref KeyPairName
+        HostProfile: !Ref ArtifactoryHostProfile
+        SecurityGroups: !Ref ArtifactoryEc2Sg
+        InstanceType: !Ref InstanceType
+        PrimaryVolume: !GetAtt ArtifactoryCoreInfraStack.Outputs.ArtifactoryEbsVolume
+        VolumeSize: !Ref VolumeSize
+        TargetGroupARN: !Ref ArtifactoryTargetGroup
+        SSLTargetGroupARN: !Ref ArtifactorySslTargetGroup
+        InternalTargetGroupARN: !Ref ArtifactoryInternalTargetGroup
+
+  ArtifactorySecondary:
+    Condition: HasSecondaryNodes
+    DependsOn: ArtifactoryPrimary
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://jfrog-marketplace-test-us-east-1.s3.amazonaws.com/marketplace-jfrog-artifactory/v7215/templates/jfrog-artifactory-ec2-instance.template.yaml
+      Parameters:
+        PrivateSubnetIds: !Join [',', [!Ref PrivateSubnet1Id, !Ref PrivateSubnet2Id]]
+        MinScalingNodes: !Ref NumberOfSecondary
+        MaxScalingNodes: !Ref NumberOfSecondary
+        DeploymentTag: ArtifactorySecondary
+        HostRole: !Ref ArtifactoryHostRole
+        ArtifactoryProduct: "JFrog-Artifactory-Pro"
+        ArtifactoryLicensesSecretName: !Ref SmLicenseName
+        ArtifactoryServerName: !Ref ArtifactoryServerName
+        EnableSSL: !If [SmCertNameExists, true, false]
+        Certificate: !If [SmCertNameExists, !Sub '{{resolve:secretsmanager:${SmCertName}:SecretString:Certificate}}', '']
+        CertificateKey: !If [SmCertNameExists, !Sub '{{resolve:secretsmanager:${SmCertName}:SecretString:CertificateKey}}', '']
+        CertificateDomain: !If [SmCertNameExists, !Sub '{{resolve:secretsmanager:${SmCertName}:SecretString:CertificateDomain}}', '']
+        ArtifactoryS3Bucket: !GetAtt ArtifactoryCoreInfraStack.Outputs.S3Bucket
+        DatabaseUrl: !GetAtt ArtifactoryCoreInfraStack.Outputs.DatabaseUrl
+        DatabaseDriver: !GetAtt ArtifactoryCoreInfraStack.Outputs.DatabaseDriver
+        DatabasePlugin: !GetAtt ArtifactoryCoreInfraStack.Outputs.DatabasePlugin
+        DatabasePluginUrl: !GetAtt ArtifactoryCoreInfraStack.Outputs.DatabasePluginUrl
+        DatabaseType: !GetAtt ArtifactoryCoreInfraStack.Outputs.DatabaseType
+        DatabaseUser: !Ref DatabaseUser
+        DatabasePassword: !Ref DatabasePassword
+        ArtifactoryPrimary: false
+        MasterKey: !Ref MasterKey
+        ExtraJavaOptions: !If [DefaultJava, !Sub "${ArtifactoryCoreInfraStack.Outputs.JavaOpts} ${ExtraJavaOptions}", !Ref ExtraJavaOptions]
+        AmiId: "7215"
+        ArtifactoryVersion: "7.21.5"
+        KeyPairName: !Ref KeyPairName
+        HostProfile: !Ref ArtifactoryHostProfile
+        SecurityGroups: !Ref ArtifactoryEc2Sg
+        InstanceType: !Ref InstanceType
+        PrimaryVolume: !GetAtt ArtifactoryCoreInfraStack.Outputs.ArtifactoryEbsVolume
+        VolumeSize: !Ref VolumeSize
+        TargetGroupARN: !Ref ArtifactoryTargetGroup
+        SSLTargetGroupARN: !Ref ArtifactorySslTargetGroup
+        InternalTargetGroupARN: !Ref ArtifactoryInternalTargetGroup
+  XrayHostRole:
+    Condition: EnableXray
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action:
+              - 'sts:AssumeRole'
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Effect: Allow
+        Version: 2012-10-17
+      ManagedPolicyArns:
+        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AmazonEC2RoleforSSM'
+      Policies:
+        - PolicyName: "JFrogAMI-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action: "ec2:Describe*"
+                Resource: "*"
+              - Effect: "Allow"
+                Action: "ec2:AttachVolume"
+                Resource: "*"
+              - Effect: "Allow"
+                Action: "ec2:DetachVolume"
+                Resource: "*"
+              - Effect: "Allow"
+                Action:
+                  - "s3:GetObject"
+                  - "s3:ListObject"
+                  - "s3:ListBucket"
+                Resource: "*"
+        - PolicyName: 'CloudWatch-policy'
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                  - "logs:DescribeLogStreams"
+                Resource: !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:*:*"
+  XrayHostProfile:
+    Condition: EnableXray
+    Type: 'AWS::IAM::InstanceProfile'
+    Properties:
+      Roles:
+        - !Ref XrayHostRole
+      Path: /
+  XrayExistingVpcStack:
+    Condition: EnableXray
+    DependsOn: ArtifactoryPrimary
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://jfrog-marketplace-test-us-east-1.s3.amazonaws.com/marketplace-jfrog-artifactory/v7215/templates/jfrog-xray-ec2-instance.template.yaml
+      Parameters:
+        PrivateSubnet1Id: !Ref PrivateSubnet1Id
+        PrivateSubnet2Id: !Ref PrivateSubnet2Id
+        KeyPairName: !Ref KeyPairName
+        MinScalingNodes: !Ref XrayNumberOfInstances
+        MaxScalingNodes: !Ref XrayNumberOfInstances
+        DeploymentTag: 'xray'
+        DatabaseDriver: !GetAtt ArtifactoryCoreInfraStack.Outputs.DatabaseDriver
+        DatabaseType: !GetAtt ArtifactoryCoreInfraStack.Outputs.DatabaseType
+        DatabaseUser: !Ref DatabaseUser
+        DatabasePassword: !Ref DatabasePassword
+        MasterKey: !Ref MasterKey
+        SecurityGroups: !Ref ArtifactoryEc2Sg
+        VolumeSize: !Ref VolumeSize
+        ExtraJavaOptions: !GetAtt ArtifactoryCoreInfraStack.Outputs.JavaOpts
+        XrayInstanceType: !Ref XrayInstanceType
+        JfrogInternalUrl: !Sub "http://${ArtifactoryInternalElb.DNSName}"
+        XrayDatabaseUser: !Ref XrayDatabaseUser
+        XrayDatabasePassword: !Ref XrayDatabasePassword
+        XrayMasterDatabaseUrl: !GetAtt ArtifactoryCoreInfraStack.Outputs.XrayMasterDatabaseUrl
+        XrayDatabaseUrl: !GetAtt ArtifactoryCoreInfraStack.Outputs.XrayDatabaseUrl
+        XrayVersion: "3.27.2"
+        XrayAmiId: "3272"
+        XrayHostRole: !Ref XrayHostRole
+        XrayHostProfile: !Ref XrayHostProfile
+Outputs:
+  ArtifactoryUrl:
+    Description: URL of the ELB to access Artifactory
+    Value: !If [SmCertNameExists, !Sub "https://${ArtifactoryElb.DNSName}", !Sub "http://${ArtifactoryElb.DNSName}"]
+    Export:
+      Name: !Sub '${AWS::StackName}-ArtifactoryUrl'
+  ArtifactoryInternalUrl:
+    Description: URL of the internal ELB to access Artifactory
+    Value: !Sub "http://${ArtifactoryInternalElb.DNSName}"
+    Export:
+      Name: !Sub '${AWS::StackName}-ArtifactoryInternalUrl'
+  DatabaseType:
+    Description: Type of database
+    Value: !GetAtt ArtifactoryCoreInfraStack.Outputs.DatabaseType
+    Export:
+      Name: !Sub '${AWS::StackName}-DatabaseType'
+  DatabaseDriver:
+    Description: Database driver
+    Value: !GetAtt ArtifactoryCoreInfraStack.Outputs.DatabaseDriver
+    Export:
+      Name: !Sub '${AWS::StackName}-DatabaseDriver'
+  DatabaseUrl:
+    Description: Database driver
+    Value: !GetAtt ArtifactoryCoreInfraStack.Outputs.DatabaseUrl
+    Export:
+      Name: !Sub '${AWS::StackName}-DatabaseUrl'
+  ArtifactoryTargetGroup:
+    Description: Artifactory target group
+    Value: !Ref ArtifactoryTargetGroup
+    Export:
+      Name: !Sub '${AWS::StackName}-ArtifactoryTargetGroup'
+  ArtifactorySslTargetGroup:
+    Description: Artifactory SSL target group
+    Value: !Ref ArtifactorySslTargetGroup
+    Export:
+      Name: !Sub '${AWS::StackName}-ArtifactorySslTargetGroup'
+  ArtifactoryEc2Sg:
+    Description: Artifactory EC2 sercurity group
+    Value: !Ref ArtifactoryEc2Sg
+    Export:
+      Name: !Sub '${AWS::StackName}-ArtifactoryEc2Sg'
+  XrayMasterDatabaseUrl:
+    Description: Database driver
+    Value: !GetAtt ArtifactoryCoreInfraStack.Outputs.XrayMasterDatabaseUrl
+    Export:
+      Name: !Sub '${AWS::StackName}-XrayMasterDatabaseUrl'
+  XrayDatabaseUrl:
+    Description: Database driver
+    Value: !GetAtt ArtifactoryCoreInfraStack.Outputs.XrayDatabaseUrl
+    Export:
+      Name: !Sub '${AWS::StackName}-XrayDatabaseUrl'
