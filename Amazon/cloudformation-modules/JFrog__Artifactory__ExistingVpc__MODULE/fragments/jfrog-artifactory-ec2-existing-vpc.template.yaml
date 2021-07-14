@@ -197,7 +197,7 @@ Parameters:
       https://www.jfrog.com/confluence/display/RTF/Release+Notes.
     AllowedPattern: ^(([0-9]|[1-9][0-9])\.){2}([1-9][0-9]|[0-9])$
     ConstraintDescription: A version that matches X.X.X per Artifactory releases
-    Default: 7.17.5
+    Default: 7.21.5
     Type: String
   SmLicenseName:
     Description: Secret name created in AWS Secrets Manager, which contains the Artifactory licenses.
@@ -335,7 +335,7 @@ Parameters:
     Description: The version of Xray that you want to deploy into the Quick Start.
     AllowedPattern: ^(([0-9]|[1-9][0-9])\.){2}([1-9][0-9]|[0-9])$
     ConstraintDescription: A version that matches X.X.X per Xray releases.
-    Default: 3.22.1
+    Default: 3.27.3
     Type: String
   XrayNumberOfInstances:
     Description: The number of Xray instances servers to complete your

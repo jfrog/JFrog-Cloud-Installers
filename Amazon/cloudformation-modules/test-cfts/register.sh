@@ -9,8 +9,8 @@ set -ex
 # following commands are needed only one time per account per region
 
 # all_regions=( us-east-1 us-east-2 us-west-1 us-west-2 sa-east-1 ca-central-1 af-south-1 eu-central-1 eu-west-1 eu-west-2 eu-south-1 eu-west-3 eu-north-1 ap-northeast-3 ap-northeast-2 ap-northeast-1 ap-south-1 ap-southeast-1 ap-southeast-2 )
-#  fails in following regions -> af-south-1 eu-central-1 eu-south-1 
-regions=( eu-west-2 eu-south-1 eu-west-3 eu-north-1 ap-northeast-3 ap-northeast-2 ap-northeast-1 ap-south-1 ap-southeast-1 ap-southeast-2 )
+#  fails in following regions -> af-south-1 eu-central-1 eu-south-1
+regions=( us-east-1 us-east-2 us-west-1 us-west-2 sa-east-1 ca-central-1 af-south-1 eu-central-1 eu-west-1 eu-west-2 eu-south-1 eu-west-3 eu-north-1 ap-northeast-3 ap-northeast-2 ap-northeast-1 ap-south-1 ap-southeast-1 ap-southeast-2 )
 PROFILE=seller
 
 # 1) create appropriate profile in ~/.aws/credentials file
