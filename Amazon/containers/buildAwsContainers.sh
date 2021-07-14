@@ -61,7 +61,7 @@ EOF
   #clearnup
   docker stop test-new-image
   docker rm test-new-image
-  rm installer-info.json
+  rm installer-info.json entrypoint-artifactory.sh original-entrypoint.sh
 
 
   if [ "$SUCCESS" = true ] ; then
