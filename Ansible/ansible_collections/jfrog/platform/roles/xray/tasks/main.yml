@@ -1,6 +1,10 @@
 - name: perform installation
   include_tasks: "install.yml"
-  when: not xray_upgrade_only
+  when:
+    - xray_enabled
+    - not xray_upgrade_only
 - name: perform upgrade
   include_tasks: "upgrade.yml"
-  when: xray_upgrade_only
+  when:
+    - xray_enabled
+    - xray_upgrade_only

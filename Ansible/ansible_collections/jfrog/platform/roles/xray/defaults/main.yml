@@ -2,7 +2,7 @@
 # defaults file for xray
 
 # The version of xray to install
-xray_version: 3.26.1
+xray_version: 3.27.4
 
 # whether to enable HA
 xray_ha_enabled: false
@@ -13,7 +13,11 @@ xray_ha_node_type : master
 jfrog_home_directory: /opt/jfrog
 
 # The remote xray download file
-xray_tar: https://releases.jfrog.io/artifactory/jfrog-xray/xray-linux/{{ xray_version }}/jfrog-xray-{{ xray_version }}-linux.tar.gz
+xray_tar_file_name: jfrog-xray-{{ xray_version }}-linux.tar.gz
+xray_tar: https://releases.jfrog.io/artifactory/jfrog-xray/xray-linux/{{ xray_version }}/{{ xray_tar_file_name }}
+
+# Timeout in seconds for URL request
+xray_download_timeout: 10
 
 #The xray install directory
 xray_untar_home: "{{ jfrog_home_directory }}/jfrog-xray-{{ xray_version }}-linux"

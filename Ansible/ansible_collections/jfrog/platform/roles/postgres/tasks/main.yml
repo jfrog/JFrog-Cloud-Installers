@@ -84,13 +84,16 @@
   become_user: postgres
   command: psql -d {{ mc_db_name }} -t -c "\dn"
   register: mc_schemas_loaded
+  when: mc_enabled
 
 - name: Create schemas for mission-control
   become: yes
   become_user: postgres
   command: psql -d {{ mc_db_name }} -c 'CREATE SCHEMA {{ item }} authorization {{ mc_db_user }}'
   loop: "{{  mc_schemas|default([]) }}"
-  when: "mc_schemas_loaded.stdout is defined and '{{ item }}' not in mc_schemas_loaded.stdout"
+  when: 
+    - mc_enabled
+    - "mc_schemas_loaded.stdout is defined and '{{ item }}' not in mc_schemas_loaded.stdout"
 
 - name: Grant all privileges to mc user on its schema
   become: yes
@@ -102,6 +105,7 @@
     roles: "{{ mc_db_user }}"
     objs: "{{ item }}"
   loop: "{{ mc_schemas|default([]) }}"
+  when: mc_enabled
 
 - name: Grant privs on db
   become: yes

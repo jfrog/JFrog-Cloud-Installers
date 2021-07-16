@@ -10,6 +10,12 @@ jfrog_url: >-
         "http://{{ hostvars[host]['ansible_host'] }}:8082"
     {%- endfor -%}
 
+## Products enabled
+artifactory_enabled: true
+xray_enabled: true
+distribution_enabled: true
+mc_enabled: true
+
 # Artifactory DB details
 artifactory_db_type: postgresql
 artifactory_db_driver: org.postgresql.Driver

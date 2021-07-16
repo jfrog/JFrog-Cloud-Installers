@@ -1,6 +1,10 @@
 - name: perform installation
   include_tasks: "install.yml"
-  when: not distribution_upgrade_only
+  when:
+    - distribution_enabled
+    - not distribution_upgrade_only
 - name: perform upgrade
   include_tasks: "upgrade.yml"
-  when: distribution_upgrade_only
+  when:
+    - distribution_enabled
+    - distribution_upgrade_only
