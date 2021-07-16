@@ -1,6 +1,10 @@
 - name: perform installation
   include_tasks: "install.yml"
-  when: not artifactory_upgrade_only
+  when:
+    - artifactory_enabled
+    - not artifactory_upgrade_only
 - name: perform upgrade
   include_tasks: "upgrade.yml"
-  when: artifactory_upgrade_only
+  when:
+    - artifactory_enabled
+    - artifactory_upgrade_only

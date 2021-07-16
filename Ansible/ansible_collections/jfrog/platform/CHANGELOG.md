@@ -1,7 +1,12 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
-## [7.19.8] - June 10, 2021
+## [7.21.7] - July 16, 2021
+* Added variable to enable/disable each product in `groups_vars/all/vars.yml`
+* Added variable download Timeout in seconds for URL request
+* Updated artifactory postgresql driver to `42.2.23`
+
+## [7.19.8] - June 9, 2021
 * Fix Missioncontrol ES start issue
 
 ## [7.19.4] - May 31, 2021

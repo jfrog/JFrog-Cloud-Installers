@@ -38,18 +38,33 @@
     shell: /bin/bash
     state: present
 
+- name: Check if xray tar exists
+  become: yes
+  stat:
+    path: "{{ jfrog_home_directory }}/{{ xray_tar_file_name }}"
+  register: xray_tar_check
+
 - name: Download xray
   become: yes
-  unarchive:
-    src: "{{ xray_tar }}"
+  get_url:
+    url: "{{ xray_tar }}"
+    timeout: "{{ xray_download_timeout }}"
     dest: "{{ jfrog_home_directory }}"
-    remote_src: yes
-    owner: "{{ xray_user }}"
-    group: "{{ xray_group }}"
-    creates: "{{ xray_untar_home }}"
   register: downloadxray
   until: downloadxray is succeeded
   retries: 3
+  when: not xray_tar_check.stat.exists
+
+- name: Extract xray tar
+  become: yes
+  unarchive:
+    src: "{{ jfrog_home_directory }}/{{ xray_tar_file_name }}"
+    dest: "{{ jfrog_home_directory }}"
+    remote_src: true
+    owner: "{{ xray_user }}"
+    group: "{{ xray_group }}"
+    creates: "{{ xray_untar_home }}"
+  when: downloadxray is succeeded
 
 - name: Check if app directory exists
   become: yes

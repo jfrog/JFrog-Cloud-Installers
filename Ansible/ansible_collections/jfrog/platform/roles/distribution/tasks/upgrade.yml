@@ -2,18 +2,33 @@
 - debug:
     msg: "Performing upgrade of Distribution version to {{ distribution_version }} "
 
+- name: Check if distribution tar already exists
+  become: yes
+  stat:
+    path: "{{ jfrog_home_directory }}/{{ distribution_tar_file_name }}"
+  register: distribution_tar_check
+
 - name: Download distribution for upgrade
   become: yes
-  unarchive:
-    src: "{{ distribution_tar }}"
+  get_url:
+    url: "{{ distribution_tar }}"
+    timeout: "{{ distribution_download_timeout }}"
     dest: "{{ jfrog_home_directory }}"
-    remote_src: yes
-    owner: "{{ distribution_user }}"
-    group: "{{ distribution_group }}"
-    creates: "{{ distribution_untar_home }}"
   register: downloaddistribution
   until: downloaddistribution is succeeded
   retries: 3
+  when: not distribution_tar_check.stat.exists
+
+- name: Extract distribution tar
+  become: yes
+  unarchive:
+    src: "{{ jfrog_home_directory }}/{{ distribution_tar_file_name }}"
+    dest: "{{ jfrog_home_directory }}"
+    remote_src: true
+    owner: "{{ distribution_user }}"
+    group: "{{ distribution_group }}"
+    creates: "{{ distribution_untar_home }}"
+  when: downloaddistribution is succeeded
 
 - name: Stop distribution
   become: yes

@@ -2,7 +2,7 @@
 # defaults file for distribution
 
 # The version of distribution to install
-distribution_version: 2.7.1
+distribution_version: 2.8.2
 
 # whether to enable HA
 distribution_ha_enabled: false
@@ -13,7 +13,11 @@ distribution_ha_node_type : master
 jfrog_home_directory: /opt/jfrog
 
 # The remote distribution download file
-distribution_tar: https://releases.jfrog.io/artifactory/jfrog-distribution/distribution-linux/{{ distribution_version }}/jfrog-distribution-{{ distribution_version }}-linux.tar.gz
+distribution_tar_file_name: jfrog-distribution-{{ distribution_version }}-linux.tar.gz
+distribution_tar: https://releases.jfrog.io/artifactory/jfrog-distribution/distribution-linux/{{ distribution_version }}/{{ distribution_tar_file_name }}
+
+# Timeout in seconds for URL request
+distribution_download_timeout: 10
 
 #The distribution install directory
 distribution_untar_home: "{{ jfrog_home_directory }}/jfrog-distribution-{{ distribution_version }}-linux"

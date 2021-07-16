@@ -53,7 +53,7 @@
   become: yes
   find:
     paths: "{{ mc_home }}/app/third-party/elasticsearch"
-    patterns: "^elasticsearch-oss-.+\\.tar.gz$"
+    patterns: "^elasticsearch-.+\\.tar.gz$"
     use_regex: yes
     file_type: file
   register: check_elasticsearch_package_result
@@ -104,7 +104,7 @@
   become: yes
   shell: "su -c '{{ mc_es_script_path }}/elasticsearch -d' elasticsearch"
   environment:
-    JAVA_HOME: "{{ mc_es_java_home }}"
+    ES_JAVA_HOME: "{{ mc_es_java_home }}"
     ES_PATH_CONF: "{{ mc_es_conf_base }}/"
   when: unarchive_result.extract_results.rc | default(128) == 0
   register: start_elastcsearch_upgraded

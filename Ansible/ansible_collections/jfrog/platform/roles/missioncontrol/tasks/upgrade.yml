@@ -2,18 +2,33 @@
 - debug:
     msg: "Performing Upgrade of missionControl version - {{ missioncontrol_version }}"
 
-- name: Download mc for upgrade
-  unarchive:
-    src: "{{ mc_tar }}"
-    dest: "{{ jfrog_home_directory }}"
-    remote_src: yes
-    owner: "{{ mc_user }}"
-    group: "{{ mc_group }}"
-    creates: "{{ mc_untar_home }}"
+- name: Check if mc tar exists
   become: yes
+  stat:
+    path: "{{ jfrog_home_directory }}/{{ mc_tar_file_name }}"
+  register: mc_tar_check
+
+- name: Download mc for upgrade
+  become: yes
+  get_url:
+    url: "{{ mc_tar }}"
+    timeout: "{{ mc_download_timeout }}"
+    dest: "{{ jfrog_home_directory }}"
   register: downloadmc
   until: downloadmc is succeeded
   retries: 3
+  when: not mc_tar_check.stat.exists
+
+- name: Extract mc tar
+  become: yes
+  unarchive:
+    src: "{{ jfrog_home_directory }}/{{ mc_tar_file_name }}"
+    dest: "{{ jfrog_home_directory }}"
+    remote_src: true
+    owner: "{{ mc_user }}"
+    group: "{{ mc_group }}"
+    creates: "{{ mc_untar_home }}"
+  when: downloadmc is succeeded
 
 - name: Stop mc service
   become: yes

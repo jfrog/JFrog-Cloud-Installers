@@ -2,19 +2,33 @@
 - debug:
     msg: "Performing upgrade of Artifactory version to : {{ artifactory_version }} "
 
+- name: Check if artifactory tar already exists
+  become: yes
+  stat:
+    path: "{{ jfrog_home_directory }}/{{ artifactory_tar_file_name }}"
+  register: artifactory_tar_check
+
 - name: Download artifactory for upgrade
   become: yes
-  unarchive:
-    src: "{{ artifactory_tar }}"
+  get_url:
+    url: "{{ artifactory_tar }}"
+    timeout: "{{ artifactory_download_timeout }}"
     dest: "{{ jfrog_home_directory }}"
-    remote_src: yes
-    owner: "{{ artifactory_user }}"
-    group: "{{ artifactory_group }}"
-    creates: "{{ artifactory_untar_home }}"
-  when: artifactory_tar is defined
   register: downloadartifactory
   until: downloadartifactory is succeeded
   retries: 3
+  when: not artifactory_tar_check.stat.exists
+
+- name: Extract artifactory tar
+  become: yes
+  unarchive:
+    src: "{{ jfrog_home_directory }}/{{ artifactory_tar_file_name }}"
+    dest: "{{ jfrog_home_directory }}"
+    remote_src: true
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+    creates: "{{ artifactory_untar_home }}"
+  when: downloadartifactory is succeeded
 
 - name: Stop artifactory
   become: yes

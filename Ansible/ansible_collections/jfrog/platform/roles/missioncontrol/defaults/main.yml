@@ -2,7 +2,7 @@
 # defaults file for mc
 
 # The version of missioncontrol to install
-missioncontrol_version: 4.7.5
+missioncontrol_version: 4.7.8
 
 # whether to enable HA
 mc_ha_enabled: false
@@ -13,7 +13,11 @@ mc_ha_node_type : master
 jfrog_home_directory: /opt/jfrog
 
 # The remote mc download file
-mc_tar: https://releases.jfrog.io/artifactory/jfrog-mc/linux/{{ missioncontrol_version }}/jfrog-mc-{{ missioncontrol_version }}-linux.tar.gz
+mc_tar_file_name: jfrog-mc-{{ missioncontrol_version }}-linux.tar.gz
+mc_tar: https://releases.jfrog.io/artifactory/jfrog-mc/linux/{{ missioncontrol_version }}/{{ mc_tar_file_name }}
+
+# Timeout in seconds for URL request
+mc_download_timeout: 10
 
 #The mc install directory
 mc_untar_home: "{{ jfrog_home_directory }}/jfrog-mc-{{ missioncontrol_version }}-linux"
@@ -75,6 +79,7 @@ mc_systemyaml: |-
       password: {{ mc_es_password }}
       url: {{ mc_es_url }}
       username: {{ mc_es_user }}
+      external: true
     security:
       joinKey: {{ join_key }}
   mc:

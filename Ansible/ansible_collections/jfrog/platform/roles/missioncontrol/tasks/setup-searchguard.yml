@@ -28,7 +28,7 @@
     {{ mc_es_script_path }}/elasticsearch-plugin install \
     -b file://{{ check_searchguard_bundle_result.files[0].path }}
   environment:
-    JAVA_HOME: "{{ mc_es_java_home }}"
+    ES_JAVA_HOME: "{{ mc_es_java_home }}"
     ES_PATH_CONF: "{{ mc_es_conf_base }}/"
   register: install_searchguard_result
   when: check_searchguard_bundle_result.matched == 1

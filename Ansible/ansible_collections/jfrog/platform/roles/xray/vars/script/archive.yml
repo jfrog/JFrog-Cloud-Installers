@@ -1,10 +1,6 @@
 xray_installer_scenario:
   main:
     - {
-        "expecting": "have you disconnected artifactory xray pairings",
-        "sending": "y"
-      }
-    - {
         "expecting": "(data|installation) directory \\(",
         "sending": "{{ xray_home }}"
       }
