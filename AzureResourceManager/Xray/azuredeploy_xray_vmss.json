@@ -19,7 +19,7 @@
     },
     "xrayVersion": {
       "type": "string",
-      "defaultValue": "0.0.23",
+      "defaultValue": "0.0.24",
       "allowedValues": [
         "0.0.10",
         "0.0.11",
@@ -31,7 +31,8 @@
         "0.0.20",
         "0.0.21",
         "0.0.22",
-	"0.0.23"
+	"0.0.23",
+	"0.0.24"
       ],
       "metadata": {
         "description": "Xray-vm image version to deploy."
@@ -199,7 +200,7 @@
     "joinKey": "[parameters('joinKey')]",
     "osType": {
       "publisher": "jfrog",
-      "offer": "x-ray-vm-preview",
+      "offer": "x-ray-vm",
       "sku": "x-ray-vm",
       "version": "[parameters('xrayVersion')]"
     },
@@ -322,7 +323,7 @@
       "plan": {
         "name": "x-ray-vm",
         "publisher": "jfrog",
-        "product": "x-ray-vm-preview"
+        "product": "x-ray-vm"
       },
       "sku": {
         "name": "[parameters('virtualMachineSize')]",
