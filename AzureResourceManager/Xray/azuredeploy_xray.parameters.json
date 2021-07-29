@@ -57,7 +57,7 @@
       "value": "jdbc:postgresql://postgressrvr.postgres.database.azure.com:5432"
     },
     "db_server": {
-      "value": "postgressrvrr"
+      "value": "postgressrvr"
     }
   }
 }
