@@ -88,6 +88,25 @@ All JFrog product roles support software updates. To use a role to perform a sof
     - xray
 ```
 
+## Using External Database
+If an external database for one or more products is to be used, you don't need to run `postgres` role as part of platform.yml.This can also be done by setting  `postgres_enabled` should be set to `false` in `group_vars/all/vars.yml`
+
+Create an external database as documented [here](https://www.jfrog.com/confluence/display/JFROG/PostgreSQL#PostgreSQL-CreatingtheArtifactoryPostgreSQLDatabase) and change corresponding product values in `group_vars/all/vars.yml`
+
+For example, for artifactory, these below values needs to be set for using external postgresql
+
+```
+postgres_enabled: false
+
+artifactory_db_type: postgresql
+artifactory_db_driver: org.postgresql.Driver
+artifactory_db_name: <external_db_name>
+artifactory_db_user: <external_db_user>
+artifactory_db_password: <external_db_pasword>
+artifactory_db_url: jdbc:postgresql://<external_db_host_ip>:5432/{{ artifactory_db_name }}
+
+```
+
 ## Building the Collection Archive
 1. Go to the ansible_collections/jfrog/platform directory.
 2. Update the galaxy.yml meta file as needed. Update the version.
