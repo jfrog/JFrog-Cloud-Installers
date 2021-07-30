@@ -1,0 +1,122 @@
+---
+- name: define OS-specific variables
+  include_vars: "{{ ansible_os_family }}.yml"
+
+- name: perform installation
+  include_tasks: "{{ ansible_os_family }}.yml"
+
+- name: Set PostgreSQL environment variables.
+  become: yes
+  template:
+    src: postgres.sh.j2
+    dest: /etc/profile.d/postgres.sh
+    mode: 0644
+  notify: restart postgresql
+
+- name: Ensure PostgreSQL data directory exists.
+  become: yes
+  become_user: postgres
+  file:
+    path: "{{ postgresql_data_dir }}"
+    owner: postgres
+    group: postgres
+    state: directory
+    mode: 0700
+
+- name: Initialize PostgreSQL database cluster
+  become: yes
+  become_user: postgres
+  command: "{{ postgresql_bin_path }}/initdb -D {{ postgresql_data_dir }}"
+  args:
+    creates: "{{ postgresql_data_dir }}/PG_VERSION"
+  environment:
+    LC_ALL: "{{ postgres_locale }}"
+
+- name: Setup postgres configuration files
+  become: yes
+  become_user: postgres
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ postgresql_config_path }}/{{ item }}"
+    owner: postgres
+    group: postgres
+    mode: u=rw,go=r
+  loop:
+    - pg_hba.conf
+    - postgresql.conf
+  notify: restart postgresql
+
+- name: Ensure PostgreSQL is started and enabled on boot
+  become: yes
+  systemd:
+    name: "{{ postgresql_daemon }}"
+    state: started
+    enabled: yes
+
+- name: Hold until Postgresql is up and running
+  wait_for:
+    port: "{{ postgres_port }}"
+
+- name: Create users
+  become: yes
+  become_user: postgres
+  postgresql_user:
+    name: "{{ item.db_user }}"
+    password: "{{ item.db_password }}"
+    conn_limit: "-1"
+  loop: "{{ db_users|default([]) }}"
+  no_log: true  # secret passwords
+
+- name: Create a database
+  become: yes
+  become_user: postgres
+  postgresql_db:
+    name: "{{ item.db_name }}"
+    owner: "{{ item.db_owner }}"
+    encoding: UTF-8
+    lc_collate: "{{ postgres_locale }}"
+    lc_ctype: "{{ postgres_locale }}"
+    template: template0
+  loop: "{{ dbs|default([]) }}"
+
+- name: Check if MC schemas already exists
+  become: yes
+  become_user: postgres
+  command: psql -d {{ mc_db_name }} -t -c "\dn"
+  register: mc_schemas_loaded
+  when: mc_enabled
+
+- name: Create schemas for mission-control
+  become: yes
+  become_user: postgres
+  command: psql -d {{ mc_db_name }} -c 'CREATE SCHEMA {{ item }} authorization {{ mc_db_user }}'
+  loop: "{{  mc_schemas|default([]) }}"
+  when: 
+    - mc_enabled
+    - "mc_schemas_loaded.stdout is defined and '{{ item }}' not in mc_schemas_loaded.stdout"
+
+- name: Grant all privileges to mc user on its schema
+  become: yes
+  become_user: postgres
+  postgresql_privs:
+    database: "{{ mc_db_name }}"
+    privs: ALL
+    type: schema
+    roles: "{{ mc_db_user }}"
+    objs: "{{ item }}"
+  loop: "{{ mc_schemas|default([]) }}"
+  when: mc_enabled
+
+- name: Grant privs on db
+  become: yes
+  become_user: postgres
+  postgresql_privs:
+    database: "{{ item.db_name }}"
+    role: "{{ item.db_owner }}"
+    state: present
+    privs: ALL
+    type: database
+  loop: "{{ dbs|default([]) }}"
+
+- debug:
+    msg: "Restarted postgres systemd {{ postgresql_daemon }}"

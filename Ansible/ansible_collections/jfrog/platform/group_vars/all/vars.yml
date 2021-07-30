@@ -15,6 +15,7 @@ artifactory_enabled: true
 xray_enabled: true
 distribution_enabled: true
 mc_enabled: true
+postgres_enabled: true
 
 # Artifactory DB details
 artifactory_db_type: postgresql
