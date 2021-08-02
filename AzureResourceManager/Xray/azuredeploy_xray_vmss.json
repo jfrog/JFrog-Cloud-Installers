@@ -200,7 +200,7 @@
     "joinKey": "[parameters('joinKey')]",
     "osType": {
       "publisher": "jfrog",
-      "offer": "x-ray-vm",
+      "offer": "x-ray-vm-preview",
       "sku": "x-ray-vm",
       "version": "[parameters('xrayVersion')]"
     },
@@ -323,7 +323,7 @@
       "plan": {
         "name": "x-ray-vm",
         "publisher": "jfrog",
-        "product": "x-ray-vm"
+        "product": "x-ray-vm-preview"
       },
       "sku": {
         "name": "[parameters('virtualMachineSize')]",
