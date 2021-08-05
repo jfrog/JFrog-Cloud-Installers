@@ -87,7 +87,7 @@
       - --strip-components=1
     owner: elasticsearch
     group: elasticsearch
-    creates: "{{ mc_es_java_home }}"
+    creates: "{{ mc_es_script_path }}"
   register: unarchive_result
   when: check_elasticsearch_package_result.matched > 0
 
@@ -159,12 +159,20 @@
   environment:
     ES_JAVA_HOME: "{{ mc_es_java_home }}"
     ES_PATH_CONF: "{{ mc_es_conf_base }}/"
-  register: start_elasticsearch_result
+  register: start_elasticsearch
   when: unarchive_result.extract_results.rc | default(128) == 0
 
 - name: Wait for elasticsearch to start
   pause:
-    seconds: 15
+    seconds: 30
+  when: start_elasticsearch.changed
+
+- name: Check if elasticsearch is running
+  wait_for: 
+    host: localhost
+    port: "{{ mc_es_transport_port }}"
+    delay: 5
+    connect_timeout: 1
 
 - name: Init searchguard plugin
   become: yes

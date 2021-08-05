@@ -14,8 +14,8 @@
     url: "{{ mc_tar }}"
     timeout: "{{ mc_download_timeout }}"
     dest: "{{ jfrog_home_directory }}"
-  register: downloadmc
-  until: downloadmc is succeeded
+  register: download_mc
+  until: download_mc is succeeded
   retries: 3
   when: not mc_tar_check.stat.exists
 
@@ -28,68 +28,37 @@
     owner: "{{ mc_user }}"
     group: "{{ mc_group }}"
     creates: "{{ mc_untar_home }}"
-  when: downloadmc is succeeded
+  when: download_mc is succeeded
 
 - name: Stop mc service
   become: yes
   systemd:
     name: "{{ mc_daemon }}"
     state: stopped
-  when: downloadmc.changed
+  when: download_mc.changed
 
 - name: Delete current app folder
   become: yes
   file:
     path: "{{ mc_home }}/app"
     state: absent
-  when: downloadmc.changed
+  when: download_mc.changed
 
 - name: Copy new app to mc app
   command: "cp -r {{ mc_untar_home }}/app/. {{ mc_home }}/app"
   become: yes
-  when: downloadmc.changed
+  when: download_mc.changed
 
 - name: Delete untar directory
   file:
     path: "{{ mc_untar_home }}"
     state: absent
   become: yes
-  when: downloadmc.changed
+  when: download_mc.changed
 
 - name: Upgrade elasticsearch
   import_tasks: upgrade-elasticsearch.yml
-  when: downloadmc.changed
-
-- name: Check if install.sh wrapper script exist
-  become: yes
-  stat:
-    path: "{{ mc_install_script_path }}/install.sh"
-  register: upgrade_wrapper_script
-  when: downloadmc.changed
-
-- name: Include interactive installer scripts
-  include_vars: script/archive.yml
-
-- name: Upgrade JFMC
-  include_tasks: expect.yml
-  vars:
-    exp_executable_cmd: "./install.sh -u {{ mc_user }} -g {{ mc_group }}"
-    exp_dir: "{{ mc_install_script_path }}"
-    exp_scenarios: "{{ mc_installer_scenario['main'] }}"
-  args:
-    apply:
-      environment:
-        YQ_PATH: "{{ mc_thirdparty_path }}/yq"
-  when: 
-    - upgrade_wrapper_script.stat.exists
-    - downloadmc.changed
-
-- name: Configure installer info
-  become: yes
-  template:
-    src: installer-info.json.j2
-    dest: "{{ mc_home }}/var/etc/info/installer-info.json"
-  notify: restart missioncontrol
+  when: download_mc.changed
 
 - name: Check if systemyaml exists
   become: yes
@@ -106,6 +75,37 @@
     - mc_systemyaml is defined  
     - mc_systemyaml|length > 0
     - mc_systemyaml_override or (not systemyaml.stat.exists) 
+  notify: restart missioncontrol
+
+- name: Check if install.sh wrapper script exist
+  become: yes
+  stat:
+    path: "{{ mc_install_script_path }}/install.sh"
+  register: upgrade_wrapper_script
+  when: download_mc.changed
+
+- name: Include interactive installer scripts
+  include_vars: script/archive.yml
+
+- name: Upgrade JFMC
+  include_tasks: expect.yml
+  vars:
+    exp_executable_cmd: "./install.sh -u {{ mc_user }} -g {{ mc_group }}"
+    exp_dir: "{{ mc_install_script_path }}"
+    exp_scenarios: "{{ mc_installer_scenario['main'] }}"
+  args:
+    apply:
+      environment:
+        YQ_PATH: "{{ mc_thirdparty_path }}/yq"
+  when: 
+    - upgrade_wrapper_script.stat.exists
+    - download_mc.changed
+
+- name: Configure installer info
+  become: yes
+  template:
+    src: installer-info.json.j2
+    dest: "{{ mc_home }}/var/etc/info/installer-info.json"
   notify: restart missioncontrol
 
 - name: Update correct permissions

@@ -2,9 +2,6 @@
 - debug:
     msg: "Performing installation of Xray version : {{ xray_version }}"
 
-- debug:
-    msg: "ansible_os_family: {{ ansible_os_family }}"
-
 - name: Install expect dependency
   become: yes
   yum:
@@ -50,8 +47,8 @@
     url: "{{ xray_tar }}"
     timeout: "{{ xray_download_timeout }}"
     dest: "{{ jfrog_home_directory }}"
-  register: downloadxray
-  until: downloadxray is succeeded
+  register: download_xray
+  until: download_xray is succeeded
   retries: 3
   when: not xray_tar_check.stat.exists
 
@@ -64,7 +61,7 @@
     owner: "{{ xray_user }}"
     group: "{{ xray_group }}"
     creates: "{{ xray_untar_home }}"
-  when: downloadxray is succeeded
+  when: download_xray is succeeded
 
 - name: Check if app directory exists
   become: yes
@@ -135,6 +132,13 @@
     dest: "{{ xray_home }}/app/bin/rabbitmq/rabbitmq.conf"
   notify: restart xray
 
+- name: Configure installer info
+  become: yes
+  template:
+    src: installer-info.json.j2
+    dest: "{{ xray_home }}/var/etc/info/installer-info.json"
+  notify: restart xray
+
 - name: Check if systemyaml exists
   become: yes
   stat:
@@ -150,13 +154,6 @@
     - xray_systemyaml is defined  
     - xray_systemyaml|length > 0
     - xray_systemyaml_override or (not systemyaml.stat.exists) 
-  notify: restart xray
-
-- name: Configure installer info
-  become: yes
-  template:
-    src: installer-info.json.j2
-    dest: "{{ xray_home }}/var/etc/info/installer-info.json"
   notify: restart xray
 
 - name: Ensure permissions are correct

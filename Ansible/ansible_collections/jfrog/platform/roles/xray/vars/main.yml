@@ -1,6 +1,6 @@
 ---
 # platform collection version
-platform_collection_version: 7.21.12
+platform_collection_version: 7.23.3
 
 # indicates were this collection was downlaoded from (galaxy, automation_hub, standalone)
 ansible_marketplace: galaxy

@@ -1,6 +1,10 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [7.23.3] - Aug 5, 2021
+* Missioncontrol's Elasticsearch to use new JAVA_HOME path
+* Missioncontrol's Elasticsearch searchguard plugin to use by default `anonymous_auth_enabled: true`
+
 ## [7.21.12] - July 30, 2021
 * Added variable `postgres_enabled` to enable/disable default postgres role in `groups_vars/all/vars.yml`
 * Added documentation to used external database
