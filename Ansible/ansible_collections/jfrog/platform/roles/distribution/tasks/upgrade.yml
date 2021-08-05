@@ -14,8 +14,8 @@
     url: "{{ distribution_tar }}"
     timeout: "{{ distribution_download_timeout }}"
     dest: "{{ jfrog_home_directory }}"
-  register: downloaddistribution
-  until: downloaddistribution is succeeded
+  register: download_distribution
+  until: download_distribution is succeeded
   retries: 3
   when: not distribution_tar_check.stat.exists
 
@@ -28,33 +28,50 @@
     owner: "{{ distribution_user }}"
     group: "{{ distribution_group }}"
     creates: "{{ distribution_untar_home }}"
-  when: downloaddistribution is succeeded
+  when: download_distribution is succeeded
 
 - name: Stop distribution
   become: yes
   systemd:
     name: "{{ distribution_daemon }}"
     state: stopped
-  when: downloaddistribution.changed
+  when: download_distribution.changed
 
 - name: Delete distribution app
   become: yes
   file:
     path: "{{ distribution_home }}/app"
     state: absent
-  when: downloaddistribution.changed
+  when: download_distribution.changed
 
 - name: Copy new app to distribution app
   become: yes
   command: "cp -r {{ distribution_untar_home }}/app/. {{ distribution_home }}/app"
-  when: downloaddistribution.changed
+  when: download_distribution.changed
+
+- name: Check if systemyaml exists
+  become: yes
+  stat:
+    path: "{{ distribution_home }}/var/etc/system.yaml"
+  register: systemyaml
+
+- name: Configure systemyaml
+  become: yes
+  template:
+    src: "{{ distribution_system_yaml_template }}"
+    dest: "{{ distribution_home }}/var/etc/system.yaml"
+  when: 
+    - distribution_systemyaml is defined  
+    - distribution_systemyaml|length > 0
+    - distribution_systemyaml_override or (not systemyaml.stat.exists) 
+  notify: restart distribution
 
 - name: Check if install.sh wrapper script exist
   become: yes
   stat:
     path: "{{ distribution_install_script_path }}/install.sh"
   register: install_wrapper_script
-  when: downloaddistribution.changed
+  when: download_distribution.changed
 
 - name: Include interactive installer scripts
   include_vars: script/archive.yml
@@ -71,7 +88,7 @@
         YQ_PATH: "{{ distribution_thirdparty_path }}/yq"
   when:
     - install_wrapper_script.stat.exists
-    - downloaddistribution.changed
+    - download_distribution.changed
 
 - name: Ensure {{ distribution_home }}/var/etc/redis exists
   become: yes
@@ -93,23 +110,6 @@
   template:
     src: installer-info.json.j2
     dest: "{{ distribution_home }}/var/etc/info/installer-info.json"
-  notify: restart distribution
-
-- name: Check if systemyaml exists
-  become: yes
-  stat:
-    path: "{{ distribution_home }}/var/etc/system.yaml"
-  register: systemyaml
-
-- name: Configure systemyaml
-  become: yes
-  template:
-    src: "{{ distribution_system_yaml_template }}"
-    dest: "{{ distribution_home }}/var/etc/system.yaml"
-  when: 
-    - distribution_systemyaml is defined  
-    - distribution_systemyaml|length > 0
-    - distribution_systemyaml_override or (not systemyaml.stat.exists) 
   notify: restart distribution
 
 - name: Update distribution permissions

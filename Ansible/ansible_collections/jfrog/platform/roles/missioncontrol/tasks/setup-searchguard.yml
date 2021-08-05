@@ -22,7 +22,6 @@
 
 - name: Install searchguard plugin
   become: yes
-  become_user: elasticsearch
   ignore_errors: yes
   shell: |
     {{ mc_es_script_path }}/elasticsearch-plugin install \
@@ -57,6 +56,7 @@
   loop:
     - "sg_roles.yml"
     - "sg_roles_mapping.yml"
+    - "sg_config.yml"
 
 - name: Check execution bit
   become: yes

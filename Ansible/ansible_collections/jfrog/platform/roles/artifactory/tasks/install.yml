@@ -46,8 +46,8 @@
     url: "{{ artifactory_tar }}"
     timeout: "{{ artifactory_download_timeout }}"
     dest: "{{ jfrog_home_directory }}"
-  register: downloadartifactory
-  until: downloadartifactory is succeeded
+  register: download_artifactory
+  until: download_artifactory is succeeded
   retries: 3
   when: not artifactory_tar_check.stat.exists
 
@@ -60,7 +60,7 @@
     owner: "{{ artifactory_user }}"
     group: "{{ artifactory_group }}"
     creates: "{{ artifactory_untar_home }}"
-  when: downloadartifactory is succeeded
+  when: download_artifactory is succeeded
 
 - name: Check if app directory exists
   become: yes

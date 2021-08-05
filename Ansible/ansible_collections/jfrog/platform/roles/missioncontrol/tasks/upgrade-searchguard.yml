@@ -31,7 +31,6 @@
 
 - name: Install searchguard plugin
   become: yes
-  become_user: elasticsearch
   ignore_errors: yes
   shell: |
     {{ mc_es_script_path }}/elasticsearch-plugin install \

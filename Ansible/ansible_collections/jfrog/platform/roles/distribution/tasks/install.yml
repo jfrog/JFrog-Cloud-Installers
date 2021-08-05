@@ -7,7 +7,7 @@
     name: expect
     state: present
   become: yes
-  when: ansible_os_family == 'Redhat'
+  when: ansible_os_family == 'RedHat'
 
 - name: Install expect dependency
   apt:
@@ -47,8 +47,8 @@
     url: "{{ distribution_tar }}"
     timeout: "{{ distribution_download_timeout }}"
     dest: "{{ jfrog_home_directory }}"
-  register: downloaddistribution
-  until: downloaddistribution is succeeded
+  register: download_distribution
+  until: download_distribution is succeeded
   retries: 3
   when: not distribution_tar_check.stat.exists
 
@@ -61,7 +61,7 @@
     owner: "{{ distribution_user }}"
     group: "{{ distribution_group }}"
     creates: "{{ distribution_untar_home }}"
-  when: downloaddistribution is succeeded
+  when: download_distribution is succeeded
 
 - name: Check if app directory exists
   become: yes

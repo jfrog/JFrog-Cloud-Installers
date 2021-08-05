@@ -14,8 +14,8 @@
     url: "{{ xray_tar }}"
     timeout: "{{ xray_download_timeout }}"
     dest: "{{ jfrog_home_directory }}"
-  register: downloadxray
-  until: downloadxray is succeeded
+  register: download_xray
+  until: download_xray is succeeded
   retries: 3
   when: not xray_tar_check.stat.exists
 
@@ -28,38 +28,38 @@
     owner: "{{ xray_user }}"
     group: "{{ xray_group }}"
     creates: "{{ xray_untar_home }}"
-  when: downloadxray is succeeded
+  when: download_xray is succeeded
 
 - name: stop xray
   become: yes
   systemd:
     name: "{{ xray_daemon }}"   
     state: stopped
-  when: downloadxray.changed
+  when: download_xray.changed
 
 - name: Delete xray app
   become: yes
   file:
     path: "{{ xray_home }}/app"
     state: absent
-  when: downloadxray.changed
+  when: download_xray.changed
 
 - name: Copy new app to xray app
   become: yes
   command: "cp -r {{ xray_untar_home }}/app/. {{ xray_home }}/app"
-  when: downloadxray.changed
+  when: download_xray.changed
 
 - name: Upgrade rabbitmq
   import_tasks: rabbitmq/upgrade/RedHat.yml
   when:
     - ansible_os_family == 'RedHat'
-    - downloadxray.changed
+    - download_xray.changed
 
 - name: Upgrade rabbitmq
   import_tasks: rabbitmq/upgrade/Debian.yml
   when:
     - ansible_os_family == 'Debian'
-    - downloadxray.changed
+    - download_xray.changed
 
 - name: Check if install.sh wrapper script exist
   become: yes
@@ -82,7 +82,7 @@
         YQ_PATH: "{{ xray_thirdparty_path }}/yq"
   when:
     - install_wrapper_script.stat.exists
-    - downloadxray.changed
+    - download_xray.changed
 
 - name: Configure rabbitmq config
   become: yes
@@ -90,7 +90,7 @@
     src: "rabbitmq.conf.j2"
     dest: "{{ xray_home }}/app/bin/rabbitmq/rabbitmq.conf"
   when:
-    - downloadxray.changed
+    - download_xray.changed
   notify: restart xray
 
 - name: Check if systemyaml exists
