@@ -19,7 +19,7 @@
     },
     "xrayVersion": {
       "type": "string",
-      "defaultValue": "0.0.24",
+      "defaultValue": "0.0.25",
       "allowedValues": [
         "0.0.10",
         "0.0.11",
@@ -31,8 +31,9 @@
         "0.0.20",
         "0.0.21",
         "0.0.22",
-	"0.0.23",
-	"0.0.24"
+        "0.0.23",
+        "0.0.24",
+        "0.0.25"
       ],
       "metadata": {
         "description": "Xray-vm image version to deploy."
@@ -211,6 +212,19 @@
   },
   "resources": [
     {
+      "apiVersion": "2020-06-01",
+      "name": "pid-650cbcf5-daa5-4038-88f1-aa87d58f8f1a-partnercenter",
+      "type": "Microsoft.Resources/deployments",
+      "properties": {
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "resources": []
+        }
+      }
+    },
+    {
       "condition": "[equals(parameters('virtualNetworkNewOrExisting'),'new')]",
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2020-05-01",
@@ -270,7 +284,7 @@
     },
     {
       "type": "Microsoft.Storage/storageAccounts",
-      "apiVersion": "2019-06-01",
+      "apiVersion": "2021-02-01",
       "name": "[variables('storageAccountName')]",
       "location": "[parameters('location')]",
       "sku": {
