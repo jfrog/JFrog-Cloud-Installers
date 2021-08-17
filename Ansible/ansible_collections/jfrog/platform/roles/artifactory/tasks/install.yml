@@ -1,18 +1,20 @@
----
 - debug:
     msg: "Performing installation of Artifactory version : {{ artifactory_version }} "
 
-- name: install nginx
+- name: Install prerequisite packages
+  include_tasks: "{{ ansible_os_family }}.yml"
+
+- name: Install nginx
   include_role:
     name: artifactory_nginx
-  when: 
+  when:
     - artifactory_nginx_enabled | bool
     - not artifactory_nginx_ssl_enabled | bool
 
-- name: install nginx with SSL
+- name: Install nginx with SSL
   include_role:
     name: artifactory_nginx_ssl
-  when: 
+  when:
     - not artifactory_nginx_enabled | bool
     - artifactory_nginx_ssl_enabled | bool
 
@@ -20,13 +22,11 @@
   become: yes
   group:
     name: "{{ artifactory_group }}"
-    gid: "{{ artifactory_gid }}"
     state: present
 
 - name: Ensure user artifactory exist
   become: yes
   user:
-    uid: "{{ artifactory_uid }}"
     name: "{{ artifactory_user }}"
     group: "{{ artifactory_group }}"
     create_home: yes
@@ -98,8 +98,8 @@
   template:
     src: "{{ artifactory_system_yaml_template }}"
     dest: "{{ artifactory_home }}/var/etc/system.yaml"
-  when: 
-    - artifactory_systemyaml is defined  
+  when:
+    - artifactory_systemyaml is defined
     - artifactory_systemyaml|length > 0
     - artifactory_systemyaml_override or (not systemyaml.stat.exists) 
   notify: restart artifactory
@@ -125,9 +125,9 @@
   template:
     src: binarystore.xml.j2
     dest: "{{ artifactory_home }}/var/etc/artifactory/binarystore.xml"
-  when: 
-    - artifactory_binarystore is defined  
-    - artifactory_binarystore|length > 0
+  when:
+    - artifactory_binarystore is defined
+    - artifactory_binarystore | length > 0
   notify: restart artifactory
 
 - name: Configure single license
@@ -135,8 +135,8 @@
   template:
     src: artifactory.lic.j2
     dest: "{{ artifactory_home }}/var/etc/artifactory/artifactory.lic"
-  when: 
-    - artifactory_single_license is defined  
+  when:
+    - artifactory_single_license is defined
     - artifactory_single_license|length > 0
   notify: restart artifactory
 
@@ -146,7 +146,7 @@
     src: artifactory.cluster.license.j2
     dest: "{{ artifactory_home }}/var/etc/artifactory/artifactory.cluster.license"
   when:
-   - artifactory_licenses is defined 
+   - artifactory_licenses is defined
    - artifactory_licenses|length > 0
   notify: restart artifactory
 
@@ -163,7 +163,7 @@
     dest: "{{ artifactory_home }}/var/bootstrap/artifactory/tomcat/lib"
     owner: "{{ artifactory_user }}"
     group: "{{ artifactory_group }}"
-  when: 
+  when:
     - postgres_driver_download_url is defined
     - not database_driver.stat.exists
   notify: restart artifactory
@@ -185,10 +185,13 @@
 - name: Restart artifactory
   meta: flush_handlers
 
-- name : Wait for artifactory to be fully deployed
-  uri: url=http://127.0.0.1:8082/router/api/v1/system/health timeout=130
+- name: Make sure artifactory is up and running
+  uri:
+    url: http://127.0.0.1:8082/router/api/v1/system/health
+    timeout: 130
+    status_code: 200
   register: result
-  until: result.status == 200
+  until: result is succeeded
   retries: 25
   delay: 5
   when: not ansible_check_mode

@@ -1,6 +1,11 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [7.24.3] - Aug 17, 2021 
+* Added required variables check when using `artifactory_nginx_ssl` role
+* Missioncontrol's Elasticsearch to use default ES JAVA_HOME
+* Bug Fixes
+
 ## [7.23.3] - Aug 5, 2021
 * Missioncontrol's Elasticsearch to use new JAVA_HOME path
 * Missioncontrol's Elasticsearch searchguard plugin to use by default `anonymous_auth_enabled: true`

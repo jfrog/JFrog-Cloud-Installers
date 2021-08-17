@@ -1,17 +1,13 @@
-- name: Get elasticsearch pid
-  shell: "ps -ef | grep -v grep | grep -w elasticsearch | awk '{print $2}'"
-  register: elasticsearch_pid
-
-- name: Stop elasticsearch before upgrade
+- name: Kill elasticsearch process
   become: yes
-  shell: kill -9 {{ elasticsearch_pid.stdout }}
-  when: elasticsearch_pid.stdout | length > 0
-
-- name: Waiting until all running processes are killed
-  wait_for:
-    path: "/proc/{{ elasticsearch_pid.stdout }}/status"
-    state: absent
-  when: elasticsearch_pid.stdout | length > 0
+  ignore_errors: yes
+  shell: |
+    ps -ef | grep -v grep | grep -w elasticsearch | awk '{print $2}' | while read curr_ps_id
+    do
+        echo "process ${curr_ps_id} still running"
+        echo "$(ps -ef | grep -v grep | grep ${curr_ps_id})"
+        kill -9 ${curr_ps_id}
+    done
 
 - name: Find searchguard bundle for removal
   become: yes
@@ -75,7 +71,7 @@
       - --exclude=config
     owner: elasticsearch
     group: elasticsearch
-    creates: "{{ mc_es_script_path }}"
+    creates: "{{ mc_es_java_home }}"
   register: unarchive_result
   when: check_elasticsearch_package_result.matched > 0
 
@@ -107,8 +103,8 @@
   environment:
     ES_JAVA_HOME: "{{ mc_es_java_home }}"
     ES_PATH_CONF: "{{ mc_es_conf_base }}/"
-  when: unarchive_result.extract_results.rc | default(128) == 0
   register: start_elastcsearch
+  when: unarchive_result.extract_results.rc | default(128) == 0
 
 - name: Wait for elasticsearch to start
   pause:
@@ -116,8 +112,21 @@
   when: start_elasticsearch.changed
 
 - name: Check if elasticsearch is running
-  wait_for: 
+  wait_for:
     host: localhost
     port: "{{ mc_es_transport_port }}"
     delay: 5
     connect_timeout: 1
+
+- name: Init searchguard plugin
+  become: yes
+  become_user: elasticsearch
+  shell: |
+    ./sgadmin.sh -p {{ mc_es_transport_port }} -cacert root-ca.pem \
+    -cert sgadmin.pem -key sgadmin.key -cd {{ mc_es_searchgaurd_home }}/sgconfig/ -nhnv -icl
+  args:
+    chdir: "{{ mc_es_searchgaurd_home }}/tools/"
+  environment:
+    JAVA_HOME: "{{ mc_es_java_home }}"
+  register: install_searchguard_result
+  when: check_searchguard_bundle_result.matched == 1

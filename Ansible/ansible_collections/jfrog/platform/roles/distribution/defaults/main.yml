@@ -1,4 +1,3 @@
----
 # defaults file for distribution
 
 # The version of distribution to install
@@ -7,9 +6,9 @@ distribution_version: 2.9.0
 # whether to enable HA
 distribution_ha_enabled: false
 
-distribution_ha_node_type : master
+distribution_ha_node_type: master
 
-# The location where distribution should install.
+# The location where distribution should install
 jfrog_home_directory: /opt/jfrog
 
 # The remote distribution download file
@@ -36,8 +35,6 @@ distribution_uid: 1040
 distribution_gid: 1040
 
 distribution_daemon: distribution
-
-flow_type: archive
 
 # Redis details
 distribution_redis_url: "redis://localhost:6379"

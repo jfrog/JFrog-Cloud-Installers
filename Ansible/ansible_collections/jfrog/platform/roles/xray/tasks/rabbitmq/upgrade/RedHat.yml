@@ -1,9 +1,9 @@
 - name: Set package prefix
   set_fact:
     rhel_package_prefix: >-
-        {%- if linux_distro in ['centos7','rhel7'] -%}
+        {%- if linux_distro in ['centos7','redhat7'] -%}
             el7
-        {%- elif linux_distro in ['centos8','rhel8'] -%}
+        {%- elif linux_distro in ['centos8','redhat8'] -%}
             el8
         {%- endif -%}
 

@@ -1,33 +1,36 @@
----
-- name: install acl, python3-psycopg2
+- name: Install prerequisite packages
   become: yes
   apt:
-    name:
-      - acl
-      - python3-psycopg2
+    name: ['acl', 'apt-transport-https', 'locales', 'python3-psycopg2']
     state: present
     update_cache: yes
-  ignore_errors: yes
 
-- name: add postgres apt key
+- name: Ensure UTF-8 locale exists
+  become: yes
+  locale_gen:
+    name: en_US.UTF-8
+    state: present
+
+- name: Import PostgreSQL repository key
   become: yes
   apt_key:
     url: "{{ postgres_apt_key_url }}"
     id: "{{ postgres_apt_key_id }}"
-    validate_certs: no
     state: present
 
-- name: register APT repository
+- name: Register PostgreSQL repository
   become: yes
   apt_repository:
     repo: "{{ postgres_apt_repository_repo }}"
     state: present
     filename: pgdg
 
-- name: install postgres packages
+- name: Install postgres packages
   become: yes
   apt:
     name:
       - postgresql-{{ postgres_version }}
       - postgresql-contrib-{{ postgres_version }}
     state: present
+    update_cache: yes
+    cache_valid_time: 3600
