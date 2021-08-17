@@ -65,6 +65,7 @@
   loop:
     - "sg_roles.yml"
     - "sg_roles_mapping.yml"
+    - "sg_config.yml"
 
 - name: Check execution bit
   become: yes

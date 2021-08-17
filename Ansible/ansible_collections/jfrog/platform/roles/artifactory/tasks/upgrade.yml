@@ -1,4 +1,3 @@
----
 - debug:
     msg: "Performing upgrade of Artifactory version to : {{ artifactory_version }} "
 
@@ -60,8 +59,8 @@
   template:
     src: artifactory.lic.j2
     dest: "{{ artifactory_home }}/var/etc/artifactory/artifactory.lic"
-  when: 
-    - artifactory_single_license is defined  
+  when:
+    - artifactory_single_license is defined
     - artifactory_single_license|length > 0
   notify: restart artifactory
 
@@ -71,8 +70,8 @@
     src: artifactory.cluster.license.j2
     dest: "{{ artifactory_home }}/var/etc/artifactory/artifactory.cluster.license"
   when:
-   - artifactory_licenses is defined 
-   - artifactory_licenses|length > 0
+   - artifactory_licenses is defined
+   - artifactory_licenses | length > 0
   notify: restart artifactory
 
 - name: Check if database driver exists
@@ -88,7 +87,7 @@
     dest: "{{ artifactory_home }}/var/bootstrap/artifactory/tomcat/lib"
     owner: "{{ artifactory_user }}"
     group: "{{ artifactory_group }}"
-  when: 
+  when:
     - postgres_driver_download_url is defined
     - not database_driver.stat.exists
   notify: restart artifactory
@@ -105,8 +104,8 @@
   template:
     src: binarystore.xml.j2
     dest: "{{ artifactory_home }}/var/etc/artifactory/binarystore.xml"
-  when: 
-    - artifactory_binarystore is defined  
+  when:
+    - artifactory_binarystore is defined
     - artifactory_binarystore|length > 0
   notify: restart artifactory
 
@@ -121,10 +120,10 @@
   template:
     src: "{{ artifactory_system_yaml_template }}"
     dest: "{{ artifactory_home }}/var/etc/system.yaml"
-  when: 
-    - artifactory_systemyaml is defined  
+  when:
+    - artifactory_systemyaml is defined
     - artifactory_systemyaml|length > 0
-    - artifactory_systemyaml_override or (not systemyaml.stat.exists) 
+    - artifactory_systemyaml_override or (not systemyaml.stat.exists)
   notify: restart artifactory
 
 - name: Ensure permissions are correct
@@ -138,10 +137,13 @@
 - name: Restart artifactory
   meta: flush_handlers
 
-- name : Wait for artifactory to be fully deployed
-  uri: url=http://127.0.0.1:8082/router/api/v1/system/health timeout=130
+- name: Make sure artifactory is up and running
+  uri:
+    url: http://127.0.0.1:8082/router/api/v1/system/health
+    timeout: 130
+    status_code: 200
   register: result
-  until: result.status == 200
+  until: result is succeeded
   retries: 25
   delay: 5
   when: not ansible_check_mode

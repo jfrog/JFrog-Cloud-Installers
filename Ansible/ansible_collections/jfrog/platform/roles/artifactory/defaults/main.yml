@@ -1,8 +1,7 @@
----
 # defaults file for artifactory
 
 # The version of artifactory to install
-artifactory_version: 7.23.3
+artifactory_version: 7.24.3
 
 # Set this to true when SSL is enabled (to use artifactory_nginx_ssl role), default to false (implies artifactory uses artifactory_nginx role )
 artifactory_nginx_ssl_enabled: false
@@ -28,10 +27,10 @@ artifactory_ha_enabled: false
 # By default, all nodes are primary (CNHA) - https://www.jfrog.com/confluence/display/JFROG/High+Availability#HighAvailability-Cloud-NativeHighAvailability
 artifactory_taskAffinity: any
 
-# The location where Artifactory should install.
+# The location where Artifactory should install
 jfrog_home_directory: /opt/jfrog
 
-# Pick the Artifactory flavour to install, can be also cpp-ce, jcr, pro.
+# Pick the Artifactory flavour to install, can be also cpp-ce/jcr/pro
 artifactory_flavour: pro
 
 artifactory_extra_java_opts: -server -Xms512m -Xmx2g -Xss256k -XX:+UseG1GC
@@ -62,7 +61,7 @@ artifactory_upgrade_only: false
 artifactory_admin_username: admin
 artifactory_admin_password: password
 
-artifactory_service_file : /lib/systemd/system/artifactory.service
+artifactory_service_file: /lib/systemd/system/artifactory.service
 
 # Provide binarystore XML content below with 2-space indentation
 artifactory_binarystore: |-

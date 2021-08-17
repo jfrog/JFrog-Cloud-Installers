@@ -1,0 +1,13 @@
+- name: Install prerequisite packages
+  become: yes
+  apt:
+    name: ["net-tools", "locales"]
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Ensure UTF-8 locale exists
+  become: yes
+  locale_gen:
+    name: en_US.UTF-8
+    state: present

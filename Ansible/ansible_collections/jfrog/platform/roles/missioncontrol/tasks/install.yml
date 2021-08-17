@@ -1,33 +1,18 @@
----
 - debug:
     msg: "Performing installation of missionControl version - {{ missioncontrol_version }}"
 
-- name: Install expect dependency
-  become: yes
-  yum:
-    name: expect
-    state: present
-  when: ansible_os_family == 'RedHat'
-
-- name: Install expect dependency
-  become: yes
-  apt:
-    name: expect
-    state: present
-    update_cache: yes
-  when: ansible_os_family == 'Debian'
+- name: Install prerequisite packages
+  include_tasks: "{{ ansible_os_family }}.yml"
 
 - name: Ensure group jfmc exist
   become: yes
   group:
     name: "{{ mc_group }}"
-    gid: "{{ mc_gid }}"
     state: present
 
 - name: Ensure user jfmc exist
   become: yes
   user:
-    uid: "{{ mc_uid }}"
     name: "{{ mc_user }}"
     group: "{{ mc_group }}"
     create_home: yes
@@ -138,10 +123,10 @@
   template:
     src: "{{ mc_system_yaml_template }}"
     dest: "{{ mc_home }}/var/etc/system.yaml"
-  when: 
-    - mc_systemyaml is defined  
+  when:
+    - mc_systemyaml is defined
     - mc_systemyaml|length > 0
-    - mc_systemyaml_override or (not systemyaml.stat.exists) 
+    - mc_systemyaml_override or (not systemyaml.stat.exists)
   notify: restart missioncontrol
 
 - name: Update correct permissions
@@ -155,8 +140,7 @@
 
 - name: Install mc as a service
   become: yes
-  shell: |
-    {{ mc_archive_service_cmd }}
+  shell: "{{ mc_archive_service_cmd }}"
   args:
     chdir: "{{ mc_install_script_path }}"
     creates: "{{ mc_service_file }}"
@@ -165,10 +149,13 @@
 - name: Restart missioncontrol
   meta: flush_handlers
 
-- name : Wait for missionControl to be fully deployed
-  uri: url=http://127.0.0.1:8082/router/api/v1/system/health timeout=130
+- name: Make sure missionControl is up and running
+  uri:
+    url: http://127.0.0.1:8082/router/api/v1/system/health
+    timeout: 130
+    status_code: 200
   register: result
-  until: result.status == 200
+  until: result is succeeded
   retries: 25
   delay: 5
   when: not ansible_check_mode

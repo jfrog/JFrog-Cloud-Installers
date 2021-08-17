@@ -1,5 +1,44 @@
----
-# tasks file for artifactory_nginx
+- name: "Check required variables"
+  fail: msg="Variable '{{ item }}' is not defined"
+  when: item not in vars
+  with_items: 
+  - certificate
+  - certificate_key
+  - server_name
+
+- name: Install prerequisite packages
+  include_tasks: "{{ ansible_os_family }}.yml"
+
+- name: Install nginx after dependency installation
+  become: yes
+  package:
+    name: nginx
+    state: present
+  register: install_nginx
+  retries: 5
+  delay: 60
+  until: install_nginx is success
+
+- name: Configure main nginx conf file.
+  become: yes
+  copy:
+    src: nginx.conf
+    dest: /etc/nginx/nginx.conf
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Configure redirect nginx conf
+  become: yes
+  copy:
+    src: redirect_http_to_https.conf
+    dest: /etc/nginx/conf.d/redirect_http_to_https.conf
+    owner: root
+    group: root
+    mode: '0755'
+  when: redirect_http_to_https_enabled | bool
+  notify: restart nginx
+
 - name: Configure the artifactory nginx conf
   become: yes
   template:

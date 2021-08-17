@@ -1,7 +1,8 @@
----
-# defaults file for artifactory_nginx
+# defaults file for artifactory_nginx_ssl
 
 ## For production deployments,You SHOULD change it.
 # server_name: test.artifactory.com
 
 nginx_daemon: nginx
+
+redirect_http_to_https_enabled: true
