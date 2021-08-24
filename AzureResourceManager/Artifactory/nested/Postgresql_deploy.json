@@ -45,7 +45,7 @@
     },
     "version": {
       "type": "string",
-      "defaultValue": "12"
+      "defaultValue": "11.11"
     },
     "backupRetentionDays": {
       "type": "int",
