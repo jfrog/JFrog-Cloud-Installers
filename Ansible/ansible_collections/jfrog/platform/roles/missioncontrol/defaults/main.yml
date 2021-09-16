@@ -1,7 +1,7 @@
 # defaults file for mc
 
 # The version of missioncontrol to install
-missioncontrol_version: 4.7.10
+missioncontrol_version: 4.7.14
 
 # whether to enable HA
 mc_ha_enabled: false
@@ -44,7 +44,6 @@ mc_es_conf_base: "/etc/elasticsearch"
 mc_es_user: admin
 mc_es_password: admin
 mc_es_url: "http://localhost:9200"
-mc_es_base_url: "http://localhost:9200/elasticsearch"
 mc_es_transport_port: 9300
 
 mc_es_home: "/usr/share/elasticsearch"

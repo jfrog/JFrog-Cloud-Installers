@@ -5,3 +5,9 @@
   systemd:
     name: "{{ distribution_daemon }}"
     state: restarted
+
+- name: stop distribution
+  become: yes
+  systemd:
+    name: "{{ distribution_daemon }}"
+    state: stopped

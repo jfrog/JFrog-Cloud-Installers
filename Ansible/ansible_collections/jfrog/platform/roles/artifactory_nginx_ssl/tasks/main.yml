@@ -1,10 +1,10 @@
 - name: "Check required variables"
   fail: msg="Variable '{{ item }}' is not defined"
   when: item not in vars
-  with_items: 
-  - certificate
-  - certificate_key
-  - server_name
+  loop:
+    - certificate
+    - certificate_key
+    - server_name
 
 - name: Install prerequisite packages
   include_tasks: "{{ ansible_os_family }}.yml"
@@ -26,7 +26,7 @@
     dest: /etc/nginx/nginx.conf
     owner: root
     group: root
-    mode: '0755'
+    mode: 0755
 
 - name: Configure redirect nginx conf
   become: yes
@@ -35,7 +35,7 @@
     dest: /etc/nginx/conf.d/redirect_http_to_https.conf
     owner: root
     group: root
-    mode: '0755'
+    mode: 0755
   when: redirect_http_to_https_enabled | bool
   notify: restart nginx
 
@@ -46,7 +46,7 @@
     dest: /etc/nginx/conf.d/artifactory.conf
     owner: root
     group: root
-    mode: '0755'
+    mode: 0755
   notify: restart nginx
 
 - name: Ensure nginx dir exists
@@ -54,12 +54,14 @@
   file:
     path: "/var/opt/jfrog/nginx/ssl"
     state: directory
+    mode: 0644
 
 - name: Configure certificate
   become: yes
   template:
     src: certificate.pem.j2
     dest: "/var/opt/jfrog/nginx/ssl/cert.pem"
+    mode: 0644
   notify: restart nginx
 
 - name: Ensure pki exists
@@ -67,13 +69,15 @@
   file:
     path: "/etc/pki/tls"
     state: directory
+    mode: 0644
 
 - name: Configure key
   become: yes
   template:
     src: certificate.key.j2
     dest: "/etc/pki/tls/cert.key"
+    mode: 0644
   notify: restart nginx
 
-- name: Restart nginx
+- name: restart nginx
   meta: flush_handlers

@@ -5,3 +5,9 @@
   systemd:
     name: "{{ mc_daemon }}"
     state: restarted
+
+- name: stop missioncontrol
+  become: yes
+  systemd:
+    name: "{{ mc_daemon }}"
+    state: stopped

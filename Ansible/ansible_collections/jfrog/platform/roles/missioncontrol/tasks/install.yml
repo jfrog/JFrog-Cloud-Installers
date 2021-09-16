@@ -1,6 +1,3 @@
-- debug:
-    msg: "Performing installation of missionControl version - {{ missioncontrol_version }}"
-
 - name: Install prerequisite packages
   include_tasks: "{{ ansible_os_family }}.yml"
 
@@ -56,7 +53,10 @@
 
 - name: Copy untar directory to mc home
   become: yes
-  command: "cp -r {{ mc_untar_home }}/. {{ mc_home }}"
+  copy:
+    src: "{{ mc_untar_home }}/"
+    dest: "{{ mc_home }}"
+    remote_src: yes
   when: not app_dir_check.stat.exists
 
 - name: Create required directories
@@ -140,7 +140,7 @@
 
 - name: Install mc as a service
   become: yes
-  shell: "{{ mc_archive_service_cmd }}"
+  command: "{{ mc_archive_service_cmd }}"
   args:
     chdir: "{{ mc_install_script_path }}"
     creates: "{{ mc_service_file }}"

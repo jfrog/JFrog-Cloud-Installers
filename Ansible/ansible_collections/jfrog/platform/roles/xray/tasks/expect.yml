@@ -42,3 +42,4 @@
     executable: /usr/bin/expect
     chdir: "{{ exp_dir }}"
   register: exp_result
+  changed_when: false

@@ -1,7 +1,7 @@
 # defaults file for artifactory
 
 # The version of artifactory to install
-artifactory_version: 7.24.3
+artifactory_version: 7.25.7
 
 # Set this to true when SSL is enabled (to use artifactory_nginx_ssl role), default to false (implies artifactory uses artifactory_nginx role )
 artifactory_nginx_ssl_enabled: false
@@ -13,7 +13,7 @@ artifactory_nginx_enabled: true
 # artifactory_single_license:
 
 # Provide individual (HA) licenses file separated by new line and 2-space indentation and set artifactory_ha_enabled: true.
-# Example:
+# Example: Replace <license_1> , <license_2> , <license_3> with original licenses
 # artifactory_licenses: |-
 #   <license_1>
 
@@ -25,7 +25,7 @@ artifactory_nginx_enabled: true
 artifactory_ha_enabled: false
 
 # By default, all nodes are primary (CNHA) - https://www.jfrog.com/confluence/display/JFROG/High+Availability#HighAvailability-Cloud-NativeHighAvailability
-artifactory_taskAffinity: any
+artifactory_taskaffinity: any
 
 # The location where Artifactory should install
 jfrog_home_directory: /opt/jfrog
@@ -80,7 +80,7 @@ artifactory_systemyaml: |-
     node:
       id: {{ ansible_hostname }}
       ip: {{ ansible_host }}
-      taskAffinity: {{ artifactory_taskAffinity }}
+      taskAffinity: {{ artifactory_taskaffinity }}
       haEnabled: {{ artifactory_ha_enabled }}
     database:
       type: "{{ artifactory_db_type }}"

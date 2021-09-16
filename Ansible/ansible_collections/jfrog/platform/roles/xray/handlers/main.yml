@@ -5,3 +5,9 @@
   systemd:
     name: "{{ xray_daemon }}"
     state: restarted
+
+- name: stop xray
+  become: yes
+  systemd:
+    name: "{{ xray_daemon }}"
+    state: stopped

@@ -1,6 +1,4 @@
-- debug:
-    msg: "Performing upgrade of Artifactory version to : {{ artifactory_version }} "
-
+---
 - name: Check if artifactory tar already exists
   become: yes
   stat:
@@ -29,12 +27,8 @@
     creates: "{{ artifactory_untar_home }}"
   when: download_artifactory is succeeded
 
-- name: Stop artifactory
-  become: yes
-  systemd:
-    name: "{{ artifactory_daemon }}"
-    state: stopped
-  when: download_artifactory.changed
+- name: stop artifactory
+  meta: flush_handlers
 
 - name: Ensure jfrog_home_directory exists
   become: yes
@@ -59,6 +53,7 @@
   template:
     src: artifactory.lic.j2
     dest: "{{ artifactory_home }}/var/etc/artifactory/artifactory.lic"
+    mode: 0644
   when:
     - artifactory_single_license is defined
     - artifactory_single_license|length > 0
@@ -69,6 +64,7 @@
   template:
     src: artifactory.cluster.license.j2
     dest: "{{ artifactory_home }}/var/etc/artifactory/artifactory.cluster.license"
+    mode: 0644
   when:
    - artifactory_licenses is defined
    - artifactory_licenses | length > 0
@@ -97,6 +93,7 @@
   template:
     src: installer-info.json.j2
     dest: "{{ artifactory_home }}/var/etc/artifactory/info/installer-info.json"
+    mode: 0644
   notify: restart artifactory
 
 - name: Configure binary store
@@ -104,6 +101,7 @@
   template:
     src: binarystore.xml.j2
     dest: "{{ artifactory_home }}/var/etc/artifactory/binarystore.xml"
+    mode: 0644
   when:
     - artifactory_binarystore is defined
     - artifactory_binarystore|length > 0
@@ -120,6 +118,7 @@
   template:
     src: "{{ artifactory_system_yaml_template }}"
     dest: "{{ artifactory_home }}/var/etc/system.yaml"
+    mode: 0644
   when:
     - artifactory_systemyaml is defined
     - artifactory_systemyaml|length > 0
