@@ -9,10 +9,10 @@
 local   all             all                                     peer
 host    all             all             127.0.0.1/32            md5
 host    all             all             ::1/128                 md5
-## remote connections IPv4
-{% if postgres_allowed_hosts and postgres_allowed_hosts is iterable %}
-    {% for host in postgres_allowed_hosts %}
-        {{ host.type | default('host') }}         {{ host.database | default('all') }}        {{ host.user | default('all') }}             {{ host.address | default('0.0.0.0/0') }}            {{ item.auth | default('trust') }}
-    {% endfor %}
-{% endif %}
 
+## remote connections IPv4
+{% if postgres_allowed_hosts and postgres_allowed_hosts is iterable -%}
+{%- for host in postgres_allowed_hosts %}
+{{ host.type | default('host') }}         {{ host.database | default('all') }}        {{ host.user | default('all') }}             {{ host.address | default('0.0.0.0/0') }}            {{ item.auth | default('trust') }}
+{% endfor %}
+{% endif %}

@@ -45,6 +45,17 @@
     xray_erlang_package: "{{ check_erlang_package_result.files[0].path }}"
   when: check_erlang_package_result.matched > 0
 
+- name: Import RabbitMQ release signing key
+  become: yes
+  ignore_errors: yes
+  rpm_key:
+    key: https://github.com/rabbitmq/signing-keys/releases/download/2.0/rabbitmq-release-signing-key.asc
+    state: present
+  register: import_rabbitmq_signing_key_result
+  until: import_rabbitmq_signing_key_result is succeeded
+  delay: 5
+  retries: 3
+
 - name: Install erlang package
   become: yes
   yum:

@@ -1,6 +1,3 @@
-- debug:
-    msg: "Performing installation of Distribution version - {{ distribution_version }}"
-
 - name: Install prerequisite packages
   include_tasks: "{{ ansible_os_family }}.yml"
 
@@ -56,7 +53,10 @@
 
 - name: Copy untar directory to distribution home
   become: yes
-  command: "cp -r {{ distribution_untar_home }}/. {{ distribution_home }}"
+  copy:
+    src: "{{ distribution_untar_home }}/"
+    dest: "{{ distribution_home }}"
+    remote_src: yes
   when: not app_dir_check.stat.exists
 
 - name: Create required directories
@@ -108,6 +108,7 @@
   template:
     src: "redis.conf.j2"
     dest: "{{ distribution_home }}/var/etc/redis/redis.conf"
+    mode: 0644
   notify: restart distribution
 
 - name: Check if systemyaml exists
@@ -121,6 +122,7 @@
   template:
     src: "{{ distribution_system_yaml_template }}"
     dest: "{{ distribution_home }}/var/etc/system.yaml"
+    mode: 0644
   when:
     - distribution_systemyaml is defined
     - distribution_systemyaml|length > 0
@@ -132,6 +134,7 @@
   template:
     src: installer-info.json.j2
     dest: "{{ distribution_home }}/var/etc/info/installer-info.json"
+    mode: 0644
   notify: restart distribution
 
 - name: Update distribution permissions
@@ -145,20 +148,11 @@
 
 - name: Install Distribution as a service
   become: yes
-  shell: "{{ distribution_archive_service_cmd }}"
+  command: "{{ distribution_archive_service_cmd }}"
   args:
     chdir: "{{ distribution_install_script_path }}"
     creates: "{{ distribution_service_file }}"
   register: check_service_status_result
-
-- name: Update distribution permissions
-  become: yes
-  file:
-    path: "{{ distribution_home }}"
-    state: directory
-    recurse: yes
-    owner: "{{ distribution_user }}"
-    group: "{{ distribution_group }}"
 
 - name: Restart distribution
   meta: flush_handlers

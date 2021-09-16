@@ -1,6 +1,4 @@
-- debug:
-    msg: "Performing upgrade of Xray version to {{ xray_version }}..."
-
+---
 - name: Check if xray tar exists
   become: yes
   stat:
@@ -30,11 +28,7 @@
   when: download_xray is succeeded
 
 - name: stop xray
-  become: yes
-  systemd:
-    name: "{{ xray_daemon }}"
-    state: stopped
-  when: download_xray.changed
+  meta: flush_handlers
 
 - name: Delete xray app
   become: yes
@@ -88,6 +82,7 @@
   template:
     src: "rabbitmq.conf.j2"
     dest: "{{ xray_home }}/app/bin/rabbitmq/rabbitmq.conf"
+    mode: 0644
   when:
     - download_xray.changed
   notify: restart xray
@@ -103,6 +98,7 @@
   template:
     src: "{{ xray_system_yaml_template }}"
     dest: "{{ xray_home }}/var/etc/system.yaml"
+    mode: 0644
   when:
     - xray_systemyaml is defined
     - xray_systemyaml|length > 0
@@ -114,6 +110,7 @@
   template:
     src: installer-info.json.j2
     dest: "{{ xray_home }}/var/etc/info/installer-info.json"
+    mode: 0644
   notify: restart xray
 
 - name: Ensure permissions are correct

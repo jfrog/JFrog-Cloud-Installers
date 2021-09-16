@@ -1,6 +1,3 @@
-- debug:
-    msg: "Performing upgrade of Distribution version to {{ distribution_version }} "
-
 - name: Check if distribution tar already exists
   become: yes
   stat:
@@ -29,12 +26,8 @@
     creates: "{{ distribution_untar_home }}"
   when: download_distribution is succeeded
 
-- name: Stop distribution
-  become: yes
-  systemd:
-    name: "{{ distribution_daemon }}"
-    state: stopped
-  when: download_distribution.changed
+- name: stop distribution
+  meta: flush_handlers
 
 - name: Delete distribution app
   become: yes
@@ -48,21 +41,22 @@
   command: "cp -r {{ distribution_untar_home }}/app/. {{ distribution_home }}/app"
   when: download_distribution.changed
 
-- name: Check if systemyaml exists
+- name: Check if system.yaml exists
   become: yes
   stat:
     path: "{{ distribution_home }}/var/etc/system.yaml"
   register: systemyaml
 
-- name: Configure systemyaml
+- name: Configure system.yaml
   become: yes
   template:
     src: "{{ distribution_system_yaml_template }}"
     dest: "{{ distribution_home }}/var/etc/system.yaml"
+    mode: 0644
   when:
     - distribution_systemyaml is defined
     - distribution_systemyaml|length > 0
-    - distribution_systemyaml_override or (not systemyaml.stat.exists) 
+    - distribution_systemyaml_override or (not systemyaml.stat.exists)
   notify: restart distribution
 
 - name: Check if install.sh wrapper script exist
@@ -89,19 +83,21 @@
     - install_wrapper_script.stat.exists
     - download_distribution.changed
 
-- name: Ensure {{ distribution_home }}/var/etc/redis exists
+- name: Ensure redis config directory exists
   become: yes
   file:
     path: "{{ distribution_home }}/var/etc/redis/"
     state: directory
     owner: "{{ distribution_user }}"
     group: "{{ distribution_group }}"
+    mode: 0644
 
 - name: Configure redis config
   become: yes
   template:
     src: "redis.conf.j2"
     dest: "{{ distribution_home }}/var/etc/redis/redis.conf"
+    mode: 0644
   notify: restart distribution
 
 - name: Configure installer info
@@ -109,6 +105,7 @@
   template:
     src: installer-info.json.j2
     dest: "{{ distribution_home }}/var/etc/info/installer-info.json"
+    mode: 0644
   notify: restart distribution
 
 - name: Update distribution permissions

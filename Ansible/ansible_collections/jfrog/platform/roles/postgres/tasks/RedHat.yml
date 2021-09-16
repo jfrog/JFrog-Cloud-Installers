@@ -47,6 +47,7 @@
     line: "{{ item }}"
     state: present
     create: yes
+    mode: 0644
   loop:
     - LANG=en_us.UTF-8
     - LANGUAGE=en_us.UTF-8

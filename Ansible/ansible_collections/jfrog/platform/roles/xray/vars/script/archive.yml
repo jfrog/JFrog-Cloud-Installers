@@ -14,7 +14,7 @@ xray_installer_scenario:
       }
     - {
         "expecting": "please specify the ip address of this machine(?!.*Skipping prompt)",
-        "sending": "{% if xray_ha_node_type is defined and xray_ha_node_type == 'master' %}{{ ansible_host }}{% else %}{{ ansible_host }}{% endif %}"
+        "sending": "{{ ansible_host }}"
       }
     - {
         "expecting": "are you adding an additional node",

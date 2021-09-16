@@ -19,7 +19,6 @@
   file:
     path: "{{ item }}"
     state: directory
-    mode: 0755
     recurse: yes
     owner: elasticsearch
     group: elasticsearch
@@ -67,7 +66,7 @@
     mc_elasticsearch_package: "{{ check_elasticsearch_package_result.files[0].path }}"
   when: check_elasticsearch_package_result.matched > 0
 
-- name: Ensure /usr/share/elasticsearch  exists
+- name: Ensure elasticsearch home exists
   become: yes
   file:
     path: "{{ mc_es_home }}"
@@ -92,7 +91,10 @@
 
 - name: Copy elasticsearch config files to ES_PATH_CONF dir
   become: yes
-  command: "cp -r {{ mc_es_home }}/config/. {{ mc_es_conf_base }}/"
+  copy:
+    src: "{{ mc_es_home }}/config/"
+    dest: "{{ mc_es_conf_base }}"
+    remote_src: yes
   when: unarchive_result.changed
 
 - name: Remove elasticsearch config dir
@@ -110,6 +112,7 @@
     dest: "{{ mc_es_conf_base }}/elasticsearch.yml"
     owner: elasticsearch
     group: elasticsearch
+    mode: 0644
   when: unarchive_result.extract_results.rc | default(128) == 0
 
 - name: Generate elasticsearch.yml template file
@@ -119,6 +122,7 @@
     dest: "{{ mc_es_conf_base }}/elasticsearch.yml"
     owner: elasticsearch
     group: elasticsearch
+    mode: 0644
   when: unarchive_result.extract_results.rc | default(128) == 0
 
 - name: Create empty unicast_hosts.txt file
@@ -126,9 +130,9 @@
   file:
     path: "{{ mc_es_conf_base }}/unicast_hosts.txt"
     state: touch
-    mode: 0664
     owner: elasticsearch
     group: elasticsearch
+    mode: 0664
 
 - name: Setup searchguard plugin
   import_tasks: setup-searchguard.yml
@@ -138,7 +142,6 @@
   file:
     path: "{{ item }}"
     state: directory
-    mode: 0755
     recurse: yes
     owner: elasticsearch
     group: elasticsearch
@@ -150,7 +153,7 @@
 
 - name: Start elasticsearch
   become: yes
-  shell: "su -c '{{ mc_es_script_path }}/elasticsearch -d' elasticsearch"
+  command: "su -c '{{ mc_es_script_path }}/elasticsearch -d' elasticsearch"
   environment:
     ES_JAVA_HOME: "{{ mc_es_java_home }}"
     ES_PATH_CONF: "{{ mc_es_conf_base }}/"

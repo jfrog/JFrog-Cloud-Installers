@@ -1,6 +1,3 @@
-- debug:
-    msg: "Performing installation of Xray version : {{ xray_version }}"
-
 - name: Install prerequisite packages
   include_tasks: "{{ ansible_os_family }}.yml"
 
@@ -56,7 +53,10 @@
 
 - name: Copy untar directory to xray home
   become: yes
-  command: "cp -r {{ xray_untar_home }}/. {{ xray_home }}"
+  copy:
+    src: "{{ xray_untar_home }}/"
+    dest: "{{ xray_home }}"
+    remote_src: yes
   when: not app_dir_check.stat.exists
 
 - name: Create required directories
@@ -115,6 +115,7 @@
   template:
     src: "rabbitmq.conf.j2"
     dest: "{{ xray_home }}/app/bin/rabbitmq/rabbitmq.conf"
+    mode: 0644
   notify: restart xray
 
 - name: Configure installer info
@@ -122,22 +123,24 @@
   template:
     src: installer-info.json.j2
     dest: "{{ xray_home }}/var/etc/info/installer-info.json"
+    mode: 0644
   notify: restart xray
 
-- name: Check if systemyaml exists
+- name: Check if system.yaml exists
   become: yes
   stat:
     path: "{{ xray_home }}/var/etc/system.yaml"
   register: systemyaml
 
-- name: Configure systemyaml
+- name: Configure system.yaml
   become: yes
   template:
     src: "{{ xray_system_yaml_template }}"
     dest: "{{ xray_home }}/var/etc/system.yaml"
+    mode: 0644
   when:
     - xray_systemyaml is defined
-    - xray_systemyaml|length > 0
+    - xray_systemyaml | length > 0
     - xray_systemyaml_override or (not systemyaml.stat.exists)
   notify: restart xray
 
@@ -152,7 +155,7 @@
 
 - name: Install xray as a service
   become: yes
-  shell: "{{ xray_archive_service_cmd }}"
+  command: "{{ xray_archive_service_cmd }}"
   args:
     chdir: "{{ xray_install_script_path }}"
     creates: "{{ xray_service_file }}"

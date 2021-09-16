@@ -1,6 +1,4 @@
-- debug:
-    msg: "Performing Upgrade of missionControl version - {{ missioncontrol_version }}"
-
+---
 - name: Check if mc tar exists
   become: yes
   stat:
@@ -29,12 +27,8 @@
     creates: "{{ mc_untar_home }}"
   when: download_mc is succeeded
 
-- name: Stop mc service
-  become: yes
-  systemd:
-    name: "{{ mc_daemon }}"
-    state: stopped
-  when: download_mc.changed
+- name: stop missioncontrol
+  meta: flush_handlers
 
 - name: Delete current app folder
   become: yes
@@ -105,6 +99,7 @@
   template:
     src: installer-info.json.j2
     dest: "{{ mc_home }}/var/etc/info/installer-info.json"
+    mode: 0644
   notify: restart missioncontrol
 
 - name: Update correct permissions

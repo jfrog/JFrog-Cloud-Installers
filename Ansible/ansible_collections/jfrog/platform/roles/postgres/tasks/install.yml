@@ -120,6 +120,3 @@
     privs: ALL
     type: database
   loop: "{{ dbs | default([]) }}"
-
-- debug:
-    msg: "Restarted postgres systemd {{ postgresql_daemon }}"
