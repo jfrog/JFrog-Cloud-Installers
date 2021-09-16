@@ -316,6 +316,20 @@
   },
   "resources": [
     {
+      "apiVersion": "2020-06-01",
+      "name": "pid-9cc90849-b021-4272-a33f-1922bd5c0f99-partnercenter",
+      "type": "Microsoft.Resources/deployments",
+      "properties": {
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "resources": []
+        }
+      }
+    },
+
+    {
       "type": "Microsoft.Network/networkSecurityGroups",
       "location": "[parameters('location')]",
       "name": "[variables('nsgName')]",
