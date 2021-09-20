@@ -1,8 +1,8 @@
 apiVersion: v2
-appVersion: 7.19.4
+appVersion: 7.25.7
 dependencies:
   - name: artifactory-ha
-    version: 107.19.4
+    version: 107.25.7
     repository: https://charts.jfrog.io/
 description: Openshift JFrog Artifactory HA subcharting Artifactory HA to work in Openshift environment
 home: https://www.jfrog.com/artifactory/
@@ -20,4 +20,4 @@ name: openshift-artifactory-ha
 sources:
 - https://bintray.com/jfrog/product/JFrog-Artifactory-Pro/view
 - https://github.com/jfrog/charts
-version: 107.19.4
+version: 107.25.7
