@@ -173,6 +173,10 @@
     - not database_driver.stat.exists
   notify: restart artifactory
 
+- name: Run restore context to reload selinux
+  shell: restorecon -R -v {{jfrog_home_directory}}/artifactory/app/bin
+  when: ansible_distribution == 'RedHat'
+  
 - name: Create artifactory service
   become: yes
   command: "{{ artifactory_home }}/app/bin/installService.sh"

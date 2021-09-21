@@ -3,3 +3,9 @@
   yum:
     name: net-tools
     state: present
+
+- name: Configure SELinux context 
+  sefcontext:
+    target: "{{jfrog_home_directory}}/artifactory/app/bin(/.*)?"
+    setype: bin_t
+    state: present
