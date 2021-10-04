@@ -1,0 +1,38 @@
+---
+- name: ensure python2 is installed
+  yum:
+    name: python2
+    state: present
+    update_cache: true
+  become: true
+  become_user: root
+
+- name: Add epel-release repo
+  yum:
+    name: epel-release
+    state: present
+  vars:
+    ansible_python_interpreter: /bin/python2
+
+- name: Install nginx
+  yum:
+    name: nginx
+    state: present
+  vars:
+    ansible_python_interpreter: /bin/python2
+
+- name: configure main nginx conf file.
+  copy:
+    src: nginx.conf
+    dest: /etc/nginx/nginx.conf
+    owner: root
+    group: root
+    mode: '0755'
+  become: yes
+
+- name: restart nginx
+  service:
+    name: nginx
+    state: restarted
+    enabled: yes
+  become: yes

@@ -1,0 +1,433 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Artifactory: Deploys the EC2 Autoscaling, LaunchConfig and Instances (qs-1qpmmjh5o)"
+Metadata:
+  cfn-lint:
+    config:
+      ignore_checks:
+        - W9006
+        - W9002
+        - W9003
+        - W9004
+        - E9101
+      ignore_reasons:
+        - E9101: "'master' is part of the product naming conventions for now"
+Parameters:
+  PrivateSubnetIds:
+    Type: List<AWS::EC2::Subnet::Id>
+  MinScalingNodes:
+    Type: Number
+  MaxScalingNodes:
+    Type: Number
+  DeploymentTag:
+    Type: String
+  HostRole:
+    Type: String
+  QsS3BucketName:
+    Type: String
+  QsS3KeyPrefix:
+    Type: String
+  QsS3Uri:
+    Type: String
+  ArtifactoryLicensesSecretName:
+    Type: String
+  ArtifactoryServerName:
+    Type: String
+  Certificate:
+    Type: String
+  CertificateKey:
+    Type: String
+    NoEcho: 'true'
+  CertificateDomain:
+    Type: String
+  EnableSSL:
+    Type: String
+  ArtifactoryS3Bucket:
+    Type: String
+  DatabaseUrl:
+    Type: String
+  DatabaseDriver:
+    Type: String
+  DatabasePluginUrl:
+    Type: String
+  DatabasePlugin:
+    Type: String
+  DatabaseType:
+    Type: String
+  DatabaseUser:
+    Type: String
+  DatabasePassword:
+    Type: String
+    NoEcho: 'true'
+  MasterKey:
+    Type: String
+    NoEcho: 'true'
+  ExtraJavaOptions:
+    Type: String
+  ArtifactoryVersion:
+    Type: String
+  KeyPairName:
+    Type: AWS::EC2::KeyPair::KeyName
+  TargetGroupARN:
+    Type: String
+  SSLTargetGroupARN:
+    Type: String
+  InternalTargetGroupARN:
+    Type: String
+  HostProfile:
+    Type: String
+  SecurityGroups:
+    Type: String
+  InstanceType:
+    Type: String
+  # PrimaryVolume:
+  #   Type: String
+  # VolumeSize:
+  #   Type: Number
+  ArtifactoryEfsFileSystem:
+    Type: String
+
+Mappings:
+  AWSAMIRegionMap:
+# To populate additional mappings use following link
+# https://raw.githubusercontent.com/aws-quickstart/quickstart-linux-bastion/master/templates/linux-bastion.template
+# link from centos: https://www.centos.org/download/aws-images/
+    ap-northeast-1:
+      CentOS7HVM: "ami-06a46da680048c8ae"
+    ap-northeast-2:
+      CentOS7HVM: "ami-06e83aceba2cb0907"
+    ap-south-1:
+      CentOS7HVM: "ami-026f33d38b6410e30"
+    ap-southeast-1:
+      CentOS7HVM: "ami-07f65177cb990d65b"
+    ap-southeast-2:
+      CentOS7HVM: "ami-0b2045146eb00b617"
+    ca-central-1:
+      CentOS7HVM: "ami-04a25c39dc7a8aebb"
+    eu-central-1:
+      CentOS7HVM: "ami-0e8286b71b81c3cc1"
+    me-south-1:
+      CentOS7HVM: "ami-011c71a894b10f35b"
+    ap-east-1:
+      CentOS7HVM: "ami-0e5c29e6c87a9644f"
+    eu-north-1:
+      CentOS7HVM: "ami-05788af9005ef9a93"
+    eu-south-1:
+      CentOS7HVM: "ami-0a84267606bcea16b"
+    eu-west-1:
+      CentOS7HVM: "ami-0b850cf02cc00fdc8"
+    eu-west-2:
+      CentOS7HVM: "ami-09e5afc68eed60ef4"
+    eu-west-3:
+      CentOS7HVM: "ami-0cb72d2e599cffbf9"
+    sa-east-1:
+      CentOS7HVM: "ami-0b30f38d939dd4b54"
+    us-east-1:
+      CentOS7HVM: "ami-0affd4508a5d2481b"
+    us-east-2:
+      CentOS7HVM: "ami-01e36b7901e884a10"
+      # CentOS7HVM: "ami-07f692d95b2b9c8c5" #arm64  https://www.centos.org/download/aws-images/
+    us-west-1:
+      CentOS7HVM: "ami-098f55b4287a885ba"
+      # CentOS7HVM: "ami-09748e99ee14e3823" #arm64  https://www.centos.org/download/aws-images/
+    us-west-2:
+      CentOS7HVM: "ami-0bc06212a56393ee1"
+    cn-north-1:
+      CentOS7HVM: "ami-0e02aaefeb74c3373"
+    cn-northwest-1:
+      CentOS7HVM: "ami-07183a7702633260b"
+    us-gov-east-1:
+      CentOS7HVM: "ami-00e30c71"
+    us-gov-west-1:
+      CentOS7HVM: "ami-bbba86da"
+
+Resources:
+  ArtifactoryScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      LaunchConfigurationName: !Ref ArtifactoryLaunchConfiguration
+      VPCZoneIdentifier: !Ref PrivateSubnetIds
+      MinSize: !Ref MinScalingNodes
+      MaxSize: !Ref MaxScalingNodes
+      Cooldown: '300'
+      DesiredCapacity: !Ref MinScalingNodes
+      TargetGroupARNs:
+        - !Ref TargetGroupARN
+        - !Ref SSLTargetGroupARN
+        - !Ref InternalTargetGroupARN
+      HealthCheckType: ELB
+      HealthCheckGracePeriod: 1800
+      Tags:
+        - Key: Name
+          Value: !Ref DeploymentTag
+          PropagateAtLaunch: true
+        - Key: ArtifactoryVersion
+          Value: !Ref ArtifactoryVersion
+          PropagateAtLaunch: true
+      TerminationPolicies:
+        - OldestInstance
+        - Default
+    CreationPolicy:
+      ResourceSignal:
+        Count: !Ref MinScalingNodes
+        Timeout: PT60M
+
+  ArtifactoryLaunchConfiguration:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Metadata:
+      AWS::CloudFormation::Authentication:
+        S3AccessCreds:
+          type: S3
+          roleName:
+            - !Ref HostRole  # !Ref ArtifactoryHostRole
+          buckets:
+            - !Ref QsS3BucketName
+      AWS::CloudFormation::Init:
+        configSets:
+          jfrog_ami_setup:
+            - "config-cloudwatch"
+            - "config-ansible-art-ami"
+            - "config-artifactory"
+            - "secure-artifactory"
+          artifactory_install:
+            - "config-cloudwatch"
+            - "config-artifactory"
+            - "secure-artifactory"
+        config-cloudwatch:
+          files:
+            /root/cloudwatch.conf:
+              content: |
+                [general]
+                state_file = /var/awslogs/state/agent-state
+
+                [/var/log/messages]
+                file = /var/log/messages
+                log_group_name = /artifactory/instances/{instance_id}
+                log_stream_name = /var/log/messages/
+                datetime_format = %b %d %H:%M:%S
+
+                [/var/log/amazon/efs]
+                file = /var/log/amazon/efs
+                log_group_name = /artifactory/instances/{instance_id}
+                log_stream_name = /var/log/amazon/efs/
+                datetime_format = %b %d %H:%M:%S
+
+                [/var/log/jfrog-ami-setup.log]
+                file = /var/log/messages
+                log_group_name = /artifactory/instances/{instance_id}
+                log_stream_name = /var/log/jfrog-ami-setup.log
+                datetime_format = %b %d %H:%M:%S
+
+                [/var/log/jfrog-ami-artifactory.log]
+                file = /var/log/messages
+                log_group_name = /artifactory/instances/{instance_id}
+                log_stream_name = /var/log/jfrog-ami-artifactory.log
+                datetime_format = %b %d %H:%M:%S
+              mode: "0400"
+        config-ansible-art-ami:
+          files:
+            /root/.jfrog_ami/jfrog-ami-setup.yml:
+              content: !Sub |
+                  # Base install for JFrogAMIInstance
+                  - import_playbook: artifactory-ami.yml
+                    vars:
+                      ami_creation: false
+                      artifactory_ha_enabled: false
+                      artifactory_tar: "https://releases.jfrog.io/artifactory/artifactory-pro/org/artifactory/pro/jfrog-artifactory-pro/${ArtifactoryVersion}/jfrog-artifactory-pro-${ArtifactoryVersion}-linux.tar.gz"
+                      artifactory_version: ${ArtifactoryVersion}
+                      db_download_url: "https://jdbc.postgresql.org/download/postgresql-42.2.12.jar"
+                      db_type: "postgresql"
+                      db_driver: "org.postgresql.Driver"
+              mode: "0400"
+        config-artifactory:
+          files:
+            /root/mount_efs.sh:
+              content: !Sub |
+                #!/usr/bin/env bash
+                
+                ARTIFACTORY_HOME="/opt/jfrog/artifactory-pro-${ArtifactoryVersion}"
+                # Get instance id from AWS
+                INSTANCE_ID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
+
+                EFS_FILE_SYSTEM_ID="${ArtifactoryEfsFileSystem}"
+                EFS_MOUNT_POINT="/efsmount"
+                EFS_MOUNT_TARGET_DNS="$EFS_FILE_SYSTEM_ID.efs.${AWS::Region}.amazonaws.com"
+
+                echo "before mounting efs"
+                ls -l /
+                mkdir -p $EFS_MOUNT_POINT
+                mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport $EFS_MOUNT_TARGET_DNS:/ $EFS_MOUNT_POINT
+                chmod go+rw $EFS_MOUNT_POINT
+                echo "after mounting efs"
+                ls -l /
+
+                # mkdir -p $EFS_MOUNT_POINT/$INSTANCE_ID/var
+                # mkdir -p $ARTIFACTORY_HOME
+                # ln -s $EFS_MOUNT_POINT/$INSTANCE_ID/var $ARTIFACTORY_HOME
+
+                echo "before creating plugins folder"
+                echo ls -l $EFS_MOUNT_POINT
+                ls -l $EFS_MOUNT_POINT
+                mkdir -p $EFS_MOUNT_POINT/plugins
+                echo ls -l $ARTIFACTORY_HOME/var/etc/artifactory
+                ls -l $ARTIFACTORY_HOME/var/etc/artifactory
+
+                # mkdir -p $ARTIFACTORY_HOME/var/etc/artifactory
+                # ln -s $EFS_MOUNT_POINT/plugins $ARTIFACTORY_HOME/var/etc/artifactory
+                # echo ls -l $ARTIFACTORY_HOME/var/etc/artifactory
+                # ls -l $ARTIFACTORY_HOME/var/etc/artifactory
+
+              mode: "0770"
+            /root/.jfrog_ami/artifactory.yml:
+              content: !Sub |
+                # Base install for Artifactory
+                - import_playbook: site-artifactory.yml
+                  vars:
+                    artifactory_download_directory: "/opt/jfrog"
+                    artifactory_home: "/opt/jfrog/artifactory-pro-${ArtifactoryVersion}"
+                    artifactory_ha_enabled: true
+                    artifactory_server_name: ${ArtifactoryServerName}
+                    server_name: ${ArtifactoryServerName}.${CertificateDomain}
+                    s3_region: ${AWS::Region}
+                    s3_bucket: ${ArtifactoryS3Bucket}
+                    certificate: ${Certificate}
+                    certificate_key: ${CertificateKey}
+                    certificate_domain: ${CertificateDomain}
+                    enable_ssl: ${EnableSSL}
+                    ssl_dir: /etc/pki/tls/certs
+                    db_type: ${DatabaseType}
+                    db_driver: ${DatabaseDriver}
+                    db_url: ${DatabaseUrl}
+                    db_user: ${DatabaseUser}
+                    db_password: ${DatabasePassword}
+                    master_key: ${MasterKey}
+                    join_key: ${MasterKey}
+                    extra_java_opts: ${ExtraJavaOptions}
+                    artifactory_version: ${ArtifactoryVersion}
+                    artifactory_keystore:
+                      path: /opt/jfrog/artifactory/app/third-party/java/lib/security/cacerts
+                      default_password: changeit
+                      new_keystore_pass: ${DatabasePassword}
+                    artifactory_java_db_drivers:
+                      - name: ${DatabasePlugin}
+                        url: ${DatabasePluginUrl}
+                        owner: artifactory
+                        group: artifactory
+                    product_id: 'CloudFormation_SP_EC2/1.0.0'
+              mode: "0400"
+            /root/.vault_pass.txt:
+              content: !Sub |
+                ${DatabasePassword}
+              mode: "0400"
+            /root/.secureit.sh:
+              content:
+                ansible-vault encrypt /root/.jfrog_ami/artifactory.yml --vault-id /root/.vault_pass.txt
+              mode: "0770"
+        secure-artifactory:
+          commands:
+            'secure ansible playbook':
+              command: '/root/.secureit.sh'
+              ignoreErrors: 'false'
+    Properties:
+      KeyName: !Ref KeyPairName
+      IamInstanceProfile: !Ref HostProfile
+      ImageId: !FindInMap
+        - AWSAMIRegionMap
+        - !Ref AWS::Region
+        - 'CentOS7HVM'
+      SecurityGroups:
+        - !Ref SecurityGroups
+      InstanceType: !Ref InstanceType
+      UserData:
+        Fn::Base64:
+          !Sub |
+            #!/bin/bash -x
+
+            #CFN Functions
+
+            function cfn_fail
+
+            {
+
+            cfn-signal -e 1 --stack ${AWS::StackName} --region ${AWS::Region} --resource ArtifactoryScalingGroup
+
+            exit 1
+
+            }
+
+            function cfn_success
+
+            {
+
+            cfn-signal -e 0 --stack ${AWS::StackName} --region ${AWS::Region} --resource ArtifactoryScalingGroup
+
+            exit 0
+
+            }
+
+            S3URI=${QsS3Uri}
+
+            # Update OS
+            yum update -y
+
+            # Install EPEL Repository
+            yum install -y epel-release
+
+            # Install git, jq, nfs-utils, policycoreutils python
+            yum install -y git jq nfs-utils policycoreutils-python
+
+            yum update --security -y 2>&1 | tee /var/log/userdata.yum_security_update.log
+
+            yum install -y python3 libselinux-python3
+
+            echo $PATH
+
+            PATH=/opt/aws/bin:$PATH
+
+            echo $PATH
+
+            # Create virtual env and activate
+            python3 -m venv ~/venv --system-site-packages
+            source ~/venv/bin/activate
+
+            pip install --upgrade pip
+            pip install wheel
+
+            # Install Cloudformation helper scripts
+            pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-py3-latest.tar.gz 2>&1 | tee /var/log/userdata.aws_cfn_bootstrap_install.log
+
+            pip install awscli 2>&1 | tee /var/log/userdata.awscli_install.log
+
+            pip install ansible 2>&1 | tee /var/log/userdata.ansible_install.log
+
+            mkdir ~/.jfrog_ami
+
+            aws s3 --region ${AWS::Region} sync s3://${QsS3BucketName}/${QsS3KeyPrefix}cloudInstallerScripts/ ~/.jfrog_ami/ || cfn_fail
+
+            setsebool httpd_can_network_connect 1 -P
+
+            # CentOS cloned virtual machines do not create a new machine id
+            # https://www.thegeekdiary.com/centos-rhel-7-how-to-change-the-machine-id/
+            rm -f /etc/machine-id
+            systemd-machine-id-setup
+
+            cfn-init -v --stack ${AWS::StackName} --resource ArtifactoryLaunchConfiguration --configsets jfrog_ami_setup --region ${AWS::Region} || cfn_fail
+
+            # Setup CloudWatch Agent
+            curl https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py -O
+            chmod +x ./awslogs-agent-setup.py
+            ./awslogs-agent-setup.py -n -r ${AWS::Region} -c /root/cloudwatch.conf 2>&1 | tee /var/log/userdata.cloudwatch_agent_install.log
+
+            /root/mount_efs.sh 2>&1 | tee /var/log/jfrog-efs-mount.log || cfn_fail
+
+            ansible-galaxy collection install community.general ansible.posix
+
+            setsebool httpd_can_network_connect 1 -P
+            aws secretsmanager get-secret-value --secret-id ${ArtifactoryLicensesSecretName} --region ${AWS::Region} | jq -r '{"artifactory_licenses":(.SecretString | fromjson )}' > ~/.jfrog_ami/licenses.json || cfn_fail
+
+            ansible-playbook /root/.jfrog_ami/jfrog-ami-setup.yml --vault-id /root/.vault_pass.txt 2>&1 | tee /var/log/jfrog-ami-setup.log || cfn_fail
+            ansible-playbook /root/.jfrog_ami/artifactory.yml -e "@~/.jfrog_ami/licenses.json" --vault-id /root/.vault_pass.txt 2>&1 | tee /var/log/jfrog-ami-artifactory.log || cfn_fail
+
+            rm -rf /root/.secureit.sh
+
+            cfn_success &> /var/log/cfn_success.log
+            cfn_success || cfn_fail

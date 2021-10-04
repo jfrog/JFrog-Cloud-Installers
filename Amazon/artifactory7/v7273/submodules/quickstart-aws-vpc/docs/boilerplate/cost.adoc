@@ -1,0 +1,11 @@
+
+You are responsible for the cost of the AWS services used while running
+this Quick Start. There is no additional cost for
+using the Quick Start.
+
+The AWS CloudFormation template for this Quick Start includes
+configuration parameters that you can customize. Some of the settings,
+such as the instance type, affect the cost of deployment. For cost estimates, 
+see the pricing pages for each AWS service you use. Prices are subject to change. 
+
+TIP: After you deploy the Quick Start, enable the https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/billing-reports-gettingstarted-turnonreports.html[AWS Cost and Usage Report^] to deliver billing metrics to an Amazon Simple Storage Service (Amazon S3) bucket in your account. It provides cost estimates based on usage throughout each month and aggregates the data at the end of the month. For more information about the report, see the https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/billing-reports-costusage.html[AWS documentation^].
