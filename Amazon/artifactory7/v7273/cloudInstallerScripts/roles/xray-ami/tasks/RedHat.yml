@@ -1,0 +1,21 @@
+---
+- name: Install db-utl
+  yum:
+    name: "{{ xray_home }}/app/third-party/misc/libdb-utils-5.3.21-25.el7.x86_64.rpm"
+    state: present
+  vars:
+    ansible_python_interpreter: /bin/python2
+
+- name: Install socat
+  yum:
+    name: "{{ xray_home }}/app/third-party/rabbitmq/socat-1.7.3.2-2.el7.x86_64.rpm"
+    state: present
+  vars:
+    ansible_python_interpreter: /bin/python2
+
+- name: Install erlang
+  yum:
+    name: "{{ xray_home }}/app/third-party/rabbitmq/erlang-23.2.3-1.el7.x86_64.rpm"
+    state: present
+  vars:
+    ansible_python_interpreter: /bin/python2

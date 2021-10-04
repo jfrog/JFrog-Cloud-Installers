@@ -1,0 +1,23 @@
+---
+# defaults file for xray
+# indicates were this collection was downlaoded from (galaxy, automation_hub, standalone)
+ansible_marketplace: standalone
+
+# The version of xray to install
+xray_version: 3.17.4
+
+# whether to enable HA
+xray_ha_enabled: true
+
+# The location where xray should install.
+xray_download_directory: /opt/jfrog
+
+# The remote xray download file
+xray_tar: https://releases.jfrog.io/artifactory/jfrog-xray/xray-linux/{{ xray_version }}/jfrog-xray-{{ xray_version }}-linux.tar.gz
+
+#The xray install directory
+xray_home: "{{ xray_download_directory }}/jfrog-xray-{{ xray_version }}-linux"
+
+#xray users and groups
+xray_user: xray
+xray_group: xray
