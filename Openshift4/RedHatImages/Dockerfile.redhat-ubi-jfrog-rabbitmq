@@ -1,0 +1,68 @@
+# BITNAMI DEBIAN-10 DOCKERFILE CAN BE FOUND HERE:
+# https://github.com/bitnami/bitnami-docker-rabbitmq/blob/master/3.8/debian-10/Dockerfile
+# JFROG REDHAT UBI PORT TO WORK IN BITNAMI RABBITMQ HELM CHARTS
+
+
+FROM bitnami/rabbitmq:3.8.9-debian-10-r88 as base
+
+FROM registry.access.redhat.com/ubi8
+
+ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
+
+LABEL name="JFrog Rabbit MQ" \
+      description="JFrog Rabbit MQ image based on the Red Hat Universal Base Image." \
+      vendor="JFrog" \
+      summary="JFrog Rabbit MQ (Red Hat UBI)" \
+      com.jfrog.license_terms="https://jfrog.com/platform/enterprise-plus-eula/"
+
+ARG RABBITMQ_VERSION=3.8.9-debian-10-r88
+
+LABEL io.k8s.description="Lightweight open source message broker" \
+    io.k8s.display-name="RabbitMQ" \
+    io.openshift.expose-services="4369:epmd, 5671:amqp, 5672:amqp, 15672:http" \
+    io.openshift.tags="rabbitmq"
+
+# FIX THE LOCALE ISSUE
+RUN yum install -y --disableplugin=subscription-manager -y openssl curl ca-certificates fontconfig gzip glibc-langpack-en tar \
+    && yum  -y --disableplugin=subscription-manager update; yum --disableplugin=subscription-manager clean all
+
+ENV GPG_KEY="0A9AF2115F4687BD29803A206B73A36E6026DFCA" \
+    HOME=/var/lib/rabbitmq \
+    RABBITMQ_HOME=/opt/rabbitmq \
+    RABBITMQ_LOGS=- \
+    RABBITMQ_SASL_LOGS=- \
+    LANG=en_US.UTF-8 \
+    LANGUAGE=en_US.:en \
+    LC_ALL=en_US.UTF-8
+
+RUN yum install -y --disableplugin=subscription-manager xz
+RUN set -xe && \
+    curl -LO https://github.com/rabbitmq/erlang-rpm/releases/download/v23.0/erlang-23.0-1.el8.x86_64.rpm && \
+    rpm -Uvh ./erlang-23.0-1.el8.x86_64.rpm && \
+    rm *.rpm && \
+    INSTALL_PKGS="wget procps net-tools hostname" && \
+    yum install -y $INSTALL_PKGS && \
+    rm -rf /var/cache/yum
+
+# COPY OVER THE RABBITMQ LICENSES INTO THE FOLDER FOR REDHAT TO SCAN
+COPY --from=base /opt/bitnami /opt/bitnami
+
+RUN mkdir -p /opt/bitnami/rabbitmq/ && chown -R 0777 /opt/bitnami/rabbitmq && chown -R 1000721001:1000721001 /opt/bitnami/rabbitmq
+RUN mkdir -p /var/log/rabbitmq/log/ && chmod -R 0777 /var/log
+RUN mkdir -p /var/lib/rabbitmq					 && chmod -R 0777 /var/lib/rabbitmq				   && chown -R 1000721001:1000721001 	/var/lib/rabbitmq
+RUN mkdir -p /opt/rabbitmq                       && chmod -R 0777 /opt/rabbitmq                    && chown -R 1000721001:1000721001    /opt/rabbitmq
+RUN mkdir -p /opt/bitnami                        && chmod -R 0777 /opt/bitnami                     && chown -R 1000721001:1000721001    /opt/bitnami
+RUN mkdir -p /licenses                           && chmod -R 0777 /licenses                        && chown -R 1000721001:1000721001    /licenses
+RUN mkdir -p /opt/bitnami/rabbitmq/licenses      && chmod -R 0777 /opt/bitnami/rabbitmq/licenses   && chown -R 1000721001:1000721001    /opt/bitnami/rabbitmq/licenses && cp -rf /opt/bitnami/rabbitmq/licenses/* /licenses && chmod 0777 /opt/bitnami/scripts/rabbitmq/setup.sh
+RUN mkdir -p /opt/bitnami/rabbitmq/test          && chmod -R 0777 /opt/bitnami/rabbitmq/test       && chown -R 1000721001:1000721001    /opt/bitnami/rabbitmq/test
+
+ENV BITNAMI_APP_NAME="rabbitmq" \
+    LANG="en_US.UTF-8" \
+    LANGUAGE="en_US:en"
+
+EXPOSE 4369 5672 15672 25672
+
+USER 1000721001
+ENV PATH=/opt/bitnami/rabbitmq/sbin:$PATH
+ENTRYPOINT [ "/opt/bitnami/scripts/rabbitmq/entrypoint.sh" ]
+CMD [ "/opt/bitnami/scripts/rabbitmq/run.sh" ]

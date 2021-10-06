@@ -1,0 +1,61 @@
+# An example of customising Artifactory using RedHat Univeral Base Image (UBI).
+# Using Docker multi stage build.
+# Taking the Artifactory file system
+ARG ARTIFACTORY_BASE_VERSION
+
+# The Artifactory official Docker image
+FROM docker.bintray.io/jfrog/artifactory-pro:${ARTIFACTORY_BASE_VERSION} AS base
+
+# The new image based on registry.access.redhat.com/ubi
+FROM registry.access.redhat.com/ubi8
+
+LABEL name="JFrog Artifactory Pro" \
+      description="JFrog Artifactory Pro image based on the Red Hat Universal Base Image." \
+      vendor="JFrog" \
+      summary="JFrog Artifactory Pro (Red Hat UBI)" \
+      com.jfrog.license_terms="https://jfrog.com/artifactory/eula/"
+
+# Environment needed for Artifactory
+ENV JF_ARTIFACTORY_USER=artifactory \
+    ARTIFACTORY_USER_ID=1000721030 \
+    ARTIFACTORY_VERSION=${ARTIFACTORY_BASE_VERSION} \
+    JF_PRODUCT_HOME=/opt/jfrog/artifactory \
+    JF_PRODUCT_DATA_INTERNAL=/var/opt/jfrog/artifactory \
+    RECOMMENDED_MAX_OPEN_FILES=32000 \
+    MIN_MAX_OPEN_FILES=10000 \
+    RECOMMENDED_MAX_OPEN_PROCESSES=1024 \
+    POSTGRESQL_VERSION=9.4.1212
+
+# Copy needed file system from base (Artifactory image)
+COPY --from=base /opt/jfrog /opt/jfrog
+COPY --from=base /var/opt/jfrog/artifactory /var/opt/jfrog/artifactory
+COPY --from=base /entrypoint-artifactory.sh /entrypoint-artifactory.sh
+
+# Add license information to meet the Red Hat container image certification requirements
+COPY --from=base /opt/jfrog/artifactory/app/doc/* /licenses/
+
+# Metadata to let Artifactory know its installation source
+RUN mkdir -p /artifactory_bootstrap/info/
+RUN echo "{\"productId\":\"UBI8_artifactory/1.0.0\",\"features\":[{\"featureId\":\"Partner/ACC-006983\"}]}" > /artifactory_bootstrap/info/installer-info.json
+
+# Create the user, fix file system ownership and install needed tools with Yum
+# NOTE - wget must be installed for Artifactory HA
+# procps must be installed to run Artifactory
+# hostname is needed to generate nodeID
+RUN useradd -M -s /usr/sbin/nologin --uid ${ARTIFACTORY_USER_ID} --user-group ${JF_ARTIFACTORY_USER} && \
+    chown -R ${JF_ARTIFACTORY_USER}:${JF_ARTIFACTORY_USER} ${JF_PRODUCT_HOME} ${JF_PRODUCT_DATA_INTERNAL} && \
+    yum install -y --disableplugin=subscription-manager wget && \
+    yum install -y --disableplugin=subscription-manager procps && \
+    yum install -y --disableplugin=subscription-manager net-tools && \
+    yum install -y --disableplugin=subscription-manager hostname
+
+# Add RUN instruction for updating the vulnerability found in openssl-libs package.
+
+RUN yum  update openssl-libs -y 
+
+
+USER $JF_ARTIFACTORY_USER
+
+VOLUME ${JF_PRODUCT_DATA_INTERNAL}
+
+ENTRYPOINT ["/entrypoint-artifactory.sh"]
