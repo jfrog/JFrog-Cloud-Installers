@@ -1,0 +1,32 @@
+# The new image based on registry.access.redhat.com/ubi
+FROM registry.access.redhat.com/ubi8
+
+USER root
+
+LABEL name="JFrog Init Container" \
+      description="JFrog Init Container image based on the Red Hat Universal Base Image." \
+      vendor="JFrog" \
+      summary="JFrog Init Container (Red Hat UBI)" \
+      com.jfrog.license_terms="https://jfrog.com/platform/enterprise-plus-eula/"
+
+# install the necessary programs for the init container
+RUN yum install -y --disableplugin=subscription-manager nc
+RUN yum install -y --disableplugin=subscription-manager libcap libcap-ng
+# Add EULA information to meet the Red Hat container image certification requirements
+COPY entplus_EULA.txt /licenses/
+
+# Environment needed for Pipelines
+ENV JF_ART_USER=artifactory \
+    ART_USER_ID=1000721030
+
+RUN mkdir -p /home/${JF_ART_USER}
+RUN useradd -M -s /usr/sbin/nologin --uid ${ART_USER_ID} --user-group ${JF_ART_USER} && \
+    chown -R ${ART_USER_ID}:${ART_USER_ID} /home/${JF_ART_USER}
+
+VOLUME /var/opt/jfrog/artifactory
+
+USER ${JF_ART_USER}
+
+WORKDIR /home/${JF_ART_USER}
+
+ENTRYPOINT ["bash"]

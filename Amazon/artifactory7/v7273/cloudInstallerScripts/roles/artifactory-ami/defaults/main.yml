@@ -1,0 +1,51 @@
+---
+# defaults file for artifactory
+# indicates were this collection was downlaoded from (galaxy, automation_hub, standalone)
+ansible_marketplace: standalone
+
+# whether we are creating a AMI for Marketplace or just for configuring EC2 instance
+ami_creation: false
+
+# The version of Artifactory to install
+artifactory_version: 7.15.3
+
+# licenses file - specify a licenses file or specify up to 5 licenses
+artifactory_license1:
+artifactory_license2:
+artifactory_license3:
+artifactory_license4:
+artifactory_license5:
+artifactory_license6:
+
+# whether to enable HA
+artifactory_ha_enabled: true
+
+# value for whether a host is primary. this should be set in host vars
+artifactory_is_primary: true
+
+# The location where Artifactory should install.
+artifactory_download_directory: /opt/jfrog
+
+# The location where Artifactory should store data.
+artifactory_file_store_dir: /data
+
+extra_java_opts: -server -Xms2g -Xmx14g -Xss256k -XX:+UseG1GC
+
+artifactory_tar: https://releases.jfrog.io/artifactory/artifactory-pro/org/artifactory/pro/jfrog-artifactory-pro/{{ artifactory_version }}/jfrog-artifactory-pro-{{ artifactory_version }}-linux.tar.gz
+
+artifactory_home: "{{ artifactory_download_directory }}/artifactory-pro-{{ artifactory_version }}"
+db_download_url: "https://jdbc.postgresql.org/download/postgresql-42.2.12.jar"
+
+artifactory_user: artifactory
+artifactory_group: artifactory
+
+# Set the parameters required for the service.
+service_list:
+  - name: artifactory
+    description: Start script for Artifactory
+    start_command: "{{ artifactory_home }}/bin/artifactory.sh start"
+    stop_command: "{{ artifactory_home }}/bin/artifactory.sh stop"
+    type: forking
+    status_pattern: artifactory
+    user_name: "{{ artifactory_user }}"
+    group_name: "{{ artifactory_group }}"
