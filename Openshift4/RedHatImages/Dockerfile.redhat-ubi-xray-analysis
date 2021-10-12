@@ -1,0 +1,43 @@
+ARG XRAY_BASE_VERSION
+
+FROM docker.bintray.io/jfrog/xray-analysis:${XRAY_BASE_VERSION} AS base
+
+# The new image based on registry.access.redhat.com/ubi
+FROM registry.access.redhat.com/ubi8
+
+LABEL name="JFrog Xray Analysis" \
+      description="JFrog Xray Analysis image based on the Red Hat Universal Base Image." \
+      vendor="JFrog" \
+      summary="JFrog Xray Analysis (Red Hat UBI)" \
+      com.jfrog.license_terms="https://jfrog.com/xray/eula/"
+
+# Environment needed for Xray
+ENV JF_XRAY_USER=xray \
+    XRAY_USER_ID=1000721035 \
+    XRAY_VERSION=${XRAY_BASE_VERSION} \
+    JF_PRODUCT_HOME=/opt/jfrog/xray \
+    JF_PRODUCT_DATA_INTERNAL=/var/opt/jfrog/xray \
+    SERVICE_NAME=analysis
+
+
+COPY --from=base /opt/jfrog/xray /opt/jfrog/xray
+COPY --from=base /var/opt/jfrog/xray /var/opt/jfrog/xray
+COPY --from=base /postgresql-client /postgresql-client
+
+# Add license information to meet the Red Hat container image certification requirements
+COPY --from=base /opt/jfrog/xray/app/doc/* /licenses/
+
+RUN mkdir -p /var/opt/jfrog && chmod 0777 /var/opt/jfrog
+
+RUN useradd -M -s /usr/sbin/nologin --uid ${XRAY_USER_ID} --user-group ${JF_XRAY_USER} && \
+    chown -R ${JF_XRAY_USER}:${JF_XRAY_USER} ${JF_PRODUCT_HOME} ${JF_PRODUCT_DATA_INTERNAL} /postgresql-client && \
+    yum install -y --disableplugin=subscription-manager wget && \
+    yum install -y --disableplugin=subscription-manager procps && \
+    yum install -y --disableplugin=subscription-manager net-tools && \
+    yum install -y --disableplugin=subscription-manager hostname
+
+USER xray
+
+VOLUME /var/opt/jfrog/xray
+
+ENTRYPOINT ["/opt/jfrog/xray/app/bin/wrapper.sh"]
