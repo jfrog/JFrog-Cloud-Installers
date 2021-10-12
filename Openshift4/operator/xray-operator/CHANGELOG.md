@@ -1,6 +1,9 @@
 # JFrog  Openshift Xray Chart Changelog
 All changes to this chart will be documented in this file.
 
+## [2.0.5] Oct 06, 2021
+* Deploying JFrog Xray 3.33.3 as an Operator into Openshift
+
 ## [2.0.5] Sep 15, 2021
 * Deploying JFrog Xray 3.32.2 as an Operator into Openshift
 
