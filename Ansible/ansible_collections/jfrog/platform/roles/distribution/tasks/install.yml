@@ -39,10 +39,10 @@
   unarchive:
     src: "{{ jfrog_home_directory }}/{{ distribution_tar_file_name }}"
     dest: "{{ jfrog_home_directory }}"
-    remote_src: true
     owner: "{{ distribution_user }}"
     group: "{{ distribution_group }}"
     creates: "{{ distribution_untar_home }}"
+    remote_src: true
   when: download_distribution is succeeded
 
 - name: Check if app directory exists
@@ -56,6 +56,9 @@
   copy:
     src: "{{ distribution_untar_home }}/"
     dest: "{{ distribution_home }}"
+    owner: "{{ distribution_user }}"
+    group: "{{ distribution_group }}"
+    mode: 0755
     remote_src: yes
   when: not app_dir_check.stat.exists
 
@@ -125,7 +128,7 @@
     mode: 0644
   when:
     - distribution_systemyaml is defined
-    - distribution_systemyaml|length > 0
+    - distribution_systemyaml | length > 0
     - distribution_systemyaml_override or (not systemyaml.stat.exists)
   notify: restart distribution
 

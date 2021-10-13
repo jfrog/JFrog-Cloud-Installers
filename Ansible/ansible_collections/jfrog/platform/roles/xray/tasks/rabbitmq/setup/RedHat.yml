@@ -21,6 +21,12 @@
     xray_socat_package: "{{ check_socat_package_result.files[0].path }}"
   when: check_socat_package_result.matched > 0
 
+- name: Import CentOS GPG public key
+  become: yes
+  rpm_key:
+    key: https://www.centos.org/keys/RPM-GPG-KEY-CentOS-Official
+    state: present
+
 - name: Install socat package
   become: yes
   yum:

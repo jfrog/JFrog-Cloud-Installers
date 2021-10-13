@@ -1,7 +1,7 @@
 # defaults file for xray
 
 # The version of xray to install
-xray_version: 3.32.2
+xray_version: 3.34.1
 
 # whether to enable HA
 xray_ha_enabled: false
@@ -51,7 +51,7 @@ linux_distro: "{{ ansible_distribution | lower }}{{ ansible_distribution_major_v
 
 xray_db_util_search_filter:
   ubuntu16:
-    db5: 'db5.3-util.*ubuntu.*amd64\.deb'
+    db5: 'db5.3-util.*ubuntu0.*amd64\.deb'
     db: 'db-util.*ubuntu.*all.deb'
   ubuntu18:
     db5: 'db5.3-util.*ubuntu1.1.*amd64\.deb'

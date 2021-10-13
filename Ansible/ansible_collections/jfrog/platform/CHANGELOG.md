@@ -1,6 +1,15 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [10.0.1] - Oct 22, 2021
+* Version bump to align with all jfrog platform installers
+* Added insight (new product) role
+* Missioncontrol (`artifactory_mc_enabled: true`) is now part of artifactory (>= 7.27.x) - [Migrating from Missioncontrol to Insight for existing installations](https://www.jfrog.com/confluence/display/JFROG/Migrating+from+Mission+Control+to+Insight)
+* Removed `artifactory_single_license` variable,From artifactory version >=7.27.6,`artifactory_licenses` can be used for both single/HA modes
+* Added SELinux support for RHEL systems [GH-161](https://github.com/jfrog/JFrog-Cloud-Installers/pull/161)
+* Added rolling upgrade support for artifactory HA installations(using `serial` approach)
+* Updated artifactory postgresql driver to `42.2.24`
+
 ## [7.25.7] - Sep 16, 2021
 * Bug Fixes
 

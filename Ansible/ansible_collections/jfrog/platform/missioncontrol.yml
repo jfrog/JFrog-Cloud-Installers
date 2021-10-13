@@ -1,4 +1,0 @@
----
-- hosts: missioncontrol_servers
-  roles:
-    - missioncontrol

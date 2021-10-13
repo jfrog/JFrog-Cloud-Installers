@@ -3,28 +3,36 @@
   collections:
     - jfrog.platform
   roles:
-    - postgres
+    - role: postgres
+      when: postgres_enabled | bool
 
 - hosts: artifactory_servers
   collections:
     - jfrog.platform
+  serial:
+    - 1
+    - 100%
   roles:
-    - artifactory
+    - role: artifactory
+      when: artifactory_enabled | bool
 
 - hosts: xray_servers
   collections:
     - jfrog.platform
   roles:
-    - xray
+    - role: xray
+      when: xray_enabled | bool
 
 - hosts: distribution_servers
   collections:
     - jfrog.platform
   roles:
-    - distribution
+    - role: distribution
+      when: distribution_enabled | bool
 
-- hosts: missionControl_servers
+- hosts: insight_servers
   collections:
     - jfrog.platform
   roles:
-    - missionControl
+    - role: insight
+      when: insight_enabled | bool

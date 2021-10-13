@@ -1,4 +1,3 @@
----
 - name: Check if xray tar exists
   become: yes
   stat:
@@ -101,7 +100,7 @@
     mode: 0644
   when:
     - xray_systemyaml is defined
-    - xray_systemyaml|length > 0
+    - xray_systemyaml | length > 0
     - xray_systemyaml_override or (not systemyaml.stat.exists)
   notify: restart xray
 

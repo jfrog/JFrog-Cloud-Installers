@@ -1,16 +1,27 @@
----
 - hosts: postgres_servers
   roles:
-    - postgres
+    - role: postgres
+      when: postgres_enabled | bool
+
 - hosts: artifactory_servers
+  serial:
+    - 1
+    - 100%
   roles:
-    - artifactory
+    - role: artifactory
+      when: artifactory_enabled | bool
+
 - hosts: xray_servers
   roles:
-    - xray
+    - role: xray
+      when: xray_enabled | bool
+
 - hosts: distribution_servers
   roles:
-    - distribution
-- hosts: missioncontrol_servers
+    - role: distribution
+      when: distribution_enabled | bool
+
+- hosts: insight_servers
   roles:
-    - missioncontrol
+    - role: insight
+      when: insight_enabled | bool

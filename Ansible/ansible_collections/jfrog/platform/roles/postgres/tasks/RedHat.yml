@@ -17,7 +17,6 @@
 
 - name: Install prerequisite packages
   become: yes
-  ignore_errors: yes
   yum:
     name:
       - acl
@@ -52,7 +51,13 @@
     - LANG=en_us.UTF-8
     - LANGUAGE=en_us.UTF-8
 
-- name: Install postgres repository
+- name: Import PostgreSQL GPG public key
+  become: yes
+  rpm_key:
+    key: https://download.postgresql.org/pub/repos/yum/RPM-GPG-KEY-PGDG
+    state: present
+
+- name: Install PostgreSQL repository
   become: yes
   yum:
     name: "{{ base }}/reporpms/EL-{{ version }}-x86_64/{{ repo_file_name }}"
@@ -62,7 +67,24 @@
     version: "{{ ansible_distribution_major_version }}"
     repo_file_name: pgdg-redhat-repo-latest.noarch.rpm
 
-- name: Install postgres packages
+- name: Disable PostgreSQL module
+  become: yes
+  copy:
+    dest: /etc/dnf/modules.d/postgresql.module
+    owner: root
+    group: root
+    mode: 0644
+    content: |
+      [postgresql]
+      name=postgresql
+      stream=
+      profiles=
+      state=disabled
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version | int == 8
+
+- name: Install PostgreSQL packages
   become: yes
   yum:
     name:

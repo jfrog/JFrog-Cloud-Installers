@@ -39,10 +39,10 @@
   unarchive:
     src: "{{ jfrog_home_directory }}/{{ xray_tar_file_name }}"
     dest: "{{ jfrog_home_directory }}"
-    remote_src: true
     owner: "{{ xray_user }}"
     group: "{{ xray_group }}"
     creates: "{{ xray_untar_home }}"
+    remote_src: true
   when: download_xray is succeeded
 
 - name: Check if app directory exists
@@ -56,6 +56,9 @@
   copy:
     src: "{{ xray_untar_home }}/"
     dest: "{{ xray_home }}"
+    owner: "{{ xray_user }}"
+    group: "{{ xray_group }}"
+    mode: 0755
     remote_src: yes
   when: not app_dir_check.stat.exists
 

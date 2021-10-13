@@ -1,4 +1,3 @@
----
 - name: Check if artifactory tar already exists
   become: yes
   stat:
@@ -27,12 +26,13 @@
     creates: "{{ artifactory_untar_home }}"
   when: download_artifactory is succeeded
 
-- name: stop artifactory
+- name: Stop artifactory
   meta: flush_handlers
 
 - name: Ensure jfrog_home_directory exists
   become: yes
   file:
+    mode: 0755
     path: "{{ jfrog_home_directory }}"
     state: directory
 
@@ -56,7 +56,7 @@
     mode: 0644
   when:
     - artifactory_single_license is defined
-    - artifactory_single_license|length > 0
+    - artifactory_single_license | length > 0
   notify: restart artifactory
 
 - name: Configure HA licenses
@@ -70,13 +70,13 @@
    - artifactory_licenses | length > 0
   notify: restart artifactory
 
-- name: Check if database driver exists
+- name: Check if jdbc driver exists
   become: yes
   stat:
     path: "{{ artifactory_home }}/app/artifactory/tomcat/lib/jf_postgresql-{{ postgres_driver_version }}.jar"
   register: database_driver
 
-- name: Download database driver
+- name: Download jdbc driver
   become: yes
   get_url:
     url: "{{ postgres_driver_download_url }}"
@@ -104,16 +104,16 @@
     mode: 0644
   when:
     - artifactory_binarystore is defined
-    - artifactory_binarystore|length > 0
+    - artifactory_binarystore | length > 0
   notify: restart artifactory
 
-- name: Check if systemyaml exists
+- name: Check if system.yaml exists
   become: yes
   stat:
     path: "{{ artifactory_home }}/var/etc/system.yaml"
   register: systemyaml
 
-- name: Configure systemyaml
+- name: Configure system.yaml
   become: yes
   template:
     src: "{{ artifactory_system_yaml_template }}"
@@ -121,7 +121,7 @@
     mode: 0644
   when:
     - artifactory_systemyaml is defined
-    - artifactory_systemyaml|length > 0
+    - artifactory_systemyaml | length > 0
     - artifactory_systemyaml_override or (not systemyaml.stat.exists)
   notify: restart artifactory
 

@@ -1,0 +1,58 @@
+insight_installer_scenario:
+  main:
+    - {
+        "expecting": "(data|installation) directory \\(",
+        "sending": "{{ insight_home }}"
+      }
+    - {
+        "expecting": "jfrog url( \\(.+\\))?:(?!.*Skipping prompt)",
+        "sending": "{{ jfrog_url }}"
+      }
+    - {
+        "expecting": "join key:(?!.*Skipping prompt)",
+        "sending": "{{ join_key }}"
+      }
+    - {
+        "expecting": "please specify the ip address of this machine(?!.*Skipping prompt)",
+        "sending": "{{ ansible_host }}"
+      }
+    - {
+        "expecting": "are you adding an additional node",
+        "sending": "{% if insight_ha_node_type is defined and insight_ha_node_type == 'master' %}n{% else %}y{% endif %}"
+      }
+    - {
+        "expecting": "do you want to install postgresql",
+        "sending": "n"
+      }
+    - {
+        "expecting": "do you want to install elasticsearch",
+        "sending": "n"
+      }
+    - {
+        "expecting": "(postgresql|database) url.+\\[jdbc:postgresql.+\\]:",
+        "sending": "{{ insight_db_url }}"
+      }
+    - {
+        "expecting": "(postgresql|database) password",
+        "sending": "{{ insight_db_password }}"
+      }
+    - {
+        "expecting": "(postgresql|database) username",
+        "sending": "{{ insight_db_user }}"
+      }
+    - {
+        "expecting": "confirm database password",
+        "sending": "{{ insight_db_password }}"
+      }
+    - {
+        "expecting": "elasticsearch url:(?!.*Skipping prompt)",
+        "sending": "{{ insight_es_url }}"
+      }
+    - {
+        "expecting": "elasticsearch username:",
+        "sending": "{{ insight_es_user }}"
+      }
+    - {
+        "expecting": "elasticsearch password:",
+        "sending": "{{ insight_es_password }}"
+      }
