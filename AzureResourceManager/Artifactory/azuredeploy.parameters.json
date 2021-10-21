@@ -12,7 +12,7 @@
       "value": "OWERWRITE_THE_PASSWORD"
     },
     "db_type": {
-      "value": "MSSQL_deploy.json"
+      "value": "Postgresql_deploy.json"
     },
     "db_user": {
       "value": "artifactory"
