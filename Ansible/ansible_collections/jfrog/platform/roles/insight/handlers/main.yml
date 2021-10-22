@@ -1,0 +1,13 @@
+---
+# handlers file for insight
+- name: restart insight
+  become: yes
+  systemd:
+    name: "{{ insight_daemon }}"
+    state: restarted
+
+- name: stop insight
+  become: yes
+  systemd:
+    name: "{{ insight_daemon }}"
+    state: stopped

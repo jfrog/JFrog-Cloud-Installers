@@ -1,0 +1,170 @@
+- name: Install prerequisite packages
+  include_tasks: "{{ ansible_os_family }}.yml"
+
+- name: Ensure group insight exist
+  become: yes
+  group:
+    name: "{{ insight_group }}"
+    state: present
+
+- name: Ensure user insight exist
+  become: yes
+  user:
+    name: "{{ insight_user }}"
+    group: "{{ insight_group }}"
+    create_home: yes
+    home: "{{ insight_home }}"
+    shell: /bin/bash
+    state: present
+
+- name: Check if insight tar already exists
+  become: yes
+  stat:
+    path: "{{ jfrog_home_directory }}/{{ insight_tar_file_name }}"
+  register: insight_tar_check
+
+- name: Download insight
+  become: yes
+  get_url:
+    url: "{{ insight_tar }}"
+    timeout: "{{ insight_download_timeout }}"
+    dest: "{{ jfrog_home_directory }}"
+  register: download_insight
+  until: download_insight is succeeded
+  retries: 3
+  when: not insight_tar_check.stat.exists
+
+- name: Extract insight tar
+  become: yes
+  unarchive:
+    src: "{{ jfrog_home_directory }}/{{ insight_tar_file_name }}"
+    dest: "{{ jfrog_home_directory }}"
+    owner: "{{ insight_user }}"
+    group: "{{ insight_group }}"
+    creates: "{{ insight_untar_home }}"
+    remote_src: true
+  when: download_insight is succeeded
+
+- name: Check if app directory exists
+  become: yes
+  stat:
+    path: "{{ insight_home }}/app"
+  register: app_dir_check
+
+- name: Copy untar directory to insight home
+  become: yes
+  copy:
+    src: "{{ insight_untar_home }}/"
+    dest: "{{ insight_home }}"
+    owner: "{{ insight_user }}"
+    group: "{{ insight_group }}"
+    mode: 0755
+    remote_src: yes
+  when: not app_dir_check.stat.exists
+
+- name: Create required directories
+  become: yes
+  file:
+    path: "{{ item }}"
+    state: directory
+    recurse: yes
+    owner: "{{ insight_user }}"
+    group: "{{ insight_group }}"
+  loop:
+    - "{{ insight_home }}/var/etc"
+    - "{{ insight_home }}/var/etc/security/"
+    - "{{ insight_home }}/var/etc/info/"
+
+- name: Configure master key
+  become: yes
+  copy:
+    dest: "{{ insight_home }}/var/etc/security/master.key"
+    content: "{{ master_key }}"
+    owner: "{{ insight_user }}"
+    group: "{{ insight_group }}"
+    mode: 0640
+
+- name: Setup elasticsearch
+  import_tasks: setup-elasticsearch.yml
+
+- name: Check if install.sh wrapper script exist
+  become: yes
+  stat:
+    path: "{{ insight_install_script_path }}/install.sh"
+  register: install_wrapper_script
+
+- name: Include interactive installer scripts
+  include_vars: script/archive.yml
+
+- name: Install Insight
+  include_tasks: expect.yml
+  vars:
+    exp_executable_cmd: "./install.sh -u {{ insight_user }} -g {{ insight_group }}"
+    exp_dir: "{{ insight_install_script_path }}"
+    exp_scenarios: "{{ insight_installer_scenario['main'] }}"
+  args:
+    apply:
+      environment:
+        YQ_PATH: "{{ insight_thirdparty_path }}/yq"
+  when: install_wrapper_script.stat.exists
+
+- name: Configure installer info
+  become: yes
+  template:
+    src: installer-info.json.j2
+    dest: "{{ insight_home }}/var/etc/info/installer-info.json"
+    owner: "{{ insight_user }}"
+    group: "{{ insight_group }}"
+    mode: 0644
+  notify: restart insight
+
+- name: Check if system.yaml exists
+  become: yes
+  stat:
+    path: "{{ insight_home }}/var/etc/system.yaml"
+  register: systemyaml
+
+- name: Configure system.yaml
+  become: yes
+  template:
+    src: "{{ insight_system_yaml_template }}"
+    dest: "{{ insight_home }}/var/etc/system.yaml"
+    owner: "{{ insight_user }}"
+    group: "{{ insight_group }}"
+    mode: 0644
+  when:
+    - insight_systemyaml is defined
+    - insight_systemyaml | length > 0
+    - insight_systemyaml_override or (not systemyaml.stat.exists)
+  notify: restart insight
+
+- name: Update correct permissions
+  become: yes
+  file:
+    path: "{{ insight_home }}"
+    state: directory
+    recurse: yes
+    owner: "{{ insight_user }}"
+    group: "{{ insight_group }}"
+
+- name: Install insight as a service
+  become: yes
+  command: "{{ insight_archive_service_cmd }}"
+  args:
+    chdir: "{{ insight_install_script_path }}"
+    creates: "{{ insight_service_file }}"
+  register: check_service_status_result
+
+- name: Restart insight
+  meta: flush_handlers
+
+- name: Make sure insight is up and running
+  uri:
+    url: http://127.0.0.1:8082/router/api/v1/system/health
+    timeout: 130
+    status_code: 200
+  register: result
+  until: result is succeeded
+  retries: 25
+  delay: 5
+  when: not ansible_check_mode

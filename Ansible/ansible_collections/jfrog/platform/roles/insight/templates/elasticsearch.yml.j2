@@ -1,0 +1,22 @@
+discovery.seed_providers: file
+transport.port: {{ insight_es_transport_port }}
+transport.host: 0.0.0.0
+transport.publish_host: {{ ansible_host }}
+network.host: 0.0.0.0
+node.name: {{ ansible_host }}
+cluster.initial_master_nodes: {{ ansible_host }}
+bootstrap.memory_lock: false
+path.data: {{ insight_es_data_dir }}
+path.logs: {{ insight_es_log_dir }}
+
+xpack.security.enabled: false
+searchguard.ssl.transport.pemcert_filepath: localhost.pem
+searchguard.ssl.transport.pemkey_filepath: localhost.key
+searchguard.ssl.transport.pemtrustedcas_filepath: root-ca.pem
+searchguard.ssl.transport.enforce_hostname_verification: false
+searchguard.ssl.transport.resolve_hostname: false
+searchguard.nodes_dn:
+- CN=localhost,OU=Ops,O=localhost\, Inc.,DC=localhost,DC=com
+searchguard.authcz.admin_dn:
+- CN=sgadmin,OU=Ops,O=sgadmin\, Inc.,DC=sgadmin,DC=com
+searchguard.enterprise_modules_enabled: false

@@ -3,10 +3,12 @@
   collections:
     - jfrog.platform
   roles:
-    - postgres
+    - role: postgres
+      when: postgres_enabled | bool
 
 - hosts: xray_servers
   collections:
     - jfrog.platform
   roles:
-    - xray
+    - role: xray
+      when: xray_enabled | bool

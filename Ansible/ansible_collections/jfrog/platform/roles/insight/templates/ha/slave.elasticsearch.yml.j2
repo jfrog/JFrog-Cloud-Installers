@@ -1,0 +1,12 @@
+#bootstrap.memory_lock: true
+discovery.seed_providers: file
+
+xpack.security.enabled: false
+path.data: {{ insight_es_home }}/data
+path.logs: {{ insight_es_home }}/logs
+
+network.host: 0.0.0.0
+node.name: {{ ansible_host }}
+transport.host: 0.0.0.0
+transport.port: 9300
+transport.publish_host: {{ ansible_host }}

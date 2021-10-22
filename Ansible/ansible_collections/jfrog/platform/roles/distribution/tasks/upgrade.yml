@@ -55,7 +55,7 @@
     mode: 0644
   when:
     - distribution_systemyaml is defined
-    - distribution_systemyaml|length > 0
+    - distribution_systemyaml | length > 0
     - distribution_systemyaml_override or (not systemyaml.stat.exists)
   notify: restart distribution
 

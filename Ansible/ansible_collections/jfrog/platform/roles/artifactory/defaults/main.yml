@@ -1,7 +1,7 @@
 # defaults file for artifactory
 
 # The version of artifactory to install
-artifactory_version: 7.25.7
+artifactory_version: 7.27.6
 
 # Set this to true when SSL is enabled (to use artifactory_nginx_ssl role), default to false (implies artifactory uses artifactory_nginx role )
 artifactory_nginx_ssl_enabled: false
@@ -9,10 +9,7 @@ artifactory_nginx_ssl_enabled: false
 # Set this to false when ngnix is disabled, defaults to true (implies artifactory uses artifactory_nginx role )
 artifactory_nginx_enabled: true
 
-# Provide single node license
-# artifactory_single_license:
-
-# Provide individual (HA) licenses file separated by new line and 2-space indentation and set artifactory_ha_enabled: true.
+# Provide single or HA individual licenses file separated by new line and 2-space indentation and for HA, set artifactory_ha_enabled: true.
 # Example: Replace <license_1> , <license_2> , <license_3> with original licenses
 # artifactory_licenses: |-
 #   <license_1>
@@ -26,6 +23,9 @@ artifactory_ha_enabled: false
 
 # By default, all nodes are primary (CNHA) - https://www.jfrog.com/confluence/display/JFROG/High+Availability#HighAvailability-Cloud-NativeHighAvailability
 artifactory_taskaffinity: any
+
+# To enable mission-control in artifactory (>= 7.27.x) applicable only on E+ license
+artifactory_mc_enabled: true
 
 # The location where Artifactory should install
 jfrog_home_directory: /opt/jfrog
@@ -43,7 +43,7 @@ artifactory_untar_home: "{{ jfrog_home_directory }}/artifactory-{{ artifactory_f
 # Timeout in seconds for URL request
 artifactory_download_timeout: 10
 
-postgres_driver_version: 42.2.23
+postgres_driver_version: 42.2.24
 postgres_driver_download_url: https://repo1.maven.org/maven2/org/postgresql/postgresql/{{ postgres_driver_version }}/postgresql-{{ postgres_driver_version }}.jar
 
 artifactory_user: artifactory
@@ -88,6 +88,8 @@ artifactory_systemyaml: |-
       url: "{{ artifactory_db_url }}"
       username: "{{ artifactory_db_user }}"
       password: "{{ artifactory_db_password }}"
+  mc:
+    enabled: {{ artifactory_mc_enabled }}
   router:
     entrypoints:
       internalPort: 8046

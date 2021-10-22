@@ -1,5 +1,0 @@
-- name: Install prerequisite packages
-  become: yes
-  yum:
-    name: expect
-    state: present

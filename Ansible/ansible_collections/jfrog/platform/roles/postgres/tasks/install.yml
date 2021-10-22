@@ -58,65 +58,46 @@
     timeout: 120
     sleep: 10
 
-- name: Create users
+- name: Create user
   become: yes
   become_user: postgres
   postgresql_user:
-    name: "{{ item.db_user }}"
-    password: "{{ item.db_password }}"
+    name: "{{ curr_user.username }}"
+    password: "{{ curr_user.password }}"
     conn_limit: "-1"
-  loop: "{{ db_users | default([]) }}"
+  loop: "{{ database | dict2items | map(attribute='value') | list }}"
+  loop_control:
+    loop_var: curr_user
+  when: curr_user.enabled | bool
   no_log: true  # secret passwords
 
-- name: Create a database
+- name: Create database
   become: yes
   become_user: postgres
   postgresql_db:
-    name: "{{ item.db_name }}"
-    owner: "{{ item.db_owner }}"
+    name: "{{ curr_db.name }}"
+    owner: "{{ curr_db.owner }}"
     encoding: UTF-8
     lc_collate: "{{ postgres_locale }}"
     lc_ctype: "{{ postgres_locale }}"
     template: template0
-  loop: "{{ dbs | default([]) }}"
-
-- name: Check if MC schemas already exists
-  become: yes
-  become_user: postgres
-  command: psql -d {{ mc_db_name }} -t -c "\dn"
-  register: mc_schemas_loaded
-  when: mc_enabled
-  changed_when: false
-
-- name: Create schemas for mission-control
-  become: yes
-  become_user: postgres
-  command: psql -d {{ mc_db_name }} -c 'CREATE SCHEMA {{ item }} authorization {{ mc_db_user }}'
-  loop: "{{  mc_schemas | default([]) }}"
-  when:
-    - mc_enabled
-    - mc_schemas_loaded.stdout is defined
-    - item not in mc_schemas_loaded.stdout
-
-- name: Grant all privileges to mc user on its schema
-  become: yes
-  become_user: postgres
-  postgresql_privs:
-    database: "{{ mc_db_name }}"
-    privs: ALL
-    type: schema
-    roles: "{{ mc_db_user }}"
-    objs: "{{ item }}"
-  loop: "{{ mc_schemas | default([]) }}"
-  when: mc_enabled
+  loop: "{{ database | dict2items | map(attribute='value') | list }}"
+  loop_control:
+    loop_var: curr_db
+  when: curr_db.enabled | bool
+  no_log: true  # secret passwords
 
 - name: Grant privs on db
   become: yes
   become_user: postgres
   postgresql_privs:
-    database: "{{ item.db_name }}"
-    role: "{{ item.db_owner }}"
+    database: "{{ curr_db.name }}"
+    role: "{{ curr_db.owner }}"
     state: present
     privs: ALL
     type: database
-  loop: "{{ dbs | default([]) }}"
+  loop: "{{ database | dict2items | map(attribute='value') | list }}"
+  loop_control:
+    loop_var: curr_db
+  when: curr_db.enabled | bool
+  no_log: true  # secret passwords

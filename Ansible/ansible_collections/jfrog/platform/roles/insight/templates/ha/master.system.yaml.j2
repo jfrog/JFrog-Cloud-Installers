@@ -1,0 +1,22 @@
+configVersion: 1
+shared:
+  jfrogUrl: {{ jfrog_url }}
+  node:
+    ip: {{ ansible_host }}
+  database:
+    type: "{{ insight_db_type }}"
+    driver: "{{ insight_db_driver }}"
+    url: "{{ insight_db_url }}"
+    username: "{{ insight_db_user }}"
+    password: "{{ insight_db_password }}"
+  elasticsearch:
+    unicastFile: {{ insight_es_conf_base }}/unicast_hosts.txt
+    password: {{ insight_es_password }}
+    url: {{ insight_es_url }}
+    username: {{ insight_es_user }}
+    external: true
+  security:
+    joinKey: {{ join_key }}
+router:
+  entrypoints:
+    internalPort: 8046

@@ -1,3 +1,14 @@
+- name: Include distro specific variables
+  include_vars: "{{ distro_vars_file }}"
+  vars:
+    distro_vars_file: "{{ lookup('first_found', distro_vars, errors='ignore') }}"
+    distro_vars:
+      files:
+        - "vars/distro/{{ ansible_distribution ~ ansible_distribution_major_version }}.yml"
+        - "vars/distro/{{ ansible_distribution }}.yml"
+        - "vars/distro/{{ ansible_os_family }}.yml"
+        - "vars/distro/default.yml"
+
 - name: Install prerequisite packages
   include_tasks: "{{ ansible_os_family }}.yml"
 
@@ -53,10 +64,10 @@
   unarchive:
     src: "{{ jfrog_home_directory }}/{{ artifactory_tar_file_name }}"
     dest: "{{ jfrog_home_directory }}"
-    remote_src: true
     owner: "{{ artifactory_user }}"
     group: "{{ artifactory_group }}"
     creates: "{{ artifactory_untar_home }}"
+    remote_src: true
   when: download_artifactory is succeeded
 
 - name: Check if app directory exists
@@ -70,6 +81,9 @@
   copy:
     src: "{{ artifactory_untar_home }}/"
     dest: "{{ artifactory_home }}"
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+    mode: 0755
     remote_src: yes
   when: not app_dir_check.stat.exists
 
@@ -101,7 +115,7 @@
     mode: 0644
   when:
     - artifactory_systemyaml is defined
-    - artifactory_systemyaml|length > 0
+    - artifactory_systemyaml | length > 0
     - artifactory_systemyaml_override or (not systemyaml.stat.exists)
   notify: restart artifactory
 
@@ -133,18 +147,7 @@
     - artifactory_binarystore | length > 0
   notify: restart artifactory
 
-- name: Configure single license
-  become: yes
-  template:
-    src: artifactory.lic.j2
-    dest: "{{ artifactory_home }}/var/etc/artifactory/artifactory.lic"
-    mode: 0644
-  when:
-    - artifactory_single_license is defined
-    - artifactory_single_license|length > 0
-  notify: restart artifactory
-
-- name: Configure HA licenses
+- name: Configure artifactory license(s)
   become: yes
   template:
     src: artifactory.cluster.license.j2
@@ -152,7 +155,7 @@
     mode: 0644
   when:
    - artifactory_licenses is defined
-   - artifactory_licenses|length > 0
+   - artifactory_licenses | length > 0
   notify: restart artifactory
 
 - name: Check if database driver exists
@@ -172,6 +175,12 @@
     - postgres_driver_download_url is defined
     - not database_driver.stat.exists
   notify: restart artifactory
+
+- name: Run restore context to reload selinux
+  become: yes
+  shell: |
+    restorecon -R -v "{{ jfrog_home_directory }}/artifactory/app/bin"
+  when: ansible_distribution == 'RedHat'
 
 - name: Create artifactory service
   become: yes

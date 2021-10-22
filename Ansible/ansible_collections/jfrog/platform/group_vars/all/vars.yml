@@ -1,4 +1,3 @@
-# Defaults
 ## Note: These values are global and have precedence over role/<product>/defaults/main.yaml
 ## For production deployments, You may want to generate your master amd join keys and apply it to all the nodes.
 master_key: ee69d96880726d3abf6b42b97d2ae589111ea95c2a8bd5876ec5cd9e8ee34f86
@@ -11,7 +10,7 @@ jfrog_url: >-
 artifactory_enabled: true
 xray_enabled: true
 distribution_enabled: true
-mc_enabled: true
+insight_enabled: true
 postgres_enabled: true
 
 # Artifactory DB details
@@ -41,30 +40,41 @@ distribution_db_password: password
 distribution_db_url: >-
   jdbc:postgresql://{{ hostvars[groups['postgres_servers'][0]]['ansible_host'] }}:5432/{{ distribution_db_name }}?sslmode=disable
 
-# MissionControl DB details
-mc_db_type: postgresql
-mc_db_driver: org.postgresql.Driver
-mc_db_name: mc
-mc_db_user: mc
-mc_db_password: password
-mc_db_url: >-
-  jdbc:postgresql://{{ hostvars[groups['postgres_servers'][0]]['ansible_host'] }}:5432/{{ mc_db_name }}?sslmode=disable
+# Insight DB details
+insight_db_type: postgresql
+insight_db_driver: org.postgresql.Driver
+insight_db_name: insight
+insight_db_user: insight
+insight_db_password: password
+insight_db_url: >-
+  jdbc:postgresql://{{ hostvars[groups['postgres_servers'][0]]['ansible_host'] }}:5432/{{ insight_db_name }}?sslmode=disable
 
 # Postgresql users and databases/schemas
-db_users:
-  - { db_user: "{{ artifactory_db_user }}", db_password: "{{ artifactory_db_password }}" }
-  - { db_user: "{{ xray_db_user }}", db_password: "{{ xray_db_password }}" }
-  - { db_user: "{{ distribution_db_user }}", db_password: "{{ distribution_db_password }}" }
-  - { db_user: "{{ mc_db_user }}", db_password: "{{ mc_db_password }}" }
-dbs:
-  - { db_name: "{{ artifactory_db_name }}", db_owner: "{{ artifactory_db_user }}" }
-  - { db_name: "{{ xray_db_name }}", db_owner: "{{ xray_db_user }}" }
-  - { db_name: "{{ distribution_db_name }}", db_owner: "{{ distribution_db_user }}" }
-  - { db_name: "{{ mc_db_name }}", db_owner: "{{ mc_db_user }}" }
-mc_schemas:
-  - jfmc_server
-  - insight_server
-  - insight_scheduler
+database:
+  artifactory:
+    name: "{{ artifactory_db_name }}"
+    owner: "{{ artifactory_db_user }}"
+    username: "{{ artifactory_db_user }}"
+    password: "{{ artifactory_db_password }}"
+    enabled: "{{ artifactory_enabled }}"
+  xray:
+    name: "{{ xray_db_name }}"
+    owner: "{{ xray_db_user }}"
+    username: "{{ xray_db_user }}"
+    password: "{{ xray_db_password }}"
+    enabled: "{{ xray_enabled }}"
+  distribution:
+    name: "{{ distribution_db_name }}"
+    owner: "{{ distribution_db_user }}"
+    username: "{{ distribution_db_user }}"
+    password: "{{ distribution_db_password }}"
+    enabled: "{{ distribution_enabled }}"
+  insight:
+    name: "{{ insight_db_name }}"
+    owner: "{{ insight_db_user }}"
+    username: "{{ insight_db_user }}"
+    password: "{{ insight_db_password }}"
+    enabled: "{{ insight_enabled }}"
 
 # For Centos/RHEL-7, Set this to "/usr/bin/python"
 ansible_python_interpreter: "/usr/bin/python3"

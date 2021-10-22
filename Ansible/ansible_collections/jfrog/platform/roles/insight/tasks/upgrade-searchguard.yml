@@ -1,0 +1,76 @@
+- name: Create elasticsearch config path folder
+  become: yes
+  file:
+    path: "{{ insight_es_conf_base }}"
+    state: directory
+    owner: elasticsearch
+    group: elasticsearch
+    mode: 0755
+
+- name: Copy elasticsearch cert files
+  become: yes
+  copy:
+    src: "files/searchguard/{{ item }}"
+    dest: "{{ insight_es_conf_base }}/{{ item }}"
+    owner: elasticsearch
+    group: elasticsearch
+    mode: 0600
+  loop:
+    - "localhost.pem"
+    - "localhost.key"
+    - "root-ca.pem"
+
+- name: Find searchguard bundle
+  become: yes
+  find:
+    paths: "{{ insight_home }}/app/third-party/elasticsearch/"
+    patterns: "^search-guard-.+\\.zip$"
+    use_regex: yes
+    file_type: file
+  register: check_searchguard_bundle_result
+
+- name: Install searchguard plugin
+  become: yes
+  ignore_errors: yes
+  shell: |
+    {{ insight_es_script_path }}/elasticsearch-plugin install \
+    -b file://{{ check_searchguard_bundle_result.files[0].path }}
+  environment:
+    ES_JAVA_HOME: "{{ insight_es_java_home }}"
+    ES_PATH_CONF: "{{ insight_es_conf_base }}/"
+  register: install_searchguard_result
+  when: check_searchguard_bundle_result.matched == 1
+
+- name: Copy searchguard cert files
+  become: yes
+  copy:
+    src: "files/searchguard/{{ item }}"
+    dest: "{{ insight_es_searchgaurd_home }}/tools/{{ item }}"
+    owner: elasticsearch
+    group: elasticsearch
+    mode: 0600
+  loop:
+    - "sgadmin.pem"
+    - "sgadmin.key"
+    - "root-ca.pem"
+
+- name: Copy SG roles files
+  become: yes
+  copy:
+    src: "files/searchguard/{{ item }}"
+    dest: "{{ insight_es_searchgaurd_home }}/sgconfig/{{ item }}"
+    owner: elasticsearch
+    group: elasticsearch
+    mode: 0600
+  loop:
+    - "sg_roles.yml"
+    - "sg_roles_mapping.yml"
+    - "sg_config.yml"
+
+- name: Check execution bit
+  become: yes
+  file:
+    path: "{{ insight_es_searchgaurd_home }}/tools/sgadmin.sh"
+    owner: elasticsearch
+    group: elasticsearch
+    mode: 0700

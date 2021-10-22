@@ -9,7 +9,7 @@ namespace: "jfrog"
 name: "platform"
 
 # The version of the collection. Must be compatible with semantic versioning
-version: "7.25.7"
+version: "10.0.1"
 
 # The path to the Markdown (.md) readme file. This path is relative to the root of the collection
 readme: "README.md"
@@ -44,6 +44,7 @@ tags:
   - artifactory
   - distribution
   - missioncontrol
+  - insight
   - xray
 
 # Collections that this collection requires to be installed for it to be usable. The key of the dict is the

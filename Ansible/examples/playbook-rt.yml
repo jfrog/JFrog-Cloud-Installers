@@ -3,10 +3,15 @@
   collections:
     - jfrog.platform
   roles:
-    - postgres
+    - role: postgres
+      when: postgres_enabled | bool
 
 - hosts: artifactory_servers
   collections:
     - jfrog.platform
+  serial:
+    - 1
+    - 100%
   roles:
-    - artifactory
+    - role: artifactory
+      when: artifactory_enabled | bool
