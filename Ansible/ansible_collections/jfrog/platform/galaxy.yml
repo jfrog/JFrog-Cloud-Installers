@@ -9,7 +9,7 @@ namespace: "jfrog"
 name: "platform"
 
 # The version of the collection. Must be compatible with semantic versioning
-version: "10.0.1"
+version: "10.0.2"
 
 # The path to the Markdown (.md) readme file. This path is relative to the root of the collection
 readme: "README.md"
@@ -23,7 +23,7 @@ authors:
 ### OPTIONAL but strongly recommended
 
 # A short summary description of the collection
-description: "This collection provides roles for installing JFrog Platform which includes Artifactory, Distribution, Missioncontrol and  Xray. Additionally, it provides optional SSL and Postgresql roles if these are needed for your deployment."
+description: "This collection provides roles for installing JFrog Platform which includes Artifactory, Distribution, Insight and  Xray. Additionally, it provides optional SSL and Postgresql roles if these are needed for your deployment."
 
 # Either a single license or a list of licenses for content inside of a collection. Ansible Galaxy currently only
 # accepts L(SPDX,https://spdx.org/licenses/) licenses. This key is mutually exclusive with 'license_file'
@@ -43,7 +43,6 @@ tags:
   - application
   - artifactory
   - distribution
-  - missioncontrol
   - insight
   - xray
 

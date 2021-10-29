@@ -1,6 +1,9 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [10.0.2] - Oct 29, 2021
+* Product fixes
+
 ## [10.0.1] - Oct 22, 2021
 * Version bump to align with all jfrog platform installers
 * Added insight (new product) role
