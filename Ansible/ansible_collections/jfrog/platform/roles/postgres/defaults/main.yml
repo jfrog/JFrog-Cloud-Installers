@@ -103,3 +103,6 @@ postgresql_external_pid_file: "{{ default_postgresql_external_pid_file }}"
 postgres_apt_key_id: "{{ default_postgres_apt_key_id }}"
 postgres_apt_key_url: "{{ default_postgres_apt_key_url }}"
 postgres_apt_repository_repo: "{{ default_postgres_apt_repository_repo }}"
+
+# FIPS Enabled?
+fips_enabled: false
