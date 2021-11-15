@@ -31,6 +31,14 @@
   environment:
     LC_ALL: "{{ postgres_locale }}"
 
+- name: Grab the FIPS status
+  command: cat /proc/sys/crypto/fips_enabled
+  register: _fips_enabled
+
+- name: Store FIPS status for use
+  set_fact:
+    fips_enabled: "{{ _fips_enabled.stdout | bool }}"
+
 - name: Setup postgres configuration files
   become: yes
   become_user: postgres
