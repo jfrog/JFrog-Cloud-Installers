@@ -34,6 +34,7 @@
 - name: Grab the FIPS status
   command: cat /proc/sys/crypto/fips_enabled
   register: _fips_enabled
+  ignore_errors: true
 
 - name: Store FIPS status for use
   set_fact:
