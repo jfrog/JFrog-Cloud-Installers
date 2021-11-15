@@ -3,6 +3,7 @@ All changes to this collection will be documented in this file.
 
 ## [10.0.3] - Nov 15, 2021
 * Fix idempotency issue when running against a FIPS enabled target
+* Product fixes
 
 ## [10.0.2] - Oct 29, 2021
 * Product fixes
