@@ -35,6 +35,7 @@
   command: cat /proc/sys/crypto/fips_enabled
   register: _fips_enabled
   ignore_errors: true
+  changed_when: false
 
 - name: Setup postgres configuration files
   become: yes
