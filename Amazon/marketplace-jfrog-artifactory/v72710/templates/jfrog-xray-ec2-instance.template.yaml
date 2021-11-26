@@ -1,0 +1,254 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Deploys the EC2 Autoscaling, LaunchConfig and Instance for Xray"
+Parameters:
+  PrivateSubnet1Id:
+    Type: AWS::EC2::Subnet::Id
+  PrivateSubnet2Id:
+    Type: AWS::EC2::Subnet::Id
+  KeyPairName:
+    Type: AWS::EC2::KeyPair::KeyName
+  MinScalingNodes:
+    Type: Number
+  MaxScalingNodes:
+    Type: Number
+  DeploymentTag:
+    Type: String
+  DatabaseDriver:
+    Type: String
+  DatabaseType:
+    Type: String
+  DatabaseUser:
+    Type: String
+  DatabasePassword:
+    Type: String
+    NoEcho: "true"
+  MasterKey:
+    Type: String
+    NoEcho: "true"
+  ExtraJavaOptions:
+    Type: String
+  SecurityGroups:
+    Type: String
+  VolumeSize:
+    Type: Number
+  XrayHostProfile:
+    Type: String
+  XrayHostRole:
+    Type: String
+  XrayInstanceType:
+    Type: String
+  JfrogInternalUrl:
+    Type: String
+  XrayDatabaseUser:
+    Type: String
+  XrayDatabasePassword:
+    Type: String
+    NoEcho: "true"
+  XrayMasterDatabaseUrl:
+    Type: String
+  XrayDatabaseUrl:
+    Type: String
+  XrayVersion:
+    Type: String
+  XrayAmiId:
+    Type: String
+
+# To populate additional mappings use the following with the desired --region
+# aws --region us-west-2 ec2 describe-images --owners amazon --filters 'Name=name,Values=amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2' 'Name=state,Values=available' --output json | jq -r '.Images | sort_by(.CreationDate) | last(.[]).ImageId'
+Mappings:
+  AWSAMIRegionMap:
+    us-east-1:
+      "3350": ami-0814166382cb6e3de
+    us-east-2:
+      "3350": xxxxxxxxxx
+    us-west-1:
+      "3350": xxxxxxxxxx
+    us-west-2:
+      "3350": xxxxxxxxxx
+    ca-central-1:
+      "3350": xxxxxxxxxx
+    eu-central-1:
+      "3350": xxxxxxxxxx
+    eu-west-1:
+      "3350": xxxxxxxxxx
+    eu-west-2:
+      "3350": xxxxxxxxxx
+    eu-west-3:
+      "3350": xxxxxxxxxx
+    ap-southeast-1:
+      "3350": xxxxxxxxxx
+    ap-southeast-2:
+      "3350": xxxxxxxxxx
+    ap-south-1:
+      "3350": xxxxxxxxxx
+    ap-northeast-1:
+      "3350": xxxxxxxxxx
+    ap-northeast-2:
+      "3350": xxxxxxxxxx
+    sa-east-1:
+      "3350": xxxxxxxxxx
+    us-gov-east-1:
+      "3350": ami-04ed129656189d6b3
+    us-gov-west-1:
+      "3350": xxxxxxxxxx
+
+Resources:
+  XrayScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      LaunchConfigurationName: !Ref XrayLaunchConfiguration
+      VPCZoneIdentifier:
+        - !Ref PrivateSubnet1Id
+        - !Ref PrivateSubnet2Id
+      MinSize: !Ref MinScalingNodes
+      MaxSize: !Ref MaxScalingNodes
+      Cooldown: "300"
+      DesiredCapacity: !Ref MinScalingNodes
+      HealthCheckType: EC2
+      HealthCheckGracePeriod: 1800
+      Tags:
+        - Key: Name
+          Value: !Ref DeploymentTag
+          PropagateAtLaunch: true
+        - Key: XrayVersion
+          Value: !Ref XrayVersion
+          PropagateAtLaunch: true
+      TerminationPolicies:
+        - OldestInstance
+        - Default
+    CreationPolicy:
+      ResourceSignal:
+        Count: !Ref MinScalingNodes
+        Timeout: PT60M
+  XrayLaunchConfiguration:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Metadata:
+      AWS::CloudFormation::Init:
+        configSets:
+          xray_install:
+            - "config-cloudwatch"
+            - "config-xray"
+        config-cloudwatch:
+          files:
+            /root/cloudwatch.conf:
+              content: |
+                [general]
+                state_file = /var/awslogs/state/agent-state
+
+                [/var/log/messages]
+                file = /var/log/messages
+                log_group_name = /xray/instances/{instance_id}
+                log_stream_name = /var/log/messages/
+                datetime_format = %b %d %H:%M:%S
+
+                [/var/log/xray-ami-setup.log]
+                file = /var/log/messages
+                log_group_name = /xray/instances/{instance_id}
+                log_stream_name = /var/log/xray-ami-setup.log
+                datetime_format = %b %d %H:%M:%S
+
+                [/var/log/xray.log]
+                file = /var/log/messages
+                log_group_name = /xray/instances/{instance_id}
+                log_stream_name = /var/log/xray.log
+                datetime_format = %b %d %H:%M:%S
+              mode: "0400"
+        config-xray:
+          files:
+            /root/.xray_ami/xray.yml:
+              content: !Sub |
+                # Base install for Xray
+                - import_playbook: site-xray.yml
+                  vars:
+                    jfrog_url: ${JfrogInternalUrl}
+                    master_key: ${MasterKey}
+                    join_key: ${MasterKey}
+                    extra_java_opts: ${ExtraJavaOptions}
+                    db_type: ${DatabaseType}
+                    db_driver: ${DatabaseDriver}
+                    db_master_url: postgresql://${DatabaseUser}:${DatabasePassword}@${XrayMasterDatabaseUrl}
+                    db_url: postgres://${XrayDatabaseUrl}
+                    db_master_user: ${DatabaseUser}
+                    db_user: ${XrayDatabaseUser}
+                    db_password: ${XrayDatabasePassword}
+                    xray_version: ${XrayVersion}
+              mode: "0400"
+            /root/.vault_pass.txt:
+              content: !Sub |
+                ${DatabasePassword}
+              mode: "0400"
+    Properties:
+      KeyName: !Ref KeyPairName
+      IamInstanceProfile: !Ref XrayHostProfile
+      ImageId: !FindInMap
+        - AWSAMIRegionMap
+        - !Ref AWS::Region
+        - !Ref XrayAmiId
+      SecurityGroups:
+        - !Ref SecurityGroups
+      InstanceType: !Ref XrayInstanceType
+      BlockDeviceMappings:
+        - DeviceName: /dev/xvda
+          Ebs:
+            VolumeSize: !Ref VolumeSize
+            VolumeType: gp2
+            DeleteOnTermination: true
+            Encrypted: true
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -x
+          exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
+
+          #CFN Functions
+
+          function cfn_fail
+
+          {
+
+          cfn-signal -e 1 --stack ${AWS::StackName} --region ${AWS::Region} --resource XrayScalingGroup
+
+          exit 1
+
+          }
+
+          function cfn_success
+
+          {
+
+          cfn-signal -e 0 --stack ${AWS::StackName} --region ${AWS::Region} --resource XrayScalingGroup
+
+          exit 0
+
+          }
+
+          echo $PATH
+
+          PATH=/opt/aws/bin:$PATH
+
+          echo $PATH
+
+          # Activate virtual env
+          source ~/venv/bin/activate
+
+          setsebool httpd_can_network_connect 1 -P
+
+          # CentOS cloned virtual machines do not create a new machine id
+          # https://www.thegeekdiary.com/centos-rhel-7-how-to-change-the-machine-id/
+          rm -f /etc/machine-id
+          systemd-machine-id-setup
+
+          cfn-init -v --stack ${AWS::StackName} --resource XrayLaunchConfiguration --configsets xray_install --region ${AWS::Region} || cfn_fail
+
+          # Setup CloudWatch Agent
+          curl https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py -O
+          chmod +x ./awslogs-agent-setup.py
+          ./awslogs-agent-setup.py -n -r ${AWS::Region} -c /root/cloudwatch.conf
+
+          lsblk # debug
+
+          ansible-playbook /root/.xray_ami/xray.yml --vault-id /root/.vault_pass.txt 2>&1 | tee /var/log/xray.log || cfn_fail
+
+          rm -rf /root/.secureit.sh
+
+          cfn_success &> /var/log/cfn_success.log
+          cfn_success || cfn_fail
