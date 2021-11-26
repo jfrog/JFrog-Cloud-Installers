@@ -1,8 +1,9 @@
-AWSTemplateFormatVersion: '2010-09-09'
-Description: 'JFrog Artifactory Quick Start Deployment (qs-1qpmmjh61)'
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "JFrog Artifactory Quick Start Deployment (qs-1qpmmjh61)"
 Parameters:
   AvailabilityZones:
-    Description: List of Availability Zones to use for the subnets in the VPC. Two
+    Description:
+      List of Availability Zones to use for the subnets in the VPC. Two
       Availability Zones are used for this deployment.
     Type: List<AWS::EC2::AvailabilityZone::Name>
   VpcId:
@@ -42,7 +43,7 @@ Parameters:
   DatabaseUser:
     Type: String
   DatabasePassword:
-    NoEcho: 'true'
+    NoEcho: "true"
     Type: String
   DatabaseInstance:
     Type: String
@@ -69,9 +70,9 @@ Mappings:
       JcrDockerRepo: "earlyaccess-docker.jfrog.io/jfrog/artifactory-jcr"
       NginxDockerRepo: "earlyaccess-docker.jfrog.io/jfrog/nginx-artifactory-pro"
     GA:
-      ProDockerRepo: "docker.bintray.io/jfrog/artifactory-pro"
-      JcrDockerRepo: "docker.bintray.io/jfrog/artifactory-jcr"
-      NginxDockerRepo: "docker.bintray.io/jfrog/nginx-artifactory-pro"
+      ProDockerRepo: "releases-docker.jfrog.io/jfrog/artifactory-pro"
+      JcrDockerRepo: "releases-docker.jfrog.io/jfrog/artifactory-jcr"
+      NginxDockerRepo: "releases-docker.jfrog.io/jfrog/nginx-artifactory-pro"
   ProductMap:
     JFrog-Container-Registry:
       RepoName: JcrDockerRepo
@@ -224,7 +225,7 @@ Resources:
       MasterUserPassword: !Ref DatabasePassword
       DBInstanceClass: !Ref DatabaseInstance
       DBName: !Ref DatabaseName
-      DBSubnetGroupName: !Ref  ArtifactoryDatabaseSubnetGroup
+      DBSubnetGroupName: !Ref ArtifactoryDatabaseSubnetGroup
       StorageEncrypted: true
       VPCSecurityGroups:
         - !Ref ArtifactoryDatabaseSG
@@ -287,22 +288,21 @@ Resources:
               - s3:*
             Resource:
               - Fn::Join:
-                - ''
-                - - !Sub "arn:${AWS::Partition}:s3:::"
-                  - !Ref ArtifactoryS3Bucket
+                  - ""
+                  - - !Sub "arn:${AWS::Partition}:s3:::"
+                    - !Ref ArtifactoryS3Bucket
               - Fn::Join:
-                - ''
-                - - !Sub "arn:${AWS::Partition}:s3:::"
-                  - !Ref ArtifactoryS3Bucket
-                  - "/*"
+                  - ""
+                  - - !Sub "arn:${AWS::Partition}:s3:::"
+                    - !Ref ArtifactoryS3Bucket
+                    - "/*"
       Roles:
         - !Ref ArtifactoryHostRole
   ArtifactoryEbsVolume:
     Type: AWS::EC2::Volume
     Properties:
-      AvailabilityZone:
-        !Select
-        - '0'
+      AvailabilityZone: !Select
+        - "0"
         - !Ref AvailabilityZones
       Encrypted: false
       Size: !Ref VolumeSize
@@ -351,9 +351,9 @@ Outputs:
     Value: !Sub
       - "-Xms${min}g -Xmx${max}g"
       - {
-        min: !FindInMap [JavaOptionstoInstance, !Ref InstanceType, Min],
-        max: !FindInMap [JavaOptionstoInstance, !Ref InstanceType, Max]
-      }
+          min: !FindInMap [JavaOptionstoInstance, !Ref InstanceType, Min],
+          max: !FindInMap [JavaOptionstoInstance, !Ref InstanceType, Max],
+        }
   DeploymentSize:
     Value: !FindInMap [JavaOptionstoInstance, !Ref InstanceType, DeploymentSize]
   ArtifactoryEbsVolume:
