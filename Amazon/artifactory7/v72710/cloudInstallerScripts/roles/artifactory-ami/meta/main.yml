@@ -1,0 +1,35 @@
+---
+galaxy_info:
+  author: Robert de Bock
+  role_name: artifactory
+  description: Install and configure artifactory on your system.
+  license: Apache-2.0
+  company: none
+  min_ansible_version: 2.8
+
+  platforms:
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - 7
+        - 8
+    - name: Fedora
+      versions:
+        - all
+    - name: OpenSUSE
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - bionic
+
+  galaxy_tags:
+    - artifactory
+    - centos
+    - redhat
+    - server
+    - system
+
+dependencies: []

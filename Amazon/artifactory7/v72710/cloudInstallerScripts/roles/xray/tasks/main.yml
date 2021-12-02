@@ -1,0 +1,80 @@
+---
+- name: initialize postgres database
+  include_tasks: initialize-pg-db.yml
+
+- name: create group for xray
+  group:
+    name: "{{ xray_group }}"
+    state: present
+  become: yes
+
+- name: create user for xray
+  user:
+    name: "{{ xray_user }}"
+    group: "{{ xray_group }}"
+    system: yes
+  become: yes
+
+- name: ensure xray_download_directory exists
+  file:
+    path: "{{ xray_download_directory }}"
+    state: directory
+  become: yes
+
+- name: perform prerequisite installation
+  include_tasks: "{{ ansible_os_family }}.yml"
+
+- name: ensure data subdirectories exist and have correct ownership
+  file:
+    path: "{{ xray_home }}/var/{{ item }}"
+    state: directory
+    owner: "{{ xray_user }}"
+    group: "{{ xray_group }}"
+  loop:
+    - "etc"
+    - "data"
+    - "etc/info"
+    - "etc/security"
+  become: yes
+
+- name: configure system yaml
+  template:
+    src: system.yaml.j2
+    dest: "{{ xray_home }}/var/etc/system.yaml"
+    force: no # only create if file doesn't exist
+  become: yes
+
+- name: configure master key
+  template:
+    src: master.key.j2
+    dest: "{{ xray_home }}/var/etc/security/master.key"
+    force: no # only create if file doesn't exist
+  become: yes
+
+- name: configure join key
+  template:
+    src: join.key.j2
+    dest: "{{ xray_home }}/var/etc/security/join.key"
+    force: no # only create if file doesn't exist
+  become: yes
+
+- name: configure installer info
+  template:
+    src: installer-info.json.j2
+    dest: "{{ xray_home }}/var/etc/info/installer-info.json"
+    force: no # only create if file doesn't exist
+  become: yes
+
+- name: create xray service
+  shell: "{{ xray_home }}/app/bin/installService.sh"
+  become: yes
+
+- name: start and enable xray
+  service:
+    name: xray
+    state: restarted
+  become: yes
+
+- name: join rabbitmq cluster
+  shell: "/root/create_rabbitmq_cluster.sh 2>&1 | tee /root/joinrabbitcluster.log"
+  become: yes

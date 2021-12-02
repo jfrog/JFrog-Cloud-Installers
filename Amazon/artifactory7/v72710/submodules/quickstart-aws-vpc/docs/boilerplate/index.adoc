@@ -1,0 +1,14 @@
+:imagesdir: images
+:includedir: boilerplate
+:specificdir: partner_editable
+:generateddir: generated
+:icons: font
+:toc2: left
+:toc-title: 
+:toclevels: 2
+:stylesheet: {includedir}/.css/quickstart.css
+:project_cfn:
+:template_services_ec2:
+include::{specificdir}/_settings.adoc[]
+:title: {partner-product-name} on the AWS Cloud
+ifdef::project_cfn[include::{includedir}/_layout_cfn.adoc[]]
