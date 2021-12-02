@@ -1,0 +1,60 @@
+---
+- name: create group for xray
+  group:
+    name: "{{ xray_group }}"
+    state: present
+  become: yes
+
+- name: create user for xray
+  user:
+    name: "{{ xray_user }}"
+    group: "{{ xray_group }}"
+    system: yes
+  become: yes
+
+- name: ensure xray_download_directory exists
+  file:
+    path: "{{ xray_download_directory }}"
+    state: directory
+  become: yes
+
+- name: download xray
+  unarchive:
+    src: "{{ xray_tar }}"
+    dest: "{{ xray_download_directory }}"
+    remote_src: yes
+    owner: "{{ xray_user }}"
+    group: "{{ xray_group }}"
+    creates: "{{ xray_home }}"
+  become: yes
+  register: downloadxray
+  until: downloadxray is succeeded
+  retries: 3
+
+- name: perform prerequisite installation
+  include_tasks: "{{ ansible_os_family }}.yml"
+
+- name: ensure etc exists
+  file:
+    path: "{{ xray_home }}/var/etc"
+    state: directory
+    owner: "{{ xray_user }}"
+    group: "{{ xray_group }}"
+  become: yes
+
+- name: Remove SSH keys
+  file:
+    path: "{{ ssh_keys.dir }}"
+    state: absent
+  loop:
+    - dir: "/home/.xray_ami/.ssh/authorized_keys"
+    - dir: "/root/.ssh/authorized_keys"
+    - dir: "/home/centos/.ssh/authorized_keys"
+  loop_control:
+    loop_var: ssh_keys
+  when: ami_creation
+
+- name: shutdown VM
+  command: /sbin/shutdown -h now
+  ignore_errors: 'yes'
+  when: ami_creation
