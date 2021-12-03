@@ -1,1 +1,1 @@
-nginx_package_name: "@nginx:1.18"
+nginx_package_name: "@nginx:1.20"
