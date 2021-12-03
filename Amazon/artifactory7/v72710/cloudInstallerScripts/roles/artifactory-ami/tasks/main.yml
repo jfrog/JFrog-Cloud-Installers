@@ -1,0 +1,82 @@
+---
+# tasks file for artifactory
+- name: install nginx
+  include_role:
+    name: artifactory-nginx-ami
+
+- name: create group for artifactory
+  group:
+    name: "{{ artifactory_group }}"
+    state: present
+  become: yes
+
+- name: create user for artifactory
+  user:
+    name: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+    system: yes
+  become: yes
+
+- name: ensure artifactory_download_directory exists
+  file:
+    path: "{{ artifactory_download_directory }}"
+    state: directory
+  become: yes
+
+- name: download artifactory
+  unarchive:
+    src: "{{ artifactory_tar }}"
+    dest: "{{ artifactory_download_directory }}"
+    remote_src: yes
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+    creates: "{{ artifactory_home }}"
+  become: yes
+  register: downloadartifactory
+  until: downloadartifactory is succeeded
+  retries: 3
+
+- name: ensure artifactory_file_store_dir exists
+  file:
+    path: "{{ artifactory_file_store_dir }}"
+    state: directory
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+  become: yes
+
+- name: ensure data subdirectories exist
+  file:
+    path: "{{ artifactory_home }}/var/{{ item }}"
+    state: directory
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+  loop:
+    - "bootstrap/artifactory/tomcat/lib"
+    - "etc"
+  become: yes
+
+- name: download database driver
+  get_url:
+    url: "{{ db_download_url }}"
+    dest: "{{ artifactory_home }}/var/bootstrap/artifactory/tomcat/lib"
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+  become: yes
+
+- name: clean up after creating ami
+  block:
+    - name: Remove SSH keys
+      file:
+        path: "{{ ssh_keys.dir }}"
+        state: absent
+      loop:
+        - dir: "/home/.jfrog_ami/.ssh/authorized_keys"
+        - dir: "/root/.ssh/authorized_keys"
+        - dir: "/home/centos/.ssh/authorized_keys"
+      loop_control:
+        loop_var: ssh_keys
+
+    - name: shutdown VM
+      command: /sbin/shutdown -h now
+      ignore_errors: 'yes'
+  when: ami_creation

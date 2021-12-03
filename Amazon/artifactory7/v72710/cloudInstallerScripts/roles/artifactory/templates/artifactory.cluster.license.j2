@@ -1,0 +1,6 @@
+{% if artifactory_licenses_dict %}
+{% for key in (artifactory_licenses_dict.keys() | select('match', '^ArtifactoryLicense\d$')) %}
+{{ artifactory_licenses_dict[key] }}
+
+{% endfor %}
+{% endif %}

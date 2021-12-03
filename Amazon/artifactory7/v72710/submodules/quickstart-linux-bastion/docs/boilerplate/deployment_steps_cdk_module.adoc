@@ -1,0 +1,15 @@
+
+ifndef::production_build[]
+_**This portion of the deployment guide is located at `docs/{specificdir}/deploy_steps.adoc`**_
+++++
+<div class="preview_mode">
+++++
+endif::production_build[]
+include::../{specificdir}/deploy_steps.adoc[]
+ifndef::production_build[]
+++++
+</div>
+++++
+endif::production_build[]
+
+
