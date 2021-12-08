@@ -97,7 +97,12 @@ max_connections = {{ postgres_server_max_connections }}			# (change requires res
 #ssl_key_file = 'server.key'		# (change requires restart)
 #ssl_ca_file = ''			# (change requires restart)
 #ssl_crl_file = ''			# (change requires restart)
+
+{% if _fips_enabled.stdout | default('unknown', true) == '1' %}
+password_encryption = scram-sha-256
+{% else %}
 #password_encryption = on
+{% endif %}
 #db_user_namespace = off
 #row_security = on
 

@@ -1,7 +1,7 @@
 - name: Install prerequisite packages
   include_tasks: "{{ ansible_os_family }}.yml"
 
-- name: Install nginx after dependency installation
+- name: Install nginx
   become: yes
   package:
     name: nginx

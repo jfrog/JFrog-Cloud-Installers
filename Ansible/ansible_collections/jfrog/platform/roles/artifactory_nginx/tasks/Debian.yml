@@ -1,3 +1,21 @@
+- name: Import nginx signing key
+  become: yes
+  apt_key:
+    url: https://nginx.org/keys/nginx_signing.key
+    state: present
+
+- name: Add nginx stable repo
+  become: yes
+  copy:
+    dest: /etc/apt/sources.list.d/nginx.list
+    owner: root
+    group: root
+    mode: '0644'
+    content: deb https://nginx.org/packages/{{ distro_family }} {{ distro_codename }} nginx
+  vars:
+    distro_family: "{{ ansible_distribution | lower }}"
+    distro_codename: "{{ ansible_distribution_release }}"
+
 - name: Update apt cache
   become: yes
   apt:
