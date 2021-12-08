@@ -1,6 +1,11 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [10.1.0] - Dec 7, 2021
+* Updated artifactory postgresql driver to `42.3.1`
+* Update nginx installation on RHEL8/CentOS8 [GH-175](https://github.com/jfrog/JFrog-Cloud-Installers/pull/175)
+* Fixed idempotency issue when FIPS is enabled on the target [GH-176](https://github.com/jfrog/JFrog-Cloud-Installers/pull/176)
+
 ## [10.0.4] - Nov 30, 2021
 * Product fixes
 
