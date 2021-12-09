@@ -79,7 +79,7 @@
     },
     "artifactoryVersion": {
       "type": "string",
-      "defaultValue": "0.0.32",
+      "defaultValue": "0.0.33",
       "allowedValues": [
 	    "0.0.8",
             "0.0.9",
@@ -98,7 +98,8 @@
 	    "0.0.28",
 	    "0.0.29",
 	    "0.0.30",
-	    "0.0.32"
+	    "0.0.32",
+	    "0.0.33"
       ],
       "metadata": {
         "description": "Artifactory-vm image version to deploy."
@@ -309,7 +310,7 @@
     "artifactoryLicense5": "[parameters('artifactoryLicense5')]",
     "osType": {
       "publisher": "jfrog",
-      "offer": "artifactory-vm-preview",
+      "offer": "artifactory-vm",
       "sku": "artifactory-vm",
       "version": "[parameters('artifactoryVersion')]"
     },
@@ -777,7 +778,7 @@
       "plan": {
         "name": "artifactory-vm",
         "publisher": "jfrog",
-        "product": "artifactory-vm-preview"
+        "product": "artifactory-vm"
       },
       "sku": {
         "name": "[parameters('vmSku')]",
@@ -874,7 +875,7 @@
       "plan": {
         "name": "artifactory-vm",
         "publisher": "jfrog",
-        "product": "artifactory-vm-preview"
+        "product": "artifactory-vm"
       },
       "sku": {
         "name": "[parameters('vmSku')]",
