@@ -311,7 +311,7 @@
     "artifactoryLicense5": "[parameters('artifactoryLicense5')]",
     "osType": {
       "publisher": "jfrog",
-      "offer": "artifactory-vm",
+      "offer": "artifactory-vm-preview",
       "sku": "artifactory-vm",
       "version": "[parameters('artifactoryVersion')]"
     },
@@ -779,7 +779,7 @@
       "plan": {
         "name": "artifactory-vm",
         "publisher": "jfrog",
-        "product": "artifactory-vm"
+        "product": "artifactory-vm-preview"
       },
       "sku": {
         "name": "[parameters('vmSku')]",
@@ -876,7 +876,7 @@
       "plan": {
         "name": "artifactory-vm",
         "publisher": "jfrog",
-        "product": "artifactory-vm"
+        "product": "artifactory-vm-preview"
       },
       "sku": {
         "name": "[parameters('vmSku')]",
