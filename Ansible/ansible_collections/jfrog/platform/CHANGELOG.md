@@ -1,6 +1,9 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [10.3.0] - Feb 07, 2022
+* Performance improvement when correcting permission caused by filestorage located in 'jfrog_home_directory'
+
 ## [10.2.0] - Jan 31, 2022
 * Product Updates/fixes
 

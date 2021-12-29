@@ -1,0 +1,8 @@
+- name: Ensure permissions are correct
+  become: yes
+  block:
+    - name: Ensure user ownership
+      command: find {{ jfrog_home_directory }} ! -user {{ artifactory_user }} -exec chown {{ artifactory_user }} {} \;
+
+    - name: Ensure group ownership
+      command: find {{ jfrog_home_directory }} ! -group {{ artifactory_group }} -exec chgrp {{ artifactory_group }} {} \;
