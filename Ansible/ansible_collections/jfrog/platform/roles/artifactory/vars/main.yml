@@ -3,3 +3,5 @@ platform_collection_version: 10.1.2
 
 # indicates where this collection was downloaded from (galaxy, automation_hub, standalone)
 ansible_marketplace: galaxy
+
+__artifactory_license_file: artifactory.lic

@@ -147,11 +147,17 @@
     - artifactory_binarystore | length > 0
   notify: restart artifactory
 
+- name: Set artifactory license file name for HA license
+  set_fact:
+     __artifactory_license_file: "artifactory.cluster.license"
+  when:
+    - artifactory_ha_enabled is true
+
 - name: Configure artifactory license(s)
   become: yes
   template:
     src: artifactory.cluster.license.j2
-    dest: "{{ artifactory_home }}/var/etc/artifactory/artifactory.cluster.license"
+    dest: "{{ artifactory_home }}/var/etc/artifactory/{{ __artifactory_license_file }}"
     mode: 0644
   when:
    - artifactory_licenses is defined
