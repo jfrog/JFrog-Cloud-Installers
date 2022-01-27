@@ -12,6 +12,7 @@
       "type": "string",
       "metadata": {
         "description": "Location for all resources."
+      }
       },
     "ipAddressName": {
       "type": "string",
@@ -30,7 +31,6 @@
     },
     "privateIp": {
       "type": "string"
-    }
     }
   },
   "resources": [
@@ -81,5 +81,6 @@
   }
 
 }
+
 
 
