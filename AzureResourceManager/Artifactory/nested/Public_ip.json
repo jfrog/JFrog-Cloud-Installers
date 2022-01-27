@@ -25,6 +25,9 @@
     "ipAddressType": {
       "type": "string",
       "defaultValue": "Dynamic"
+    },
+    "privateIp": {
+      "type": "string"
     }
   },
   "resources": [
@@ -33,6 +36,9 @@
       "name": "[parameters('networkInterfaceName')]",
       "apiVersion": "2020-05-01",
       "location": "[parameters('location')]",
+       "dependsOn": [
+                "[concat('Microsoft.Network/publicIpAddresses/', parameters('ipAddressName'))]"
+            ],
       "properties": {
          "ipConfigurations": [
                     {
@@ -63,6 +69,12 @@
             }
         }
 
-  ]
+  ],
+    "outputs": {
+    "privateIp": {
+      "type": "string",
+      "value": "[parameters('privateIp')]"
+    }
+  }
 }
 
