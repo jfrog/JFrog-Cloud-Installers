@@ -1,0 +1,75 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "networkInterfaceName": {
+      "type": "string"
+    },
+    "subnetRef": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string",
+      "metadata": {
+        "description": "Location for all resources."
+      },
+    "ipAddressName": {
+      "type": "string",
+      "defaultValue": "rt-public-ip"
+    },
+    "ipAddressSku": {
+      "type": "string",
+      "defaultValue": "Basic"
+    },
+    "ipAddressType": {
+      "type": "string",
+      "defaultValue": "Dynamic"
+    },
+    "nsgId": {
+      "type": "string"
+    }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[parameters('networkInterfaceName')]",
+      "apiVersion": "2020-05-01",
+      "location": "[parameters('location')]",
+      "properties": {
+         "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "subnet": {
+                                "id": "[parameters('subnetRef')]"
+                            },
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIpAddress": {
+                                "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', parameters('ipAddressName'))]"
+                            }
+                        }
+                    }
+                ],
+                "networkSecurityGroup": {
+                    "id": "[parameters('nsgId')]"
+                }
+      }
+    },
+    {
+            "type": "Microsoft.Network/publicIpAddresses",
+            "apiVersion": "2019-02-01",
+            "name": "[parameters('ipAddressName')]",
+            "location": "[parameters('location')]",
+            "sku": {
+                "name": "[parameters('ipAddressSku')]"
+            },
+            "properties": {
+                "publicIpAllocationMethod": "[parameters('ipAddressType')]"
+            }
+        }
+
+  ]
+
+}
+
