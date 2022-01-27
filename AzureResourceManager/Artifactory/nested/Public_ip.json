@@ -25,12 +25,6 @@
     "ipAddressType": {
       "type": "string",
       "defaultValue": "Dynamic"
-    },
-    "nsgId": {
-      "type": "string"
-    },
-    "privateIp": {
-      "type": "string"
     }
   },
   "resources": [
@@ -53,10 +47,7 @@
                             }
                         }
                     }
-                ],
-                "networkSecurityGroup": {
-                    "id": "[parameters('nsgId')]"
-                }
+                ]
       }
     },
     {
@@ -72,15 +63,6 @@
             }
         }
 
-  ],
-  "outputs": {
-    "privateIp": {
-      "type": "string",
-      "value": "[parameters('privateIp')]"
-    }
-  }
-
+  ]
 }
-
-
 
