@@ -72,7 +72,14 @@
             }
         }
 
-  ]
+  ],
+  "outputs": {
+    "privateIp": {
+      "type": "string",
+      "value": "[parameters('privateIp')]"
+    }
+  }
 
 }
+
 

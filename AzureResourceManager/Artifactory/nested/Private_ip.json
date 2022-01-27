@@ -16,6 +16,18 @@
       "metadata": {
         "description": "Location for all resources."
       }
+    },
+    "ipAddressName": {
+      "type": "string",
+      "defaultValue": "rt-private-ip"
+    },
+    "ipAddressSku": {
+      "type": "string",
+      "defaultValue": "Basic"
+    },
+    "ipAddressType": {
+      "type": "string",
+      "defaultValue": "Dynamic"
     }
   },
   "resources": [
@@ -39,5 +51,20 @@
         ]
       }
     }
-  ]
+  ],
+  "outputs": {
+    "ipAddressName": {
+      "type": "string",
+      "value": "[parameters('ipAddressName')]"
+    },
+    "ipAddressSku": {
+      "type": "string",
+      "value": "[parameters('ipAddressSku')]"
+    },
+     "ipAddressType": {
+      "type": "string",
+      "value": "[parameters('ipAddressType')]"
+    }
+  }
 }
+
