@@ -2,7 +2,7 @@
 All changes to this collection will be documented in this file.
 
 ## [TBD]
-* Set license file name based on HA or standalone [GH-193](https://github.com/jfrog/JFrog-Cloud-Installers/pull/193)
+* Set license file name based on HA or standalone [GH-197](https://github.com/jfrog/JFrog-Cloud-Installers/pull/197)
 
 ## [10.1.2] - Dec 23, 2021
 * Product Updates/fixes
