@@ -1,0 +1,111 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "nicPrimaryName": {
+        "type": "string"
+      },
+      "nicMemberName": {
+        "type": "string"
+      },
+      "pipPrimaryName": {
+        "type": "string"
+      },
+      "pipMemberName": {
+        "type": "string"
+      },
+      "virtualNetworkName": {
+        "type": "string"
+      },
+      "subnetPrimaryName": {
+        "type": "string"
+      },
+      "subnetmemberName": {
+        "type": "string"
+      },
+      "namingInfix": {
+        "type": "string"
+      },
+      "location": {
+        "type": "string"
+      }
+    },
+    "resources": [
+      {
+      "apiVersion": "2020-03-01",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[parameters('nicPrimaryName')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses/', parameters('pipPrimaryName'))]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetPrimaryName'))]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "2020-03-01",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[parameters('nicMemberName')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses/', parameters('pipMemberName'))]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetMemberName'))]"
+              }
+            }
+          }
+        ]
+      }
+    },
+      {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[parameters('pipPrimaryName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard"
+      },
+      "apiVersion": "2020-03-01",
+      "properties": {
+        "publicIPAllocationMethod": "Static",
+        "dnsSettings": {
+          "domainNameLabel": "[parameters('namingInfix')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[parameters('pipMemberName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard"
+      },
+      "apiVersion": "2020-03-01",
+      "properties": {
+        "publicIPAllocationMethod": "Static",
+        "dnsSettings": {
+          "domainNameLabel": "[concat(parameters('namingInfix'),'2')]"
+        }
+      }
+    }
+    
+    ]
+  }
+  
