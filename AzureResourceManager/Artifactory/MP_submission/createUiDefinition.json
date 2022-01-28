@@ -48,7 +48,79 @@
               "password": "Provide admin password for the virtual machine"
             },
             "visible": true
+          },
+          {
+            "name": "vnet",
+            "type": "Microsoft.Network.VirtualNetworkCombo",
+            "label": {
+              "virtualNetwork": "Virtual Network",
+              "subnets": "Subnets"
+            },
+            "defaultValue": {
+              "name": "artifactory-vm-test-vnet",
+              "addressPrefixSize": "/16"
+            },
+            "constraints": {
+              "minAddressPrefixSize": "/24"
+            },
+            "subnets": {
+              "subnet1": {
+                "label": "Subnet",
+                "defaultValue": {
+                  "name": "artifactory-vm-test-vnet-subnet",
+                  "addressPrefixSize": "/24"
+                },
+                "constraints": {
+                  "minAddressPrefixSize": "/29",
+                  "minAddressCount": 8,
+                  "requireContiguousAddresses": true
+                }
+              }
+            }
+          },
+          
+          {
+            "name": "infoMessage",
+            "type": "Microsoft.Common.InfoBox",
+            "visible": true,
+            "options": {
+              "icon": "Info",
+              "text": "You can select either private ip or public ip"
+            }
+          },
+                   {
+            "name": "ip_type",
+            "type": "Microsoft.Common.DropDown",
+            "label": "IP options",
+            "toolTip": "Deploy either Private ip or Public ip",
+            "constraints": {
+              "required": true,
+              "allowedValues": [
+                {
+                  "label": "Deploy a new Private IP",
+                  "value": "Private_ip.json"
+                },
+                {
+                  "label": "Deploy a new Public IP",
+                  "value": "Public_ip.json"
+                }
+              ]
+            },
+            "visible": true
+          },
+          {
+            "name": "ip_address",
+            "type": "Microsoft.Compute.UserNameTextBox",
+            "label": "IP Address",
+            "toolTip": "IP address to deploy",
+            "osPlatform": "Linux",
+            "constraints": {
+              "required": true,
+              "regex": "^[a-z0-9A-Z]{1,30}$",
+              "validationMessage": "Only alphanumeric characters are allowed, and the value must be 1-30 characters long."
+            }
           }
+        
         ]
       },
       {
@@ -582,3 +654,4 @@
     }
   }
 }
+
