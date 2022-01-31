@@ -524,7 +524,7 @@
         }
       }
     },
-        {
+    {
       "type": "Microsoft.Resources/deployments",
       "name": "deployIP",
       "apiVersion": "2020-06-01",
@@ -571,6 +571,15 @@
           },
           "privateMIp": {
             "value": "[reference(variables('nicMemberName')).ipConfigurations[0].properties.privateIPAddress]"
+          },
+          "lbname": {
+            "value": "[variables('lbName')]"
+          },
+          "feIpConfigPrimaryName": {
+            "value": "[variables('feIpConfigPrimaryName')]"
+          },
+          "feIpConfigMemberName": {
+            "value": "[variables('feIpConfigMemberName')]"
           }
         }
       }
@@ -590,24 +599,6 @@
         "displayName": "Load Balancer"
       },
       "properties": {
-        "frontendIPConfigurations": [
-          {
-            "name": "[variables('feIpConfigPrimaryName')]",
-            "properties": {
-              "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('pipPrimaryName'))]"
-              }
-            }
-          },
-          {
-            "name": "[variables('feIpConfigMemberName')]",
-            "properties": {
-              "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('pipMemberName'))]"
-              }
-            }
-          }
-        ],
         "backendAddressPools": [
           {
             "name": "[variables('bepoolPrimaryName')]"

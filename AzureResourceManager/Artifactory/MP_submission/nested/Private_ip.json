@@ -34,6 +34,15 @@
       },
       "privateMIp": {
         "type": "string"
+      },
+      "lbname": {
+        "type": "string"
+      },
+      "feIpConfigPrimaryName": {
+        "type": "string"
+      },
+      "feIpConfigMemberName": {
+        "type": "string"
       }
     },
     "resources": [
@@ -42,9 +51,6 @@
       "type": "Microsoft.Network/networkInterfaces",
       "name": "[parameters('nicPrimaryName')]",
       "location": "[parameters('location')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses/', parameters('pipPrimaryName'))]"
-      ],
       "properties": {
         "ipConfigurations": [
           {
@@ -65,9 +71,6 @@
       "type": "Microsoft.Network/networkInterfaces",
       "name": "[parameters('nicMemberName')]",
       "location": "[parameters('location')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses/', parameters('pipMemberName'))]"
-      ],
       "properties": {
         "ipConfigurations": [
           {
@@ -82,8 +85,39 @@
           }
         ]
       }
+    },
+    {
+      "type": "Microsoft.Network/loadBalancers",
+      "name": "[parameters('lbName')]",
+      "location": "[parameters('location')]",
+      "apiVersion": "2020-03-01",
+      "sku": {
+        "name": "Standard"
+      },
+      "tags":{
+        "displayName": "Load Balancer"
+      },
+      "properties": {
+        "frontendIPConfigurations": [
+          {
+            "name": "[parameters('feIpConfigPrimaryName')]",
+            "properties": {
+              "privateIPAddress": {
+                "id": "[resourceId(parameters('privatePIp'), parameters('pipPrimaryName'))]"
+              }
+            }
+          },
+          {
+            "name": "[parameters('feIpConfigMemberName')]",
+            "properties": {
+              "privateIPAddress": {
+                "id": "[resourceId(parameters('privateMIp'), parameters('pipMemberName'))]"
+              }
+            }
+          }
+        ]
+      }
     }
-    
     ],
     "outputs": {
     "namingInfix": {

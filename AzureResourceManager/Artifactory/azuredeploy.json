@@ -254,7 +254,25 @@
         "description": "The sasToken required to access _artifactsLocation.  When the template is deployed using the accompanying scripts, a sasToken will be automatically generated."
       },
       "defaultValue": ""
-    }
+    },
+    "ip_type":{
+      "type": "string",
+      "defaultValue": "Public_ip.json",
+      "allowedValues": [
+         "Public_ip.json",
+          "Private_ip.json"
+      ],
+      "metadata": {
+      "description": "Deploy new Private IP or Public IP"
+      } 
+    },
+    "virtualNetworkNewOrExisting": {
+            "type": "string",
+            "defaultValue": "new",
+            "metadata": {
+                "description": "Determines whether or not a new virtual network should be provisioned."
+            }
+        }
   },
   "variables": {
     "namingInfix": "[toLower(substring(concat(parameters('clusterName'), uniqueString(resourceGroup().id)), 0, 9))]",
@@ -319,7 +337,10 @@
     "imageReference": "[variables('osType')]",
     "dbTemplate": "[parameters('db_type')]",
     "dbTemplateLocation": "[uri(parameters('_artifactsLocation'), concat('nested/', variables('dbTemplate'), parameters('_artifactsLocationSasToken')))]",
-    "nsgName": "[concat(variables('namingInfix'), 'nsg')]"
+    "nsgName": "[concat(variables('namingInfix'), 'nsg')]",
+    "ipTemplate": "[parameters('ip_type')]",
+    "ipTemplateLocation": "[uri(parameters('_artifactsLocation'), concat('nested/', variables('ipTemplate'), parameters('_artifactsLocationSasToken')))]",
+    "ip_user": "[if(or(equals(parameters('ip_type'),'Public_ip.json'),equals(parameters('ip_type'),'Private_ip.json')),variables('pipPrimaryName'),variables('pipMemberName'))]"
   },
   "resources": [
     {
@@ -403,6 +424,7 @@
       }
     },
     {
+      "condition": "[equals(parameters('virtualNetworkNewOrExisting'), 'new')]",
       "type": "Microsoft.Network/virtualNetworks",
       "name": "[variables('virtualNetworkName')]",
       "location": "[parameters('location')]",
@@ -444,7 +466,6 @@
       "name": "[variables('nicPrimaryName')]",
       "location": "[parameters('location')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses/', variables('pipPrimaryName'))]",
         "[resourceId('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
         "[resourceId('Microsoft.Network/networkSecurityGroups/', variables('nsgName'))]"
       ],
@@ -453,7 +474,6 @@
           {
             "name": "ipconfig1",
             "properties": {
-              "privateIPAllocationMethod": "Dynamic",
               "subnet": {
                 "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('subnetPrimaryName'))]"
               }
@@ -471,7 +491,6 @@
       "name": "[variables('nicMemberName')]",
       "location": "[parameters('location')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses/', variables('pipMemberName'))]",
         "[resourceId('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
         "[resourceId('Microsoft.Network/networkSecurityGroups/', variables('nsgName'))]"
       ],
@@ -480,7 +499,6 @@
           {
             "name": "ipconfig1",
             "properties": {
-              "privateIPAllocationMethod": "Dynamic",
               "subnet": {
                 "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('subnetMemberName'))]"
               }
@@ -493,32 +511,62 @@
       }
     },
     {
-      "type": "Microsoft.Network/publicIPAddresses",
-      "name": "[variables('pipPrimaryName')]",
-      "location": "[parameters('location')]",
-      "sku": {
-        "name": "Standard"
-      },
-      "apiVersion": "2020-03-01",
+      "type": "Microsoft.Resources/deployments",
+      "name": "deployIP",
+      "apiVersion": "2020-06-01",
+      "dependsOn": [
+        "[variables('nicPrimaryName')]",
+        "[variables('nicMemberName')]"
+      ],
       "properties": {
-        "publicIPAllocationMethod": "Static",
-        "dnsSettings": {
-          "domainNameLabel": "[variables('namingInfix')]"
-        }
-      }
-    },
-    {
-      "type": "Microsoft.Network/publicIPAddresses",
-      "name": "[variables('pipMemberName')]",
-      "location": "[parameters('location')]",
-      "sku": {
-        "name": "Standard"
-      },
-      "apiVersion": "2020-03-01",
-      "properties": {
-        "publicIPAllocationMethod": "Static",
-        "dnsSettings": {
-          "domainNameLabel": "[concat(variables('namingInfix'),'2')]"
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('ipTemplateLocation')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "nicPrimaryName": {
+            "value": "[variables('nicPrimaryName')]"
+          },
+          "nicMemberName": {
+            "value": "[variables('nicMemberName')]"
+          },
+          "pipPrimaryName": {
+            "value": "[variables('pipPrimaryName')]"
+          },
+          "pipMemberName": {
+            "value": "[variables('pipMemberName')]"
+          },
+          "virtualNetworkName": {
+            "value": "[variables('virtualNetworkName')]"
+          },
+          "subnetPrimaryName": {
+            "value": "[variables('subnetPrimaryName')]"
+          },
+          "subnetMemberName": {
+            "value": "[variables('subnetMemberName')]"
+          },
+          "namingInfix": {
+            "value": "[variables('namingInfix')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "privatePIp": {
+            "value": "[reference(variables('nicPrimaryName')).ipConfigurations[0].properties.privateIPAddress]"
+          },
+          "privateMIp": {
+            "value": "[reference(variables('nicMemberName')).ipConfigurations[0].properties.privateIPAddress]"
+          },
+          "lbname": {
+            "value": "[variables('lbName')]"
+          },
+          "feIpConfigPrimaryName": {
+            "value": "[variables('feIpConfigPrimaryName')]"
+          },
+          "feIpConfigMemberName": {
+            "value": "[variables('feIpConfigMemberName')]"
+          }
         }
       }
     },
@@ -531,31 +579,12 @@
         "name": "Standard"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses/', variables('pipPrimaryName'))]",
-        "[resourceId('Microsoft.Network/publicIPAddresses/', variables('pipMemberName'))]"
+        "[resourceId('Microsoft.Resources/deployments', 'deployIP')]"
       ],
       "tags":{
         "displayName": "Load Balancer"
       },
       "properties": {
-        "frontendIPConfigurations": [
-          {
-            "name": "[variables('feIpConfigPrimaryName')]",
-            "properties": {
-              "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('pipPrimaryName'))]"
-              }
-            }
-          },
-          {
-            "name": "[variables('feIpConfigMemberName')]",
-            "properties": {
-              "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('pipMemberName'))]"
-              }
-            }
-          }
-        ],
         "backendAddressPools": [
           {
             "name": "[variables('bepoolPrimaryName')]"
@@ -967,3 +996,4 @@
     }
   }
 }
+

@@ -34,6 +34,15 @@
       },
       "privateMIp": {
         "type": "string"
+      },
+      "lbname": {
+        "type": "string"
+      },
+      "feIpConfigPrimaryName": {
+        "type": "string"
+      },
+      "feIpConfigMemberName": {
+        "type": "string"
       }
     },
     "resources": [
@@ -109,6 +118,42 @@
         "dnsSettings": {
           "domainNameLabel": "[concat(parameters('namingInfix'),'2')]"
         }
+      }
+    },
+    {
+      "type": "Microsoft.Network/loadBalancers",
+      "name": "[parameters('lbName')]",
+      "location": "[parameters('location')]",
+      "apiVersion": "2020-03-01",
+      "sku": {
+        "name": "Standard"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses/', parameters('pipPrimaryName'))]",
+        "[resourceId('Microsoft.Network/publicIPAddresses/', parameters('pipMemberName'))]"
+      ],
+      "tags":{
+        "displayName": "Load Balancer"
+      },
+      "properties": {
+        "frontendIPConfigurations": [
+          {
+            "name": "[parameters('feIpConfigPrimaryName')]",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('pipPrimaryName'))]"
+              }
+            }
+          },
+          {
+            "name": "[parameters('feIpConfigMemberName')]",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('pipMemberName'))]"
+              }
+            }
+          }
+        ]
       }
     }
     
