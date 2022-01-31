@@ -15,18 +15,12 @@
       }
       },
     "ipAddressName": {
-      "type": "string",
-      "defaultValue": "rt-public-ip"
+      "type": "string"
     },
     "ipAddressSku": {
-      "type": "string",
-      "defaultValue": "Basic"
+      "type": "string"
     },
     "ipAddressType": {
-      "type": "string",
-      "defaultValue": "Dynamic"
-    },
-    "privateIp": {
       "type": "string"
     }
   },
@@ -47,7 +41,7 @@
                             "subnet": {
                                 "id": "[parameters('subnetRef')]"
                             },
-                            "privateIPAllocationMethod": "Dynamic",
+                            "privateIPAllocationMethod": "[parameters('ipAddressType')]",
                             "publicIpAddress": {
                                 "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', parameters('ipAddressName'))]"
                             }
@@ -69,12 +63,5 @@
             }
         }
 
-  ],
-    "outputs": {
-    "privateIp": {
-      "type": "string",
-      "value": "[parameters('privateIp')]"
-    }
-  }
+  ]
 }
-

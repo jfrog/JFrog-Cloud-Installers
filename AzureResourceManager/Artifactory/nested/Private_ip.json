@@ -8,9 +8,6 @@
     "subnetRef": {
       "type": "string"
     },
-    "privateIp": {
-      "type": "string"
-    },
     "location": {
       "type": "string",
       "metadata": {
@@ -18,16 +15,13 @@
       }
     },
     "ipAddressName": {
-      "type": "string",
-      "defaultValue": "rt-private-ip"
+      "type": "string"
     },
     "ipAddressSku": {
-      "type": "string",
-      "defaultValue": "Basic"
+      "type": "string"
     },
     "ipAddressType": {
-      "type": "string",
-      "defaultValue": "Dynamic"
+      "type": "string"
     }
   },
   "resources": [
@@ -41,8 +35,8 @@
           {
             "name": "ipconfig1",
             "properties": {
-              "privateIPAllocationMethod": "Dynamic",
-              "privateIPAddress": "[parameters('privateIp')]",
+              "privateIPAllocationMethod": "[parameters('ipAddressType')]",
+              "privateIPAddress":"[reference(parameters('networkInterfaceName')).ipConfigurations[0].properties.privateIPAddress]",
               "subnet": {
                 "id": "[parameters('subnetRef')]"
               }
@@ -67,4 +61,3 @@
     }
   }
 }
-
