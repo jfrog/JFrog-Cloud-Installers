@@ -22,6 +22,9 @@
     },
     "ipAddressType": {
       "type": "string"
+    },
+    "privateIp": {
+      "type": "string"
     }
   },
   "resources": [
@@ -36,7 +39,7 @@
             "name": "ipconfig1",
             "properties": {
               "privateIPAllocationMethod": "[parameters('ipAddressType')]",
-              "privateIPAddress":"[parameters('networkInterfaceName').ipConfigurations[0].properties.privateIPAddress]",
+              "privateIPAddress":"[parameters('privateIp')]",
               "subnet": {
                 "id": "[parameters('subnetRef')]"
               }
