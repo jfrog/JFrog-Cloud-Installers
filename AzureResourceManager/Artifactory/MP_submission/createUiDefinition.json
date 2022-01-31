@@ -63,6 +63,9 @@
             "constraints": {
               "minAddressPrefixSize": "/24"
             },
+            "options": {
+              "hideExisting": false
+            },
             "subnets": {
               "subnet1": {
                 "label": "Subnet",
@@ -76,7 +79,8 @@
                   "requireContiguousAddresses": true
                 }
               }
-            }
+            },
+            "visible": true
           },
           
           {
@@ -88,7 +92,7 @@
               "text": "You can select either private ip or public ip"
             }
           },
-                   {
+          {
             "name": "ip_type",
             "type": "Microsoft.Common.DropDown",
             "label": "IP options",
@@ -650,7 +654,8 @@
       "db_user": "[steps('databaseConfig').db_user]",
       "db_password": "[steps('databaseConfig').db_password]",
       "db_edition": "[steps('databaseConfig').db_edition]",
-      "storageAccountType": "[steps('storageConfig').storageAccountsType]"
+      "storageAccountType": "[steps('storageConfig').storageAccountsType]",
+      "ip_type": "[steps('vmCredentials').ip_type]"
     }
   }
 }
