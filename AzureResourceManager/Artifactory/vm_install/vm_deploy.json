@@ -152,7 +152,8 @@
                     "properties": {
                         "subnet": {
                             "id": "[variables('subnetRef')]"
-                        }
+                        },
+                        "privateIPAllocationMethod": "Dynamic"
                     }
                 }],
                 "networkSecurityGroup": {
@@ -182,9 +183,6 @@
                     "SubnetRef": {
                         "value": "[variables('subnetRef')]"
                     },
-                    "privateIp": {
-                        "value": "[reference(parameters('networkInterfaceName')).ipConfigurations[0].properties.privateIPAddress]"
-                    },
                     "location":{
                         "value": "[parameters('location')]"
                     },
@@ -196,6 +194,9 @@
                     },
                     "ipAddressSku": {
                         "value": "[parameters('ipAddressSku')]"
+                    },
+		    "privateIp": {
+                        "value": "[reference(parameters('networkInterfaceName')).ipConfigurations[0].properties.privateIPAddress]"
                     }
                 }
             }
@@ -329,3 +330,4 @@
         }
     }
 }
+
