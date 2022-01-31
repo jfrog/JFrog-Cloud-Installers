@@ -28,6 +28,12 @@
       },
       "location": {
         "type": "string"
+      },
+      "privatePIp": {
+        "type": "string"
+      },
+      "privateMIp": {
+        "type": "string"
       }
     },
     "resources": [
@@ -45,7 +51,7 @@
             "name": "ipconfig1",
             "properties": {
               "privateIPAllocationMethod": "Dynamic",
-              "privateIPAddress": "[reference(parameters('nicPrimaryName')).ipConfigurations[0].properties.privateIPAddress]",
+              "privateIPAddress": "[parameters('privatePIp')]",
               "subnet": {
                 "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetPrimaryName'))]"
               }
@@ -68,7 +74,7 @@
             "name": "ipconfig1",
             "properties": {
               "privateIPAllocationMethod": "Dynamic",
-              "privateIPAddress": "[reference(parameters('nicPrimaryName')).ipConfigurations[0].properties.privateIPAddress]",
+              "privateIPAddress": "[parameters('privateMIp')]",
               "subnet": {
                 "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetMemberName'))]"
               }

@@ -28,6 +28,12 @@
       },
       "location": {
         "type": "string"
+      },
+      "privatePIp": {
+        "type": "string"
+      },
+      "privateMIp": {
+        "type": "string"
       }
     },
     "resources": [
@@ -106,6 +112,16 @@
       }
     }
     
-    ]
+    ],
+    "outputs": {
+      "privatePIp": {
+        "type": "string",
+        "value": "[parameters('privatePIp')]"
+      },
+      "privateMIp": {
+        "type": "string",
+        "value": "[parameters('privateMIp')]"
+      }
+    }
   }
   

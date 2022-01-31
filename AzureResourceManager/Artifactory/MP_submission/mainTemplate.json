@@ -565,6 +565,12 @@
           },
           "location": {
             "value": "[parameters('location')]"
+          },
+          "privatePIp": {
+            "value": "[reference(variables('nicPrimaryName')).ipConfigurations[0].properties.privateIPAddress]"
+          },
+          "privateMIp": {
+            "value": "[reference(variables('nicMemberName')).ipConfigurations[0].properties.privateIPAddress]"
           }
         }
       }
