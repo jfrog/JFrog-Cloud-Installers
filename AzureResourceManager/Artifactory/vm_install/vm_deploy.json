@@ -59,7 +59,7 @@
 
         "ip_type":{
             "type": "string",
-            "defaultValue": "Private_ip.json",
+            "defaultValue": "Public_ip.json",
             "allowedValues": [
                     "Public_ip.json",
                     "Private_ip.json"
