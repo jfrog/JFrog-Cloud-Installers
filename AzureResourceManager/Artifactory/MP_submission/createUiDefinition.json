@@ -111,18 +111,6 @@
               ]
             },
             "visible": true
-          },
-          {
-            "name": "ip_address",
-            "type": "Microsoft.Compute.UserNameTextBox",
-            "label": "IP Address",
-            "toolTip": "IP address to deploy",
-            "osPlatform": "Linux",
-            "constraints": {
-              "required": true,
-              "regex": "^[a-z0-9A-Z]{1,30}$",
-              "validationMessage": "Only alphanumeric characters are allowed, and the value must be 1-30 characters long."
-            }
           }
         
         ]
