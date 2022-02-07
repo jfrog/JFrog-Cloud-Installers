@@ -2,7 +2,11 @@
   become: yes
   block:
     - name: Ensure user ownership
-      command: find {{ jfrog_home_directory }} ! -user {{ artifactory_user }} -exec chown {{ artifactory_user }} {} \;
+      ansible.builtin.command: find {{ jfrog_home_directory }} ! -user {{ artifactory_user }} -print -exec chown {{ artifactory_user }} {} \;
+      register: user_ownerships
+      changed_when: user_ownerships.stdout_lines | length > 0
 
     - name: Ensure group ownership
-      command: find {{ jfrog_home_directory }} ! -group {{ artifactory_group }} -exec chgrp {{ artifactory_group }} {} \;
+      ansible.builtin.command: find {{ jfrog_home_directory }} ! -group {{ artifactory_group }} -print -exec chgrp {{ artifactory_group }} {} \;
+      register: group_ownerships
+      changed_when: user_ownerships.stdout_lines | length > 0
