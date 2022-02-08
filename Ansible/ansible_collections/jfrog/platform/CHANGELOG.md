@@ -1,6 +1,11 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [10.3.0] - Feb 8, 2022
+* Performance improvement for permission check [GH-192](https://github.com/jfrog/JFrog-Cloud-Installers/pull/192)
+* Fixed - Artifactory upgrade mode breaks existing installation [GH-194](https://github.com/jfrog/JFrog-Cloud-Installers/issues/194)
+* Product Updates/fixes
+
 ## [10.2.0] - Jan 31, 2022
 * Product Updates/fixes
 

@@ -48,18 +48,7 @@
   command: "cp -r {{ artifactory_untar_home }}/app/. {{ artifactory_home }}/app"
   when: download_artifactory.changed
 
-- name: Configure single license
-  become: yes
-  template:
-    src: artifactory.lic.j2
-    dest: "{{ artifactory_home }}/var/etc/artifactory/artifactory.lic"
-    mode: 0644
-  when:
-    - artifactory_single_license is defined
-    - artifactory_single_license | length > 0
-  notify: restart artifactory
-
-- name: Configure HA licenses
+- name: Configure artifactory license(s)
   become: yes
   template:
     src: artifactory.cluster.license.j2
@@ -126,12 +115,7 @@
   notify: restart artifactory
 
 - name: Ensure permissions are correct
-  become: yes
-  file:
-    path: "{{ jfrog_home_directory }}"
-    group: "{{ artifactory_group }}"
-    owner: "{{ artifactory_user }}"
-    recurse: yes
+  include_tasks: shared/ensure_permissions_correct.yml
 
 - name: Restart artifactory
   meta: flush_handlers
