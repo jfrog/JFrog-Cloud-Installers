@@ -190,12 +190,7 @@
     creates: "{{ artifactory_service_file }}"
 
 - name: Ensure permissions are correct
-  become: yes
-  file:
-    path: "{{ jfrog_home_directory }}"
-    group: "{{ artifactory_group }}"
-    owner: "{{ artifactory_user }}"
-    recurse: yes
+  include_tasks: shared/ensure_permissions_correct.yml
 
 - name: Restart artifactory
   meta: flush_handlers
