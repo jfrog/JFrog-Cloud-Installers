@@ -1,6 +1,9 @@
 # JFrog  Openshift Artifactory-Xray Chart Changelog
 All changes to this chart will be documented in this file.
 
+## [103.35.0] Dec 12, 2021
+* Updating to Xray chart version 103.35.0 and Xray app version 3.35.0
+
 ## [103.33.3] Oct 06, 2021
 * Updating to Xray chart version 103.33.3 and Xray app version 3.33.3
 
