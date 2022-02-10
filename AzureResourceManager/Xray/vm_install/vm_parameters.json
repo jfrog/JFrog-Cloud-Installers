@@ -87,10 +87,10 @@
             "value": "vmuser"
         },
         "adminPassword": {
-            "value": "OWERWRITE_THE_PASSWORD"
+            "value": "Password!123"
         },
         "xrayVersion": {
-            "value": "OWERWRITE_LATEST_VERSION"
+            "value": "3.41.4"
         },
         "scriptName": {
             "value": "install_xray_to_vm.sh"
