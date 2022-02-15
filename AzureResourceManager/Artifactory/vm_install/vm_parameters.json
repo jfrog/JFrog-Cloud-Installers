@@ -87,10 +87,10 @@
             "value": "vmuser"
         },
         "adminPassword": {
-            "value": "OWERWRITE_THE_PASSWORD"
+            "value": "7.34.4"
         },
         "artifactoryVersion": {
-            "value": "OWERWRITE_LATEST_VERSION"
+            "value": "Password!123"
         },
         "scriptName": {
             "value": "install_pro7_to_vm.sh"
