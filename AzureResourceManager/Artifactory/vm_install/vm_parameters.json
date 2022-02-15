@@ -87,10 +87,10 @@
             "value": "vmuser"
         },
         "adminPassword": {
-            "value": "7.34.4"
+            "value": "Password!123"
         },
         "artifactoryVersion": {
-            "value": "Password!123"
+            "value": "7.34.4"
         },
         "scriptName": {
             "value": "install_pro7_to_vm.sh"
