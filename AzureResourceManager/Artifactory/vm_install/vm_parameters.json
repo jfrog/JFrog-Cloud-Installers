@@ -90,7 +90,7 @@
             "value": "Password!123"
         },
         "artifactoryVersion": {
-            "value": "7.33.9"
+            "value": "7.33.12"
         },
         "scriptName": {
             "value": "install_pro7_to_vm.sh"
