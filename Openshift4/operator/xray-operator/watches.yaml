@@ -3,10 +3,3 @@
   group: charts.helm.k8s.io
   kind: OpenshiftXray
   chart: helm-charts/openshift-xray
-  overrideValues:
-    xray.server.image.override: $RELATED_IMAGE_XRAY_SERVER_IMAGE_REPOSITORY
-    xray.analysis.image.override: $RELATED_IMAGE_XRAY_ANALYSIS_IMAGE_REPOSITORY
-    xray.persist.image.override: $RELATED_IMAGE_XRAY_PERSIST_IMAGE_REPOSITORY
-    xray.indexer.image.override: $RELATED_IMAGE_XRAY_INDEXER_IMAGE_REPOSITORY
-    xray.router.image.override: $RELATED_IMAGE_XRAY_ROUTER_IMAGE_REPOSITORY
-    xray.rabbitmq-ha.image.override: $RELATED_IMAGE_XRAY_RABBITMQ_IMAGE_REPOSITORY

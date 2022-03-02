@@ -12,13 +12,12 @@ LABEL name="JFrog Artifactory Enterprise Operator" \
 USER root
 
 RUN microdnf install yum \
-     && yum -y update-minimal --security --sec-severity=Important --sec-severity=Critical \
-     && yum clean all \
-     && microdnf remove yum \
-     && microdnf clean all \
-     && microdnf install gnutls \
-     && microdnf install nettle  \
-     && microdnf update openssl-libs 
+      && yum -y update-minimal --security --sec-severity=Important --sec-severity=Critical \
+      && yum clean all \
+      && microdnf clean all \
+      && microdnf install gnutls \
+      && microdnf install nettle  \
+      && microdnf update openssl-libs 
 
 RUN microdnf install sudo 
 RUN sudo -u helm bash

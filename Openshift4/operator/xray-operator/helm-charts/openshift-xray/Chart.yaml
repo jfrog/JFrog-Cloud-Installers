@@ -1,20 +1,22 @@
 apiVersion: v2
-appVersion: 3.35.0
+appVersion: 3.43.1
 description: Universal component scan for security and license inventory and impact analysis
 dependencies:
   - name: xray
-    version: 103.35.0
+    version: 103.43.1
     repository: https://charts.jfrog.io/
 sources:
-- https://bintray.com/jfrog/product/xray/view
-- https://github.com/jfrog/charts
+  - https://bintray.com/jfrog/product/xray/view
+  - https://github.com/jfrog/charts
 keywords:
-- xray
-- jfrog
+  - xray
+  - jfrog
 maintainers:
-- email: vinaya@jfrog.com
-  name: Vinay Aggarwal
-- email: johnp@jfrog.com
-  name: John Peterson
+  - email: girir@jfrog.com
+    name: Giridharan Ramasamy
+  - email: vinaya@jfrog.com
+    name: Vinay Aggarwal
+  - email: johnp@jfrog.com
+    name: John Peterson
 name: openshift-xray
-version: 103.35.0
+version: 103.43.1
