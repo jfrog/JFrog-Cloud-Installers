@@ -1,6 +1,9 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [10.9.0] - Sep 31, 2022
+* added amazonlinux 2 compatibility.
+
 ## [10.8.2] - Aug 10, 2022
 * Product Updates/fixes
 
