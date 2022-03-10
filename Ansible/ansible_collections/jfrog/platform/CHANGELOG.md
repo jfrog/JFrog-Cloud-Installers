@@ -1,7 +1,11 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
-## [10.3.2] - Feb 28, 2022
+## [10.4.0] - Mar 9, 2022
+* Removed suport for ubuntu 16 LTS version
+* Product Updates/fixes
+
+## [10.3.2] - Feb 18, 2022
 * Product Updates/fixes
 
 ## [10.3.1] - Feb 17, 2022
