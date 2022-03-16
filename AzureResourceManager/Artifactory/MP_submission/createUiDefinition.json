@@ -50,40 +50,6 @@
             "visible": true
           },
           {
-            "name": "vnet",
-            "type": "Microsoft.Network.VirtualNetworkCombo",
-            "label": {
-              "virtualNetwork": "Virtual Network",
-              "subnets": "Subnets"
-            },
-            "defaultValue": {
-              "name": "artifactory-vm-test-vnet",
-              "addressPrefixSize": "/16"
-            },
-            "constraints": {
-              "minAddressPrefixSize": "/24"
-            },
-            "options": {
-              "hideExisting": false
-            },
-            "subnets": {
-              "subnet1": {
-                "label": "Subnet",
-                "defaultValue": {
-                  "name": "artifactory-vm-test-vnet-subnet",
-                  "addressPrefixSize": "/24"
-                },
-                "constraints": {
-                  "minAddressPrefixSize": "/29",
-                  "minAddressCount": 8,
-                  "requireContiguousAddresses": true
-                }
-              }
-            },
-            "visible": true
-          },
-          
-          {
             "name": "infoMessage",
             "type": "Microsoft.Common.InfoBox",
             "visible": true,
@@ -112,7 +78,6 @@
             },
             "visible": true
           }
-        
         ]
       },
       {
