@@ -43,6 +43,9 @@
     "db_server": {
       "value": "postgressrvr"
     },
+    "ip_type": {
+        "value": "Public_ip.json"
+    },
     "masterKey": {
       "value": "GENERATE_MASTER_KEY"
     },
