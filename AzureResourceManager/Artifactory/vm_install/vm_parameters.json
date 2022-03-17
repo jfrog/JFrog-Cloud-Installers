@@ -49,6 +49,15 @@
                 }
             ]
         },
+        "ipAddressName": {
+            "value": "rt-public-ip"
+        },
+        "ipAddressType": {
+           "value": "Dynamic"
+        },
+        "ipAddressSku": {
+            "value": "Basic"
+        },
         "virtualMachineName": {
             "value": "artifactory-vm"
         },
