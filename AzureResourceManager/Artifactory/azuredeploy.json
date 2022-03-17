@@ -246,7 +246,7 @@
       "metadata": {
         "description": "The base URI where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
       },
-      "defaultValue": "https://raw.githubusercontent.com/jfrog/JFrog-Cloud-Installers/master/AzureResourceManager/Artifactory/"
+      "defaultValue": "https://raw.githubusercontent.com/jfrog/JFrog-Cloud-Installers/azure-setprivateip/AzureResourceManager/Artifactory/"
     },
     "_artifactsLocationSasToken": {
       "type": "securestring",
@@ -265,14 +265,7 @@
       "metadata": {
       "description": "Deploy new Private IP or Public IP"
       }
-    },
-    "virtualNetworkNewOrExisting": {
-            "type": "string",
-            "defaultValue": "new",
-            "metadata": {
-                "description": "Determines whether or not a new virtual network should be provisioned."
-            }
-        }
+    }
   },
   "variables": {
     "namingInfix": "[toLower(substring(concat(parameters('clusterName'), uniqueString(resourceGroup().id)), 0, 9))]",
@@ -424,7 +417,6 @@
       }
     },
     {
-      "condition": "[equals(parameters('virtualNetworkNewOrExisting'), 'new')]",
       "type": "Microsoft.Network/virtualNetworks",
       "name": "[variables('virtualNetworkName')]",
       "location": "[parameters('location')]",
@@ -513,7 +505,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "name": "deployIP",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2019-09-01",
       "dependsOn": [
         "[variables('nicPrimaryName')]",
         "[variables('nicMemberName')]"

@@ -1,66 +1,129 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "contentVersion": "1.0.0.0",
-  "parameters": {
-    "networkInterfaceName": {
-      "type": "string"
-    },
-    "subnetRef": {
-      "type": "string"
-    },
-    "location": {
-      "type": "string",
-      "metadata": {
-        "description": "Location for all resources."
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "nicPrimaryName": {
+        "type": "string"
+      },
+      "nicMemberName": {
+        "type": "string"
+      },
+      "pipPrimaryName": {
+        "type": "string"
+      },
+      "pipMemberName": {
+        "type": "string"
+      },
+      "virtualNetworkName": {
+        "type": "string"
+      },
+      "subnetPrimaryName": {
+        "type": "string"
+      },
+      "subnetmemberName": {
+        "type": "string"
+      },
+      "namingInfix": {
+        "type": "string"
+      },
+      "location": {
+        "type": "string"
+      },
+      "privatePIp": {
+        "type": "string"
+      },
+      "privateMIp": {
+        "type": "string"
+      },
+      "lbname": {
+        "type": "string"
+      },
+      "feIpConfigPrimaryName": {
+        "type": "string"
+      },
+      "feIpConfigMemberName": {
+        "type": "string"
       }
     },
-    "ipAddressName": {
-      "type": "string"
-    },
-    "ipAddressSku": {
-      "type": "string"
-    },
-    "ipAddressType": {
-      "type": "string"
-    },
-    "privateIp": {
-      "type": "string"
-    }
-  },
-  "resources": [
-    {
+    "resources": [
+      {
+      "apiVersion": "2020-03-01",
       "type": "Microsoft.Network/networkInterfaces",
-      "name": "[parameters('networkInterfaceName')]",
-      "apiVersion": "2020-05-01",
+      "name": "[parameters('nicPrimaryName')]",
       "location": "[parameters('location')]",
       "properties": {
         "ipConfigurations": [
           {
             "name": "ipconfig1",
             "properties": {
-              "privateIPAllocationMethod": "[parameters('ipAddressType')]",
-              "privateIPAddress":"[parameters('privateIp')]",
+              "privateIPAllocationMethod": "Dynamic",
+              "privateIPAddress": "[parameters('privatePIp')]",
               "subnet": {
-                "id": "[parameters('subnetRef')]"
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetPrimaryName'))]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "2020-03-01",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[parameters('nicMemberName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "privateIPAddress": "[parameters('privateMIp')]",
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetMemberName'))]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/loadBalancers",
+      "name": "[parameters('lbName')]",
+      "location": "[parameters('location')]",
+      "apiVersion": "2020-03-01",
+      "sku": {
+        "name": "Standard"
+      },
+      "tags":{
+        "displayName": "Load Balancer"
+      },
+      "properties": {
+        "frontendIPConfigurations": [
+          {
+            "name": "[parameters('feIpConfigPrimaryName')]",
+            "properties": {
+              "privateIPAddress": {
+                "id": "[resourceId(parameters('privatePIp'), parameters('pipPrimaryName'))]"
+              }
+            }
+          },
+          {
+            "name": "[parameters('feIpConfigMemberName')]",
+            "properties": {
+              "privateIPAddress": {
+                "id": "[resourceId(parameters('privateMIp'), parameters('pipMemberName'))]"
               }
             }
           }
         ]
       }
     }
-  ],
-  "outputs": {
-    "ipAddressName": {
+    ],
+    "outputs": {
+    "namingInfix": {
       "type": "string",
-      "value": "[parameters('ipAddressName')]"
-    },
-    "ipAddressSku": {
-      "type": "string",
-      "value": "[parameters('ipAddressSku')]"
-    },
-     "ipAddressType": {
-      "type": "string",
-      "value": "[parameters('ipAddressType')]"
+      "value": "[parameters('namingInfix')]"
+    }
     }
   }
-}
+  
