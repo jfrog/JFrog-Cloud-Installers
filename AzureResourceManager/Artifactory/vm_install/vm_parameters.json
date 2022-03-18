@@ -49,13 +49,13 @@
                 }
             ]
         },
-        "ipAddressName": {
+        "publicIpAddressName": {
             "value": "rt-public-ip"
         },
-        "ipAddressType": {
-           "value": "Dynamic"
+        "publicIpAddressType": {
+            "value": "Dynamic"
         },
-        "ipAddressSku": {
+        "publicIpAddressSku": {
             "value": "Basic"
         },
         "virtualMachineName": {
@@ -97,4 +97,3 @@
         }
     }
 }
-
