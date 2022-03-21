@@ -351,14 +351,10 @@
     
     ],
     "outputs": {
-      "privatePIp": {
-        "type": "string",
-        "value": "[parameters('privatePIp')]"
-      },
-      "privateMIp": {
-        "type": "string",
-        "value": "[parameters('privateMIp')]"
-      }
+       "fqdn": {
+      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses',parameters('pipPrimaryName')),'2018-07-01').dnsSettings.fqdn]",
+      "type": "string"
+    }
     }
   }
   
