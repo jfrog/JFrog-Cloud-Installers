@@ -505,7 +505,7 @@
     {
     "type": "Microsoft.Resources/deployments",
     "name": "deployIP",
-    "apiVersion": "2020-06-01",
+    "apiVersion": "2019-04-01",
     "properties": {
         "mode": "Incremental",
         "templateLink": {
@@ -554,187 +554,46 @@
           },
           "feIpConfigMemberName": {
             "value": "[variables('feIpConfigMemberName')]"
+          },
+          "bepoolPrimaryName": {
+            "value": "[variables('bepoolPrimaryName')]"
+          },
+          "bepoolMemberName": {
+            "value": "[variables('bepoolMemberName')]"
+          },
+          "natPoolPrimaryName": {
+            "value": "[variables('natPoolPrimaryName')]"
+          },
+          "feIpConfigPrimaryId": {
+            "value": "[variables('feIpConfigPrimaryId')]"
+          },
+          "natPoolMemberName": {
+            "value": "[variables('natPoolMemberName')]"
+          },
+          "feIpConfigMemberId": {
+            "value": "[variables('feIpConfigMemberId')]"
+          },
+          "bepoolPrimaryID": {
+            "value": "[variables('bepoolPrimaryID')]"
+          },
+          "bepoolMemberID": {
+            "value": "[variables('bepoolMemberID')]"
+          },
+          "httpProbePrimaryName": {
+            "value": "[variables('httpProbePrimaryName')]"
+          },
+          "httpsProbePrimaryName": {
+            "value": "[variables('httpsProbePrimaryName')]"
+          },
+          "httpProbeMemberName": {
+            "value": "[variables('httpProbeMemberName')]"
+          },
+          "httpsProbeMemberName": {
+            "value": "[variables('httpsProbeMemberName')]"
           }
         }
-      },
-    "dependsOn": [
-      "[variables('nicPrimaryName')]",
-      "[variables('nicMemberName')]"
-    ]
-  },
-    {
-      "type": "Microsoft.Network/loadBalancers",
-      "name": "[variables('lbName')]",
-      "location": "[parameters('location')]",
-      "apiVersion": "2020-03-01",
-      "sku": {
-        "name": "Standard"
-      },
-      "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', 'deployIP')]"
-      ],
-      "tags":{
-        "displayName": "Load Balancer"
-      },
-      "properties": {
-        "backendAddressPools": [
-          {
-            "name": "[variables('bepoolPrimaryName')]"
-          },
-          {
-            "name": "[variables('bepoolMemberName')]"
-          }
-        ],
-        "inboundNatPools": [
-          {
-            "name": "[variables('natPoolPrimaryName')]",
-            "properties": {
-              "frontendIPConfiguration": {
-                "id": "[variables('feIpConfigPrimaryId')]"
-              },
-              "protocol": "tcp",
-              "frontendPortRangeStart": 10022,
-              "frontendPortRangeEnd": 11022,
-              "backendPort": 22
-            }
-          },
-          {
-            "name": "[variables('natPoolMemberName')]",
-            "properties": {
-              "frontendIPConfiguration": {
-                "id": "[variables('feIpConfigMemberId')]"
-              },
-              "protocol": "tcp",
-              "frontendPortRangeStart": 20022,
-              "frontendPortRangeEnd": 21022,
-              "backendPort": 22
-            }
-          }
-        ],
-        "loadBalancingRules": [
-          {
-            "name": "HTTPRulePrimary",
-            "properties": {
-              "loadDistribution": "Default",
-              "frontendIPConfiguration": {
-                "id": "[variables('feIpConfigPrimaryId')]"
-              },
-              "backendAddressPool": {
-                "id": "[variables('bepoolPrimaryID')]"
-              },
-              "protocol": "Tcp",
-              "frontendPort": 80,
-              "backendPort": 80,
-              "enableFloatingIP": false,
-              "idleTimeoutInMinutes": 5,
-              "probe": {
-                "id": "[resourceId('Microsoft.Network/loadBalancers/probes', variables('lbName'), variables('httpProbePrimaryName'))]"
-              }
-            }
-          },
-          {
-            "name": "HTTPSRulePrimary",
-            "properties": {
-              "loadDistribution": "Default",
-              "frontendIPConfiguration": {
-                "id": "[variables('feIpConfigPrimaryId')]"
-              },
-              "backendAddressPool": {
-                "id": "[variables('bepoolPrimaryID')]"
-              },
-              "protocol": "Tcp",
-              "frontendPort": 443,
-              "backendPort": 443,
-              "enableFloatingIP": false,
-              "idleTimeoutInMinutes": 5,
-              "probe": {
-                "id": "[resourceId('Microsoft.Network/loadBalancers/probes', variables('lbName'), variables('httpsProbePrimaryName'))]"
-              }
-            }
-          },
-          {
-            "name": "HTTPRuleMember",
-            "properties": {
-              "loadDistribution": "Default",
-              "frontendIPConfiguration": {
-                "id": "[variables('feIpConfigMemberId')]"
-              },
-              "backendAddressPool": {
-                "id": "[variables('bepoolMemberID')]"
-              },
-              "protocol": "Tcp",
-              "frontendPort": 80,
-              "backendPort": 80,
-              "enableFloatingIP": false,
-              "idleTimeoutInMinutes": 5,
-              "probe": {
-                "id": "[resourceId('Microsoft.Network/loadBalancers/probes', variables('lbName'), variables('httpProbeMemberName'))]"
-              }
-            }
-          },
-          {
-            "name": "HTTPSRuleMember",
-            "properties": {
-              "loadDistribution": "Default",
-              "frontendIPConfiguration": {
-                "id": "[variables('feIpConfigMemberId')]"
-              },
-              "backendAddressPool": {
-                "id": "[variables('bepoolMemberID')]"
-              },
-              "protocol": "Tcp",
-              "frontendPort": 443,
-              "backendPort": 443,
-              "enableFloatingIP": false,
-              "idleTimeoutInMinutes": 5,
-              "probe": {
-                "id": "[resourceId('Microsoft.Network/loadBalancers/probes', variables('lbName'), variables('httpsProbeMemberName'))]"
-              }
-            }
-          }
-        ],
-        "probes": [
-          {
-            "name": "[variables('httpProbePrimaryName')]",
-            "properties": {
-              "protocol": "Http",
-              "requestPath": "/artifactory/api/system/ping",
-              "port": 80,
-              "intervalInSeconds": 60,
-              "numberOfProbes": 5
-            }
-          },
-          {
-            "name": "[variables('httpsProbePrimaryName')]",
-            "properties": {
-              "protocol": "Tcp",
-              "port": 443,
-              "intervalInSeconds": 60,
-              "numberOfProbes": 5
-            }
-          },
-          {
-            "name": "[variables('httpProbeMemberName')]",
-            "properties": {
-              "protocol": "Http",
-              "requestPath": "/artifactory/api/system/ping",
-              "port": 80,
-              "intervalInSeconds": 60,
-              "numberOfProbes": 5
-            }
-          },
-          {
-            "name": "[variables('httpsProbeMemberName')]",
-            "properties": {
-              "protocol": "Tcp",
-              "port": 443,
-              "intervalInSeconds": 60,
-              "numberOfProbes": 5
-            }
-          }
-        ]
       }
-    },
+  },
     {
       "apiVersion": "2019-06-01",
       "type": "Microsoft.Storage/storageAccounts",
@@ -793,7 +652,7 @@
       "location": "[parameters('location')]",
       "apiVersion": "2020-06-01",
       "dependsOn": [
-        "[resourceId('Microsoft.Network/loadBalancers/', variables('lbName'))]",
+        "[resourceId('Microsoft.Resources/deployments/', 'deployIP')]",
         "[resourceId('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
         "[resourceId('Microsoft.Resources/deployments/', 'deploySQLDB')]",
         "[resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]"
@@ -889,7 +748,7 @@
       "location": "[parameters('location')]",
       "apiVersion": "2020-06-01",
       "dependsOn": [
-        "[resourceId('Microsoft.Network/loadBalancers/', variables('lbName'))]",
+        "[resourceId('Microsoft.Resources/deployments/', 'deployIP')]",
         "[resourceId('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
         "[resourceId('Microsoft.Compute/virtualMachineScaleSets/', variables('scaleSetPrimaryName'))]",
         "[resourceId('Microsoft.Resources/deployments/', 'deploySQLDB')]",

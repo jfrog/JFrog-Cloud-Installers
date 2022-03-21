@@ -43,6 +43,42 @@
       },
       "feIpConfigMemberName": {
         "type": "string"
+      },
+      "bepoolPrimaryName": {
+        "type": "string"
+      },
+      "bePoolMemberName": {
+        "type": "string"
+      },
+      "natPoolPrimaryName": {
+        "type": "string"
+      },
+      "feIpConfigPrimaryId": {
+        "type": "string"
+      },
+      "natPoolMemberName": {
+        "type": "string"
+      },
+      "feIpConfigMemberId": {
+        "type": "string"
+      },
+      "bepoolPrimaryID": {
+        "type": "string"
+      },
+      "bepoolMemberID": {
+        "type": "string"
+      },
+      "httpProbePrimaryName": {
+        "type": "string"
+      },
+      "httpsProbePrimaryName": {
+        "type": "string"
+      },
+      "httpProbeMemberName": {
+        "type": "string"
+      },
+      "httpsProbeMemberName": {
+        "type": "string"
       }
     },
     "resources": [
@@ -113,6 +149,162 @@
               "privateIPAddress": {
                 "id": "[resourceId(parameters('privateMIp'), parameters('pipMemberName'))]"
               }
+            }
+          }
+        ],
+        "backendAddressPools": [
+          {
+            "name": "[parameters('bepoolPrimaryName')]"
+          },
+          {
+            "name": "[parameters('bepoolMemberName')]"
+          }
+        ],
+        "inboundNatPools": [
+          {
+            "name": "[parameters('natPoolPrimaryName')]",
+            "properties": {
+              "frontendIPConfiguration": {
+                "id": "[parameters('feIpConfigPrimaryId')]"
+              },
+              "protocol": "tcp",
+              "frontendPortRangeStart": 10022,
+              "frontendPortRangeEnd": 11022,
+              "backendPort": 22
+            }
+          },
+          {
+            "name": "[parameters('natPoolMemberName')]",
+            "properties": {
+              "frontendIPConfiguration": {
+                "id": "[parameters('feIpConfigMemberId')]"
+              },
+              "protocol": "tcp",
+              "frontendPortRangeStart": 20022,
+              "frontendPortRangeEnd": 21022,
+              "backendPort": 22
+            }
+          }
+        ],
+        "loadBalancingRules": [
+          {
+            "name": "HTTPRulePrimary",
+            "properties": {
+              "loadDistribution": "Default",
+              "frontendIPConfiguration": {
+                "id": "[parameters('feIpConfigPrimaryId')]"
+              },
+              "backendAddressPool": {
+                "id": "[parameters('bepoolPrimaryID')]"
+              },
+              "protocol": "Tcp",
+              "frontendPort": 80,
+              "backendPort": 80,
+              "enableFloatingIP": false,
+              "idleTimeoutInMinutes": 5,
+              "probe": {
+                "id": "[resourceId('Microsoft.Network/loadBalancers/probes', parameters('lbName'), parameters('httpProbePrimaryName'))]"
+              }
+            }
+          },
+          {
+            "name": "HTTPSRulePrimary",
+            "properties": {
+              "loadDistribution": "Default",
+              "frontendIPConfiguration": {
+                "id": "[parameters('feIpConfigPrimaryId')]"
+              },
+              "backendAddressPool": {
+                "id": "[parameters('bepoolPrimaryID')]"
+              },
+              "protocol": "Tcp",
+              "frontendPort": 443,
+              "backendPort": 443,
+              "enableFloatingIP": false,
+              "idleTimeoutInMinutes": 5,
+              "probe": {
+                "id": "[resourceId('Microsoft.Network/loadBalancers/probes', parameters('lbName'), parameters('httpsProbePrimaryName'))]"
+              }
+            }
+          },
+          {
+            "name": "HTTPRuleMember",
+            "properties": {
+              "loadDistribution": "Default",
+              "frontendIPConfiguration": {
+                "id": "[parameters('feIpConfigMemberId')]"
+              },
+              "backendAddressPool": {
+                "id": "[parameters('bepoolMemberID')]"
+              },
+              "protocol": "Tcp",
+              "frontendPort": 80,
+              "backendPort": 80,
+              "enableFloatingIP": false,
+              "idleTimeoutInMinutes": 5,
+              "probe": {
+                "id": "[resourceId('Microsoft.Network/loadBalancers/probes', parameters('lbName'), parameters('httpProbeMemberName'))]"
+              }
+            }
+          },
+          {
+            "name": "HTTPSRuleMember",
+            "properties": {
+              "loadDistribution": "Default",
+              "frontendIPConfiguration": {
+                "id": "[parameters('feIpConfigMemberId')]"
+              },
+              "backendAddressPool": {
+                "id": "[parameters('bepoolMemberID')]"
+              },
+              "protocol": "Tcp",
+              "frontendPort": 443,
+              "backendPort": 443,
+              "enableFloatingIP": false,
+              "idleTimeoutInMinutes": 5,
+              "probe": {
+                "id": "[resourceId('Microsoft.Network/loadBalancers/probes', parameters('lbName'), parameters('httpsProbeMemberName'))]"
+              }
+            }
+          }
+        ],
+        "probes": [
+          {
+            "name": "[parameters('httpProbePrimaryName')]",
+            "properties": {
+              "protocol": "Http",
+              "requestPath": "/artifactory/api/system/ping",
+              "port": 80,
+              "intervalInSeconds": 60,
+              "numberOfProbes": 5
+            }
+          },
+          {
+            "name": "[parameters('httpsProbePrimaryName')]",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 443,
+              "intervalInSeconds": 60,
+              "numberOfProbes": 5
+            }
+          },
+          {
+            "name": "[parameters('httpProbeMemberName')]",
+            "properties": {
+              "protocol": "Http",
+              "requestPath": "/artifactory/api/system/ping",
+              "port": 80,
+              "intervalInSeconds": 60,
+              "numberOfProbes": 5
+            }
+          },
+          {
+            "name": "[parameters('httpsProbeMemberName')]",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 443,
+              "intervalInSeconds": 60,
+              "numberOfProbes": 5
             }
           }
         ]
