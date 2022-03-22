@@ -130,10 +130,6 @@
       "sku": {
         "name": "Standard"
       },
-       "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses/', parameters('pipPrimaryName'))]",
-        "[resourceId('Microsoft.Network/publicIPAddresses/', parameters('pipMemberName'))]"
-      ],
       "tags":{
         "displayName": "Load Balancer"
       },
@@ -144,8 +140,8 @@
             "properties": {
               "privateIPAllocationMethod": "Dynamic",
               "privateIPAddress": "[parameters('privatePIp')]",
-              "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('pipPrimaryName'))]"
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetPrimaryName'))]"
               }
             }
           },
@@ -154,8 +150,8 @@
             "properties": {
               "privateIPAllocationMethod": "Dynamic",
               "privateIPAddress": "[parameters('privateMIp')]",
-              "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('pipMemberName'))]"
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetMemberName'))]"
               }
             }
           }
