@@ -140,8 +140,8 @@
             "properties": {
               "privateIPAllocationMethod": "Dynamic",
               "privateIPAddress": "[parameters('privatePIp')]",
-              "subnet": {
-                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetPrimaryName'))]"
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('pipPrimaryName'))]"
               }
             }
           },
@@ -150,8 +150,8 @@
             "properties": {
               "privateIPAllocationMethod": "Dynamic",
               "privateIPAddress": "[parameters('privateMIp')]",
-              "subnet": {
-                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetMemberName'))]"
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('pipMemberName'))]"
               }
             }
           }
