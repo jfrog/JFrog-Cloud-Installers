@@ -139,14 +139,20 @@
             "name": "[parameters('feIpConfigPrimaryName')]",
             "properties": {
               "privateIPAllocationMethod": "Dynamic",
-              "privateIPAddress": "[parameters('privatePIp')]"
+              "privateIPAddress": "[parameters('privatePIp')]",
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetPrimaryName'))]"
+              }
             }
           },
           {
             "name": "[parameters('feIpConfigMemberName')]",
             "properties": {
               "privateIPAllocationMethod": "Dynamic",
-              "privateIPAddress": "[parameters('privateMIp')]"
+              "privateIPAddress": "[parameters('privateMIp')]",
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetMemberName'))]"
+              }
             }
           }
         ],
