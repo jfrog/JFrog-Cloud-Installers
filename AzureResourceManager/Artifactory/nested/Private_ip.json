@@ -312,10 +312,14 @@
     }
     ],
     "outputs": {
-    "namingInfix": {
-      "type": "string",
-      "value": "[parameters('namingInfix')]"
+      "privatePIp": {
+        "type": "string",
+        "value": "[parameters('privatePIp')]"
+      },
+      "privateMIp": {
+        "type": "string",
+        "value": "[parameters('privateMIp')]"
+      }
     }
-    }
-  }
+}
   
