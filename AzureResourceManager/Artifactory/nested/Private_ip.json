@@ -130,6 +130,10 @@
       "sku": {
         "name": "Standard"
       },
+       "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses/', parameters('pipPrimaryName'))]",
+        "[resourceId('Microsoft.Network/publicIPAddresses/', parameters('pipMemberName'))]"
+      ],
       "tags":{
         "displayName": "Load Balancer"
       },
