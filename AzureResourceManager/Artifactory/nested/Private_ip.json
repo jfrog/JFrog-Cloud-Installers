@@ -138,17 +138,15 @@
           {
             "name": "[parameters('feIpConfigPrimaryName')]",
             "properties": {
-              "privateIPAddress": {
-                "id": "[resourceId(parameters('privatePIp'), parameters('pipPrimaryName'))]"
-              }
+              "privateIPAllocationMethod": "Dynamic",
+              "privateIPAddress": "[parameters('privatePIp')]"
             }
           },
           {
             "name": "[parameters('feIpConfigMemberName')]",
             "properties": {
-              "privateIPAddress": {
-                "id": "[resourceId(parameters('privateMIp'), parameters('pipMemberName'))]"
-              }
+              "privateIPAllocationMethod": "Dynamic",
+              "privateIPAddress": "[parameters('privateMIp')]"
             }
           }
         ],
