@@ -20,7 +20,7 @@
       "subnetPrimaryName": {
         "type": "string"
       },
-      "subnetmemberName": {
+      "subnetMemberName": {
         "type": "string"
       },
       "namingInfix": {

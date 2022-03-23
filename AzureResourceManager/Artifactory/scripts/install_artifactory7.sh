@@ -6,7 +6,6 @@ DB_NAME=$(cat /var/lib/cloud/instance/user-data.txt | grep "^DB_NAME=" | sed "s/
 DB_USER=$(cat /var/lib/cloud/instance/user-data.txt | grep "^DB_ADMIN_USER=" | sed "s/DB_ADMIN_USER=//")
 DB_TYPE=$(cat /var/lib/cloud/instance/user-data.txt | grep "^DB_TYPE=" | sed "s/DB_TYPE=//")
 DB_PASSWORD=$(cat /var/lib/cloud/instance/user-data.txt | grep "^DB_ADMIN_PASSWD=" | sed "s/DB_ADMIN_PASSWD=//")
-IP_TYPE=$(cat /var/lib/cloud/instance/user-data.txt | grep "^IP_TYPE=" | sed "s/IP_TYPE=//")
 STORAGE_ACCT=$(cat /var/lib/cloud/instance/user-data.txt | grep "^STO_ACT_NAME=" | sed "s/STO_ACT_NAME=//")
 STORAGE_CONTAINER=$(cat /var/lib/cloud/instance/user-data.txt | grep "^STO_CTR_NAME=" | sed "s/STO_CTR_NAME=//")
 STORAGE_ACCT_KEY=$(cat /var/lib/cloud/instance/user-data.txt | grep "^STO_ACT_KEY=" | sed "s/STO_ACT_KEY=//")
@@ -219,18 +218,6 @@ elif [[ $DB_TYPE =~ "Postgresql" ]]; then
 
 EOF
 fi
-
-if [[ $IP_TYPE =~ "Public"]]; then
-    # Set Public IP configuration
-    cat <<EOF >>/var/opt/jfrog/artifactory/etc/system.yaml
-
-EOF
-elif [[ $IP_TYPE =~ "Private" ]]; then
-   # Set Private IP configuration
-   cat <<EOF >>/var/opt/jfrog/artifactory/etc/system.yaml
-
-EOF
-fi 
 
 # Create master.key on each node
 mkdir -p /opt/jfrog/artifactory/var/etc/security/
