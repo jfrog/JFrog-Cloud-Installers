@@ -132,7 +132,7 @@
             "name": "artifactoryVersion",
             "type": "Microsoft.Common.DropDown",
             "label": "Artifactory-vm image version to deploy.",
-            "defaultValue": "7.33.12",
+            "defaultValue": "7.35.2",
             "toolTip": "Version of Artifactory to deploy",
             "constraints": {
               "allowedValues": [
@@ -140,94 +140,98 @@
                   "label": "7.12.5",
                   "value": "0.0.8"
                 },
-	            {
+	              {
                   "label": "7.12.6",
                   "value": "0.0.9"
                 },
                 {
                   "label": "7.12.8",
-	          "value": "0.0.10"
-	        },
-	        {
+	                "value": "0.0.10"
+	              },
+	              {
                   "label": "7.15.3",
-	          "value": "0.0.11"
-	        },
-	        {
+	                "value": "0.0.11"
+	              },
+	              {
                   "label": "7.15.4",
                   "value": "0.0.12"
-                },
-		{
-	          "label": "7.17.4",
-		  "value": "0.0.14"
-		},
-		{
-	          "label": "7.17.5",
-		  "value": "0.0.15"
-		},
-		{
-		  "label": "7.18.6",
-		  "value": "0.0.18"
-		},
-		{
-		  "label": "7.19.4",
-		  "value": "0.0.19"
-		},
-		{
-		  "label": "7.21.3",
-		  "value": "0.0.21"
-		},
-		{
-	          "label": "7.21.8",
-		  "value": "0.0.22"
-		},
-		{
-	          "label": "7.21.12",
-		  "value": "0.0.23"
-		},
-		{
-		  "label": "7.24.3",
-		  "value": "0.0.25"
-		},
-		{
-		  "label": "7.25.6",
-		  "value": "0.0.27"
-		},
-		{
-		  "label": "7.25.7",
-		  "value": "0.0.28"
-		},
-		{
-		  "label": "7.27.3",
-		  "value": "0.0.29"
-		},
-		{
-		  "label": "7.27.6",
-		  "value": "0.0.30"
-		},
-		{
-		  "label": "7.27.9",
-		  "value": "0.0.32"
-		},
-		{
-		  "label": "7.27.10",
-		  "value": "0.0.33"
-		},
-		{
-		  "label": "7.29.7",
-		  "value": "0.0.34"
-		},
-		{
+               },
+		           {
+	                "label": "7.17.4",
+		              "value": "0.0.14"
+		           },
+		           {
+	                "label": "7.17.5",
+		              "value": "0.0.15"
+		           },
+		           {
+		              "label": "7.18.6",
+		              "value": "0.0.18"
+		           },
+		           {
+		              "label": "7.19.4",
+		              "value": "0.0.19"
+		           },
+		           {
+		              "label": "7.21.3",
+		              "value": "0.0.21"
+		           },
+		           {
+	                "label": "7.21.8",
+		              "value": "0.0.22"
+		           },
+               {
+                  "label": "7.21.12",
+		              "value": "0.0.23"
+		           },
+		           {
+		              "label": "7.24.3",
+		              "value": "0.0.25"
+		           },
+		           {
+		              "label": "7.25.6",
+		              "value": "0.0.27"
+		           },
+		           {
+		              "label": "7.25.7",
+		              "value": "0.0.28"
+		           },
+		           {
+		              "label": "7.27.3",
+		              "value": "0.0.29"
+		           },
+		           {
+		              "label": "7.27.6",
+		              "value": "0.0.30"
+		           },
+		           {
+		              "label": "7.27.9",
+		              "value": "0.0.32"
+		           },
+		           {
+		              "label": "7.27.10",
+		              "value": "0.0.33"
+		           },
+		           {
+		              "label": "7.29.7",
+		              "value": "0.0.34"
+		           },
+		           { 
                   "label": "7.29.8",
                   "value": "0.0.35"
-                },
-		{
-		 "label": "7.33.9",
-		 "value": "0.0.37"
-		},
-		{
-		 "label": "7.33.12",
-		 "value": "0.0.38"
-		}
+               },
+		           {
+		              "label": "7.33.9",
+		              "value": "0.0.37"
+		           },
+		           {
+		              "label": "7.33.12",
+		              "value": "0.0.38"
+		           },
+               {
+                  "label": "7.35.2",
+                  "value": "0.0.39"
+               }
               ],
               "required": true
             },
