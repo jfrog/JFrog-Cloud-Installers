@@ -158,10 +158,18 @@
    - artifactory_licenses | length > 0
   notify: restart artifactory
 
+- name: Check if included database driver is the correct version
+  become: yes
+  stat:
+    path: "{{ artifactory_home }}/app/artifactory/tomcat/lib/postgresql-{{ postgres_driver_version }}.jar"
+  register: included_database_driver
+
 - name: Check if database driver exists
   become: yes
   stat:
     path: "{{ artifactory_home }}/app/artifactory/tomcat/lib/jf_postgresql-{{ postgres_driver_version }}.jar"
+  when: 
+    - not included_database_driver.stat.exists
   register: database_driver
 
 - name: Download database driver
@@ -174,6 +182,7 @@
   when:
     - postgres_driver_download_url is defined
     - not database_driver.stat.exists
+    - not included_database_driver.stat.exists
   notify: restart artifactory
 
 - name: Run restore context to reload selinux
