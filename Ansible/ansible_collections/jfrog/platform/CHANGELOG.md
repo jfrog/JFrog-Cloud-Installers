@@ -1,6 +1,9 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [10.5.2] - Apr 26, 2022
+* Fixes for SELinux on RHEL + check mode 
+
 ## [10.5.1] - Apr 18, 2022
 * Product Updates/fixes
 

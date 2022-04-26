@@ -68,7 +68,7 @@
     group: "{{ artifactory_group }}"
     creates: "{{ artifactory_untar_home }}"
     remote_src: true
-  when: download_artifactory is succeeded
+  when: (download_artifactory is succeeded) and (not ansible_check_mode)
 
 - name: Check if app directory exists
   become: yes
@@ -176,12 +176,8 @@
     - not database_driver.stat.exists
   notify: restart artifactory
 
-- name: Run restore context to reload selinux
-  become: yes
-  shell: |
-    restorecon -R -v "{{ jfrog_home_directory }}/artifactory/app/bin"
-  when: ansible_distribution == 'RedHat'
-  changed_when: false
+- name: Restore SELinux content
+  include_tasks: shared/selinux_restore_context.yml
 
 - name: Create artifactory service
   become: yes
