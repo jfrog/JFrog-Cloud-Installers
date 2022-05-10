@@ -1,3 +1,6 @@
+- name: Configure SELinux context
+  include_tasks: shared/selinux_configure_context.yml
+
 - name: Check if artifactory tar already exists
   become: yes
   stat:
@@ -24,7 +27,7 @@
     owner: "{{ artifactory_user }}"
     group: "{{ artifactory_group }}"
     creates: "{{ artifactory_untar_home }}"
-  when: download_artifactory is succeeded
+  when: (download_artifactory is succeeded) and (not ansible_check_mode)
 
 - name: Stop artifactory
   meta: flush_handlers
@@ -47,6 +50,7 @@
   become: yes
   command: "cp -r {{ artifactory_untar_home }}/app/. {{ artifactory_home }}/app"
   when: download_artifactory.changed
+  notify: restart artifactory
 
 - name: Configure artifactory license(s)
   become: yes
@@ -113,6 +117,9 @@
     - artifactory_systemyaml | length > 0
     - artifactory_systemyaml_override or (not systemyaml.stat.exists)
   notify: restart artifactory
+
+- name: Restore SELinux content
+  include_tasks: shared/selinux_restore_context.yml
 
 - name: Ensure permissions are correct
   include_tasks: shared/ensure_permissions_correct.yml

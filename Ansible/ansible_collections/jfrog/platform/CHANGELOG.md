@@ -1,6 +1,11 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [10.6.0] - May 10, 2022
+* Keep SELinux settings on upgrade + check mode [GH-214](https://github.com/jfrog/JFrog-Cloud-Installers/pull/214)
+* Artifactory - Add support for default database driver [GH-213](https://github.com/jfrog/JFrog-Cloud-Installers/pull/213)
+* Product Updates/fixes
+
 ## [10.5.2] - Apr 27, 2022
 * Product Updates/fixes
 
