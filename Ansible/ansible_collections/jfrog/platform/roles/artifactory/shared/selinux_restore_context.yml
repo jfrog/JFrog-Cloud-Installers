@@ -1,0 +1,6 @@
+---
+- name: Restore SELinux content
+  become: yes
+  ansible.builtin.command: restorecon -R -v "{{ jfrog_home_directory }}/artifactory/app/bin"
+  when: ansible_distribution == 'RedHat'
+  changed_when: false
