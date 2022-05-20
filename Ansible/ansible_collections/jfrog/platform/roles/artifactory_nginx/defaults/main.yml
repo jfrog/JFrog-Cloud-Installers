@@ -4,3 +4,5 @@
 server_name: test.artifactory.com
 
 nginx_daemon: nginx
+
+nginx_worker_processes: 1
