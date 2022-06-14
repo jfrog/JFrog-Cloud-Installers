@@ -19,7 +19,7 @@
     },
     "xrayVersion": {
       "type": "string",
-      "defaultValue": "0.0.33",
+      "defaultValue": "0.0.34",
       "allowedValues": [
         "0.0.10",
         "0.0.11",
@@ -41,7 +41,8 @@
 	"0.0.30",
 	"0.0.31",
 	"0.0.32",
-	"0.0.33"      
+	"0.0.33",
+  "0.0.34"     
       ],
       "metadata": {
         "description": "Xray-vm image version to deploy."
@@ -57,14 +58,14 @@
       "type": "securestring",
       "maxLength": 64,
       "metadata": {
-        "description": "Master key for Artifactory cluster. Generate master.key using command '$openssl rand -hex 16'"
+        "description": "Master key for Artifactory cluster. Generate master.key using command '$openssl rand -hex 32'"
       }
     },
     "joinKey": {
       "type": "securestring",
       "maxLength": 64,
       "metadata": {
-        "description": "Join key for Artifactory cluster. Generate join.key using command '$openssl rand -hex 16'"
+        "description": "Join key for Artifactory cluster. Generate join.key using command '$openssl rand -hex 32'"
       }
     },
     "adminUsername": {
