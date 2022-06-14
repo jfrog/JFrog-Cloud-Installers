@@ -248,11 +248,11 @@
               "password": "Artifactory master Key",
               "confirmPassword": "Confirm master Key"
             },
-            "toolTip": "Master key for Artifactory cluster. Generate master.key using command '$openssl rand -hex 16'",
+            "toolTip": "Master key for Artifactory cluster. Generate master.key using command '$openssl rand -hex 32'",
             "constraints": {
               "required": true,
-              "regex": "^[a-z0-9A-Z]{12,32}$",
-              "validationMessage": "Only alphanumeric characters are allowed, and the value must be 1-32 characters long."
+              "regex": "^[a-z0-9A-Z]{12,64}$",
+              "validationMessage": "Only alphanumeric characters are allowed, and the value must be 1-64 characters long."
             },
             "options": {
               "hideConfirmation": true
@@ -265,11 +265,11 @@
               "password": "Artifactory join Key",
               "confirmPassword": "Confirm join Key"
             },
-            "toolTip": "Join key for Artifactory cluster. Generate join.key using command '$openssl rand -hex 16'",
+            "toolTip": "Join key for Artifactory cluster. Generate join.key using command '$openssl rand -hex 32'",
             "constraints": {
               "required": false,
-              "regex": "^[a-z0-9A-Z]{12,32}$",
-              "validationMessage": "Only alphanumeric characters are allowed, and the value must be 1-32 characters long."
+              "regex": "^[a-z0-9A-Z]{12,64}$",
+              "validationMessage": "Only alphanumeric characters are allowed, and the value must be 1-64 characters long."
             },
             "options": {
               "hideConfirmation": true

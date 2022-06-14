@@ -114,14 +114,14 @@
       "type": "securestring",
       "maxLength": 64,
       "metadata": {
-        "description": "Master key for Artifactory cluster. Generate master.key using command '$openssl rand -hex 16'"
+        "description": "Master key for Artifactory cluster. Generate master.key using command '$openssl rand -hex 32'"
       }
     },
     "joinKey": {
       "type": "securestring",
       "maxLength": 64,
       "metadata": {
-        "description": "Join key for Artifactory cluster. Generate join.key using command '$openssl rand -hex 16'"
+        "description": "Join key for Artifactory cluster. Generate join.key using command '$openssl rand -hex 32'"
       }
     },
     "adminUsername": {
