@@ -123,7 +123,7 @@
             "name": "xrayVersion",
             "type": "Microsoft.Common.DropDown",
             "label": "Xray-vm image version to deploy.",
-            "defaultValue": "3.38.2",
+            "defaultValue": "3.42.5",
             "toolTip": "Version of Xray to deploy",
             "constraints": {
               "allowedValues": [
@@ -176,36 +176,44 @@
                   "value": "0.0.24"
                 },
                 {
-	          "label": "3.29.0",
+                  "label": "3.29.0",
                   "value": "0.0.25"
-	        },
-		{
-		  "label": "3.29.2",
-		  "value": "0.0.26"
-		},
-		{
-		  "label": "3.32.2",
-		  "value": "0.0.27"
-		},
-		{
-		  "label": "3.33.3",
-		  "value": "0.0.28"
-		},
-		{
-		  "label": "3.34.1",
-		  "value": "0.0.29"
-		},
-		{
-		  "label": "3.35.0",
-		  "value": "0.0.30"
-		},
-		{
-		  "label": "3.37.2",
-		  "value": "0.0.31"
-		},
-		{
+                },
+                {
+                  "label": "3.29.2",
+                  "value": "0.0.26"
+                },
+                {
+                  "label": "3.32.2",
+                  "value": "0.0.27"
+                },
+                {
+                  "label": "3.33.3",
+                  "value": "0.0.28"
+                },
+                {
+                  "label": "3.34.1",
+                  "value": "0.0.29"
+                },
+                {
+                  "label": "3.35.0",
+                  "value": "0.0.30"
+                },
+                {
+                  "label": "3.37.2",
+                  "value": "0.0.31"
+                },
+                {
                   "label": "3.38.2",
                   "value": "0.0.32"
+                },
+                {
+                  "label": "3.41.4",
+                  "value": "0.0.33"
+                },
+                {
+                  "label": "3.42.5",
+                  "value": "0.0.34"
                 }
               ],
               "required": true
@@ -219,11 +227,11 @@
               "password": "Xray master Key",
               "confirmPassword": "Confirm master Key"
             },
-            "toolTip": "Master key for Xray instance. Generate master.key using command '$openssl rand -hex 16'",
+            "toolTip": "Master key for Xray instance. Generate master.key using command '$openssl rand -hex 32'",
             "constraints": {
               "required": true,
-              "regex": "^[a-z0-9A-Z]{12,32}$",
-              "validationMessage": "Only alphanumeric characters are allowed, and the value must be 1-32 characters long."
+              "regex": "^[a-z0-9A-Z]{12,64}$",
+              "validationMessage": "Only alphanumeric characters are allowed, and the value must be 1-64 characters long."
             },
             "options": {
               "hideConfirmation": true
@@ -239,8 +247,8 @@
             "toolTip": "Join key from Artifactory cluster. You can copy Join key from the Artifactory UI, Security -> Settings -> Connection details",
             "constraints": {
               "required": true,
-              "regex": "^[a-z0-9A-Z]{12,32}$",
-              "validationMessage": "Only alphanumeric characters are allowed, and the value must be 1-32 characters long."
+              "regex": "^[a-z0-9A-Z]{12,64}$",
+              "validationMessage": "Only alphanumeric characters are allowed, and the value must be 1-64 characters long."
             },
             "options": {
               "hideConfirmation": true

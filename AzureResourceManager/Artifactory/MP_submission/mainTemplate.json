@@ -79,29 +79,33 @@
     },
     "artifactoryVersion": {
       "type": "string",
-      "defaultValue": "0.0.35",
+      "defaultValue": "0.0.40",
       "allowedValues": [
-	    "0.0.8",
-            "0.0.9",
-	    "0.0.10",
-	    "0.0.11",
-	    "0.0.12",
-	    "0.0.14",
-	    "0.0.15",
-	    "0.0.18",
-	    "0.0.19",
-	    "0.0.21",
-	    "0.0.22",
-	    "0.0.23",
-	    "0.0.25",
-	    "0.0.27",
-	    "0.0.28",
-	    "0.0.29",
-	    "0.0.30",
-	    "0.0.32",
-	    "0.0.33",
-	    "0.0.34",
-	    "0.0.35"
+        "0.0.8",
+        "0.0.9",
+        "0.0.10",
+        "0.0.11",
+        "0.0.12",
+        "0.0.14",
+        "0.0.15",
+        "0.0.18",
+        "0.0.19",
+        "0.0.21",
+        "0.0.22",
+        "0.0.23",
+        "0.0.25",
+        "0.0.27",
+        "0.0.28",
+        "0.0.29",
+        "0.0.30",
+        "0.0.32",
+        "0.0.33",
+        "0.0.34",
+        "0.0.35",
+        "0.0.37",
+        "0.0.38",
+        "0.0.39",
+        "0.0.40"
       ],
       "metadata": {
         "description": "Artifactory-vm image version to deploy."
@@ -175,7 +179,7 @@
     },
     "certificateKey": {
       "type": "securestring",
-      "metadata":  {
+      "metadata": {
         "description": "Provide your SSL Certificate key"
       }
     },
@@ -183,7 +187,7 @@
       "type": "string",
       "minLength": 1,
       "defaultValue": "artifactory",
-      "metadata":  {
+      "metadata": {
         "description": "Provide your Certificate Domain Name. For e.g jfrog.team for certificate with *.jfrog.team"
       }
     },
@@ -191,7 +195,7 @@
       "type": "string",
       "minLength": 1,
       "defaultValue": "artifactory",
-      "metadata":  {
+      "metadata": {
         "description": "Provide artifactory server name to be used in Nginx. e.g artifactory for artifactory.jfrog.team"
       }
     },
@@ -199,7 +203,7 @@
       "type": "string",
       "minLength": 1,
       "defaultValue": "-server -Xms2g -Xmx8g -Xss256k -XX:+UseG1GC -XX:OnOutOfMemoryError=\\\"kill -9 %p\\\"",
-      "metadata":  {
+      "metadata": {
         "description": "Setting Java Memory Parameters for Artifactory. Learn about system requirements for Artifactory https://www.jfrog.com/confluence/display/RTF/System+Requirements#SystemRequirements-RecommendedHardware."
       }
     },
@@ -323,7 +327,7 @@
   },
   "resources": [
     {
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2021-12-01",
       "name": "pid-9cc90849-b021-4272-a33f-1922bd5c0f99-partnercenter",
       "type": "Microsoft.Resources/deployments",
       "properties": {
@@ -340,7 +344,7 @@
       "type": "Microsoft.Network/networkSecurityGroups",
       "location": "[parameters('location')]",
       "name": "[variables('nsgName')]",
-      "apiVersion": "2020-03-01",
+      "apiVersion": "2021-12-01",
       "properties": {
         "securityRules": [
           {
@@ -420,7 +424,7 @@
       "type": "Microsoft.Network/virtualNetworks",
       "name": "[variables('virtualNetworkName')]",
       "location": "[parameters('location')]",
-      "apiVersion": "2020-03-01",
+      "apiVersion": "2021-12-01",
       "dependsOn": [
         "[resourceId('Microsoft.Network/networkSecurityGroups/', variables('nsgName'))]"
       ],
@@ -453,7 +457,7 @@
       }
     },
     {
-      "apiVersion": "2020-03-01",
+      "apiVersion": "2021-12-01",
       "type": "Microsoft.Network/networkInterfaces",
       "name": "[variables('nicPrimaryName')]",
       "location": "[parameters('location')]",
@@ -480,7 +484,7 @@
       }
     },
     {
-      "apiVersion": "2020-03-01",
+      "apiVersion": "2021-12-01",
       "type": "Microsoft.Network/networkInterfaces",
       "name": "[variables('nicMemberName')]",
       "location": "[parameters('location')]",
@@ -513,7 +517,7 @@
       "sku": {
         "name": "Standard"
       },
-      "apiVersion": "2020-03-01",
+      "apiVersion": "2021-12-01",
       "properties": {
         "publicIPAllocationMethod": "Static",
         "dnsSettings": {
@@ -528,7 +532,7 @@
       "sku": {
         "name": "Standard"
       },
-      "apiVersion": "2020-03-01",
+      "apiVersion": "2021-12-01",
       "properties": {
         "publicIPAllocationMethod": "Static",
         "dnsSettings": {
@@ -540,7 +544,7 @@
       "type": "Microsoft.Network/loadBalancers",
       "name": "[variables('lbName')]",
       "location": "[parameters('location')]",
-      "apiVersion": "2020-03-01",
+      "apiVersion": "2021-12-01",
       "sku": {
         "name": "Standard"
       },
@@ -548,7 +552,7 @@
         "[resourceId('Microsoft.Network/publicIPAddresses/', variables('pipPrimaryName'))]",
         "[resourceId('Microsoft.Network/publicIPAddresses/', variables('pipMemberName'))]"
       ],
-      "tags":{
+      "tags": {
         "displayName": "Load Balancer"
       },
       "properties": {
@@ -736,7 +740,7 @@
       "sku": {
         "name": "[parameters('storageAccountType')]"
       },
-      "tags":{
+      "tags": {
         "displayName": "Artifactory Storage Account"
       },
       "kind": "Storage",
@@ -820,7 +824,7 @@
             "computerNamePrefix": "[variables('namingInfix')]",
             "adminUsername": "[parameters('adminUsername')]",
             "adminPassword": "[parameters('adminPassword')]",
-            "customData": "[base64(concat('#INSTALL SCRIPT INPUTS\nARTIFACTORY_VERSION=', parameters('artifactoryVersion'),'\nCERTIFICATE_KEY=',variables('certificateKey'),'\nCERTIFICATE=', variables('certificate'),'\nCERTIFICATE_DOMAIN=',variables('certificateDomain'),'\nDB_TYPE=',parameters('db_type'),'\nARTIFACTORY_SERVER_NAME=',variables('artifactoryServerName'),'\nEXTRA_JAVA_OPTS=',variables('extraJavaOptions'),'\nJDBC_STR=',reference('Microsoft.Resources/deployments/deploySQLDB').outputs.jdbcConnString.value,'\nDB_NAME=',variables('artDBname'),'\nDB_ADMIN_USER=',variables('db_user'),'\nDB_ADMIN_PASSWD=',variables('db_password'),'\nSTO_ACT_NAME=',variables('storageAccountName'),'\nSTO_ACT_ENDPOINT=',reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))).primaryEndpoints.blob,'\nSTO_CTR_NAME=',variables('vmStorageAccountContainerName'),'\nSTO_ACT_KEY=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2018-07-01').keys[0].value,'\nMASTER_KEY=',variables('masterKey'),'\nJOIN_KEY=',variables('joinKey'),'\nIS_PRIMARY=','true','\nLOCATION=',parameters('location'),'\nLICENSE1=',variables('artifactoryLicense1'),'\nLICENSE2=',variables('artifactoryLicense2'),'\nLICENSE3=',variables('artifactoryLicense3'),'\nLICENSE4=',variables('artifactoryLicense4'),'\nLICENSE5=',variables('artifactoryLicense5'),'\n'))]"
+            "customData": "[base64(concat('#INSTALL SCRIPT INPUTS\nARTIFACTORY_VERSION=', parameters('artifactoryVersion'),'\nCERTIFICATE_KEY=',variables('certificateKey'),'\nCERTIFICATE=', variables('certificate'),'\nCERTIFICATE_DOMAIN=',variables('certificateDomain'),'\nDB_TYPE=',parameters('db_type'),'\nARTIFACTORY_SERVER_NAME=',variables('artifactoryServerName'),'\nEXTRA_JAVA_OPTS=',variables('extraJavaOptions'),'\nJDBC_STR=',reference('Microsoft.Resources/deployments/deploySQLDB').outputs.jdbcConnString.value,'\nDB_NAME=',variables('artDBname'),'\nDB_ADMIN_USER=',variables('db_user'),'\nDB_ADMIN_PASSWD=',variables('db_password'),'\nSTO_ACT_NAME=',variables('storageAccountName'),'\nSTO_ACT_ENDPOINT=',reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))).primaryEndpoints.blob,'\nSTO_CTR_NAME=',variables('vmStorageAccountContainerName'),'\nSTO_ACT_KEY=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2021-09-01').keys[0].value,'\nMASTER_KEY=',variables('masterKey'),'\nJOIN_KEY=',variables('joinKey'),'\nIS_PRIMARY=','true','\nLOCATION=',parameters('location'),'\nLICENSE1=',variables('artifactoryLicense1'),'\nLICENSE2=',variables('artifactoryLicense2'),'\nLICENSE3=',variables('artifactoryLicense3'),'\nLICENSE4=',variables('artifactoryLicense4'),'\nLICENSE5=',variables('artifactoryLicense5'),'\n'))]"
           },
           "networkProfile": {
             "networkInterfaceConfigurations": [
@@ -917,7 +921,7 @@
             "computerNamePrefix": "[variables('namingInfix')]",
             "adminUsername": "[parameters('adminUsername')]",
             "adminPassword": "[parameters('adminPassword')]",
-            "customData": "[base64(concat('#INSTALL SCRIPT INPUTS\nARTIFACTORY_VERSION=', parameters('artifactoryVersion'),'\nCERTIFICATE_KEY=',variables('certificateKey'),'\nCERTIFICATE=', variables('certificate'),'\nCERTIFICATE_DOMAIN=',variables('certificateDomain'),'\nDB_TYPE=',parameters('db_type'),'\nARTIFACTORY_SERVER_NAME=',variables('artifactoryServerName'),'\nEXTRA_JAVA_OPTS=',variables('extraJavaOptions'),'\nJDBC_STR=',reference('Microsoft.Resources/deployments/deploySQLDB').outputs.jdbcConnString.value,'\nDB_NAME=',variables('artDBname'),'\nDB_ADMIN_USER=',variables('db_user'),'\nDB_ADMIN_PASSWD=',variables('db_password'),'\nSTO_ACT_NAME=',variables('storageAccountName'),'\nSTO_ACT_ENDPOINT=',reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))).primaryEndpoints.blob,'\nSTO_CTR_NAME=',variables('vmStorageAccountContainerName'),'\nSTO_ACT_KEY=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2018-07-01').keys[0].value,'\nMASTER_KEY=',variables('masterKey'),'\nJOIN_KEY=',variables('joinKey'),'\nIS_PRIMARY=','false','\nLOCATION=',parameters('location'),'\nLICENSE1=',variables('artifactoryLicense1'),'\nLICENSE2=',variables('artifactoryLicense2'),'\nLICENSE3=',variables('artifactoryLicense3'),'\nLICENSE4=',variables('artifactoryLicense4'),'\nLICENSE5=',variables('artifactoryLicense5'),'\n'))]"
+            "customData": "[base64(concat('#INSTALL SCRIPT INPUTS\nARTIFACTORY_VERSION=', parameters('artifactoryVersion'),'\nCERTIFICATE_KEY=',variables('certificateKey'),'\nCERTIFICATE=', variables('certificate'),'\nCERTIFICATE_DOMAIN=',variables('certificateDomain'),'\nDB_TYPE=',parameters('db_type'),'\nARTIFACTORY_SERVER_NAME=',variables('artifactoryServerName'),'\nEXTRA_JAVA_OPTS=',variables('extraJavaOptions'),'\nJDBC_STR=',reference('Microsoft.Resources/deployments/deploySQLDB').outputs.jdbcConnString.value,'\nDB_NAME=',variables('artDBname'),'\nDB_ADMIN_USER=',variables('db_user'),'\nDB_ADMIN_PASSWD=',variables('db_password'),'\nSTO_ACT_NAME=',variables('storageAccountName'),'\nSTO_ACT_ENDPOINT=',reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))).primaryEndpoints.blob,'\nSTO_CTR_NAME=',variables('vmStorageAccountContainerName'),'\nSTO_ACT_KEY=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2021-09-01').keys[0].value,'\nMASTER_KEY=',variables('masterKey'),'\nJOIN_KEY=',variables('joinKey'),'\nIS_PRIMARY=','false','\nLOCATION=',parameters('location'),'\nLICENSE1=',variables('artifactoryLicense1'),'\nLICENSE2=',variables('artifactoryLicense2'),'\nLICENSE3=',variables('artifactoryLicense3'),'\nLICENSE4=',variables('artifactoryLicense4'),'\nLICENSE5=',variables('artifactoryLicense5'),'\n'))]"
           },
           "networkProfile": {
             "networkInterfaceConfigurations": [
@@ -976,7 +980,7 @@
   ],
   "outputs": {
     "fqdn": {
-      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses',variables('pipMemberName')),'2018-07-01').dnsSettings.fqdn]",
+      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses',variables('pipMemberName')),'2021-12-01').dnsSettings.fqdn]",
       "type": "string"
     }
   }
