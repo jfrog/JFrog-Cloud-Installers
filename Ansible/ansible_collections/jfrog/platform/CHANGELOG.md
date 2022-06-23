@@ -1,6 +1,10 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [10.7.0] - June 21, 2022
+* Updated artifactory postgresql driver to `42.3.6`
+* Product Updates/fixes
+
 ## [10.6.2] - May 20, 2022
 * Allow nginx configuration for overriding worker_processes with a variable [GH-217](https://github.com/jfrog/JFrog-Cloud-Installers/pull/217)
 * Product Updates/fixes
