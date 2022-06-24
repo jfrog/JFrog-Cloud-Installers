@@ -24,7 +24,7 @@
   chunked_transfer_encoding on;
   client_max_body_size 0;
   location / {
-  proxy_read_timeout  2400s;
+  {{ artifactory_proxy_extra_config }}
   proxy_pass_header   Server;
   proxy_cookie_path   ~*^/.* /;
   proxy_pass          "http://artifactory";
@@ -39,5 +39,13 @@
   location ~ ^/artifactory/ {
     proxy_pass    http://artifactory-direct;
     }
+  {% if replicator_enabled -%}
+  location /replicator/ {
+    proxy_http_version 1.1;
+    chunked_transfer_encoding on;
+    proxy_buffering off;
+    proxy_pass    http://replicator/;
+    }
+  {% endif -%}
   }
 }

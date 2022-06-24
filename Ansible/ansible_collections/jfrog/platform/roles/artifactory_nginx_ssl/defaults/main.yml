@@ -8,3 +8,8 @@ nginx_daemon: nginx
 redirect_http_to_https_enabled: true
 
 nginx_worker_processes: 1
+
+artifactory_proxy_extra_config: |-
+  proxy_read_timeout  2400s;
+
+replicator_enabled: false
