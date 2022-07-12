@@ -31,6 +31,27 @@ xray@postgres_server_name
 password
 EOF
 
+cat <<EOF >/opt/jfrog-xray-${XRAY_VERSION}-deb/bin/installer.yaml
+installer:
+  ha: n
+  data_dir: /var/opt/jfrog/xray
+  node:
+    ip: 10.0.0.4
+  install_postgresql: n
+shared:
+  jfrogUrl: http://testrt.cloudapp.azure.com
+  security:
+    joinKey: EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
+  database:
+    type: postgresql
+    driver: org.postgresql.Driver
+    url: postgres://{postgres_server_name}.postgres.database.azure.com:5432/xray?sslmode=disable
+    username: xray@postgres_server_name
+    password: password
+  rabbitMq:
+    password: JFXR_RABBITMQ_COOKIE
+EOF
+
 # Run interactive installation script with default parameters
 cat "/opt/jfrog-xray-${XRAY_VERSION}-deb/input.txt" | ./install.sh >> /var/log/install-xray.log 2>&1
 

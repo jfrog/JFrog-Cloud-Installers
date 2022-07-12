@@ -54,10 +54,10 @@
       "value": "DB-PASSWORD"
     },
     "manual_db_url": {
-      "value": "jdbc:postgresql://postgressrvr.postgres.database.azure.com:5432"
+      "value": "postgres://DB-XRAY-SERVER-NAME.postgres.database.azure.com/xraydb?sslmode=disable"
     },
     "db_server": {
-      "value": "postgressrvr"
+      "value": "DB-XRAY-SERVER-NAME"
     }
   }
 }

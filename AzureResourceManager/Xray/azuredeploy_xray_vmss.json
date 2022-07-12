@@ -153,6 +153,13 @@
         "description": "Database Admin user name"
       }
     },
+    "actual_db_user": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Actual database admin user name in case different from db_user value"
+      }
+    },
     "db_password": {
       "type": "securestring",
       "minLength": 1,
@@ -165,9 +172,9 @@
       "defaultValue": {
         "properties": [
           {
-            "name": "xray",
+            "name": "xraydb",
             "charset": "UTF8",
-            "collation": "English_United States.1252"
+            "collation": "en_US.utf8"
           }
         ]
       }
@@ -201,8 +208,8 @@
     "subnetId": "[concat(variables('vnetId')[parameters('virtualNetworkNewOrExisting')],'/subnets/',parameters('subnetName'))]",
     "publicIPAddressType": "Dynamic",
     "db_server": "[parameters('db_server')]",
-    "db_user": "[concat(parameters('db_user'), '@', parameters('db_server'))]",
-    "actual_db_user": "[parameters('db_user')]",
+    "db_user": "[parameters('db_user')]",
+    "actual_db_user": "[parameters('actual_db_user')]",
     "db_password": "[parameters('db_password')]",
     "db_location": "[parameters('location')]",
     "db_name": "[parameters('databases').properties[0].name]",
@@ -304,7 +311,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "name": "deploySQLDB",
+      "name": "deployXrayDB",
       "apiVersion": "2019-09-01",
       "properties": {
         "mode": "Incremental",
@@ -330,6 +337,12 @@
           },
           "manual_db_url": {
             "value": "[parameters('manual_db_url')]"
+          },
+          "naming_in_fix": {
+            "value": "[variables('namingInfix')]"
+          },
+          "virtual_network_name": {
+            "value": "[parameters('virtualNetworkName')]"
           }
         }
       }
@@ -341,6 +354,7 @@
       "apiVersion": "2020-06-01",
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
+        "[resourceId('Microsoft.Resources/deployments/', 'deployXrayDB')]",
         "[resourceId('Microsoft.Network/networkInterfaces/', variables('nicName'))]"
       ],
       "plan": {
@@ -372,7 +386,7 @@
             "computerNamePrefix": "[variables('namingInfix')]",
             "adminUsername": "[parameters('adminUsername')]",
             "adminPassword": "[parameters('adminPassword')]",
-            "customData": "[base64(concat('#INSTALL SCRIPT INPUTS\nXRAY_VERSION=', parameters('xrayVersion'),'\nARTIFACTORY_URL=',variables('artifactoryURL'),'\nDB_SERVER=',variables('db_server'),'\nDB_NAME=',variables('db_name'),'\nDB_ADMIN_USER=',variables('db_user'),'\nACTUAL_DB_ADMIN_USER=',variables('actual_db_user'),'\nDB_ADMIN_PASSWD=',variables('db_password'),'\nMASTER_KEY=',variables('masterKey'),'\nLOCATION=',parameters('location'),'\nCLUSTER_NAME=',parameters('clusterName'),'\nJOIN_KEY=',variables('joinKey'),'\n'))]"
+            "customData": "[base64(concat('#INSTALL SCRIPT INPUTS\nXRAY_VERSION=', parameters('xrayVersion'),'\nARTIFACTORY_URL=',variables('artifactoryURL'),'\nMANUAL_DB_URL=',parameters('manual_db_url'),'\nDB_SERVER=',variables('db_server'),'\nDB_NAME=',variables('db_name'),'\nDB_ADMIN_USER=',variables('db_user'),'\nACTUAL_DB_ADMIN_USER=',variables('actual_db_user'),'\nDB_ADMIN_PASSWD=',variables('db_password'),'\nMASTER_KEY=',variables('masterKey'),'\nLOCATION=',parameters('location'),'\nCLUSTER_NAME=',parameters('clusterName'),'\nJOIN_KEY=',variables('joinKey'),'\n'))]"
           },
           "networkProfile": {
             "networkInterfaceConfigurations": [
