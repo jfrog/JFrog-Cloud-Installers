@@ -1,6 +1,9 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [10.9.0] - Sep 31, 2022
+* Implement fix for [GH-136](https://github.com/jfrog/JFrog-Cloud-Installers/issues/136)
+
 ## [10.8.2] - Aug 10, 2022
 * Product Updates/fixes
 
