@@ -188,11 +188,8 @@
 - name: Restore SELinux content
   include_tasks: shared/selinux_restore_context.yml
 
-- name: Create artifactory service
-  become: yes
-  command: "{{ artifactory_home }}/app/bin/installService.sh"
-  args:
-    creates: "{{ artifactory_service_file }}"
+- name: Install Service
+  include_tasks: shared/install_service.yml
 
 - name: Ensure permissions are correct
   include_tasks: shared/ensure_permissions_correct.yml
