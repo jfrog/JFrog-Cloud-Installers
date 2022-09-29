@@ -11,13 +11,13 @@ xray:
     url: "OVERRIDE"
     user: "OVERRIDE"
     password: "OVERRIDE"
-  initContainerImage: registry.connect.redhat.com/jfrog/init:7.33.12-1
+  initContainerImage: registry.connect.redhat.com/jfrog/init:7.41.13
   common:
     rabbitmq:
       connectionConfigFromEnvironment: true
     xrayUserId: "1000721035"
     xrayGroupId: "1000721035"
-    xrayVersion: "3.43.1-2"
+    xrayVersion: "3.57.6"
     customInitContainers: |
       - name: "prepare-uid-persistent-volume"
         image: "{{ .Values.initContainerImage }}"
@@ -71,8 +71,8 @@ xray:
       registry: registry.connect.redhat.com
       repository: jfrog/xray-router
       imagePullPolicy: IfNotPresent
-      tag: 3.43.1-2
-
+      tag: 3.57.6
+  
   # RabbitMQ
   ## Configuration values for the rabbitmq dependency
   ## ref: https://github.com/bitnami/charts/blob/master/bitnami/rabbitmq/README.md
@@ -81,16 +81,17 @@ xray:
     replicaCount: 1
     rbac:
       create: true
-
-    image:
+    
+    image: 
       registry: registry.connect.redhat.com
       repository: jfrog/xray-rabbitmq
-      tag: 3.43.1-2
+      tag: 3.57.6
 
     podSecurityContext:
       fsGroup: 1000721001
       runAsUser: 1000721001
-
+   
+    
     auth:
       username: xray
       password: xray
@@ -102,7 +103,7 @@ xray:
       ## Enable encryption to rabbitmq
       ## ref: https://www.rabbitmq.com/ssl.html
       ##
-
+    
       tls:
         enabled: false
         failIfNoPeerCert: true
@@ -110,6 +111,9 @@ xray:
         #caCertificate: |-
         #serverCertificate: |-
         #serverKey: |-
+    
+
+    
 
     livenessProbe:
       initialDelaySeconds: 120
@@ -120,7 +124,7 @@ xray:
         command:
           - /bin/sh
           - -c
-          - "rabbitmqctl status"
+          - 'rabbitmqctl status'
     readinessProbe:
       initialDelaySeconds: 20
       periodSeconds: 5
@@ -130,4 +134,4 @@ xray:
         command:
           - /bin/sh
           - -c
-          - "rabbitmqctl status"
+          - 'rabbitmqctl status'

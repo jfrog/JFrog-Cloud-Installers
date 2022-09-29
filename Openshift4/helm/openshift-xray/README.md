@@ -43,7 +43,7 @@ helm upgrade --install openshift-xray . \
                --set xray.database.url=postgres://$POSTGRES_HOST:5432/xraydb?sslmode=disable \
                --set xray.database.user=artifactory \
                --set xray.database.password=password \
-               --set xray.xray.jfrogUrl=http://openshift-artifactory-ha-nginx" \
+               --set xray.xray.jfrogUrl="http://openshift-artifactory-ha-nginx" \
                --set xray.xray.joinKey=$JOIN_KEY \
                --set xray.xray.masterKey=$MASTER_KEY
 ````
