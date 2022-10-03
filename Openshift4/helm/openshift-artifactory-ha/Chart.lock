@@ -1,6 +1,6 @@
 dependencies:
 - name: artifactory-ha
   repository: https://charts.jfrog.io/
-  version: 107.27.9
-digest: sha256:64caef98d9cd6743d5827baaa2d8d9082eb116525376a30606a44686e10e8927
-generated: "2021-12-20T16:51:54.6150877+05:30"
+  version: 107.41.13
+digest: sha256:2ed3129e3d0673e11e4258a5d2a0b664732441479d373c3db817f253d16dcd70
+generated: "2022-09-30T10:31:40.275678+05:30"
