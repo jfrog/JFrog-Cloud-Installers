@@ -2,6 +2,7 @@
 All changes to this collection will be documented in this file.
 
 ## [10.9.0] - Sep 31, 2022
+* added amazonlinux 2 compatibility.
 * Implement fix for [GH-136](https://github.com/jfrog/JFrog-Cloud-Installers/issues/136)
 
 ## [10.8.6] - Oct 4, 2022

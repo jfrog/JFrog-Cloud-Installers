@@ -120,6 +120,7 @@ The JFrog Platform Ansible Collection can be installed on the following operatin
 
 * Ubuntu LTS versions (18.04/20.4)
 * Centos/RHEL 7.x/8.x
+* Amazon Linux 2
 * Debian 9.x/10.x
 
 ## Known issues
