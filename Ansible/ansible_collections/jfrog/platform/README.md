@@ -120,8 +120,8 @@ The JFrog Platform Ansible Collection can be installed on the following operatin
 
 * Ubuntu LTS versions (18.04/20.4)
 * Centos/RHEL 7.x/8.x
-* Amazon Linux 2
 * Debian 9.x/10.x
+* Amazon Linux 2
 
 ## Known issues
 * Refer [here](https://github.com/jfrog/JFrog-Cloud-Installers/issues?q=is%3Aopen+is%3Aissue+label%3AAnsible)

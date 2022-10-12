@@ -9,9 +9,6 @@ galaxy_info:
   license: license (Apache-2.0)
   min_ansible_version: 2.9
   platforms:
-    - name: Amazon
-      version:
-        - 2
     - name: EL
       versions:
         - 7
@@ -25,6 +22,9 @@ galaxy_info:
       versions:
         - stretch
         - buster
+    - name: Amazon
+      version:
+        - 2
   galaxy_tags:
     - artifactory
     - jfrog
