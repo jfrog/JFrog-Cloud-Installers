@@ -118,6 +118,9 @@
     - artifactory_systemyaml_override or (not systemyaml.stat.exists)
   notify: restart artifactory
 
+- name: Install Service
+  include_tasks: shared/install_service.yml
+
 - name: Restore SELinux content
   include_tasks: shared/selinux_restore_context.yml
 
