@@ -54,7 +54,7 @@
   file:
     path: "/var/opt/jfrog/nginx/ssl"
     state: directory
-    mode: 0644
+    mode: 0755
 
 - name: Configure certificate
   become: yes
@@ -69,7 +69,7 @@
   file:
     path: "/etc/pki/tls"
     state: directory
-    mode: 0644
+    mode: 0755
 
 - name: Configure key
   become: yes

@@ -1,6 +1,13 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [10.9.0] - Oct 11, 2022
+* Product Updates/fixes
+* Fixed strange permissions for TLS directories [GH-193](https://github.com/jfrog/JFrog-Cloud-Installers/issues/193)
+* Added support for Docker registries via subdomain [GH-136](https://github.com/jfrog/JFrog-Cloud-Installers/issues/136)
+* Added Amazon Linux 2 compatibility [GH-231](https://github.com/jfrog/JFrog-Cloud-Installers/pull/231)
+* Added installService.sh for upgrading Artifactory [GH-238](https://github.com/jfrog/JFrog-Cloud-Installers/pull/238)
+
 ## [10.8.6] - Oct 4, 2022
 * Product Updates/fixes
 

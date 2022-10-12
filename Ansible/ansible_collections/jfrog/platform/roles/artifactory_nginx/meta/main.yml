@@ -22,6 +22,9 @@ galaxy_info:
       versions:
         - stretch
         - buster
+    - name: Amazon
+      version:
+        - 2
   galaxy_tags:
     - artifactory
     - jfrog
