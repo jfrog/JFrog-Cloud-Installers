@@ -47,7 +47,7 @@
       "name": "[parameters('db_server')]",
       "type": "Microsoft.Sql/servers",
       "location": "[parameters('db_location')]",
-      "apiVersion": "2020-08-01-preview",
+      "apiVersion": "2021-11-01-preview",
       "tags": {
         "displayName": "artifactoryDB"
       },
@@ -61,7 +61,7 @@
           "name": "[uniqueString(parameters('db_server'), 'AllowAllWindowsAzureIps' )]",
           "type": "firewallrules",
           "location": "[parameters('db_location')]",
-          "apiVersion": "2020-08-01-preview",
+          "apiVersion": "2021-11-01-preview",
           "dependsOn": [
             "[resourceId('Microsoft.Sql/servers/', parameters('db_server'))]"
           ],
@@ -75,7 +75,7 @@
           "type": "databases",
           "kind": "v12.0,user",
           "location": "[parameters('db_location')]",
-          "apiVersion": "2020-08-01-preview",
+          "apiVersion": "2021-11-01-preview",
           "dependsOn": [
             "[parameters('db_server')]"
           ],

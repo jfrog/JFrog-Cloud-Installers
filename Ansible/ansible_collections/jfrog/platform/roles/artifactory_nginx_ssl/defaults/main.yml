@@ -8,3 +8,4 @@ nginx_daemon: nginx
 redirect_http_to_https_enabled: true
 
 nginx_worker_processes: 1
+artifactory_docker_registry_subdomain: false
