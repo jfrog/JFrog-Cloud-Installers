@@ -1,6 +1,9 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [10.9.1] - Oct 14, 2022
+* Product Updates/fixes
+
 ## [10.9.0] - Oct 11, 2022
 * Product Updates/fixes
 * Fixed strange permissions for TLS directories [GH-193](https://github.com/jfrog/JFrog-Cloud-Installers/issues/193)
