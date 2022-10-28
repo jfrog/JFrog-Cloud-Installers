@@ -1,6 +1,11 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+
+## [10.9.2] - Oct 27, 2022
+* Product Updates/fixes
+* Fixed Typo in ansible collection: amd -> and [GH-244](https://github.com/jfrog/JFrog-Cloud-Installers/pull/244)
+
 ## [10.9.1] - Oct 14, 2022
 * Product Updates/fixes
 

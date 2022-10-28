@@ -1,5 +1,5 @@
 ## Note: These values are global and have precedence over role/<product>/defaults/main.yaml
-## For production deployments, You may want to generate your master amd join keys and apply it to all the nodes.
+## For production deployments, You may want to generate your master and join keys and apply it to all the nodes.
 master_key: ee69d96880726d3abf6b42b97d2ae589111ea95c2a8bd5876ec5cd9e8ee34f86
 join_key: 83da88eaaa08dfed5b86888fcec85f19ace0c3ff8747bcefcec2c9769ad4043d
 

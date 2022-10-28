@@ -23,7 +23,7 @@ galaxy_info:
         - stretch
         - buster
     - name: Amazon
-      version:
+      versions:
         - 2
   galaxy_tags:
     - artifactory

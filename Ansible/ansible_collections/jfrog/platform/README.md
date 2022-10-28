@@ -40,7 +40,7 @@ ansible-playbook -vv platform.yml -i hosts.ini"
 
 ## Generating Master and Join Keys
 **Note** : If you don't provide these keys, they will be set to defaults (check groupvars/all/vars.yaml file)
-For production deployments,You may want to generate your master amd join keys and apply it to all the nodes.
+For production deployments,You may want to generate your master and join keys and apply it to all the nodes.
 **IMPORTANT** : Save below generated master and join keys for future upgrades
 
 ```
