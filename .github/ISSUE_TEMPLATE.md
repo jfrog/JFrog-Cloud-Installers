@@ -32,6 +32,12 @@ explain why.
 **Which operating system and version**(eg: ubuntu & version - 20.4):
 
 
+**Which product license** (Enterprise/Pro):
+
+
+**JFrog support reference** (if already raised with support team): 
+
+
 **What happened**:
 
 
