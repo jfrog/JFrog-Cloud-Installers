@@ -132,7 +132,7 @@
             "name": "artifactoryVersion",
             "type": "Microsoft.Common.DropDown",
             "label": "Artifactory-vm image version to deploy.",
-            "defaultValue": "7.41.7",
+            "defaultValue": "7.46.11",
             "toolTip": "Version of Artifactory to deploy",
             "constraints": {
               "allowedValues": [
@@ -239,6 +239,10 @@
                 {
                   "label": "7.41.7",
                   "value": "0.0.41"
+                },
+                {
+                  "label": "7.46.11",
+                  "value": "0.0.42"
                 }
               ],
               "required": true
@@ -259,7 +263,7 @@
               "validationMessage": "Only alphanumeric characters are allowed, and the value must be 1-64 characters long."
             },
             "options": {
-              "hideConfirmation": true
+              "hideConfirmation": false
             }
           },
           {
@@ -276,7 +280,7 @@
               "validationMessage": "Only alphanumeric characters are allowed, and the value must be 1-64 characters long."
             },
             "options": {
-              "hideConfirmation": true
+              "hideConfirmation": false
             }
           },
           {
