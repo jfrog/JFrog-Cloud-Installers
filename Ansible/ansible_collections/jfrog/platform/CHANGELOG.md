@@ -1,6 +1,13 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [10.10.0] - Dec 7, 2022
+* Product Updates/fixes
+
+## [10.9.4] - Nov 11, 2022
+* Removed support for Debian 9
+* Product Updates/fixes
+
 ## [10.9.3] - Oct 31, 2022
 * Product Updates/fixes
 

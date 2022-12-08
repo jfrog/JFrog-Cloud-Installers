@@ -2,7 +2,7 @@
 
 This Ansible directory consists of the following directories that support the JFrog Platform collection.
  
- * ansible_collections directory - This directory contains the Ansible collection package that has the Ansible roles for Artifactory, Distribution, Missioncontrol and Xray. See the roles README for details on the product roles and variables.
+ * ansible_collections directory - This directory contains the Ansible collection package that has the Ansible roles for Artifactory, Distribution, Insight and Xray. See the roles README for details on the product roles and variables.
  * examples directory - This directory contains example playbooks for various architectures.
  
 
