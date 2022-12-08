@@ -15,15 +15,13 @@ galaxy_info:
         - 8
     - name: Ubuntu
       versions:
-        - xenial
         - bionic
         - focal
     - name: Debian
       versions:
-        - stretch
         - buster
     - name: Amazon
-      versions:
+      version:
         - 2
   galaxy_tags:
     - artifactory
