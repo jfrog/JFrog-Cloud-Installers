@@ -14,7 +14,7 @@
     content: |
         [nginx-stable]
         name=nginx stable repo
-        baseurl=http://nginx.org/packages/{{ (ansible_distribution == 'Amazon')|ternary('amzn2','centos') }}/$releasever/$basearch/
+        baseurl=https://nginx.org/packages/{{ (ansible_distribution == 'Amazon')|ternary('amzn2','centos') }}/$releasever/$basearch/
         gpgcheck=1
         enabled=1
         gpgkey=https://nginx.org/keys/nginx_signing.key
