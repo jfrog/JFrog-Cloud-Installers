@@ -27,6 +27,7 @@
     owner: "{{ artifactory_user }}"
     group: "{{ artifactory_group }}"
     creates: "{{ artifactory_untar_home }}"
+    notify: stop artifactory
   when: (download_artifactory is succeeded) and (not ansible_check_mode)
 
 - name: Stop artifactory
