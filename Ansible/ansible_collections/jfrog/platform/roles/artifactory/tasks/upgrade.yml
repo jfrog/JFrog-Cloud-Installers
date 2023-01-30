@@ -29,6 +29,7 @@
     creates: "{{ artifactory_untar_home }}"
   register: unarchived_artifactory
   when: (download_artifactory is succeeded) and (not ansible_check_mode)
+  notify: stop artifactory
 
 - name: Stop artifactory
   meta: flush_handlers
