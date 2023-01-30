@@ -1,5 +1,5 @@
 - name: Set package prefix
-  set_fact:
+  ansible.builtin.set_fact:
     rhel_package_prefix: >-
         {%- if linux_distro in ['centos7','redhat7'] -%}
             el7
@@ -8,28 +8,28 @@
         {%- endif -%}
 
 - name: Find socat package
-  become: yes
-  find:
+  become: true
+  ansible.builtin.find:
     paths: "{{ xray_home }}/app/third-party/rabbitmq/"
     patterns: "^socat.+{{ rhel_package_prefix }}.+\\.rpm$"
-    use_regex: yes
+    use_regex: true
     file_type: file
   register: check_socat_package_result
 
 - name: Set socat package file name
-  set_fact:
+  ansible.builtin.set_fact:
     xray_socat_package: "{{ check_socat_package_result.files[0].path }}"
   when: check_socat_package_result.matched > 0
 
 - name: Import CentOS GPG public key
-  become: yes
-  rpm_key:
+  become: true
+  ansible.builtin.rpm_key:
     key: https://www.centos.org/keys/RPM-GPG-KEY-CentOS-Official
     state: present
 
 - name: Install socat package
-  become: yes
-  yum:
+  become: true
+  ansible.builtin.yum:
     name: "{{ xray_socat_package }}"
     state: present
   vars:
@@ -38,23 +38,23 @@
   when: check_socat_package_result.matched > 0
 
 - name: Find erlang package
-  become: yes
-  find:
+  become: true
+  ansible.builtin.find:
     paths: "{{ xray_home }}/app/third-party/rabbitmq/"
     patterns: "^(esl-)?erlang.+{{ rhel_package_prefix }}.+\\.rpm$"
-    use_regex: yes
+    use_regex: true
     file_type: file
   register: check_erlang_package_result
 
 - name: Set erlang package file name
-  set_fact:
+  ansible.builtin.set_fact:
     xray_erlang_package: "{{ check_erlang_package_result.files[0].path }}"
   when: check_erlang_package_result.matched > 0
 
 - name: Import RabbitMQ release signing key
-  become: yes
-  ignore_errors: yes
-  rpm_key:
+  become: true
+  ignore_errors: true
+  ansible.builtin.rpm_key:
     key: https://github.com/rabbitmq/signing-keys/releases/download/2.0/rabbitmq-release-signing-key.asc
     state: present
   register: import_rabbitmq_signing_key_result
@@ -63,8 +63,8 @@
   retries: 3
 
 - name: Install erlang package
-  become: yes
-  yum:
+  become: true
+  ansible.builtin.yum:
     name: "{{ xray_erlang_package }}"
     state: present
   vars:

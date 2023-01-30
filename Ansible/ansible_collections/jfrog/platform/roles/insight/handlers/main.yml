@@ -1,13 +1,13 @@
 ---
 # handlers file for insight
-- name: restart insight
-  become: yes
-  systemd:
+- name: Restart insight
+  become: true
+  ansible.builtin.systemd:
     name: "{{ insight_daemon }}"
     state: restarted
 
-- name: stop insight
-  become: yes
-  systemd:
+- name: Stop insight
+  become: true
+  ansible.builtin.systemd:
     name: "{{ insight_daemon }}"
     state: stopped

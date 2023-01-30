@@ -1,25 +1,25 @@
 - name: Ensure group elasticsearch exists
-  become: yes
-  group:
+  become: true
+  ansible.builtin.group:
     name: elasticsearch
     state: present
 
 - name: Ensure user elasticsearch exists
-  become: yes
-  user:
+  become: true
+  ansible.builtin.user:
     name: elasticsearch
     group: elasticsearch
-    create_home: yes
+    create_home: true
     home: "{{ insight_es_home }}"
     shell: /bin/bash
     state: present
 
 - name: Create required directories
-  become: yes
-  file:
+  become: true
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
-    recurse: yes
+    recurse: true
     owner: elasticsearch
     group: elasticsearch
     mode: 0644
@@ -30,45 +30,45 @@
     - "{{ insight_es_home }}"
 
 - name: Set max file descriptors limit
-  become: yes
-  pam_limits:
+  become: true
+  community.general.pam_limits:
     domain: 'elasticsearch'
     limit_type: '-'
     limit_item: nofile
     value: '65536'
 
 - name: Update nproc limit
-  become: yes
-  pam_limits:
+  become: true
+  community.general.pam_limits:
     domain: 'elasticsearch'
     limit_type: '-'
     limit_item: nproc
     value: '4096'
 
 - name: Set vm.max_map_count in /etc/sysctl.conf
-  become: yes
-  sysctl:
+  become: true
+  ansible.posix.sysctl:
     name: vm.max_map_count
     value: '262144'
-    sysctl_set: yes
+    sysctl_set: true
 
 - name: Find elasticsearch package
-  become: yes
-  find:
+  become: true
+  ansible.builtin.find:
     paths: "{{ insight_home }}/app/third-party/elasticsearch"
     patterns: "^elasticsearch-.+\\.tar.gz$"
-    use_regex: yes
+    use_regex: true
     file_type: file
   register: check_elasticsearch_package_result
 
 - name: Set elasticsearch package file name
-  set_fact:
+  ansible.builtin.set_fact:
     insight_elasticsearch_package: "{{ check_elasticsearch_package_result.files[0].path }}"
   when: check_elasticsearch_package_result.matched > 0
 
 - name: Ensure elasticsearch home exists
-  become: yes
-  file:
+  become: true
+  ansible.builtin.file:
     path: "{{ insight_es_home }}"
     state: directory
     owner: elasticsearch
@@ -76,11 +76,11 @@
     mode: 0644
 
 - name: Extract elasticsearch package
-  become: yes
-  unarchive:
+  become: true
+  ansible.builtin.unarchive:
     src: "{{ insight_elasticsearch_package }}"
     dest: "{{ insight_es_home }}"
-    remote_src: yes
+    remote_src: true
     extra_opts:
       - --strip-components=1
     owner: elasticsearch
@@ -90,20 +90,20 @@
   when: check_elasticsearch_package_result.matched > 0
 
 - name: Copy elasticsearch config files to ES_PATH_CONF dir
-  become: yes
-  command: "cp -r {{ insight_es_home }}/config/. {{ insight_es_conf_base }}/"
+  become: true
+  ansible.builtin.command: "cp -r {{ insight_es_home }}/config/. {{ insight_es_conf_base }}/"
   when: unarchive_result.changed
 
 - name: Remove elasticsearch config dir
-  become: yes
-  file:
+  become: true
+  ansible.builtin.file:
     path: "{{ insight_es_home }}/config"
     state: absent
   when: unarchive_result.changed
 
 - name: Generate HA elasticsearch.yml template file
-  become: yes
-  template:
+  become: true
+  ansible.builtin.template:
     src: templates/ha/{{ insight_ha_node_type }}.elasticsearch.yml.j2
     dest: "{{ insight_es_conf_base }}/elasticsearch.yml"
     owner: elasticsearch
@@ -112,8 +112,8 @@
   when: unarchive_result.extract_results.rc | default(128) == 0
 
 - name: Generate elasticsearch.yml template file
-  become: yes
-  template:
+  become: true
+  ansible.builtin.template:
     src: templates/elasticsearch.yml.j2
     dest: "{{ insight_es_conf_base }}/elasticsearch.yml"
     owner: elasticsearch
@@ -122,8 +122,8 @@
   when: unarchive_result.extract_results.rc | default(128) == 0
 
 - name: Create empty unicast_hosts.txt file
-  become: yes
-  file:
+  become: true
+  ansible.builtin.file:
     path: "{{ insight_es_conf_base }}/unicast_hosts.txt"
     state: touch
     mode: 0664
@@ -131,14 +131,14 @@
     group: elasticsearch
 
 - name: Setup searchguard plugin
-  import_tasks: setup-searchguard.yml
+  ansible.builtin.import_tasks: setup-searchguard.yml
 
 - name: Update directories permissions
-  become: yes
-  file:
+  become: true
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
-    recurse: yes
+    recurse: true
     owner: elasticsearch
     group: elasticsearch
     mode: 0755
@@ -149,9 +149,9 @@
     - "{{ insight_es_home }}"
 
 - name: Start elasticsearch
-  become: yes
+  become: true
   become_user: elasticsearch
-  shell: |
+  ansible.builtin.shell: |
     nohup {{ insight_es_script_path }}/elasticsearch -d
   environment:
     ES_JAVA_HOME: "{{ insight_es_java_home }}"
@@ -160,21 +160,21 @@
   when: unarchive_result.extract_results.rc | default(128) == 0
 
 - name: Wait for elasticsearch to start
-  pause:
+  ansible.builtin.pause:
     seconds: 30
   when: start_elasticsearch.changed
 
 - name: Check if elasticsearch is running
-  wait_for: 
+  ansible.builtin.wait_for:
     host: localhost
     port: "{{ insight_es_transport_port }}"
     delay: 5
     connect_timeout: 1
 
 - name: Init searchguard plugin
-  become: yes
+  become: true
   become_user: elasticsearch
-  shell: |
+  ansible.builtin.shell: |
     ./sgadmin.sh -p {{ insight_es_transport_port }} -cacert root-ca.pem \
     -cert sgadmin.pem -key sgadmin.key -cd {{ insight_es_searchgaurd_home }}/sgconfig/ -nhnv -icl
   args:

@@ -15,12 +15,10 @@ galaxy_info:
         - 8
     - name: Ubuntu
       versions:
-        - xenial
         - bionic
         - focal
     - name: Debian
       versions:
-        - stretch
         - buster
   galaxy_tags:
     - distribution

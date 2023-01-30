@@ -1,6 +1,21 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [10.11.3] - Jan 30, 2023
+* **IMPORTANT**
+* Refactored code to support fully qualified collection name (FQCN), Please refer [here](https://github.com/jfrog/JFrog-Cloud-Installers/blob/master/Ansible/ansible_collections/jfrog/platform/README.md#getting-started#prerequisites)
+* Fixed - Artifactory installService.sh script will never be launched during an upgrade [GH-251](https://github.com/jfrog/JFrog-Cloud-Installers/issues/251)
+* Updated RedHat Nginx installer tasks to use HTTPS URLs [GH-253](https://github.com/jfrog/JFrog-Cloud-Installers/pull/253)
+* Fixed - Upgrade play to stop artifactoy service [GH-255](https://github.com/jfrog/JFrog-Cloud-Installers/pull/255)
+* Improved offline upgrades [GH-257](https://github.com/jfrog/JFrog-Cloud-Installers/pull/257)
+* Updated artifactory postgresql driver to `42.5.1`
+
+## [10.10.2] - Dec 22, 2022
+* Product Updates/fixes
+
+## [10.10.1] - Dec 13, 2022
+* Product Updates/fixes
+
 ## [10.10.0] - Dec 7, 2022
 * Product Updates/fixes
 

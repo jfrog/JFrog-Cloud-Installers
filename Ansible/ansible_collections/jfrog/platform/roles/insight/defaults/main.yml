@@ -1,7 +1,7 @@
 # defaults file for insight
 
 # The version of insight to install
-insight_version: 1.13.0
+insight_version: 1.13.2
 
 # whether to enable HA
 insight_ha_enabled: false
@@ -18,7 +18,7 @@ insight_tar: https://releases.jfrog.io/artifactory/jfrog-insight/linux/{{ insigh
 # Timeout in seconds for URL request
 insight_download_timeout: 10
 
-#The insight install directory
+# The insight install directory
 insight_untar_home: "{{ jfrog_home_directory }}/jfrog-insight-{{ insight_version }}-linux"
 insight_home: "{{ jfrog_home_directory }}/insight"
 
@@ -27,7 +27,7 @@ insight_thirdparty_path: "{{ insight_home }}/app/third-party"
 insight_archive_service_cmd: "{{ insight_install_script_path }}/installService.sh"
 insight_service_file: /lib/systemd/system/insight.service
 
-#insight users and groups
+# Insight users and groups
 insight_user: insight
 insight_group: insight
 
@@ -53,7 +53,7 @@ insight_es_java_home: "/usr/share/elasticsearch/jdk"
 insight_es_script_path: "/usr/share/elasticsearch/bin"
 insight_es_searchgaurd_home: "/usr/share/elasticsearch/plugins/search-guard-7"
 
-# if this is an upgrade
+# If this is an upgrade
 insight_upgrade_only: false
 
 insight_system_yaml_template: system.yaml.j2

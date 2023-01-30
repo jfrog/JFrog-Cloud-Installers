@@ -1,9 +1,16 @@
-- hosts: postgres_servers
+- name: Play for postgres_servers
+  hosts: postgres_servers
+  collections:
+    - community.postgresql
+    - community.general
   roles:
     - role: postgres
       when: postgres_enabled | bool
 
-- hosts: artifactory_servers
+- name: Play for artifactory_servers
+  hosts: artifactory_servers
+  collections:
+    - community.general
   serial:
     - 1
     - 100%
@@ -11,17 +18,27 @@
     - role: artifactory
       when: artifactory_enabled | bool
 
-- hosts: xray_servers
+- name: Play for xray_servers
+  hosts: xray_servers
+  collections:
+    - community.general
   roles:
     - role: xray
       when: xray_enabled | bool
 
-- hosts: distribution_servers
+- name: Play for distribution_servers
+  hosts: distribution_servers
+  collections:
+    - community.general
   roles:
     - role: distribution
       when: distribution_enabled | bool
 
-- hosts: insight_servers
+- name: Play for insight_servers
+  hosts: insight_servers
+  collections:
+    - community.general
+    - ansible.posix
   roles:
     - role: insight
       when: insight_enabled | bool

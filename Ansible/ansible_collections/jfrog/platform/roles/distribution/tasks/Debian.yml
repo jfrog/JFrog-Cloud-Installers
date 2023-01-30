@@ -1,13 +1,13 @@
 - name: Install prerequisite packages
-  become: yes
-  apt:
+  become: true
+  ansible.builtin.apt:
     name: ["expect", "locales"]
     state: present
-    update_cache: yes
+    update_cache: true
     cache_valid_time: 3600
 
 - name: Ensure UTF-8 locale exists
-  become: yes
-  locale_gen:
+  become: true
+  community.general.locale_gen:
     name: en_US.UTF-8
     state: present

@@ -1,14 +1,14 @@
 ---
 # handlers file for distribution
-- name: restart artifactory
-  become: yes
-  systemd:
+- name: Restart artifactory
+  become: true
+  ansible.builtin.systemd:
     name: "{{ artifactory_daemon }}"
     state: restarted
-    daemon_reload: yes
+    daemon_reload: true
 
-- name: stop artifactory
-  become: yes
-  systemd:
+- name: Stop artifactory
+  become: true
+  ansible.builtin.systemd:
     name: "{{ artifactory_daemon }}"
     state: stopped

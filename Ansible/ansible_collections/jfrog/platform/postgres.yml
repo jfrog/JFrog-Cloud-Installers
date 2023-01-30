@@ -1,3 +1,7 @@
-- hosts: postgres
+- name: Play for postgres_servers
+  hosts: postgres
+  collections:
+    - community.postgresql
+    - community.general
   roles:
     - postgres

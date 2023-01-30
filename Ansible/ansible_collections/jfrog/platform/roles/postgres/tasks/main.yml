@@ -1,3 +1,3 @@
 - name: Install postgres
-  include_tasks: "install.yml"
+  ansible.builtin.include_tasks: "install.yml"
   when: postgres_enabled | bool

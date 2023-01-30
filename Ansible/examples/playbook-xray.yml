@@ -1,6 +1,8 @@
 ---
 - hosts: postgres_servers
   collections:
+    - community.postgresql
+    - community.general
     - jfrog.platform
   roles:
     - role: postgres
@@ -8,6 +10,7 @@
 
 - hosts: xray_servers
   collections:
+    - community.general
     - jfrog.platform
   roles:
     - role: xray

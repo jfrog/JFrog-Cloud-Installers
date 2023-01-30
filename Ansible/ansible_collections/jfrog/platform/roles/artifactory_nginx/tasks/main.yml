@@ -1,9 +1,9 @@
 - name: Install prerequisite packages
-  include_tasks: "{{ ansible_os_family }}.yml"
+  ansible.builtin.include_tasks: "{{ ansible_os_family }}.yml"
 
 - name: Install nginx
-  become: yes
-  package:
+  become: true
+  ansible.builtin.package:
     name: nginx
     state: present
   register: install_nginx
@@ -12,8 +12,8 @@
   until: install_nginx is succeeded
 
 - name: Copy nginx.conf file
-  become: yes
-  template:
+  become: true
+  ansible.builtin.template:
     src: nginx.conf.j2
     dest: /etc/nginx/nginx.conf
     owner: root
@@ -21,14 +21,14 @@
     mode: '0755'
 
 - name: Generate artifactory.conf
-  become: yes
-  template:
+  become: true
+  ansible.builtin.template:
     src: artifactory.conf.j2
     dest: /etc/nginx/conf.d/artifactory.conf
     owner: root
     group: root
     mode: '0755'
-  notify: restart nginx
+  notify: Restart nginx
 
 - name: Restart nginx
-  meta: flush_handlers
+  ansible.builtin.meta: flush_handlers

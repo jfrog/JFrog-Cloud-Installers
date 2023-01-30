@@ -1,5 +1,5 @@
 - name: Prepare expect scenario script
-  set_fact:
+  ansible.builtin.set_fact:
     expect_scenario: |
         set timeout 300
         spawn {{ exp_executable_cmd }}
@@ -34,9 +34,9 @@
         }
 
 - name: Interactive with expect
-  become: yes
-  ignore_errors: yes
-  shell: |
+  become: true
+  ignore_errors: true
+  ansible.builtin.shell: |
     {{ expect_scenario }}
   args:
     executable: /usr/bin/expect
