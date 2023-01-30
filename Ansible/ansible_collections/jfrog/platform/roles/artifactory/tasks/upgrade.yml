@@ -27,8 +27,9 @@
     owner: "{{ artifactory_user }}"
     group: "{{ artifactory_group }}"
     creates: "{{ artifactory_untar_home }}"
-  notify: stop artifactory
+  register: unarchived_artifactory
   when: (download_artifactory is succeeded) and (not ansible_check_mode)
+  notify: stop artifactory
 
 - name: Stop artifactory
   meta: flush_handlers
@@ -45,12 +46,12 @@
   file:
     path: "{{ artifactory_home }}/app"
     state: absent
-  when: download_artifactory.changed
+  when: (download_artifactory.changed) or (unarchived_artifactory.changed)
 
 - name: Copy new app to artifactory app
   become: yes
   command: "cp -r {{ artifactory_untar_home }}/app/. {{ artifactory_home }}/app"
-  when: download_artifactory.changed
+  when: (download_artifactory.changed) or (unarchived_artifactory.changed)
   notify: restart artifactory
 
 - name: Configure artifactory license(s)
@@ -60,9 +61,15 @@
     dest: "{{ artifactory_home }}/var/etc/artifactory/artifactory.cluster.license"
     mode: 0644
   when:
-   - artifactory_licenses is defined
-   - artifactory_licenses | length > 0
+    - artifactory_licenses is defined
+    - artifactory_licenses | length > 0
   notify: restart artifactory
+
+- name: Check if included database driver is the correct version
+  become: yes
+  stat:
+    path: "{{ artifactory_home }}/app/artifactory/tomcat/lib/postgresql-{{ postgres_driver_version }}.jar"
+  register: included_database_driver
 
 - name: Check if jdbc driver exists
   become: yes
@@ -80,6 +87,7 @@
   when:
     - postgres_driver_download_url is defined
     - not database_driver.stat.exists
+    - not included_database_driver.stat.exists
   notify: restart artifactory
 
 - name: Configure installer info
