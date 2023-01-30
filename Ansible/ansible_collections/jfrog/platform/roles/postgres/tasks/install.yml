@@ -1,21 +1,21 @@
 - name: Define OS-specific variables
-  include_vars: "{{ ansible_os_family }}.yml"
+  ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
 
 - name: Install prerequisite packages
-  include_tasks: "{{ ansible_os_family }}.yml"
+  ansible.builtin.include_tasks: "{{ ansible_os_family }}.yml"
 
 - name: Set PostgreSQL environment variables
-  become: yes
-  template:
+  become: true
+  ansible.builtin.template:
     src: postgres.sh.j2
     dest: /etc/profile.d/postgres.sh
     mode: 0644
-  notify: restart postgresql
+  notify: Restart postgresql
 
 - name: Ensure PostgreSQL data directory exists
-  become: yes
+  become: true
   become_user: postgres
-  file:
+  ansible.builtin.file:
     path: "{{ postgresql_data_dir }}"
     owner: postgres
     group: postgres
@@ -23,24 +23,24 @@
     mode: 0700
 
 - name: Initialize PostgreSQL database cluster
-  become: yes
+  become: true
   become_user: postgres
-  command: "{{ postgresql_bin_path }}/initdb -D {{ postgresql_data_dir }}"
+  ansible.builtin.command: "{{ postgresql_bin_path }}/initdb -D {{ postgresql_data_dir }}"
   args:
     creates: "{{ postgresql_data_dir }}/PG_VERSION"
   environment:
     LC_ALL: "{{ postgres_locale }}"
 
 - name: Check FIPS status
-  command: cat /proc/sys/crypto/fips_enabled
+  ansible.builtin.command: cat /proc/sys/crypto/fips_enabled
   register: _fips_enabled
   ignore_errors: true
   changed_when: false
 
 - name: Setup postgres configuration files
-  become: yes
+  become: true
   become_user: postgres
-  template:
+  ansible.builtin.template:
     src: "{{ item }}.j2"
     dest: "{{ postgresql_config_path }}/{{ item }}"
     owner: postgres
@@ -49,25 +49,25 @@
   loop:
     - pg_hba.conf
     - postgresql.conf
-  notify: restart postgresql
+  notify: Restart postgresql
 
 - name: Ensure PostgreSQL is started and enabled on boot
-  become: yes
-  systemd:
+  become: true
+  ansible.builtin.systemd:
     name: "{{ postgresql_daemon }}"
     state: started
-    enabled: yes
+    enabled: true
 
 - name: Hold until Postgresql is up and running
-  wait_for:
+  ansible.builtin.wait_for:
     port: "{{ postgres_port }}"
     timeout: 120
     sleep: 10
 
 - name: Create user
-  become: yes
+  become: true
   become_user: postgres
-  postgresql_user:
+  community.postgresql.postgresql_user:
     name: "{{ curr_user.username }}"
     password: "{{ curr_user.password }}"
     conn_limit: "-1"
@@ -78,9 +78,9 @@
   no_log: true  # secret passwords
 
 - name: Create database
-  become: yes
+  become: true
   become_user: postgres
-  postgresql_db:
+  community.postgresql.postgresql_db:
     name: "{{ curr_db.name }}"
     owner: "{{ curr_db.owner }}"
     encoding: UTF-8
@@ -94,9 +94,9 @@
   no_log: true  # secret passwords
 
 - name: Grant privs on db
-  become: yes
+  become: true
   become_user: postgres
-  postgresql_privs:
+  community.postgresql.postgresql_privs:
     database: "{{ curr_db.name }}"
     role: "{{ curr_db.owner }}"
     state: present

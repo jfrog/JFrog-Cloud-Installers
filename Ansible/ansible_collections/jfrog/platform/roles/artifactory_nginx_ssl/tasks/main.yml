@@ -1,5 +1,5 @@
 - name: Check required variables
-  fail: msg="Variable '{{ item }}' is not defined"
+  ansible.builtin.fail: msg="Variable '{{ item }}' is not defined"
   when: item not in vars
   loop:
     - certificate
@@ -7,11 +7,11 @@
     - server_name
 
 - name: Install prerequisite packages
-  include_tasks: "{{ ansible_os_family }}.yml"
+  ansible.builtin.include_tasks: "{{ ansible_os_family }}.yml"
 
 - name: Install nginx
-  become: yes
-  package:
+  become: true
+  ansible.builtin.package:
     name: nginx
     state: present
   register: install_nginx
@@ -20,8 +20,8 @@
   until: install_nginx is success
 
 - name: Configure main nginx conf file.
-  become: yes
-  template:
+  become: true
+  ansible.builtin.template:
     src: nginx.conf.j2
     dest: /etc/nginx/nginx.conf
     owner: root
@@ -29,55 +29,55 @@
     mode: 0755
 
 - name: Configure redirect nginx conf
-  become: yes
-  copy:
+  become: true
+  ansible.builtin.copy:
     src: redirect_http_to_https.conf
     dest: /etc/nginx/conf.d/redirect_http_to_https.conf
     owner: root
     group: root
     mode: 0755
   when: redirect_http_to_https_enabled | bool
-  notify: restart nginx
+  notify: Restart nginx
 
 - name: Configure the artifactory nginx conf
-  become: yes
-  template:
+  become: true
+  ansible.builtin.template:
     src: artifactory.conf.j2
     dest: /etc/nginx/conf.d/artifactory.conf
     owner: root
     group: root
     mode: 0755
-  notify: restart nginx
+  notify: Restart nginx
 
 - name: Ensure nginx dir exists
-  become: yes
-  file:
+  become: true
+  ansible.builtin.file:
     path: "/var/opt/jfrog/nginx/ssl"
     state: directory
     mode: 0755
 
 - name: Configure certificate
-  become: yes
-  template:
+  become: true
+  ansible.builtin.template:
     src: certificate.pem.j2
     dest: "/var/opt/jfrog/nginx/ssl/cert.pem"
     mode: 0644
-  notify: restart nginx
+  notify: Restart nginx
 
 - name: Ensure pki exists
-  become: yes
-  file:
+  become: true
+  ansible.builtin.file:
     path: "/etc/pki/tls"
     state: directory
     mode: 0755
 
 - name: Configure key
-  become: yes
-  template:
+  become: true
+  ansible.builtin.template:
     src: certificate.key.j2
     dest: "/etc/pki/tls/cert.key"
     mode: 0644
-  notify: restart nginx
+  notify: Restart nginx
 
-- name: restart nginx
-  meta: flush_handlers
+- name: Restart nginx
+  ansible.builtin.meta: flush_handlers

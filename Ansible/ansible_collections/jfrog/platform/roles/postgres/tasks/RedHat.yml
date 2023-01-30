@@ -1,6 +1,6 @@
 - name: Install prerequisite packages
-  become: yes
-  yum:
+  become: true
+  ansible.builtin.yum:
     name:
       - acl
       - sudo
@@ -9,40 +9,40 @@
     state: present
 
 - name: Install python3-psycopg2
-  become: yes
-  yum:
+  become: true
+  ansible.builtin.yum:
     name: python3-psycopg2
     state: present
   when: ansible_distribution_major_version == '8'
 
 - name: Install python2-psycopg2
-  become: yes
-  yum:
+  become: true
+  ansible.builtin.yum:
     name: python-psycopg2
     state: present
   when: ansible_distribution_major_version == '7'
 
 - name: Fixup some locale issues
-  become: yes
-  lineinfile:
+  become: true
+  ansible.builtin.lineinfile:
     dest: /etc/locale.conf
     line: "{{ item }}"
     state: present
-    create: yes
+    create: true
     mode: 0644
   loop:
     - LANG=en_us.UTF-8
     - LANGUAGE=en_us.UTF-8
 
 - name: Import PostgreSQL GPG public key
-  become: yes
-  rpm_key:
+  become: true
+  ansible.builtin.rpm_key:
     key: https://download.postgresql.org/pub/repos/yum/RPM-GPG-KEY-PGDG
     state: present
 
 - name: Install PostgreSQL repository
-  become: yes
-  yum:
+  become: true
+  ansible.builtin.yum:
     name: "{{ base }}/reporpms/EL-{{ version }}-x86_64/{{ repo_file_name }}"
     state: present
   vars:
@@ -51,8 +51,8 @@
     repo_file_name: pgdg-redhat-repo-latest.noarch.rpm
 
 - name: Disable PostgreSQL module
-  become: yes
-  copy:
+  become: true
+  ansible.builtin.copy:
     dest: /etc/dnf/modules.d/postgresql.module
     owner: root
     group: root
@@ -68,8 +68,8 @@
     - ansible_distribution_major_version | int == 8
 
 - name: Install PostgreSQL packages
-  become: yes
-  yum:
+  become: true
+  ansible.builtin.yum:
     name:
       - postgresql{{ postgres_server_pkg_version }}-server
       - postgresql{{ postgres_server_pkg_version }}-contrib

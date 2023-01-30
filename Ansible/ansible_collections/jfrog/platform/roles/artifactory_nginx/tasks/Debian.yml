@@ -1,12 +1,12 @@
 - name: Import nginx signing key
-  become: yes
-  apt_key:
+  become: true
+  ansible.builtin.apt_key:
     url: https://nginx.org/keys/nginx_signing.key
     state: present
 
 - name: Add nginx stable repo
-  become: yes
-  copy:
+  become: true
+  ansible.builtin.copy:
     dest: /etc/apt/sources.list.d/nginx.list
     owner: root
     group: root
@@ -17,9 +17,9 @@
     distro_codename: "{{ ansible_distribution_release }}"
 
 - name: Update apt cache
-  become: yes
-  apt:
-    update_cache: yes
+  become: true
+  ansible.builtin.apt:
+    update_cache: true
     cache_valid_time: 3600
   register: apt_update_cache
   retries: 5

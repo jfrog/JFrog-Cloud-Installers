@@ -1,11 +1,11 @@
 - name: Perform installation
-  include_tasks: "install.yml"
+  ansible.builtin.include_tasks: "install.yml"
   when:
     - insight_enabled
     - not insight_upgrade_only
 
 - name: Perform upgrade
-  include_tasks: "upgrade.yml"
+  ansible.builtin.include_tasks: "upgrade.yml"
   when:
     - insight_enabled
     - insight_upgrade_only

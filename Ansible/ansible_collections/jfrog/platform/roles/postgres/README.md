@@ -12,12 +12,15 @@ postgres_allowed_hosts:
 
 **THIS SHOULD NOT BE USED FOR PRODUCTION.**
 
-**Update this variable to only allow access from Artifactory, Distibution, MissionControl and Xray.**
+**Update this variable to only allow access from Artifactory, Distribution, Insight and Xray.**
 
 ## Example Playbook
 ```
 ---
 - hosts: postgres_servers
+  collections:
+    - community.postgresql
+    - community.general
   roles:
     - postgres
 ```

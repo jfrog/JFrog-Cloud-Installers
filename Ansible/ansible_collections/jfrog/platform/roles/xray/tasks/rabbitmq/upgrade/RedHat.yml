@@ -1,5 +1,5 @@
 - name: Set package prefix
-  set_fact:
+  ansible.builtin.set_fact:
     rhel_package_prefix: >-
         {%- if linux_distro in ['centos7','redhat7'] -%}
             el7
@@ -8,22 +8,22 @@
         {%- endif -%}
 
 - name: Find erlang package
-  become: yes
-  find:
+  become: true
+  ansible.builtin.find:
     paths: "{{ xray_home }}/app/third-party/rabbitmq/"
     patterns: "^(esl-)?erlang.+{{ rhel_package_prefix }}.+\\.rpm$"
-    use_regex: yes
+    use_regex: true
     file_type: file
   register: check_erlang_package_result
 
 - name: Set erlang package file name
-  set_fact:
+  ansible.builtin.set_fact:
     xray_erlang_package: "{{ check_erlang_package_result.files[0].path }}"
   when: check_erlang_package_result.matched > 0
 
 - name: Install erlang package
-  become: yes
-  yum:
+  become: true
+  ansible.builtin.yum:
     name: "{{ xray_erlang_package }}"
     state: present
   vars:

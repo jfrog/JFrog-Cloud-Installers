@@ -21,7 +21,7 @@ galaxy_info:
       versions:
         - buster
     - name: Amazon
-      version:
+      versions:
         - 2
   galaxy_tags:
     - artifactory

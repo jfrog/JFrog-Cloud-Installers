@@ -1,31 +1,31 @@
 - name: Install prerequisite packages
-  include_tasks: "{{ ansible_os_family }}.yml"
+  ansible.builtin.include_tasks: "{{ ansible_os_family }}.yml"
 
 - name: Ensure group xray exist
-  become: yes
-  group:
+  become: true
+  ansible.builtin.group:
     name: "{{ xray_group }}"
     state: present
 
 - name: Ensure user xray exist
-  become: yes
-  user:
+  become: true
+  ansible.builtin.user:
     name: "{{ xray_user }}"
     group: "{{ xray_group }}"
-    create_home: yes
+    create_home: true
     home: "{{ xray_home }}"
     shell: /bin/bash
     state: present
 
 - name: Check if xray tar exists
-  become: yes
-  stat:
+  become: true
+  ansible.builtin.stat:
     path: "{{ jfrog_home_directory }}/{{ xray_tar_file_name }}"
   register: xray_tar_check
 
 - name: Download xray
-  become: yes
-  get_url:
+  become: true
+  ansible.builtin.get_url:
     url: "{{ xray_tar }}"
     timeout: "{{ xray_download_timeout }}"
     dest: "{{ jfrog_home_directory }}"
@@ -35,8 +35,8 @@
   when: not xray_tar_check.stat.exists
 
 - name: Extract xray tar
-  become: yes
-  unarchive:
+  become: true
+  ansible.builtin.unarchive:
     src: "{{ jfrog_home_directory }}/{{ xray_tar_file_name }}"
     dest: "{{ jfrog_home_directory }}"
     owner: "{{ xray_user }}"
@@ -46,28 +46,28 @@
   when: download_xray is succeeded
 
 - name: Check if app directory exists
-  become: yes
-  stat:
+  become: true
+  ansible.builtin.stat:
     path: "{{ xray_home }}/app"
   register: app_dir_check
 
 - name: Copy untar directory to xray home
-  become: yes
-  copy:
+  become: true
+  ansible.builtin.copy:
     src: "{{ xray_untar_home }}/"
     dest: "{{ xray_home }}"
     owner: "{{ xray_user }}"
     group: "{{ xray_group }}"
     mode: 0755
-    remote_src: yes
+    remote_src: true
   when: not app_dir_check.stat.exists
 
 - name: Create required directories
-  become: yes
-  file:
+  become: true
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
-    recurse: yes
+    recurse: true
     owner: "{{ xray_user }}"
     group: "{{ xray_group }}"
   loop:
@@ -76,8 +76,8 @@
     - "{{ xray_home }}/var/etc/security/"
 
 - name: Configure master key
-  become: yes
-  copy:
+  become: true
+  ansible.builtin.copy:
     dest: "{{ xray_home }}/var/etc/security/master.key"
     content: "{{ master_key }}"
     owner: "{{ xray_user }}"
@@ -85,24 +85,24 @@
     mode: 0640
 
 - name: Setup rabbitmq
-  import_tasks: rabbitmq/setup/RedHat.yml
+  ansible.builtin.import_tasks: rabbitmq/setup/RedHat.yml
   when: ansible_os_family == 'RedHat'
 
 - name: Setup rabbitmq
-  import_tasks: rabbitmq/setup/Debian.yml
+  ansible.builtin.import_tasks: rabbitmq/setup/Debian.yml
   when: ansible_os_family == 'Debian'
 
 - name: Check if install.sh wrapper script exist
-  become: yes
-  stat:
+  become: true
+  ansible.builtin.stat:
     path: "{{ xray_install_script_path }}/install.sh"
   register: install_wrapper_script
 
 - name: Include interactive installer scripts
-  include_vars: script/archive.yml
+  ansible.builtin.include_vars: script/archive.yml
 
 - name: Install xray
-  include_tasks: expect.yml
+  ansible.builtin.include_tasks: expect.yml
   vars:
     exp_executable_cmd: "./install.sh -u {{ xray_user }} -g {{ xray_group }}"
     exp_dir: "{{ xray_install_script_path }}"
@@ -114,30 +114,30 @@
   when: install_wrapper_script.stat.exists
 
 - name: Configure rabbitmq config
-  become: yes
-  template:
+  become: true
+  ansible.builtin.template:
     src: "rabbitmq.conf.j2"
     dest: "{{ xray_home }}/app/bin/rabbitmq/rabbitmq.conf"
     mode: 0644
-  notify: restart xray
+  notify: Restart xray
 
 - name: Configure installer info
-  become: yes
-  template:
+  become: true
+  ansible.builtin.template:
     src: installer-info.json.j2
     dest: "{{ xray_home }}/var/etc/info/installer-info.json"
     mode: 0644
-  notify: restart xray
+  notify: Restart xray
 
 - name: Check if system.yaml exists
-  become: yes
-  stat:
+  become: true
+  ansible.builtin.stat:
     path: "{{ xray_home }}/var/etc/system.yaml"
   register: systemyaml
 
 - name: Configure system.yaml
-  become: yes
-  template:
+  become: true
+  ansible.builtin.template:
     src: "{{ xray_system_yaml_template }}"
     dest: "{{ xray_home }}/var/etc/system.yaml"
     mode: 0644
@@ -145,30 +145,30 @@
     - xray_systemyaml is defined
     - xray_systemyaml | length > 0
     - xray_systemyaml_override or (not systemyaml.stat.exists)
-  notify: restart xray
+  notify: Restart xray
 
 - name: Ensure permissions are correct
-  become: yes
-  file:
+  become: true
+  ansible.builtin.file:
     path: "{{ jfrog_home_directory }}"
     state: directory
     owner: "{{ xray_user }}"
     group: "{{ xray_group }}"
-    recurse: yes
+    recurse: true
 
 - name: Install xray as a service
-  become: yes
-  command: "{{ xray_archive_service_cmd }}"
+  become: true
+  ansible.builtin.command: "{{ xray_archive_service_cmd }}"
   args:
     chdir: "{{ xray_install_script_path }}"
     creates: "{{ xray_service_file }}"
   register: check_service_status_result
 
 - name: Restart xray
-  meta: flush_handlers
+  ansible.builtin.meta: flush_handlers
 
 - name: Make sure xray is up and running
-  uri:
+  ansible.builtin.uri:
     url: http://127.0.0.1:8082/router/api/v1/system/health
     timeout: 130
     status_code: 200

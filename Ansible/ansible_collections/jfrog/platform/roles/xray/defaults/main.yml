@@ -1,9 +1,9 @@
-# defaults file for xray
+# Defaults file for xray
 
 # The version of xray to install
-xray_version: 3.62.4
+xray_version: 3.65.3
 
-# whether to enable HA
+# Whether to enable HA
 xray_ha_enabled: false
 
 xray_ha_node_type: master
@@ -18,7 +18,7 @@ xray_tar: https://releases.jfrog.io/artifactory/jfrog-xray/xray-linux/{{ xray_ve
 # Timeout in seconds for URL request
 xray_download_timeout: 10
 
-#The xray install directory
+# The xray install directory
 xray_untar_home: "{{ jfrog_home_directory }}/jfrog-xray-{{ xray_version }}-linux"
 xray_home: "{{ jfrog_home_directory }}/xray"
 
@@ -27,7 +27,7 @@ xray_thirdparty_path: "{{ xray_home }}/app/third-party"
 xray_archive_service_cmd: "{{ xray_install_script_path }}/installService.sh"
 xray_service_file: /lib/systemd/system/xray.service
 
-#xray users and groups
+# Xray users and groups
 xray_user: xray
 xray_group: xray
 
@@ -36,7 +36,7 @@ xray_gid: 1035
 
 xray_daemon: xray
 
-#rabbitmq user
+# Rabbitmq user
 xray_rabbitmq_user: guest
 xray_rabbitmq_password: guest
 xray_rabbitmq_url: "amqp://localhost:5672/"

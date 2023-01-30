@@ -1,31 +1,31 @@
 - name: Install prerequisite packages
-  include_tasks: "{{ ansible_os_family }}.yml"
+  ansible.builtin.include_tasks: "{{ ansible_os_family }}.yml"
 
 - name: Ensure group distribution exist
-  become: yes
-  group:
+  become: true
+  ansible.builtin.group:
     name: "{{ distribution_group }}"
     state: present
 
 - name: Ensure user distribution exist
-  become: yes
-  user:
+  become: true
+  ansible.builtin.user:
     name: "{{ distribution_user }}"
     group: "{{ distribution_group }}"
-    create_home: yes
+    create_home: true
     home: "{{ distribution_home }}"
     shell: /bin/bash
     state: present
 
 - name: Check if distribution tar already exists
-  become: yes
-  stat:
+  become: true
+  ansible.builtin.stat:
     path: "{{ jfrog_home_directory }}/{{ distribution_tar_file_name }}"
   register: distribution_tar_check
 
 - name: Download distribution
-  become: yes
-  get_url:
+  become: true
+  ansible.builtin.get_url:
     url: "{{ distribution_tar }}"
     timeout: "{{ distribution_download_timeout }}"
     dest: "{{ jfrog_home_directory }}"
@@ -35,8 +35,8 @@
   when: not distribution_tar_check.stat.exists
 
 - name: Extract distribution tar
-  become: yes
-  unarchive:
+  become: true
+  ansible.builtin.unarchive:
     src: "{{ jfrog_home_directory }}/{{ distribution_tar_file_name }}"
     dest: "{{ jfrog_home_directory }}"
     owner: "{{ distribution_user }}"
@@ -46,28 +46,28 @@
   when: download_distribution is succeeded
 
 - name: Check if app directory exists
-  become: yes
-  stat:
+  become: true
+  ansible.builtin.stat:
     path: "{{ distribution_home }}/app"
   register: app_dir_check
 
 - name: Copy untar directory to distribution home
-  become: yes
-  copy:
+  become: true
+  ansible.builtin.copy:
     src: "{{ distribution_untar_home }}/"
     dest: "{{ distribution_home }}"
     owner: "{{ distribution_user }}"
     group: "{{ distribution_group }}"
     mode: 0755
-    remote_src: yes
+    remote_src: true
   when: not app_dir_check.stat.exists
 
 - name: Create required directories
-  become: yes
-  file:
+  become: true
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
-    recurse: yes
+    recurse: true
     owner: "{{ distribution_user }}"
     group: "{{ distribution_group }}"
   loop:
@@ -77,8 +77,8 @@
     - "{{ distribution_home }}/var/etc/redis/"
 
 - name: Configure master key
-  become: yes
-  copy:
+  become: true
+  ansible.builtin.copy:
     dest: "{{ distribution_home }}/var/etc/security/master.key"
     content: "{{ master_key }}"
     owner: "{{ distribution_user }}"
@@ -86,16 +86,16 @@
     mode: 0640
 
 - name: Check if install.sh wrapper script exist
-  become: yes
-  stat:
+  become: true
+  ansible.builtin.stat:
     path: "{{ distribution_install_script_path }}/install.sh"
   register: install_wrapper_script
 
 - name: Include interactive installer scripts
-  include_vars: script/archive.yml
+  ansible.builtin.include_vars: script/archive.yml
 
 - name: Install Distribution
-  include_tasks: expect.yml
+  ansible.builtin.include_tasks: expect.yml
   vars:
     exp_executable_cmd: "./install.sh -u {{ distribution_user }} -g {{ distribution_group }}"
     exp_dir: "{{ distribution_install_script_path }}"
@@ -107,22 +107,22 @@
   when: install_wrapper_script.stat.exists
 
 - name: Configure redis config
-  become: yes
-  template:
+  become: true
+  ansible.builtin.template:
     src: "redis.conf.j2"
     dest: "{{ distribution_home }}/var/etc/redis/redis.conf"
     mode: 0644
-  notify: restart distribution
+  notify: Restart distribution
 
 - name: Check if systemyaml exists
-  become: yes
-  stat:
+  become: true
+  ansible.builtin.stat:
     path: "{{ distribution_home }}/var/etc/system.yaml"
   register: systemyaml
 
 - name: Configure systemyaml
-  become: yes
-  template:
+  become: true
+  ansible.builtin.template:
     src: "{{ distribution_system_yaml_template }}"
     dest: "{{ distribution_home }}/var/etc/system.yaml"
     mode: 0644
@@ -130,38 +130,38 @@
     - distribution_systemyaml is defined
     - distribution_systemyaml | length > 0
     - distribution_systemyaml_override or (not systemyaml.stat.exists)
-  notify: restart distribution
+  notify: Restart distribution
 
 - name: Configure installer info
-  become: yes
-  template:
+  become: true
+  ansible.builtin.template:
     src: installer-info.json.j2
     dest: "{{ distribution_home }}/var/etc/info/installer-info.json"
     mode: 0644
-  notify: restart distribution
+  notify: Restart distribution
 
 - name: Update distribution permissions
-  become: yes
-  file:
+  become: true
+  ansible.builtin.file:
     path: "{{ distribution_home }}"
     state: directory
-    recurse: yes
+    recurse: true
     owner: "{{ distribution_user }}"
     group: "{{ distribution_group }}"
 
 - name: Install Distribution as a service
-  become: yes
-  command: "{{ distribution_archive_service_cmd }}"
+  become: true
+  ansible.builtin.command: "{{ distribution_archive_service_cmd }}"
   args:
     chdir: "{{ distribution_install_script_path }}"
     creates: "{{ distribution_service_file }}"
   register: check_service_status_result
 
 - name: Restart distribution
-  meta: flush_handlers
+  ansible.builtin.meta: flush_handlers
 
 - name: Make sure distribution is up and running
-  uri:
+  ansible.builtin.uri:
     url: http://127.0.0.1:8082/router/api/v1/system/health
     timeout: 130
     status_code: 200

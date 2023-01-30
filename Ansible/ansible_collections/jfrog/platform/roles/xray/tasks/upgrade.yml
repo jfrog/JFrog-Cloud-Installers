@@ -1,12 +1,12 @@
 - name: Check if xray tar exists
-  become: yes
-  stat:
+  become: true
+  ansible.builtin.stat:
     path: "{{ jfrog_home_directory }}/{{ xray_tar_file_name }}"
   register: xray_tar_check
 
 - name: Download xray for upgrade
-  become: yes
-  get_url:
+  become: true
+  ansible.builtin.get_url:
     url: "{{ xray_tar }}"
     timeout: "{{ xray_download_timeout }}"
     dest: "{{ jfrog_home_directory }}"
@@ -16,8 +16,8 @@
   when: not xray_tar_check.stat.exists
 
 - name: Extract xray tar
-  become: yes
-  unarchive:
+  become: true
+  ansible.builtin.unarchive:
     src: "{{ jfrog_home_directory }}/{{ xray_tar_file_name }}"
     dest: "{{ jfrog_home_directory }}"
     remote_src: true
@@ -26,44 +26,44 @@
     creates: "{{ xray_untar_home }}"
   when: download_xray is succeeded
 
-- name: stop xray
-  meta: flush_handlers
+- name: Stop xray
+  ansible.builtin.meta: flush_handlers
 
 - name: Delete xray app
-  become: yes
-  file:
+  become: true
+  ansible.builtin.file:
     path: "{{ xray_home }}/app"
     state: absent
   when: download_xray.changed
 
 - name: Copy new app to xray app
-  become: yes
-  command: "cp -r {{ xray_untar_home }}/app/. {{ xray_home }}/app"
+  become: true
+  ansible.builtin.command: "cp -r {{ xray_untar_home }}/app/. {{ xray_home }}/app"
   when: download_xray.changed
 
 - name: Upgrade rabbitmq
-  import_tasks: rabbitmq/upgrade/RedHat.yml
+  ansible.builtin.import_tasks: rabbitmq/upgrade/RedHat.yml
   when:
     - ansible_os_family == 'RedHat'
     - download_xray.changed
 
 - name: Upgrade rabbitmq
-  import_tasks: rabbitmq/upgrade/Debian.yml
+  ansible.builtin.import_tasks: rabbitmq/upgrade/Debian.yml
   when:
     - ansible_os_family == 'Debian'
     - download_xray.changed
 
 - name: Check if install.sh wrapper script exist
-  become: yes
-  stat:
+  become: true
+  ansible.builtin.stat:
     path: "{{ xray_install_script_path }}/install.sh"
   register: install_wrapper_script
 
 - name: Include interactive installer scripts
-  include_vars: script/archive.yml
+  ansible.builtin.include_vars: script/archive.yml
 
 - name: Install xray
-  include_tasks: expect.yml
+  ansible.builtin.include_tasks: expect.yml
   vars:
     exp_executable_cmd: "./install.sh -u {{ xray_user }} -g {{ xray_group }}"
     exp_dir: "{{ xray_install_script_path }}"
@@ -77,24 +77,24 @@
     - download_xray.changed
 
 - name: Configure rabbitmq config
-  become: yes
-  template:
+  become: true
+  ansible.builtin.template:
     src: "rabbitmq.conf.j2"
     dest: "{{ xray_home }}/app/bin/rabbitmq/rabbitmq.conf"
     mode: 0644
   when:
     - download_xray.changed
-  notify: restart xray
+  notify: Restart xray
 
 - name: Check if systemyaml exists
-  become: yes
-  stat:
+  become: true
+  ansible.builtin.stat:
     path: "{{ xray_home }}/var/etc/system.yaml"
   register: systemyaml
 
 - name: Configure systemyaml
-  become: yes
-  template:
+  become: true
+  ansible.builtin.template:
     src: "{{ xray_system_yaml_template }}"
     dest: "{{ xray_home }}/var/etc/system.yaml"
     mode: 0644
@@ -102,30 +102,30 @@
     - xray_systemyaml is defined
     - xray_systemyaml | length > 0
     - xray_systemyaml_override or (not systemyaml.stat.exists)
-  notify: restart xray
+  notify: Restart xray
 
-- name: configure installer info
-  become: yes
-  template:
+- name: Configure installer info
+  become: true
+  ansible.builtin.template:
     src: installer-info.json.j2
     dest: "{{ xray_home }}/var/etc/info/installer-info.json"
     mode: 0644
-  notify: restart xray
+  notify: Restart xray
 
 - name: Ensure permissions are correct
-  become: yes
-  file:
+  become: true
+  ansible.builtin.file:
     path: "{{ jfrog_home_directory }}"
     state: directory
     owner: "{{ xray_user }}"
     group: "{{ xray_group }}"
-    recurse: yes
+    recurse: true
 
 - name: Restart xray
-  meta: flush_handlers
+  ansible.builtin.meta: flush_handlers
 
 - name: Make sure xray is up and running
-  uri:
+  ansible.builtin.uri:
     url: http://127.0.0.1:8082/router/api/v1/system/health
     timeout: 130
     status_code: 200

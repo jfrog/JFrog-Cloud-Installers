@@ -59,23 +59,23 @@ sg_config:
     # Set filtered_alias_mode to 'disallow' to forbid more than 2 filtered aliases per index
     # Set filtered_alias_mode to 'warn' to allow more than 2 filtered aliases per index but warns about it (default)
     # Set filtered_alias_mode to 'nowarn' to allow more than 2 filtered aliases per index silently
-    #filtered_alias_mode: warn
-    #do_not_fail_on_forbidden: false
-    #kibana:
+    # filtered_alias_mode: warn
+    # do_not_fail_on_forbidden: false
+    # kibana:
     # Kibana multitenancy - NOT FREE FOR COMMERCIAL USE
     # In addition to the config options below you need to set do_not_fail_on_forbidden to true (see above).
     # Kibana needs to be configured for multi tenancy as well.
     # See https://docs.search-guard.com/latest/kibana-multi-tenancy for details
-    #multitenancy_enabled: true
-    #server_username: kibanaserver
-    #index: '.kibana'
+    # multitenancy_enabled: true
+    # server_username: kibanaserver
+    # index: '.kibana'
     http:
       anonymous_auth_enabled: true
       xff:
         enabled: false
         internalProxies: '192\.168\.0\.10|192\.168\.0\.11' # regex pattern
-        #internalProxies: '.*' # trust all internal proxies, regex pattern
-        #remoteIpHeader:  'x-forwarded-for'
+        # internalProxies: '.*' # trust all internal proxies, regex pattern
+        # remoteIpHeader:  'x-forwarded-for'
         ###### see https://docs.oracle.com/javase/7/docs/api/java/util/regex/Pattern.html for regex help
         ###### more information about XFF https://en.wikipedia.org/wiki/X-Forwarded-For
         ###### and here https://tools.ietf.org/html/rfc7239
@@ -88,11 +88,12 @@ sg_config:
       #  openssl rand -base64 512 | tr '/+' '_-'
       # If you want ot use another signature algorithm, you can specify a complete JWK using the attriubute jwt_signing_key.
       # Refer to the documentation for details.
-      jwt_signing_key_hs512: "eTDZjSqRD9Abhod9iqeGX_7o93a-eElTeXWAF6FmzQshmRIrPD-C9ET3pFjJ_IBrzmWIZDk8ig-X_PIyGmKsxNMsrU-0BNWF5gJq5xOp4rYTl8z66Tw9wr8tHLxLxgJqkLSuUCRBZvlZlQ7jNdhBBxgM-hdSSzsN1T33qdIwhrUeJ-KXI5yKUXHjoWFYb9tETbYQ4NvONowkCsXK_flp-E3F_OcKe_z5iVUszAV8QfCod1zhbya540kDejXCL6N_XMmhWJqum7UJ3hgf6DEtroPSnVpHt4iR5w9ArKK-IBgluPght03gNcoNqwz7p77TFbdOmUKF_PWy1bcdbaUoSg"
+      jwt_signing_key_hs512: "eTDZjSqRD9Abhod9iqeGX_7o93a-eElTeXWAF6FmzQshmRIrPD-C9ET3pFjJ_IBrzmWIZDk8ig\
+        -X_PIyGmKsxNMsrU-0BNWF5gJq5xOp4rYTl8z66Tw9wr8tHLxLxgJqkLSuUCRBZvlZlQ7jNdhBBxgM-hdSSzsN1T33qdIwhrUeJ-KXI5yKUXHjoWFYb9tETbYQ4NvONowkCsXK_flp-E3F_OcKe_z5iVUszAV8QfCod1zhbya540kDejXCL6N_XMmhWJqum7UJ3hgf6DEtroPSnVpHt4iR5w9ArKK-IBgluPght03gNcoNqwz7p77TFbdOmUKF_PWy1bcdbaUoSg"
       # JWTs produced by Search Guard are unencrypted by default. Set a key here to activate encryption using AES Key Wrap.
       # If you want ot use another signature algorithm, you can specify a complete JWK using the attriubute jwt_encryption_key.
       # Refer to the documentation for details.
-      #jwt_encryption_key_a256kw: "..."
+      # jwt_encryption_key_a256kw: "..."
       # Specify the maximum time period an auth token may be valid. Omit max_validity to have keys with unlimited lifetime.
       # Note that when creating auth tokens, users can specify an even shorter time period.
       max_validity: "1y"
@@ -171,7 +172,7 @@ sg_config:
         http_authenticator:
           type: clientcert
           config:
-            username_attribute: cn #optional, if omitted DN becomes username
+            username_attribute: cn # optional, if omitted DN becomes username
           challenge: false
         authentication_backend:
           type: noop
@@ -230,13 +231,14 @@ sg_config:
             # Filter to search for roles (currently in the whole subtree beneath rolebase)
             # {0} is substituted with the DN of the user
             # {1} is substituted with the username
-            # {2} is substituted with an attribute value from user's directory entry, of the authenticated user. Use userroleattribute to specify the name of the attribute
+            # {2} is substituted with an attribute value from user's directory entry, of the authenticated user. Use userroleattribute to specify
+            # the name of the attribute
             rolesearch: '(member={0})'
             # Specify the name of the attribute which value should be substituted with {2} above
             userroleattribute: null
             # Roles as an attribute of the user entry
             userrolename: disabled
-            #userrolename: memberOf
+            # userrolename: memberOf
             # The attribute in a role entry containing the name of that role, Default is "name".
             # Can also be "dn" to use the full DN as rolename.
             rolename: cn
@@ -247,7 +249,7 @@ sg_config:
             # {0} is substituted with the username
             usersearch: '(uid={0})'
             # Skip users matching a user name, a wildcard or a regex pattern
-            #skip_users:
+            # skip_users:
             #  - 'cn=Michael Jackson,ou*people,o=TEST'
             #  - '/\S*/'
       roles_from_another_ldap:
@@ -256,7 +258,7 @@ sg_config:
         transport_enabled: false
         authorization_backend:
           type: ldap # NOT FREE FOR COMMERCIAL USE
-          #config goes here ...
+          # config goes here ...
   #    auth_failure_listeners:
   #      ip_rate_limiting:
   #        type: ip

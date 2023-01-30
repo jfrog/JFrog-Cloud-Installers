@@ -1,36 +1,36 @@
 - name: Install prerequisite packages
-  become: yes
-  apt:
+  become: true
+  ansible.builtin.apt:
     name: ['acl', 'apt-transport-https', 'locales', 'python3-psycopg2']
     state: present
-    update_cache: yes
+    update_cache: true
 
 - name: Ensure UTF-8 locale exists
-  become: yes
-  locale_gen:
+  become: true
+  community.general.locale_gen:
     name: en_US.UTF-8
     state: present
 
 - name: Import PostgreSQL repository key
-  become: yes
-  apt_key:
+  become: true
+  ansible.builtin.apt_key:
     url: "{{ postgres_apt_key_url }}"
     id: "{{ postgres_apt_key_id }}"
     state: present
 
 - name: Register PostgreSQL repository
-  become: yes
-  apt_repository:
+  become: true
+  ansible.builtin.apt_repository:
     repo: "{{ postgres_apt_repository_repo }}"
     state: present
     filename: pgdg
 
 - name: Install postgres packages
-  become: yes
-  apt:
+  become: true
+  ansible.builtin.apt:
     name:
       - postgresql-{{ postgres_version }}
       - postgresql-contrib-{{ postgres_version }}
     state: present
-    update_cache: yes
+    update_cache: true
     cache_valid_time: 3600

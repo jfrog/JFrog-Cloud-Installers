@@ -9,6 +9,8 @@ Additional variables can be found in [defaults/main.yml](./defaults/main.yml).
 ```
 ---
 - hosts: xray_servers
+  collections:
+    - community.general
   roles:
     - xray
 ```
@@ -18,6 +20,8 @@ The Xray role supports software upgrades. To use a role to perform a software up
 
 ```
 - hosts: xray_servers
+  collections:
+    - community.general
   vars:
     xray_version: "{{ lookup('env', 'xray_version_upgrade') }}"
     xray_upgrade_only: true

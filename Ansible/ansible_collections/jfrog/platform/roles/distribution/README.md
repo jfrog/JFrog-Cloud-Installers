@@ -9,6 +9,8 @@ Additional variables can be found in [defaults/main.yml](./defaults/main.yml).
 ```
 ---
 - hosts: distribution_servers
+  collections:
+    - community.general
   roles:
     - distribution
 ```
@@ -18,6 +20,8 @@ The distribution role supports software upgrades. To use a role to perform a sof
 
 ```
 - hosts: distributionservers
+  collections:
+    - community.general
   vars:
     distribution_version: "{{ lookup('env', 'distribution_version_upgrade') }}"
     distribution_upgrade_only: true

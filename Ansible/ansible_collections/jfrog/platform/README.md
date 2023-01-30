@@ -7,6 +7,13 @@ This Ansible directory consists of the following directories that support the JF
  
 
  ## Getting Started
+
+ ## Prerequisites
+From 10.11.x collection and above, Using fully qualified collection name (FQCN) , This is required for installing collection dependencies
+
+```
+ansible-galaxy collection install community.postgresql community.general ansible.posix
+```
  
  1. Install this collection from Ansible Galaxy.
     
@@ -21,6 +28,7 @@ This Ansible directory consists of the following directories that support the JF
     - hosts: artifactory_servers
       collections:
         - jfrog.platform
+        - community.general
       roles:
         - artifactory
     
@@ -60,7 +68,8 @@ then in your playbook include the secret vars file.
 
 ```
 - hosts: artifactory_servers
-
+  collections:
+    - community.general
   vars_files:
     - ./vars/secret-vars.yml
     - ./vars/vars.yml
@@ -74,6 +83,8 @@ All JFrog product roles support software updates. To use a role to perform a sof
 
 ```
 - hosts: artifactory_servers
+  collections:
+    - community.general
   vars:
     artifactory_version: "{{ lookup('env', 'artifactory_version_upgrade') }}"
     artifactory_upgrade_only: true
@@ -81,6 +92,8 @@ All JFrog product roles support software updates. To use a role to perform a sof
     - artifactory
 
 - hosts: xray_servers
+  collections:
+    - community.general
   vars:
     xray_version: "{{ lookup('env', 'xray_version_upgrade') }}"
     xray_upgrade_only: true
@@ -120,7 +133,7 @@ The JFrog Platform Ansible Collection can be installed on the following operatin
 
 * Ubuntu LTS versions (18.04/20.4)
 * Centos/RHEL 7.x/8.x
-* Debian 9.x/10.x
+* Debian 10.x
 * Amazon Linux 2
 
 ## Known issues

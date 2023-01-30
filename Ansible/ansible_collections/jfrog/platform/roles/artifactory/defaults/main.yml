@@ -1,7 +1,7 @@
-# defaults file for artifactory
+# Defaults file for artifactory
 
 # The version of artifactory to install
-artifactory_version: 7.47.11
+artifactory_version: 7.49.6
 
 # Set this to true when SSL is enabled (to use artifactory_nginx_ssl role), default to false (implies artifactory uses artifactory_nginx role )
 artifactory_nginx_ssl_enabled: false
@@ -37,14 +37,16 @@ artifactory_extra_java_opts: -server -Xms512m -Xmx2g -Xss256k -XX:+UseG1GC
 artifactory_system_yaml_template: system.yaml.j2
 artifactory_tar_file_name: jfrog-artifactory-pro-{{ artifactory_version }}-linux.tar.gz
 artifactory_home: "{{ jfrog_home_directory }}/artifactory"
-artifactory_tar: https://releases.jfrog.io/artifactory/artifactory-pro/org/artifactory/pro/jfrog-artifactory-pro/{{ artifactory_version }}/{{ artifactory_tar_file_name }}
+artifactory_tar: "https://releases.jfrog.io/artifactory/artifactory-pro/org/artifactory/pro/jfrog-artifactory-pro/\
+  {{ artifactory_version }}/{{ artifactory_tar_file_name }}"
 artifactory_untar_home: "{{ jfrog_home_directory }}/artifactory-{{ artifactory_flavour }}-{{ artifactory_version }}"
 
 # Timeout in seconds for URL request
 artifactory_download_timeout: 10
 
-postgres_driver_version: 42.3.6
-postgres_driver_download_url: https://repo1.maven.org/maven2/org/postgresql/postgresql/{{ postgres_driver_version }}/postgresql-{{ postgres_driver_version }}.jar
+postgres_driver_version: 42.5.1
+postgres_driver_download_url: "https://repo1.maven.org/maven2/org/postgresql/postgresql/\
+  {{ postgres_driver_version }}/postgresql-{{ postgres_driver_version }}.jar"
 
 artifactory_user: artifactory
 artifactory_group: artifactory
@@ -54,10 +56,10 @@ artifactory_daemon: artifactory
 artifactory_uid: 1030
 artifactory_gid: 1030
 
-# if this is an upgrade
+# If this is an upgrade
 artifactory_upgrade_only: false
 
-#default username and password
+# Default username and password
 artifactory_admin_username: admin
 artifactory_admin_password: password
 
