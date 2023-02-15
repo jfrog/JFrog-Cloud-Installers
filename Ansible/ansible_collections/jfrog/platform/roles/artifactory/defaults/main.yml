@@ -98,3 +98,5 @@ artifactory_systemyaml: |-
 
 # Note: artifactory_systemyaml_override is by default false,  if you want to change default artifactory_systemyaml
 artifactory_systemyaml_override: false
+
+artifactory_start_service: true
