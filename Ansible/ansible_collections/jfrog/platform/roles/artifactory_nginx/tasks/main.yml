@@ -23,7 +23,7 @@
 - name: Generate artifactory.conf
   become: true
   ansible.builtin.template:
-    src:  "{{ artifactory_conf_template }}"
+    src: "{{ artifactory_conf_template }}"
     dest: /etc/nginx/conf.d/artifactory.conf
     owner: root
     group: root

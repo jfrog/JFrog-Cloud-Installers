@@ -63,6 +63,7 @@
     dest: "/var/opt/jfrog/nginx/ssl/cert.pem"
     mode: 0644
   notify: Restart nginx
+  no_log: true
 
 - name: Ensure pki exists
   become: true
@@ -78,6 +79,7 @@
     dest: "/etc/pki/tls/cert.key"
     mode: 0644
   notify: Restart nginx
+  no_log: true
 
 - name: Restart nginx
   ansible.builtin.meta: flush_handlers
