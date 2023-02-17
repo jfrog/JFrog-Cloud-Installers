@@ -1,6 +1,12 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [10.11.5] - Feb 16, 2023
+* Product Updates/fixes
+
+## [10.11.4] - Feb 7, 2023
+* Product Updates/fixes
+
 ## [10.11.3] - Jan 30, 2023
 * **IMPORTANT**
 * Refactored code to support fully qualified collection name (FQCN), Please refer [here](https://github.com/jfrog/JFrog-Cloud-Installers/blob/master/Ansible/ansible_collections/jfrog/platform/README.md#getting-started#prerequisites)
