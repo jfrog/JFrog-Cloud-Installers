@@ -16,7 +16,7 @@ spec:
         app: rabbitmq
     spec:
       containers:
-        - image: registry.connect.redhat.com/jfrog/xray-rabbitmq:3.8.9
+        - image: registry.connect.redhat.com/jfrog/xray-rabbitmq:3.67.9
           imagePullPolicy: "Always"
           name: xray-rabbitmq
           ports:
