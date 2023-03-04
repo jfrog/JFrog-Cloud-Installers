@@ -1,6 +1,15 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [10.12.0] - Mar 1, 2023
+* Conditionally start Artifactory service [GH-260](https://github.com/jfrog/JFrog-Cloud-Installers/pull/260)
+* Allow overriding nginx config templates [GH-261](https://github.com/jfrog/JFrog-Cloud-Installers/pull/261)
+* Updated artifactory postgresql driver to `42.5.4`
+* Product Updates/fixes
+
+## [10.11.6] - Feb 27, 2023
+* Product Updates/fixes
+
 ## [10.11.5] - Feb 16, 2023
 * Product Updates/fixes
 

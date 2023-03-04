@@ -80,6 +80,7 @@
     mode: 0644
   notify: Restart nginx
   no_log: true
+  
 
 - name: Restart nginx
   ansible.builtin.meta: flush_handlers
