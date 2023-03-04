@@ -7,3 +7,6 @@ nginx_daemon: nginx
 
 nginx_worker_processes: 1
 artifactory_docker_registry_subdomain: false
+
+artifactory_conf_template: artifactory.conf.j2
+nginx_conf_template: nginx.conf.j2

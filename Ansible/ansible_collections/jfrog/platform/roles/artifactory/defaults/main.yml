@@ -1,7 +1,7 @@
 # Defaults file for artifactory
 
 # The version of artifactory to install
-artifactory_version: 7.49.8
+artifactory_version: 7.55.3
 
 # Set this to true when SSL is enabled (to use artifactory_nginx_ssl role), default to false (implies artifactory uses artifactory_nginx role )
 artifactory_nginx_ssl_enabled: false
@@ -33,6 +33,9 @@ jfrog_home_directory: /opt/jfrog
 # Pick the Artifactory flavour to install, can be also cpp-ce/jcr/pro
 artifactory_flavour: pro
 
+# Whether to start Artifactory
+artifactory_start_service: true
+
 artifactory_extra_java_opts: -server -Xms512m -Xmx2g -Xss256k -XX:+UseG1GC
 artifactory_system_yaml_template: system.yaml.j2
 artifactory_tar_file_name: jfrog-artifactory-pro-{{ artifactory_version }}-linux.tar.gz
@@ -44,7 +47,7 @@ artifactory_untar_home: "{{ jfrog_home_directory }}/artifactory-{{ artifactory_f
 # Timeout in seconds for URL request
 artifactory_download_timeout: 10
 
-postgres_driver_version: 42.5.1
+postgres_driver_version: 42.5.4
 postgres_driver_download_url: "https://repo1.maven.org/maven2/org/postgresql/postgresql/\
   {{ postgres_driver_version }}/postgresql-{{ postgres_driver_version }}.jar"
 

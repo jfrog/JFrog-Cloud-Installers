@@ -14,7 +14,7 @@
 - name: Copy nginx.conf file
   become: true
   ansible.builtin.template:
-    src: nginx.conf.j2
+    src: "{{ nginx_conf_template }}"
     dest: /etc/nginx/nginx.conf
     owner: root
     group: root
@@ -23,7 +23,7 @@
 - name: Generate artifactory.conf
   become: true
   ansible.builtin.template:
-    src: artifactory.conf.j2
+    src: "{{ artifactory_conf_template }}"
     dest: /etc/nginx/conf.d/artifactory.conf
     owner: root
     group: root
