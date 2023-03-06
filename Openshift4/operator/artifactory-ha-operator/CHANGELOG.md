@@ -2,6 +2,10 @@
 
 All changes to this chart will be documented in this file.
 
+## [1.2.3] - Mar 06, 2023
+
+- Updating Operator to latest jfrog/artifactory-ha helm chart version 107.49.8 artifactory version 7.49.8
+
 ## [1.2.2] - Nov 25, 2022
 
 - Updating Operator to latest jfrog/artifactory-ha helm chart version 107.46.11 artifactory version 7.46.11
