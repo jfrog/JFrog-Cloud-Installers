@@ -77,10 +77,10 @@
   ansible.builtin.template:
     src: certificate.key.j2
     dest: "/etc/pki/tls/cert.key"
-    mode: 0644
+    mode: 0600
   notify: Restart nginx
   no_log: true
-  
+
 
 - name: Restart nginx
   ansible.builtin.meta: flush_handlers
