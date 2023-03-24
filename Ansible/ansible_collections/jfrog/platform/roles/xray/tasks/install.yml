@@ -17,6 +17,17 @@
     shell: /bin/bash
     state: present
 
+- name: Allow using crontab
+  ansible.builtin.lineinfile:
+    path: /etc/cron.allow
+    line: "{{ xray_user }}"
+    state: present
+
+- name: Allow reading cron.allow
+  file:
+    path: /etc/cron.allow
+    mode: 0644
+
 - name: Check if xray tar exists
   become: true
   ansible.builtin.stat:
