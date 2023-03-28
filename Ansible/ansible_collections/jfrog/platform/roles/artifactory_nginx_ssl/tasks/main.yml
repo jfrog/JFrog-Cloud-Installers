@@ -56,31 +56,37 @@
     state: directory
     mode: 0755
 
+- name: Ensure ssl_certificate_path exists
+  become: true
+  ansible.builtin.file:
+    path: "{{ ssl_certificate_path }}"
+    state: directory
+    mode: 0755
+
+- name: Ensure ssl_certificate_key_path exists
+  become: true
+  ansible.builtin.file:
+    path: "{{ ssl_certificate_key_path }}"
+    state: directory
+    mode: 0700
+
 - name: Configure certificate
   become: true
   ansible.builtin.template:
     src: certificate.pem.j2
-    dest: "/var/opt/jfrog/nginx/ssl/cert.pem"
+    dest: "{{ ssl_certificate_path }}/cert.pem"
     mode: 0644
   notify: Restart nginx
   no_log: true
-
-- name: Ensure pki exists
-  become: true
-  ansible.builtin.file:
-    path: "/etc/pki/tls"
-    state: directory
-    mode: 0755
 
 - name: Configure key
   become: true
   ansible.builtin.template:
     src: certificate.key.j2
-    dest: "/etc/pki/tls/cert.key"
-    mode: 0644
+    dest: "{{ ssl_certificate_key_path }}/cert.key"
+    mode: 0600
   notify: Restart nginx
   no_log: true
-  
 
 - name: Restart nginx
   ansible.builtin.meta: flush_handlers
