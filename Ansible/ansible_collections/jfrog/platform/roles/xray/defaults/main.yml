@@ -1,7 +1,7 @@
 # Defaults file for xray
 
 # The version of xray to install
-xray_version: 3.67.9
+xray_version: 3.69.3
 
 # Whether to enable HA
 xray_ha_enabled: false
@@ -50,9 +50,6 @@ xray_system_yaml_template: system.yaml.j2
 linux_distro: "{{ ansible_distribution | lower }}{{ ansible_distribution_major_version }}"
 
 xray_db_util_search_filter:
-  ubuntu16:
-    db5: 'db5.3-util.*ubuntu0.*amd64\.deb'
-    db: 'db-util.*ubuntu.*all.deb'
   ubuntu18:
     db5: 'db5.3-util.*ubuntu1.1.*amd64\.deb'
     db: 'db-util.*ubuntu.*all.deb'
@@ -102,3 +99,5 @@ xray_systemyaml: |-
 
 # Note: xray_systemyaml_override is by default false,  if you want to change default xray_systemyaml
 xray_systemyaml_override: false
+
+xray_start_service: true

@@ -166,6 +166,8 @@
 
 - name: Restart xray
   ansible.builtin.meta: flush_handlers
+  when:
+    - xray_start_service
 
 - name: Make sure xray is up and running
   ansible.builtin.uri:
@@ -176,4 +178,6 @@
   until: result is succeeded
   retries: 25
   delay: 5
-  when: not ansible_check_mode
+  when:
+    - not ansible_check_mode
+    - xray_start_service

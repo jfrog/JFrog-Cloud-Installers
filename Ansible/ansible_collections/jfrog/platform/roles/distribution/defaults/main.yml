@@ -1,7 +1,7 @@
 # defaults file for distribution
 
 # The version of distribution to install
-distribution_version: 2.16.6
+distribution_version: 2.17.0
 
 # whether to enable HA
 distribution_ha_enabled: false

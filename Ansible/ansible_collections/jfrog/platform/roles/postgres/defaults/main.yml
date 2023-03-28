@@ -8,7 +8,7 @@ postgres_listen_addresses: 0.0.0.0
 postgres_port: 5432
 
 # Server version in package:
-postgres_server_pkg_version: "{{ postgres_version|replace('.', '') }}"
+postgres_server_pkg_version: "{{ postgres_version | replace('.', '') }}"
 
 # Whether or not the files are on ZFS.
 postgres_server_volume_is_zfs: false
