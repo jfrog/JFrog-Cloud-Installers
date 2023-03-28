@@ -113,6 +113,19 @@
     owner: "{{ insight_user }}"
     group: "{{ insight_group }}"
 
+- name: Allow using crontab
+  ansible.builtin.lineinfile:
+    path: /etc/cron.allow
+    line: "{{ insight_user }}"
+    state: present
+  when: insight_allow_crontab
+
+- name: Allow reading cron.allow
+  file:
+    path: /etc/cron.allow
+    mode: 0644
+  when: insight_allow_crontab
+
 - name: Restart insight
   ansible.builtin.meta: flush_handlers
 
