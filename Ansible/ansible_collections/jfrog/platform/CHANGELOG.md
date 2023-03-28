@@ -2,9 +2,12 @@
 All changes to this collection will be documented in this file.
 
 ## [10.12.1] - Mar 27, 2023
-* Adding variables for certificate and key paths.
-* Set SELinux boolean httpd_can_network_connect.
-* Fix file permission of Nginx TLS key.
+* Conditionally start Xray service [GH-275](https://github.com/jfrog/JFrog-Cloud-Installers/pull/275)
+* Set SELinux boolean httpd_can_network_connect [GH-271](https://github.com/jfrog/JFrog-Cloud-Installers/pull/271)
+* Fix file permission of Nginx TLS key [GH-269](https://github.com/jfrog/JFrog-Cloud-Installers/pull/269)
+* Adding variables for certificate and key paths [GH-267](https://github.com/jfrog/JFrog-Cloud-Installers/pull/267)
+* Fix code-style [GH-265](https://github.com/jfrog/JFrog-Cloud-Installers/pull/265)
+* Product Updates/fixes
 
 ## [10.12.0] - Mar 1, 2023
 * Conditionally start Artifactory service [GH-260](https://github.com/jfrog/JFrog-Cloud-Installers/pull/260)
@@ -159,7 +162,7 @@ All changes to this collection will be documented in this file.
 ## [7.25.7] - Sep 16, 2021
 * Bug Fixes
 
-## [7.24.3] - Aug 17, 2021
+## [7.24.3] - Aug 17, 2021 
 * Added required variables check when using `artifactory_nginx_ssl` role
 * Missioncontrol's Elasticsearch to use default ES JAVA_HOME
 * Bug Fixes
@@ -199,4 +202,4 @@ All changes to this collection will be documented in this file.
 * Added new `groups_vars/all/package_version.yml` file to define product versions
 * Added global support for masterKey and joinKey values in `groups_vars/all/vars.yml`
 * **IMPORTANT**
-* Previous 1.x.x jfrog.installer [deprecated collection](https://github.com/jfrog/JFrog-Cloud-Installers/tree/ansible-v1.1.2/Ansible/ansible_collections/jfrog/installers)
+* Previous 1.x.x jfrog.installer [deprecated collection](https://github.com/jfrog/JFrog-Cloud-Installers/tree/ansible-v1.1.2/Ansible/ansible_collections/jfrog/installers) 
