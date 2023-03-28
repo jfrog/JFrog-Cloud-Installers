@@ -5,6 +5,8 @@
   ansible.builtin.systemd:
     name: "{{ xray_daemon }}"
     state: restarted
+  when:
+  - xray_start_service
 
 - name: Stop xray
   become: true
