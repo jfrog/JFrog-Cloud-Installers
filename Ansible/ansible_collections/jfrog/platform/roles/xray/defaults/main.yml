@@ -102,3 +102,6 @@ xray_systemyaml: |-
 
 # Note: xray_systemyaml_override is by default false,  if you want to change default xray_systemyaml
 xray_systemyaml_override: false
+
+# Allow xray user to create crontab rules
+xray_allow_crontab: false
