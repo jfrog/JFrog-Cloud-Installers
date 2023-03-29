@@ -3,6 +3,7 @@ All changes to this collection will be documented in this file.
 
 ## [10.12.3] - May 11, 2023
 * Allow changing postgres_data_dir [GH-279](https://github.com/jfrog/JFrog-Cloud-Installers/pull/279)
+* Intermediate TLS configuration [GH-280](https://github.com/jfrog/JFrog-Cloud-Installers/pull/280)
 * Allow using external TLS certificates [GH-278](https://github.com/jfrog/JFrog-Cloud-Installers/pull/278)
 * Fix for SELinux context on bin directory [GH-282](https://github.com/jfrog/JFrog-Cloud-Installers/pull/282)
 
