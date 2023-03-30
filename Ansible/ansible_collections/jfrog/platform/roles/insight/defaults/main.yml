@@ -1,7 +1,7 @@
 # defaults file for insight
 
 # The version of insight to install
-insight_version: 1.13.2
+insight_version: 1.13.4
 
 # whether to enable HA
 insight_ha_enabled: false

@@ -1,6 +1,29 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [10.12.1] - Mar 27, 2023
+* Conditionally start Xray service [GH-275](https://github.com/jfrog/JFrog-Cloud-Installers/pull/275)
+* Set SELinux boolean httpd_can_network_connect [GH-271](https://github.com/jfrog/JFrog-Cloud-Installers/pull/271)
+* Fix file permission of Nginx TLS key [GH-269](https://github.com/jfrog/JFrog-Cloud-Installers/pull/269)
+* Adding variables for certificate and key paths [GH-267](https://github.com/jfrog/JFrog-Cloud-Installers/pull/267)
+* Fix code-style [GH-265](https://github.com/jfrog/JFrog-Cloud-Installers/pull/265)
+* Product Updates/fixes
+
+## [10.12.0] - Mar 1, 2023
+* Conditionally start Artifactory service [GH-260](https://github.com/jfrog/JFrog-Cloud-Installers/pull/260)
+* Allow overriding nginx config templates [GH-261](https://github.com/jfrog/JFrog-Cloud-Installers/pull/261)
+* Updated artifactory postgresql driver to `42.5.4`
+* Product Updates/fixes
+
+## [10.11.6] - Feb 27, 2023
+* Product Updates/fixes
+
+## [10.11.5] - Feb 16, 2023
+* Product Updates/fixes
+
+## [10.11.4] - Feb 7, 2023
+* Product Updates/fixes
+
 ## [10.11.3] - Jan 30, 2023
 * **IMPORTANT**
 * Refactored code to support fully qualified collection name (FQCN), Please refer [here](https://github.com/jfrog/JFrog-Cloud-Installers/blob/master/Ansible/ansible_collections/jfrog/platform/README.md#getting-started#prerequisites)
