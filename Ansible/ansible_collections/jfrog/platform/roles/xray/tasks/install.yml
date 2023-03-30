@@ -25,7 +25,7 @@
   when: xray_allow_crontab
 
 - name: Allow reading cron.allow
-  file:
+  ansible.builtin.file:
     path: /etc/cron.allow
     mode: 0644
   when: xray_allow_crontab
