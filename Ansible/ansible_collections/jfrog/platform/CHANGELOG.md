@@ -4,6 +4,7 @@ All changes to this collection will be documented in this file.
 ## [10.12.3] - May 11, 2023
 
 * Allow using external TLS certificates [GH-278](https://github.com/jfrog/JFrog-Cloud-Installers/pull/278)
+* Fix for SELinux context on bin directory [GH-282](https://github.com/jfrog/JFrog-Cloud-Installers/pull/282)
 
 ## [10.12.2] - May 2, 2023
 * Product Updates/fixes
