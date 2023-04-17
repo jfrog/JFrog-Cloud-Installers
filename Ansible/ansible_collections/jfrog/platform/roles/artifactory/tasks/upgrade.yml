@@ -141,7 +141,7 @@
 - name: Restart artifactory
   ansible.builtin.meta: flush_handlers
   when:
-    - artifactory_start_service
+    - artifactory_start_service 
 
 - name: Make sure artifactory is up and running
   ansible.builtin.uri:
@@ -154,4 +154,4 @@
   delay: 5
   when:
     - not ansible_check_mode
-    - artifactory_start_service
+    - artifactory_start_service | bool

@@ -7,7 +7,7 @@
     state: restarted
     daemon_reload: true
   when:
-    - artifactory_start_service
+    - artifactory_start_service | bool
 
 - name: Stop artifactory
   become: true
