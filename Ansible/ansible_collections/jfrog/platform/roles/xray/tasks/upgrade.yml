@@ -121,19 +121,6 @@
     group: "{{ xray_group }}"
     recurse: true
 
-- name: Allow using crontab
-  ansible.builtin.lineinfile:
-    path: /etc/cron.allow
-    line: "{{ xray_user }}"
-    state: present
-  when: xray_allow_crontab
-
-- name: Allow reading cron.allow
-  ansible.builtin.file:
-    path: /etc/cron.allow
-    mode: 0644
-  when: xray_allow_crontab
-
 - name: Restart xray
   ansible.builtin.meta: flush_handlers
   when:

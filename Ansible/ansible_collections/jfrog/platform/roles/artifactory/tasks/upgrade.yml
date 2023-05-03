@@ -1,19 +1,6 @@
 - name: Configure SELinux context
   ansible.builtin.include_tasks: shared/selinux_configure_context.yml
 
-- name: Allow using crontab
-  ansible.builtin.lineinfile:
-    path: /etc/cron.allow
-    line: "{{ artifactory_user }}"
-    state: present
-  when: artifactory_allow_crontab
-
-- name: Allow reading cron.allow
-  ansible.builtin.file:
-    path: /etc/cron.allow
-    mode: 0644
-  when: artifactory_allow_crontab
-
 - name: Check if artifactory tar already exists
   become: true
   ansible.builtin.stat:
