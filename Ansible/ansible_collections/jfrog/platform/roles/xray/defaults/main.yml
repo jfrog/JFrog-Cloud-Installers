@@ -101,3 +101,6 @@ xray_systemyaml: |-
 xray_systemyaml_override: false
 
 xray_start_service: true
+
+# Allow xray user to create crontab rules
+xray_allow_crontab: false
