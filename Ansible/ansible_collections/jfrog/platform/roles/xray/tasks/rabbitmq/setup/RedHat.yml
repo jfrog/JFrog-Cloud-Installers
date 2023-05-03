@@ -67,6 +67,7 @@
   ansible.builtin.yum:
     name: "{{ xray_erlang_package }}"
     state: present
+    disable_gpg_check: true
   vars:
     ansible_python_interpreter: "{{ yum_python_interpreter }}"
   register: install_erlang_package_result
