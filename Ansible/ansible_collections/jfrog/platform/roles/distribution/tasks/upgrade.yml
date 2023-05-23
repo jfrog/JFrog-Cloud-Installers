@@ -117,6 +117,19 @@
     owner: "{{ distribution_user }}"
     group: "{{ distribution_group }}"
 
+- name: Allow using crontab
+  ansible.builtin.lineinfile:
+    path: /etc/cron.allow
+    line: "{{ distribution_user }}"
+    state: present
+  when: distribution_allow_crontab
+
+- name: Allow reading cron.allow
+  ansible.builtin.file:
+    path: /etc/cron.allow
+    mode: 0644
+  when: distribution_allow_crontab
+
 - name: Restart distribution
   ansible.builtin.meta: flush_handlers
 

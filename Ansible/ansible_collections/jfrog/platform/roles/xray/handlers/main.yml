@@ -6,7 +6,7 @@
     name: "{{ xray_daemon }}"
     state: restarted
   when:
-    - xray_start_service
+    - xray_start_service | bool
 
 - name: Stop xray
   become: true
