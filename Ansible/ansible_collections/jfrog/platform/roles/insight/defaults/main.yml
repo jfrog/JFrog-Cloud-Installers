@@ -85,3 +85,6 @@ insight_systemyaml: |-
 
 # Note: insight_systemyaml_override is by default false,  if you want to change default insight_systemyaml
 insight_systemyaml_override: false
+
+# Allow insight user to create crontab rules
+insight_allow_crontab: false

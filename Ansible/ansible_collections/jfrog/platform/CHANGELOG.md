@@ -1,6 +1,15 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [10.12.3] - May 22, 2023
+* Allow using crontab [GH-276](https://github.com/jfrog/JFrog-Cloud-Installers/pull/276/files)
+* Allow using external TLS certificates [GH-278](https://github.com/jfrog/JFrog-Cloud-Installers/pull/278)
+* Allow changing of postgres_data_dir [GH-279](https://github.com/jfrog/JFrog-Cloud-Installers/pull/279/files)
+* Intermediate TLS configuration [GH-280](https://github.com/jfrog/JFrog-Cloud-Installers/pull/280/files)
+* Fixed SELinux context on bin directory [GH-282](https://github.com/jfrog/JFrog-Cloud-Installers/pull/282/files)
+* Fixed flag handler to be boolean [GH-286](https://github.com/jfrog/JFrog-Cloud-Installers/pull/286/files)
+* Product Updates/fixes
+
 ## [10.12.2] - May 2, 2023
 * Product Updates/fixes
 

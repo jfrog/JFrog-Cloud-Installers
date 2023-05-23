@@ -14,7 +14,6 @@
 
 - name: Ensure PostgreSQL data directory exists
   become: true
-  become_user: postgres
   ansible.builtin.file:
     path: "{{ postgresql_data_dir }}"
     owner: postgres
@@ -50,6 +49,24 @@
     - pg_hba.conf
     - postgresql.conf
   notify: Restart postgresql
+
+- name: Setup postgres systemd overide directory
+  become: true
+  ansible.builtin.file:
+    path: "/etc/systemd/system/postgresql-{{ postgres_version }}.service.d"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Setup postgres systemd overides
+  become: true
+  ansible.builtin.template:
+    src: override.conf.j2
+    dest: "/etc/systemd/system/postgresql-{{ postgres_version }}.service.d/override.conf"
+    owner: root
+    group: root
+    mode: 0644
 
 - name: Ensure PostgreSQL is started and enabled on boot
   become: true

@@ -57,36 +57,44 @@
     mode: 0755
 
 - name: Ensure ssl_certificate_path exists
+  when: ssl_certificate_install
   become: true
   ansible.builtin.file:
     path: "{{ ssl_certificate_path }}"
     state: directory
     mode: 0755
+  when: ssl_certificate_install
 
 - name: Ensure ssl_certificate_key_path exists
+  when: ssl_certificate_install
   become: true
   ansible.builtin.file:
     path: "{{ ssl_certificate_key_path }}"
     state: directory
     mode: 0700
+  when: ssl_certificate_install
 
 - name: Configure certificate
+  when: ssl_certificate_install
   become: true
   ansible.builtin.template:
     src: certificate.pem.j2
-    dest: "{{ ssl_certificate_path }}/cert.pem"
+    dest: "{{ ssl_certificate_path }}/{{ ssl_certificate }}"
     mode: 0644
   notify: Restart nginx
   no_log: true
+  when: ssl_certificate_install
 
 - name: Configure key
+  when: ssl_certificate_install
   become: true
   ansible.builtin.template:
     src: certificate.key.j2
-    dest: "{{ ssl_certificate_key_path }}/cert.key"
+    dest: "{{ ssl_certificate_key_path }}/{{ ssl_certificate_key }}"
     mode: 0600
   notify: Restart nginx
   no_log: true
+  when: ssl_certificate_install
 
 - name: Restart nginx
   ansible.builtin.meta: flush_handlers
