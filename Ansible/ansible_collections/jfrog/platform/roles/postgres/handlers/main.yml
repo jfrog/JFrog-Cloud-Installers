@@ -4,3 +4,4 @@
   ansible.builtin.systemd:
     name: "{{ postgresql_daemon }}"
     state: restarted
+    daemon_reload: true
