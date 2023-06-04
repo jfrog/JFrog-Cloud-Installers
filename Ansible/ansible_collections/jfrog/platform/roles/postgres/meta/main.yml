@@ -17,9 +17,11 @@ galaxy_info:
       versions:
         - bionic
         - focal
+        - jammy
     - name: Debian
       versions:
         - buster
+        - bullseye
   galaxy_tags:
     - postgres
     - jfrog

@@ -57,7 +57,6 @@
     mode: 0755
 
 - name: Ensure ssl_certificate_path exists
-  when: ssl_certificate_install
   become: true
   ansible.builtin.file:
     path: "{{ ssl_certificate_path }}"
@@ -66,7 +65,6 @@
   when: ssl_certificate_install
 
 - name: Ensure ssl_certificate_key_path exists
-  when: ssl_certificate_install
   become: true
   ansible.builtin.file:
     path: "{{ ssl_certificate_key_path }}"
@@ -75,7 +73,6 @@
   when: ssl_certificate_install
 
 - name: Configure certificate
-  when: ssl_certificate_install
   become: true
   ansible.builtin.template:
     src: certificate.pem.j2
@@ -86,7 +83,6 @@
   when: ssl_certificate_install
 
 - name: Configure key
-  when: ssl_certificate_install
   become: true
   ansible.builtin.template:
     src: certificate.key.j2
