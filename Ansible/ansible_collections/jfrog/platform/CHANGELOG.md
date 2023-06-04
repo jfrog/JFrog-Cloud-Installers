@@ -1,6 +1,10 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [10.13.0] - Jun 2, 2023
+* Added support for  Ubuntu 22 and Debain 11
+* Product Updates/fixes
+
 ## [10.12.3] - May 22, 2023
 * Allow using crontab [GH-276](https://github.com/jfrog/JFrog-Cloud-Installers/pull/276/files)
 * Allow using external TLS certificates [GH-278](https://github.com/jfrog/JFrog-Cloud-Installers/pull/278)
