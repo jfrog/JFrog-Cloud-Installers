@@ -54,17 +54,17 @@ xray_db_util_search_filter:
     db5: 'db5.3-util.*ubuntu1.1.*amd64\.deb'
     db: 'db-util.*ubuntu.*all.deb'
   ubuntu20:
-    db5: 'db5.3-util.*dfsg.*ubuntu.*amd64\.deb'
+    db5: 'db5.3-util.*dfsg.*ubuntu2.*amd64\.deb'
     db: 'db-util.*ubuntu.*all.deb'
   ubuntu22:
-    db5: ‘db5.3-util.*dfsg.*ubuntu3.*amd64\.deb’
-    db: ‘db-util.*ubuntu.*all.deb’
+    db5: 'db5.3-util.*dfsg.*ubuntu3.*amd64\.deb'
+    db: 'db-util.*ubuntu.*all.deb'
   debian10:
     db5: 'TBD'
     db: 'db-util_([0-9]{1,3}\.?){3}.*nmu1_all\.deb'
   debian11:
-    db5: ‘TBD’
-    db: ‘db-util_([0-9]{1,3}\.?){3}.*nmu1_all\.deb’
+    db5: 'TBD'
+    db: 'db-util_([0-9]{1,3}\.?){3}.*nmu1_all\.deb'
 
 
 yum_python_interpreter: >-

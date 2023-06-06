@@ -1,6 +1,9 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [10.13.1] - Jun 5, 2023
+* Updated regular expression for Ubuntu 20 [GH-296](https://github.com/jfrog/JFrog-Cloud-Installers/pull/296)
+
 ## [10.13.0] - Jun 2, 2023
 * Added support for  Ubuntu 22 and Debain 11
 * Product Updates/fixes
