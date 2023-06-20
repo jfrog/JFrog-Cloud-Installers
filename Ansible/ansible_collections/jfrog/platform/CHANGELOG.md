@@ -1,6 +1,9 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [10.13.2] - Jun 20, 2023
+* Fixed http to https redirect for artifactory_nginx_ssl role
+
 ## [10.13.1] - Jun 6, 2023
 * Fixed db-util / db5.3-util package installation on Ubuntu 20[GH-296](https://github.com/jfrog/JFrog-Cloud-Installers/issues/296)
 * Product Updates/fixes
