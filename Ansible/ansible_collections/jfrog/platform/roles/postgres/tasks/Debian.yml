@@ -17,6 +17,10 @@
     url: "{{ postgres_apt_key_url }}"
     id: "{{ postgres_apt_key_id }}"
     state: present
+  register: download_postgresql_key
+  until: download_postgresql_key is success
+  retries: 3
+  delay: 3
 
 - name: Register PostgreSQL repository
   become: true
@@ -24,6 +28,10 @@
     repo: "{{ postgres_apt_repository_repo }}"
     state: present
     filename: pgdg
+  register: download_postgresql_repo
+  until: download_postgresql_repo is success
+  retries: 3
+  delay: 3
 
 - name: Install postgres packages
   become: true
@@ -34,3 +42,7 @@
     state: present
     update_cache: true
     cache_valid_time: 3600
+  register: download_postgresql
+  until: download_postgresql is success
+  retries: 3
+  delay: 3
