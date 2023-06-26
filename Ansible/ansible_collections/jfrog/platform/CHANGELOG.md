@@ -4,8 +4,10 @@ All changes to this collection will be documented in this file.
 ## [10.13.3] - Jun 26, 2023
 * Fixed binarystore.xml for single instance setup.
 
-## [10.13.2] - Jun 20, 2023
-* Fixed http to https redirect for artifactory_nginx_ssl role
+## [10.13.2] - Jun 21, 2023
+* Added retry options for Postgresql download [GH-293](https://github.com/jfrog/JFrog-Cloud-Installers/issues/293)
+* Fix the redirect on port 80 points to the default page for Nginx [GH-298](https://github.com/jfrog/JFrog-Cloud-Installers/issues/298)
+* Product Updates/fixes
 
 ## [10.13.1] - Jun 6, 2023
 * Fixed db-util / db5.3-util package installation on Ubuntu 20[GH-296](https://github.com/jfrog/JFrog-Cloud-Installers/issues/296)

@@ -39,6 +39,10 @@
   ansible.builtin.rpm_key:
     key: https://download.postgresql.org/pub/repos/yum/RPM-GPG-KEY-PGDG
     state: present
+  register: download_postgresql_key
+  until: download_postgresql_key is success
+  retries: 3
+  delay: 3
 
 - name: Install PostgreSQL repository
   become: true
@@ -49,6 +53,10 @@
     base: https://download.postgresql.org/pub/repos/yum
     version: "{{ ansible_distribution_major_version }}"
     repo_file_name: pgdg-redhat-repo-latest.noarch.rpm
+  register: download_postgresql_repo
+  until: download_postgresql_repo is success
+  retries: 3
+  delay: 3
 
 - name: Disable PostgreSQL module
   become: true
@@ -74,3 +82,7 @@
       - postgresql{{ postgres_server_pkg_version }}-server
       - postgresql{{ postgres_server_pkg_version }}-contrib
     state: present
+  register: download_postgresql
+  until: download_postgresql is success
+  retries: 3
+  delay: 3
