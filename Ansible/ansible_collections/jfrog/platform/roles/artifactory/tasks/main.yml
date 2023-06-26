@@ -1,3 +1,14 @@
+- name: Get artifactory_servers count
+  ansible.builtin.set_fact:
+    artifactory_server_count: "{{ groups['artifactory_servers'] | length }}"
+
+- name: Set file-system storage for single server
+  ansible.builtin.set_fact:
+    artifactory_binarystore: "{{ artifactory_filestore }}"
+  when:
+    - artifactory_enabled
+    - artifactory_server_count | int == 1
+
 - name: Perform installation
   ansible.builtin.include_tasks: "install.yml"
   when:

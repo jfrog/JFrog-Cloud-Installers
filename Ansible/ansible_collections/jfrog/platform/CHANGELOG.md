@@ -1,6 +1,9 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [10.13.3] - Jun 26, 2023
+* Fixed binarystore.xml for single instance setup.
+
 ## [10.13.2] - Jun 20, 2023
 * Fixed http to https redirect for artifactory_nginx_ssl role
 
