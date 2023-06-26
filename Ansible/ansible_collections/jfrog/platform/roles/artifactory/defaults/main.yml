@@ -68,22 +68,6 @@ artifactory_admin_password: password
 
 artifactory_service_file: /lib/systemd/system/artifactory.service
 
-# Provide binarystore XML content below with 2-space indentation
-# For HA
-artifactory_binarystore: |-
-  <?xml version="1.0" encoding="UTF-8"?>
-  <config version="2">
-      <chain template="cluster-file-system"/>
-  </config>
-
-# Provide binarystore XML content below with 2-space indentation
-# For single server
-artifactory_filestore: |-
-  <?xml version="1.0" encoding="UTF-8"?>
-  <config version="1">
-      <chain template="file-system"/>
-  </config>
-
 # Provide systemyaml content below with 2-space indentation
 artifactory_systemyaml: |-
   configVersion: 1
