@@ -155,9 +155,6 @@
     src: binarystore.xml.j2
     dest: "{{ artifactory_home }}/var/etc/artifactory/binarystore.xml"
     mode: 0644
-  when:
-    - artifactory_binarystore is defined
-    - artifactory_binarystore | length > 0
   notify: Restart artifactory
 
 - name: Configure artifactory license(s)

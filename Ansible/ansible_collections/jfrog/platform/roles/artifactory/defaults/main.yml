@@ -47,7 +47,7 @@ artifactory_untar_home: "{{ jfrog_home_directory }}/artifactory-{{ artifactory_f
 # Timeout in seconds for URL request
 artifactory_download_timeout: 10
 
-postgres_driver_version: 42.5.4
+postgres_driver_version: 42.6.0
 postgres_driver_download_url: "https://repo1.maven.org/maven2/org/postgresql/postgresql/\
   {{ postgres_driver_version }}/postgresql-{{ postgres_driver_version }}.jar"
 
@@ -67,13 +67,6 @@ artifactory_admin_username: admin
 artifactory_admin_password: password
 
 artifactory_service_file: /lib/systemd/system/artifactory.service
-
-# Provide binarystore XML content below with 2-space indentation
-artifactory_binarystore: |-
-  <?xml version="1.0" encoding="UTF-8"?>
-  <config version="2">
-      <chain template="cluster-file-system"/>
-  </config>
 
 # Provide systemyaml content below with 2-space indentation
 artifactory_systemyaml: |-
