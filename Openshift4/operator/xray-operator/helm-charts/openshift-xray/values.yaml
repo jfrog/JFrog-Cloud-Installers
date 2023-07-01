@@ -11,13 +11,13 @@ xray:
     url: "OVERRIDE"
     user: "OVERRIDE"
     password: "OVERRIDE"
-  initContainerImage: registry.connect.redhat.com/jfrog/init:7.46.11
+  initContainerImage: registry.connect.redhat.com/jfrog/init:7.59.11
   common:
     rabbitmq:
       connectionConfigFromEnvironment: true
     xrayUserId: "1000721035"
     xrayGroupId: "1000721035"
-    xrayVersion: "3.67.9"
+    xrayVersion: "3.76.7"
     customInitContainers: |
       - name: "prepare-uid-persistent-volume"
         image: "{{ .Values.initContainerImage }}"
@@ -71,7 +71,7 @@ xray:
       registry: registry.connect.redhat.com
       repository: jfrog/xray-router
       imagePullPolicy: IfNotPresent
-      tag: 3.67.9
+      tag: 3.76.7
   
   # RabbitMQ
   ## Configuration values for the rabbitmq dependency
@@ -85,7 +85,7 @@ xray:
     image: 
       registry: registry.connect.redhat.com
       repository: jfrog/xray-rabbitmq
-      tag: 3.67.9
+      tag: 3.71.6
 
     podSecurityContext:
       fsGroup: 1000721001
@@ -95,6 +95,7 @@ xray:
     auth:
       username: xray
       password: xray
+      securePassword: false
       # existingPasswordSecret: name-of-existing-secret
       ## Alternatively, you can use a pre-existing secret with a key called rabbitmq-password by specifying existingPasswordSecret
       # existingPasswordSecret: <name-of-existing-secret>
