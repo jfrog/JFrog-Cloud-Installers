@@ -1,6 +1,12 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [10.13.3] - Jul 1, 2023
+* Updated artifactory postgresql driver to `42.6.0`
+* Fixed - File store always configured as HA, excessive logging on single instance [GH-305](https://github.com/jfrog/JFrog-Cloud-Installers/issues/305)
+* Removed `artifactory_binarystore` variable and now configured via binarystore template by default
+* Product Updates/fixes
+
 ## [10.13.2] - Jun 21, 2023
 * Added retry options for Postgresql download [GH-293](https://github.com/jfrog/JFrog-Cloud-Installers/issues/293)
 * Fix the redirect on port 80 points to the default page for Nginx [GH-298](https://github.com/jfrog/JFrog-Cloud-Installers/issues/298)
