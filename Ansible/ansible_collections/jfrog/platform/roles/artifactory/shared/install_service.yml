@@ -1,4 +1,9 @@
 ---
+- name: Get service facts
+  ansible.builtin.service_facts:
+
 - name: Create artifactory service
   become: true
   ansible.builtin.command: "{{ artifactory_home }}/app/bin/installService.sh"
+  when: ansible_facts.services['artifactory.service'] is not defined
+  notify: Restart artifactory
