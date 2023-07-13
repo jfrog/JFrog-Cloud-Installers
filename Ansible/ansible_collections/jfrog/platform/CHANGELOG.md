@@ -1,6 +1,10 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [10.14.0] - Jul 12, 2023
+* Fixed - artifactory role fails when run twice due to stopping artifactory service  [GH-307](https://github.com/jfrog/JFrog-Cloud-Installers/issues/307)
+* Product Updates/fixes
+
 ## [10.13.3] - Jul 1, 2023
 * Updated artifactory postgresql driver to `42.6.0`
 * Fixed - File store always configured as HA, excessive logging on single instance [GH-305](https://github.com/jfrog/JFrog-Cloud-Installers/issues/305)
