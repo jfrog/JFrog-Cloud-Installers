@@ -1,6 +1,9 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [10.14.1] - Jul 14, 2023
+* Fixed - Allow customizing binarystore.xml by adding `artifactory_binarystore` variable again [GH-313](https://github.com/jfrog/JFrog-Cloud-Installers/issues/313)
+
 ## [10.14.0] - Jul 12, 2023
 * Fixed - artifactory role fails when run twice due to stopping artifactory service  [GH-307](https://github.com/jfrog/JFrog-Cloud-Installers/issues/307)
 * Product Updates/fixes
