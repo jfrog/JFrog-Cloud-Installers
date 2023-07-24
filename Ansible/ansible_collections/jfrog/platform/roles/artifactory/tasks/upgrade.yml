@@ -103,6 +103,7 @@
     - postgres_driver_download_url is defined
     - not database_driver.stat.exists
     - not included_database_driver.stat.exists
+    - postgres_driver_download | bool
   notify: Restart artifactory
 
 - name: Configure installer info
