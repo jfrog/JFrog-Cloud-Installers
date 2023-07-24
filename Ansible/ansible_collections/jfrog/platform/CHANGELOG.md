@@ -1,6 +1,9 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [10.14.3] - Jul 20, 2023
+* Added optional variable `download_postgres_driver` to skip driver download (defaults to true) for airgap environments [GH-315](https://github.com/jfrog/JFrog-Cloud-Installers/issues/315)
+
 ## [10.14.1] - Jul 14, 2023
 * Fixed - Allow customizing binarystore.xml by adding `artifactory_binarystore` variable again [GH-313](https://github.com/jfrog/JFrog-Cloud-Installers/issues/313)
 
