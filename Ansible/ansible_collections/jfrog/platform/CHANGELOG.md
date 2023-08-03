@@ -1,6 +1,9 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [10.14.4] - Aug 2, 2023
+* Product Updates/fixes
+
 ## [10.14.3] - Jul 20, 2023
 * Added optional variable `download_postgres_driver` to skip driver download (defaults to true) for airgap environments [GH-315](https://github.com/jfrog/JFrog-Cloud-Installers/issues/315)
 
