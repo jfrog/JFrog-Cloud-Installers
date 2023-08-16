@@ -1,5 +1,7 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
+## [Unreleased]
+* Fixed - artifactory role does not update java options during upgrade [GH-320](https://github.com/jfrog/JFrog-Cloud-Installers/issues/320)
 
 ## [10.14.6] - Aug 10, 2023
 * Product Updates/fixes
