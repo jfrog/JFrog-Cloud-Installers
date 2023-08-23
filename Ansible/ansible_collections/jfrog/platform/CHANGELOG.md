@@ -1,6 +1,9 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [10.14.8] - Aug 23, 2023
+* Fixed - http to https redirect with nginx get double slash [GH-324](https://github.com/jfrog/JFrog-Cloud-Installers/issues/324)
+
 ## [10.14.7] - Aug 18, 2023
 * Fixed - artifactory role does not update java options during upgrade [GH-320](https://github.com/jfrog/JFrog-Cloud-Installers/issues/320)
 * Product Updates/fixes
