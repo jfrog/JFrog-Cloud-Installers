@@ -36,7 +36,7 @@ artifactory_flavour: pro
 # Whether to start Artifactory
 artifactory_start_service: true
 
-artifactory_extra_java_opts: -server -Xms512m -Xmx2g -Xss256k -XX:+UseG1GC
+artifactory_extra_java_opts: -server -Xms512m -Xmx4g -Xss256k -XX:+UseG1GC
 artifactory_system_yaml_template: system.yaml.j2
 artifactory_tar_file_name: jfrog-artifactory-pro-{{ artifactory_version }}-linux.tar.gz
 artifactory_home: "{{ jfrog_home_directory }}/artifactory"
