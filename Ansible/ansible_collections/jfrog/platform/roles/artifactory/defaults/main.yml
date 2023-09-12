@@ -1,7 +1,7 @@
 # Defaults file for artifactory
 
 # The version of artifactory to install
-artifactory_version: 7.63.14
+artifactory_version: 7.68.7
 
 # Set this to true when SSL is enabled (to use artifactory_nginx_ssl role), default to false (implies artifactory uses artifactory_nginx role )
 artifactory_nginx_ssl_enabled: false
@@ -36,7 +36,7 @@ artifactory_flavour: pro
 # Whether to start Artifactory
 artifactory_start_service: true
 
-artifactory_extra_java_opts: -server -Xms512m -Xmx2g -Xss256k -XX:+UseG1GC
+artifactory_extra_java_opts: -server -Xms512m -Xmx4g -Xss256k -XX:+UseG1GC
 artifactory_system_yaml_template: system.yaml.j2
 artifactory_tar_file_name: jfrog-artifactory-pro-{{ artifactory_version }}-linux.tar.gz
 artifactory_home: "{{ jfrog_home_directory }}/artifactory"

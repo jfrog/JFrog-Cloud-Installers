@@ -1,6 +1,10 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [10.15.0] - Sep 12, 2023
+* Increase heap space in artifactory java opts [GH-329](https://github.com/jfrog/JFrog-Cloud-Installers/issues/329)
+* Product Updates/fixes
+
 ## [10.14.8] - Aug 29, 2023
 * Fixed - http to https redirect with nginx get double slash [GH-324](https://github.com/jfrog/JFrog-Cloud-Installers/issues/324)
 * Product Updates/fixes

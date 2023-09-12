@@ -1,7 +1,7 @@
 # Defaults file for xray
 
 # The version of xray to install
-xray_version: 3.80.9
+xray_version: 3.82.6
 
 # Whether to enable HA
 xray_ha_enabled: false
