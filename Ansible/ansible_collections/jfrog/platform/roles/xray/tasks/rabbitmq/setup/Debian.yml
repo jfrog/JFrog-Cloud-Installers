@@ -20,6 +20,15 @@
     - ansible_distribution_release == 'xenial'
     - check_libssl_package_result.matched > 0
 
+- name: Gather the package facts
+  ansible.builtin.package_facts:
+    manager: auto
+
+- name: Check whether a package called socat is installed
+  ansible.builtin.debug:
+    msg: "{{ ansible_facts.packages['socat'] | length }} versions of socat are installed!"
+  when: "'socat' in ansible_facts.packages"
+
 - name: Find socat package
   ansible.builtin.find:
     paths: "{{ xray_home }}/app/third-party/rabbitmq/"
@@ -27,11 +36,13 @@
     use_regex: true
     file_type: file
   register: check_socat_package_result
+  when: "'socat' in ansible_facts.packages"
 
 - name: Set socat package file name
   ansible.builtin.set_fact:
     xray_socat_package: "{{ check_socat_package_result.files[0].path }}"
   when: check_socat_package_result.matched > 0
+  when: "'socat' in ansible_facts.packages"
 
 - name: Install socat package
   become: true
@@ -40,6 +51,7 @@
     deb: "{{ xray_socat_package }}"
   register: install_socat_package_result
   when: check_socat_package_result.matched > 0
+  when: "'socat' in ansible_facts.packages"
 
 - name: Find erlang package
   ansible.builtin.find:
