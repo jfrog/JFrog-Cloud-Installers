@@ -1,5 +1,18 @@
-- name: Install prerequisite packages
-  ansible.builtin.include_tasks: "{{ ansible_os_family }}.yml"
+- name: Check required variables
+  ansible.builtin.fail: msg="Variable '{{ item }}' is not defined"
+  when: item not in vars
+  loop:
+    - certificate
+    - certificate_key
+    - server_name
+
+- name: Install upstream packages
+  when: nginx_upstream | bool
+  ansible.builtin.include_tasks: "{{ ansible_os_family }}-upstream.yml"
+
+- name: Install packages from distribution server
+  when: not nginx_upstream | bool
+  ansible.builtin.include_tasks: "{{ ansible_os_family }}-ownstream.yml"
 
 - name: Install nginx
   become: true
@@ -9,9 +22,9 @@
   register: install_nginx
   retries: 5
   delay: 60
-  until: install_nginx is succeeded
+  until: install_nginx is success
 
-- name: Copy nginx.conf file
+- name: Configure main nginx conf file.
   become: true
   ansible.builtin.template:
     src: "{{ nginx_conf_template }}"
@@ -20,7 +33,21 @@
     group: root
     mode: '0755'
 
-- name: Generate artifactory.conf
+- name: Configure redirect nginx conf
+  when:
+    - artifactory_nginx_ssl_enabled is defined
+    - artifactory_nginx_ssl_enabled | bool
+  become: true
+  ansible.builtin.copy:
+    src: redirect_http_to_https.conf
+    dest: /etc/nginx/conf.d/redirect_http_to_https.conf
+    owner: root
+    group: root
+    mode: '0755'
+  when: redirect_http_to_https_enabled | bool
+  notify: Restart nginx
+
+- name: Configure the artifactory nginx conf
   become: true
   ansible.builtin.template:
     src: "{{ artifactory_conf_template }}"
@@ -29,6 +56,51 @@
     group: root
     mode: '0755'
   notify: Restart nginx
+
+- name: Configure SSL
+  when:
+    - artifactory_nginx_ssl_enabled is defined
+    - artifactory_nginx_ssl_enabled | bool
+    - ssl_certificate_install | bool
+  block:
+    - name: Create directory
+      become: true
+      ansible.builtin.file:
+        path: "/var/opt/jfrog/nginx/ssl"
+        state: directory
+        mode: '0755'
+
+    - name: Ensure ssl_certificate_path exists
+      become: true
+      ansible.builtin.file:
+        path: "{{ ssl_certificate_path }}"
+        state: directory
+        mode: '0755'
+
+    - name: Ensure ssl_certificate_key_path exists
+      become: true
+      ansible.builtin.file:
+        path: "{{ ssl_certificate_key_path }}"
+        state: directory
+        mode: '0700'
+
+    - name: Configure certificate
+      become: true
+      ansible.builtin.template:
+        src: certificate.pem.j2
+        dest: "{{ ssl_certificate_path }}/{{ ssl_certificate }}"
+        mode: '0644'
+      notify: Restart nginx
+      no_log: true
+
+    - name: Configure key
+      become: true
+      ansible.builtin.template:
+        src: certificate.key.j2
+        dest: "{{ ssl_certificate_key_path }}/{{ ssl_certificate_key }}"
+        mode: '0600'
+      notify: Restart nginx
+      no_log: true
 
 - name: Restart nginx
   ansible.builtin.meta: flush_handlers

@@ -1,12 +1,23 @@
----
-# defaults file for artifactory_nginx
+# defaults file for artifactory_nginx_ssl
+
 ## For production deployments,You SHOULD change it.
-server_name: test.artifactory.com
+# server_name: test.artifactory.com
 
 nginx_daemon: nginx
+nginx_upstream: false
+nginx_upstream_repo_key: https://nginx.org/keys/nginx_signing.key
+nginx_upstream_repo_baseurl: https://nginx.org/packages
+nginx_module: '1.22'
+redirect_http_to_https_enabled: true
 
 nginx_worker_processes: 1
 artifactory_docker_registry_subdomain: false
 
 artifactory_conf_template: artifactory.conf.j2
 nginx_conf_template: nginx.conf.j2
+
+ssl_certificate_install: true
+ssl_certificate_path: /etc/pki/tls/certs
+ssl_certificate_key_path: /etc/pki/tls/private
+ssl_certificate: cert.pem
+ssl_certificate_key: cert.key
