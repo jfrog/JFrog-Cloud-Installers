@@ -81,6 +81,16 @@
     timeout: 120
     sleep: 10
 
+- name: Assert database username and password are defined
+  ansible.builtin.assert:
+    that:
+      - curr_user.username is defined
+      - curr_user.password is defined
+  loop: "{{ database | dict2items | map(attribute='value') | list }}"
+  loop_control:
+    loop_var: curr_user
+  when: curr_user.enabled | bool
+
 - name: Create user
   become: true
   become_user: postgres
