@@ -1,6 +1,10 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [10.15.1] - Oct 2, 2023
+* Configure admin password
+* Formatting README.md
+
 ## [10.15.0] - Sep 12, 2023
 * Increase heap space in artifactory java opts [GH-329](https://github.com/jfrog/JFrog-Cloud-Installers/issues/329)
 * Product Updates/fixes
