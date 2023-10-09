@@ -1,3 +1,13 @@
+- name: Assert database username and password are defined
+  ansible.builtin.assert:
+    that:
+      - curr_user.username is defined
+      - curr_user.password is defined
+  loop: "{{ database | dict2items | map(attribute='value') | list }}"
+  loop_control:
+    loop_var: curr_user
+  when: curr_user.enabled | bool
+
 - name: Define OS-specific variables
   ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
 
@@ -80,16 +90,6 @@
     port: "{{ postgres_port }}"
     timeout: 120
     sleep: 10
-
-- name: Assert database username and password are defined
-  ansible.builtin.assert:
-    that:
-      - curr_user.username is defined
-      - curr_user.password is defined
-  loop: "{{ database | dict2items | map(attribute='value') | list }}"
-  loop_control:
-    loop_var: curr_user
-  when: curr_user.enabled | bool
 
 - name: Create user
   become: true
