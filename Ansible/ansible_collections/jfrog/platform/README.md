@@ -60,7 +60,7 @@ ansible-playbook -vv platform.yml -i hosts.ini --extra-vars "master_key=$MASTER_
 ## Using [Ansible Vault](https://docs.ansible.com/ansible/latest/user_guide/vault.html) to Encrypt Vars
 Some vars you may want to keep secret. You may put these vars into a separate file and encrypt them using [Ansible Vault](https://docs.ansible.com/ansible/latest/user_guide/vault.html).
 
-For example, you will probably change the default password for the admin user
+For example, you will probably change the default password for the admin user using an encrypted file.
 
 ```yaml
 # Default password
