@@ -64,10 +64,9 @@ artifactory_gid: 1030
 # If this is an upgrade
 artifactory_upgrade_only: false
 
-# Default username and password
-artifactory_admin_username: admin
-artifactory_admin_password: password
-
+# Default username and password, uncomment and change to manage with ansible
+# artifactory_admin_username: admin
+# artifactory_admin_password: password
 artifactory_service_file: /lib/systemd/system/artifactory.service
 
 # Provide systemyaml content below with 2-space indentation

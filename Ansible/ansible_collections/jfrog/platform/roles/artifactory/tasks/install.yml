@@ -175,6 +175,9 @@
     owner: "{{ artifactory_user }}"
     group: "{{ artifactory_group }}"
     mode: 0600
+  when: 
+    - artifactory_admin_username is defined
+    - artifactory_admin_password is defined
   notify: Restart artifactory
 
 - name: Check if included database driver is the correct version
