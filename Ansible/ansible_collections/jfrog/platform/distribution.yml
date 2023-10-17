@@ -3,4 +3,5 @@
   collections:
     - community.general
   roles:
-    - distribution
+    - role: distribution
+      when: distribution_enabled | bool

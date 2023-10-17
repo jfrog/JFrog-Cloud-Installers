@@ -6,4 +6,5 @@
     - 1
     - 100%
   roles:
-    - artifactory
+    - role: artifactory
+      when: artifactory_enabled | bool
