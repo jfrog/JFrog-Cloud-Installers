@@ -3,4 +3,5 @@
   collections:
     - community.general
   roles:
-    - xray
+    - role: xray
+      when: xray_enabled | bool
