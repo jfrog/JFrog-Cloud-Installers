@@ -4,4 +4,5 @@
     - community.general
     - ansible.posix
   roles:
-    - insight
+    - role: insight
+      when: insight_enabled | bool
