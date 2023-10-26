@@ -110,7 +110,7 @@
     group: "{{ artifactory_group }}"
   loop:
     - "{{ artifactory_home }}/var/data"
-    - "{{ artifactory_home }}/var/etc/"
+    - "{{ artifactory_home }}/var/etc"
     - "{{ artifactory_home }}/var/etc/security/"
     - "{{ artifactory_home }}/var/etc/artifactory/info/"
 

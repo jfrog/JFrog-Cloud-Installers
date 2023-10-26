@@ -1,7 +1,7 @@
 # Defaults file for artifactory
 
 # The version of artifactory to install
-artifactory_version: 7.68.14
+artifactory_version: 7.71.3
 
 # Set this to true when SSL is enabled (to use artifactory_nginx_ssl role), default to false (implies artifactory uses artifactory_nginx role )
 artifactory_nginx_ssl_enabled: false
@@ -67,6 +67,7 @@ artifactory_upgrade_only: false
 # Default username and password, uncomment and change to manage with ansible
 # artifactory_admin_username: admin
 # artifactory_admin_password: password
+
 artifactory_service_file: /lib/systemd/system/artifactory.service
 
 # Provide systemyaml content below with 2-space indentation
