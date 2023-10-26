@@ -110,7 +110,7 @@
     group: "{{ artifactory_group }}"
   loop:
     - "{{ artifactory_home }}/var/data"
-    - "{{ artifactory_home }}/var/etc"
+    - "{{ artifactory_home }}/var/etc/"
     - "{{ artifactory_home }}/var/etc/security/"
     - "{{ artifactory_home }}/var/etc/artifactory/info/"
 
@@ -166,6 +166,18 @@
   when:
     - artifactory_licenses is defined
     - artifactory_licenses | length > 0
+  notify: Restart artifactory
+
+- name: Set up Artifactory admin account 
+  ansible.builtin.template:
+    src: bootstrap.creds
+    dest: "{{ artifactory_home }}/var/etc/access/"
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+    mode: 0600
+  when: 
+    - artifactory_admin_username is defined
+    - artifactory_admin_password is defined
   notify: Restart artifactory
 
 - name: Check if included database driver is the correct version

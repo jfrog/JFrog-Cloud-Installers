@@ -1,6 +1,10 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [10.15.4] - Oct 2, 2023
+* Configure admin password
+* Formatting README.md
+
 ## [10.15.3] - Oct 16, 2023
 * Product Updates/fixes
 
