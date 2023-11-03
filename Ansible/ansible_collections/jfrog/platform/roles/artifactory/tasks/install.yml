@@ -170,8 +170,8 @@
 
 - name: Set up Artifactory admin account 
   ansible.builtin.template:
-    src: bootstrap.creds
-    dest: "{{ artifactory_home }}/var/etc/access/"
+    src: bootstrap.creds.j2
+    dest: "{{ artifactory_home }}/var/etc/access/bootstrap.creds"
     owner: "{{ artifactory_user }}"
     group: "{{ artifactory_group }}"
     mode: 0600
