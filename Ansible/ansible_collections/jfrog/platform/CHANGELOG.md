@@ -1,6 +1,9 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [10.16.1] - Nov 3, 2023
+* Artifactory - Fix bootstrap template issue [GH-340](https://github.com/jfrog/JFrog-Cloud-Installers/pull/340)
+
 ## [10.16.0] - Oct 26, 2023
 * Artifactory - Configure admin credentials [GH-335](https://github.com/jfrog/JFrog-Cloud-Installers/pull/335)
 * Postgres - Assert that database username and password are defined [GH-336](https://github.com/jfrog/JFrog-Cloud-Installers/pull/336)
