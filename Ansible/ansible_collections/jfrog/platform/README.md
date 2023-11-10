@@ -43,7 +43,7 @@ ansible-galaxy collection install community.postgresql community.general ansible
  5. Then execute with the following command to provision the JFrog Platform with Ansible.
 
 ```bash
-ansible-playbook -vv platform.yml -i hosts.ini"
+ansible-playbook -vv platform.yml -i hosts.ini
 ```
 
 ## Generating Master and Join Keys
@@ -139,7 +139,7 @@ ansible-galaxy collection build
 ## OS support
 The JFrog Platform Ansible Collection can be installed on the following operating systems:
 
-* Ubuntu LTS versions (18.04/20.4/22.04)
+* Ubuntu LTS versions (18.04/20.04/22.04)
 * Centos/RHEL 7.x/8.x/9.x
 * Debian 10.x/11.x
 * Amazon Linux 2
