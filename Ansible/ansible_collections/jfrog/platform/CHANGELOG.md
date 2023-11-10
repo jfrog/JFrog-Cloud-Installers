@@ -1,6 +1,10 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [10.16.2] - Nov 10, 2023
+* Postgres - Change postgres_apt_repository_repo url for ubuntu 18
+* Product Updates/fixes
+
 ## [10.16.1] - Nov 3, 2023
 * Artifactory - Fix bootstrap template issue [GH-340](https://github.com/jfrog/JFrog-Cloud-Installers/pull/340)
 
