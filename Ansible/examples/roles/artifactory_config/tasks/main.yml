@@ -1,0 +1,154 @@
+---
+
+- name: Artifactory Bootstrap YAML File
+  tags:
+    - config
+  ansible.builtin.template:
+    src: artifactory.config.import.yml.j2
+    dest: /opt/jfrog/artifactory/var/etc/artifactory/artifactory.config.import.yml
+    mode: '0644'
+  notify: Restart Artifactory
+
+- name: Allow token creation
+  tags:
+    - access
+  ansible.builtin.blockinfile:
+    path: /opt/jfrog/artifactory/var/etc/access/access.config.latest.yml
+    block: |
+      token:
+        default-expiry: 31536000
+        allow-basic-auth: true
+    insertbefore: 'federation:'
+    owner: artifactory
+    group: artifactory
+    mode: '640'
+  register: access_config
+
+- name: Enable access config change
+  tags:
+    - access
+  when: access_config.changed | bool  # noqa no-handler
+  ansible.builtin.command: |
+    mv /opt/jfrog/artifactory/var/etc/access/access.config.latest.yml \
+    /opt/jfrog/artifactory/var/etc/access/access.config.import.yml
+  changed_when: true
+  notify: Restart Artifactory
+
+- name: Restart artifactory
+  tags:
+    - config
+    - access
+  ansible.builtin.meta: flush_handlers
+
+- name: Make sure artifactory is up and running
+  tags:
+    - config
+    - access
+    - users
+    - token
+    - repos
+  ansible.builtin.uri:
+    url: http://127.0.0.1:8082/router/api/v1/system/health
+    timeout: 130
+    status_code: 200
+  register: result
+  until: result is succeeded
+  retries: 25
+  delay: 5
+  when:
+    - not ansible_check_mode
+
+- name: Configure remote repositories
+  tags:
+    - repos
+  ansible.builtin.uri:
+    body: "{{ lookup('ansible.builtin.template', 'remote_repos.yml.j2') }}"
+    force_basic_auth: true
+    headers:
+      Content-Type: application/yaml
+    method: PATCH
+    url: http://127.0.0.1:8081/artifactory/api/system/configuration
+    url_username: "{{ artifactory_admin_username }}"
+    url_password: "{{ artifactory_admin_password }}"
+
+- name: Create access token
+  tags:
+    - token
+    - users
+    - permissions
+  ansible.builtin.uri:
+    body: "scope=applied-permissions/admin&expires_in=3600"
+    body_format: form-urlencoded
+    force_basic_auth: true
+    method: POST
+    status_code:
+      - 200
+    url: http://localhost:8082/access/api/v1/tokens
+    url_username: "{{ artifactory_admin_username }}"
+    url_password: "{{ artifactory_admin_password }}"
+  register: token_request
+  no_log: true
+
+- name: Set access_token
+  tags:
+    - token
+    - users
+    - permissions
+  ansible.builtin.set_fact:
+    access_token: "{{ token_request.json.access_token }}"
+  no_log: true
+
+- name: Create users
+  tags:
+    - users
+  ansible.builtin.uri:
+    body: "{{ lookup('template', 'repo_user.json.j2') }}"
+    body_format: json
+    headers:
+      Authorization: Bearer {{ access_token }}
+      Content-Type: application/json
+    method: POST
+    status_code:
+      - 201
+      - 409
+    url: http://localhost:8082/access/api/v2/users
+  with_items:
+    - "{{ repo_users }}"
+  no_log: false
+
+- name: Delete anonymous permission
+  when: artifactory_delete_anonymous | bool
+  tags:
+    - permissions
+  ansible.builtin.uri:
+    headers:
+      Authorization: Bearer {{ access_token }}
+      Content-Type: application/json
+    method: DELETE
+    status_code:
+      - 200
+      - 404
+    url: "http://127.0.0.1:8082/artifactory/api/v2/security/permissions/{{ item }}"
+  loop:
+    - Anything
+    - Any+Remote
+
+- name: Configure permission
+  tags:
+    - permissions
+  ansible.builtin.uri:
+    body: "{{ lookup('ansible.builtin.template', 'permissions.json.j2') }}"
+    body_format: json
+    headers:
+      Authorization: Bearer {{ access_token }}
+      Content-Type: application/json
+    method: PUT
+    url: "http://127.0.0.1:8082/artifactory/api/v2/security/permissions/{{ item.name }}"
+  loop:
+    - name: RPMS
+      dict: "{{ repo_upstream }}"
+
+- name: Verify state
+  when: verify_state | bool
+  ansible.builtin.include_tasks:
+    file: verify.yml

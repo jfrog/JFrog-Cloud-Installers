@@ -1,0 +1,115 @@
+---
+
+- name: Gather package facts
+  ansible.builtin.package_facts:
+
+- name: Assert packages are installed
+  ansible.builtin.assert:
+    quiet: true
+    that:
+      - "'nginx' in ansible_facts.packages"
+      - "'python3-psycopg2' in ansible_facts.packages"
+
+- name: Gather service facts
+  ansible.builtin.service_facts:
+
+- name: Assert that services are running
+  ansible.builtin.assert:
+    quiet: true
+    that:
+      - ansible_facts.services['crond.service'].status == 'enabled'
+      - ansible_facts.services['crond.service'].state == 'running'
+      - ansible_facts.services['nginx.service'].status == 'enabled'
+      - ansible_facts.services['nginx.service'].state == 'running'
+      - ansible_facts.services['postgresql-13.service'].status == 'enabled'
+      - ansible_facts.services['postgresql-13.service'].state == 'running'
+
+- name: Check TLSv1.2 termination
+  ansible.builtin.uri:
+    ciphers: TLSv1.2
+    url: "https://{{ server_name }}/"
+    method: HEAD
+    return_content: false
+  register: web
+
+- name: Verify other ports are listening
+  ansible.builtin.wait_for:
+    port: "{{ item }}"
+    state: started
+    timeout: 10
+  loop:
+    - 5432
+    - 8082
+
+- name: Make sure artifactory is up and running
+  ansible.builtin.uri:
+    url: http://127.0.0.1:8082/router/api/v1/system/health
+    timeout: 130
+    status_code: 200
+  register: result
+  until: result is succeeded
+  retries: 25
+  delay: 5
+  when:
+    - not ansible_check_mode
+
+- name: Create access token
+  ansible.builtin.uri:
+    body: "scope=applied-permissions/admin&expires_in=18000"
+    body_format: form-urlencoded
+    force_basic_auth: true
+    method: POST
+    status_code:
+      - 200
+    url: http://localhost:8082/access/api/v1/tokens
+    url_username: "{{ artifactory_admin_username }}"
+    url_password: "{{ artifactory_admin_password }}"
+  register: token_request
+  no_log: true
+
+- name: Set access_token
+  ansible.builtin.set_fact:
+    access_token: "{{ token_request.json.access_token }}"
+  no_log: true
+
+- name: Get users
+  ansible.builtin.uri:
+    headers:
+      Authorization: Bearer {{ access_token }}
+    method: GET
+    status_code:
+      - 200
+    url: http://localhost:8082/access/api/v2/users
+  register: users
+  no_log: true
+
+- name: Display users
+  ansible.builtin.debug:
+    msg: "{{ users.json.users }}"
+
+- name: List permissions
+  tags:
+    - permissions
+  ansible.builtin.uri:
+    headers:
+      Authorization: Bearer {{ access_token }}
+    method: GET
+    url: "http://127.0.0.1:8082/artifactory/api/v2/security/permissions"
+  register: permission_list
+  no_log: false
+
+- name: Get permissions
+  ansible.builtin.uri:
+    headers:
+      Authorization: Bearer {{ access_token }}
+    method: GET
+    url: "{{ item.uri }}"
+  with_items: "{{ permission_list.json }}"
+  register: permissions
+ 
+- name: Display permissions
+  ansible.builtin.debug:
+    msg: "{{ item.json }}"
+  loop: "{{ permissions.results }}"
+  loop_control:
+    label: "{{ item.json.name }}"
