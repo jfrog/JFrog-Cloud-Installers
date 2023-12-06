@@ -144,6 +144,23 @@ The JFrog Platform Ansible Collection can be installed on the following operatin
 * Debian 10.x/11.x
 * Amazon Linux 2
 
+## How to avoid IPv6 binding
+
+Some distributions have two entries for localhost in `/etc/hosts`:
+
+```
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+```
+
+This can cause Java apps trying binding using IPv6, which fails when that's disabled. This causes some tcp ports not listening, like the Artifactory router service.
+
+Solution: add an extra JAVA_OPTION: `-Djava.net.preferIPv4Stack=true` to this variable:
+
+```
+artifactory_extra_java_opts: '-server -Xms512m -Xmx4g -Xss256k -XX:+UseG1GC -Djava.net.preferIPv4Stack=true'
+```
+
 ## Known issues
 * Refer [here](https://github.com/jfrog/JFrog-Cloud-Installers/issues?q=is%3Aopen+is%3Aissue+label%3AAnsible)
 * By default, ansible_python_interpreter: "/usr/bin/python3" used , For Centos/RHEL-7, Set this to "/usr/bin/python" . For example
