@@ -144,14 +144,7 @@ The JFrog Platform Ansible Collection can be installed on the following operatin
 * Debian 10.x/11.x
 * Amazon Linux 2
 
-## Known issues
-* Refer [here](https://github.com/jfrog/JFrog-Cloud-Installers/issues?q=is%3Aopen+is%3Aissue+label%3AAnsible)
-* By default, ansible_python_interpreter: "/usr/bin/python3" used , For Centos/RHEL-7, Set this to "/usr/bin/python" . For example
-```bash
-ansible-playbook -vv platform.yml -i hosts.ini -e 'ansible_python_interpreter=/usr/bin/python'
-```
-
-* How to avoid IPv6 binding
+## How to avoid IPv6 binding
 
 Some distributions have two entries for localhost in `/etc/hosts`:
 
@@ -166,4 +159,11 @@ Solution: add an extra JAVA_OPTION: `-Djava.net.preferIPv4Stack=true` to this va
 
 ```
 artifactory_extra_java_opts: '-server -Xms512m -Xmx4g -Xss256k -XX:+UseG1GC -Djava.net.preferIPv4Stack=true'
+```
+
+## Known issues
+* Refer [here](https://github.com/jfrog/JFrog-Cloud-Installers/issues?q=is%3Aopen+is%3Aissue+label%3AAnsible)
+* By default, ansible_python_interpreter: "/usr/bin/python3" used , For Centos/RHEL-7, Set this to "/usr/bin/python" . For example
+```bash
+ansible-playbook -vv platform.yml -i hosts.ini -e 'ansible_python_interpreter=/usr/bin/python'
 ```
