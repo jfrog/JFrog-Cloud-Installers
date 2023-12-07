@@ -24,7 +24,7 @@ distribution_home: "{{ jfrog_home_directory }}/distribution"
 
 distribution_install_script_path: "{{ distribution_home }}/app/bin"
 distribution_thirdparty_path: "{{ distribution_home }}/app/third-party"
-distribution_archive_service_cmd: "{{ distribution_install_script_path }}/installService.sh"
+distribution_archive_service_cmd: "{{ distribution_install_script_path }}/installService.sh --user {{ distribution_user }} --group {{ distribution_group }}"
 distribution_service_file: /lib/systemd/system/distribution.service
 
 # distribution users and groups
