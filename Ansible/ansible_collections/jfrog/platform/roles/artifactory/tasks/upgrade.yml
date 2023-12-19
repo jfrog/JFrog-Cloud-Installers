@@ -56,17 +56,27 @@
     path: "{{ jfrog_home_directory }}"
     state: directory
 
+- name: Check artifactory version
+  ansible.builtin.shell: |
+    set -o pipefail;
+    grep artifactory.product.version "{{ artifactory_home }}/app/artifactory.product.version.properties" |cut -d= -f2
+  register: check_version_cmd
+
+- name: Set running_version
+  ansible.builtin.set_fact:
+    running_version: "{{ check_version_cmd.stdout_lines }}"
+
 - name: Delete artifactory app directory
   become: true
   ansible.builtin.file:
     path: "{{ artifactory_home }}/app"
     state: absent
-  when: (download_artifactory.changed) or (unarchived_artifactory.changed)
+  when: running_version != artifactory_version
 
 - name: Copy new app to artifactory app
   become: true
   ansible.builtin.command: "cp -r {{ artifactory_untar_home }}/app/. {{ artifactory_home }}/app"
-  when: (download_artifactory.changed) or (unarchived_artifactory.changed)
+  when: running_version != artifactory_version
   notify: Restart artifactory
 
 - name: Configure artifactory license(s)
