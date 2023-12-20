@@ -61,10 +61,11 @@
     set -o pipefail;
     grep artifactory.product.version "{{ artifactory_home }}/app/artifactory.product.version.properties" |cut -d= -f2
   register: check_version_cmd
+  changed_when: false
 
 - name: Set running_version
   ansible.builtin.set_fact:
-    running_version: "{{ check_version_cmd.stdout_lines }}"
+    running_version: "{{ check_version_cmd.stdout }}"
 
 - name: Delete artifactory app directory
   become: true
