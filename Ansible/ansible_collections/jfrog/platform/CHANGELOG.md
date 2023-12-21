@@ -1,8 +1,9 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
-## [10.16.4] - Dec 18, 2023
-* Changed default Artifactory version to 7.71.8 
+## [10.16.4] - Dec 21, 2023
+* Artifactory - Upgrade version when tar is already present [GH-356](https://github.com/jfrog/JFrog-Cloud-Installers/pull/356)
+* Product Updates/fixes
 
 ## [10.16.3] - Dec 6, 2023
 * Added How to avoid IPv6 binding in Readme [GH-349](https://github.com/jfrog/JFrog-Cloud-Installers/pull/349)
