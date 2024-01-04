@@ -7,6 +7,9 @@ postgres_listen_addresses: 0.0.0.0
 # Default port of Postgres server
 postgres_port: 5432
 
+# Location of GPG key used to sign the RPMs
+postgres_rpmkey_url: "https://download.postgresql.org/pub/repos/yum/keys/PGDG-RPM-GPG-KEY-RHEL"
+
 # Server version in package:
 postgres_server_pkg_version: "{{ postgres_version | replace('.', '') }}"
 
