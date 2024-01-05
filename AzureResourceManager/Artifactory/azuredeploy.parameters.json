@@ -32,16 +32,16 @@
           {
             "name": "artdb",
             "charset": "UTF8",
-            "collation": "English_United States.1252"
+            "collation": "en_US.utf8"
           }
         ]
       }
     },
     "manual_db_url": {
-      "value": "jdbc:postgresql://postgressrvr.postgres.database.azure.com:5432"
+      "value": "jdbc:postgresql://DB-RT-SERVER-NAME.postgres.database.azure.com:5432"
     },
     "db_server": {
-      "value": "postgressrvr"
+      "value": "DB-RT-SERVER-NAME"
     },
     "masterKey": {
       "value": "GENERATE_MASTER_KEY"

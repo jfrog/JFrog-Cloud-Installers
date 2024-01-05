@@ -4,6 +4,7 @@ DB_USER=$(cat /var/lib/cloud/instance/user-data.txt | grep "^DB_ADMIN_USER=" | s
 ACTUAL_DB_USER=$(cat /var/lib/cloud/instance/user-data.txt | grep "^ACTUAL_DB_ADMIN_USER=" | sed "s/ACTUAL_DB_ADMIN_USER=//")
 DB_PASSWORD=$(cat /var/lib/cloud/instance/user-data.txt | grep "^DB_ADMIN_PASSWD=" | sed "s/DB_ADMIN_PASSWD=//")
 DB_SERVER=$(cat /var/lib/cloud/instance/user-data.txt | grep "^DB_SERVER=" | sed "s/DB_SERVER=//")
+MANUAL_DB_URL=$(cat /var/lib/cloud/instance/user-data.txt | grep "^MANUAL_DB_URL" | sed "s/MANUAL_DB_URL=//")
 MASTER_KEY=$(cat /var/lib/cloud/instance/user-data.txt | grep "^MASTER_KEY=" | sed "s/MASTER_KEY=//")
 JOIN_KEY=$(cat /var/lib/cloud/instance/user-data.txt | grep "^JOIN_KEY=" | sed "s/JOIN_KEY=//")
 LOCATION=$(cat /var/lib/cloud/instance/user-data.txt | grep "^LOCATION=" | sed "s/LOCATION=//")
@@ -41,7 +42,11 @@ else
 fi
 
 # Modify system.yaml file
-yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.database.url postgres://${DB_SERVER}.postgres.database.${DB_DOMAIN}:5432/${DB_NAME}?sslmode=disable
+if [[ -z "${MANUAL_DB_URL}" ]]; then
+  yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.database.url postgres://${DB_SERVER}.postgres.database.${DB_DOMAIN}:5432/${DB_NAME}?sslmode=disable
+else
+  yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.database.url ${MANUAL_DB_URL}
+fi
 yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.database.username ${DB_USER}
 yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.database.actualUsername ${ACTUAL_DB_USER}
 yq w -i /var/opt/jfrog/xray/etc/system.yaml shared.database.password ${DB_PASSWORD}

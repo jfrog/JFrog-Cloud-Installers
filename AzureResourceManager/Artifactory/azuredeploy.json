@@ -230,7 +230,7 @@
           {
             "name": "artdb",
             "charset": "UTF8",
-            "collation": "English_United States.1252"
+            "collation": "en_US.utf8"
           }
         ]
       }
@@ -252,7 +252,7 @@
       "metadata": {
         "description": "The base URI where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
       },
-      "defaultValue": "https://raw.githubusercontent.com/jfrog/JFrog-Cloud-Installers/master/AzureResourceManager/Artifactory/"
+      "defaultValue": "https://raw.githubusercontent.com/jfrog/JFrog-Cloud-Installers/private-postgres-db/AzureResourceManager/Artifactory/"
     },
     "_artifactsLocationSasToken": {
       "type": "securestring",
@@ -298,8 +298,7 @@
     "vmStorageAccountContainerName": "filestore",
     "azureSqlServerName": "[if(or(equals(parameters('db_type'), 'MSSQL_existing.json'),equals(parameters('db_type'),'Postgresql_existing.json')), parameters('db_server'), concat(variables('namingInfix'), 'sqlsrv'))]",
     "artDBname": "[parameters('databases').properties[0].name]",
-    "postgres_db_user": "[concat(parameters('db_user'), '@', variables('azureSqlServerName'))]",
-    "db_user": "[if(or(equals(parameters('db_type'), 'Postgresql_deploy.json'),equals(parameters('db_type'),'Postgresql_existing.json')), variables('postgres_db_user'), parameters('db_user'))]",
+    "db_user": "[parameters('db_user')]",
     "db_password": "[parameters('db_password')]",
     "db_location": "[parameters('location')]",
     "db_name": "[parameters('db_name')]",
@@ -738,6 +737,9 @@
       "type": "Microsoft.Resources/deployments",
       "name": "deploySQLDB",
       "apiVersion": "2019-09-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
+      ],
       "properties": {
         "mode": "Incremental",
         "templateLink": {
@@ -768,6 +770,15 @@
           },
           "manual_db_url": {
             "value": "[parameters('manual_db_url')]"
+          },
+          "naming_in_fix": {
+            "value": "[variables('namingInfix')]"
+          },
+          "nsg_name": {
+            "value": "[variables('nsgName')]"
+          },
+          "virtual_network_name": {
+            "value": "[variables('virtualNetworkName')]"
           }
         }
       }

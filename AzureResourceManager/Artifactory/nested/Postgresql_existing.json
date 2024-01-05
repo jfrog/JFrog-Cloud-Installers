@@ -37,6 +37,15 @@
     },
     "manual_db_url": {
       "type": "string"
+    },
+    "naming_in_fix": {
+      "type": "string"
+    },
+    "nsg_name": {
+      "type": "string"
+    },
+    "virtual_network_name": {
+      "type": "string"
     }
   },
   "variables": {

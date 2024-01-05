@@ -33,11 +33,11 @@
     },
     "skuName": {
       "type": "string",
-      "defaultValue": "GP_Gen5_2"
+      "defaultValue": "Standard_D2ds_v4"
     },
-    "skuSizeMB": {
+    "storageSizeGB": {
       "type": "int",
-      "defaultValue": 102400
+      "defaultValue": 128
     },
     "skuTier": {
       "type": "string",
@@ -91,68 +91,128 @@
     },
     "manual_db_url": {
       "type": "string"
+    },
+    "naming_in_fix": {
+      "type": "string"
+    },
+    "nsg_name": {
+      "type": "string"
+    },
+    "virtual_network_name": {
+      "type": "string"
     }
   },
   "variables": {
+    "subnetDbPrefix": "10.0.3.0/24",
+    "subnetDbName": "[concat(parameters('naming_in_fix'), 'dbSubnet')]",
+    "postgres_db_user": "[parameters('db_user')]"
   },
   "resources": [
     {
-      "type": "Microsoft.DBforPostgreSQL/servers",
-      "apiVersion": "2017-12-01",
-      "location": "[parameters('db_location')]",
-      "name": "[parameters('db_server')]",
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "apiVersion": "2021-03-01",
+      "name": "[format('{0}/{1}', parameters('virtual_network_name'), variables('subnetDbName'))]",
       "properties": {
-        "version": "[parameters('version')]",
-        "administratorLogin": "[parameters('db_user')]",
-        "administratorLoginPassword": "[parameters('db_password')]",
-        "publicNetworkAccess": "[parameters('publicNetworkAccess')]",
-        "sslEnforcement": "[parameters('sslEnforcement')]",
-        "storageProfile": {
-          "storageMB": "[parameters('skuSizeMB')]",
-          "backupRetentionDays": "[parameters('backupRetentionDays')]",
-          "geoRedundantBackup": "[parameters('geoRedundantBackup')]"
+        "addressPrefix": "[variables('subnetDbPrefix')]",
+        "delegations": [
+          {
+            "name": "dlg-Microsoft.DBforPostgreSQL-flexibleServers",
+            "properties": {
+              "serviceName": "Microsoft.DBforPostgreSQL/flexibleServers"
+            }
+          }
+        ],
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsg_name'))]"
         }
-      },
+      }
+    },
+    {
+      "type": "Microsoft.Network/privateDnsZones",
+      "apiVersion": "2018-09-01",
+      "name": "[concat(parameters('db_server'), '.private.postgres.database.azure.com')]",
+      "location": "global"
+    },
+    {
+      "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+      "apiVersion": "2020-06-01",
+      "name": "[concat(parameters('db_server'), '.private.postgres.database.azure.com/vLink')]",
+      "location": "global",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/privateDnsZones/', concat(parameters('db_server'), '.private.postgres.database.azure.com'))]"
+      ],
+      "properties": {
+        "virtualNetwork": {
+          "id": "[resourceId('Microsoft.Network/virtualNetworks/', parameters('virtual_network_name'))]"
+        },
+        "registrationEnabled": false
+      }
+    },
+    {
+      "type": "Microsoft.DBforPostgreSQL/flexibleServers",
+      "apiVersion": "2021-06-01",
+      "name": "[parameters('db_server')]",
+      "location": "[parameters('db_location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/privateDnsZones/', concat(parameters('db_server'), '.private.postgres.database.azure.com'))]",
+        "[resourceId('Microsoft.Network/privateDnsZones/virtualNetworkLinks/', concat(parameters('db_server'), '.private.postgres.database.azure.com'), 'vLink')]"
+      ],
       "sku": {
         "name": "[parameters('skuName')]",
-        "tier": "[parameters('skuTier')]",
-        "capacity": "[parameters('skuCapacity')]",
-        "size": "[parameters('skuSizeMB')]",
-        "family": "[parameters('skuFamily')]"
+        "tier": "[parameters('skuTier')]"
       },
-      "resources": [
-        {
-          "name": "[uniqueString(parameters('db_server'), 'AllowAllWindowsAzureIps' )]",
-          "type": "firewallRules",
-          "apiVersion": "2017-12-01",
-          "location": "[parameters('db_location')]",
-          "dependsOn": [
-            "[resourceId('Microsoft.DBforPostgreSQL/servers', parameters('db_server'))]"
-          ],
-          "properties": {
-            "startIpAddress": "0.0.0.0",
-            "endIpAddress": "0.0.0.0"
-          }
+      "properties": {
+        "administratorLogin": "[parameters('db_user')]",
+        "administratorLoginPassword": "[parameters('db_password')]",
+        "availabilityZone": "",
+        "Backup": {
+          "backupRetentionDays": "[parameters('backupRetentionDays')]",
+          "geoRedundantBackup": "[parameters('geoRedundantBackup')]"
         },
-        {
-          "type": "Microsoft.DBforPostgreSQL/servers/databases",
-          "apiversion": "2017-12-01",
-          "name": "[concat(parameters('db_server'), '/', parameters('databases').properties[0].name)]",
-          "dependsOn": [
-            "[resourceId('Microsoft.DBforPostgreSQL/servers', parameters('db_server'))]"
-          ],
-          "properties": {
-            "charset": "[parameters('databases').properties[0].charset]",
-            "collation": "[parameters('databases').properties[0].collation]"
-          }
+        "highAvailability": {
+          "mode": "Disabled",
+          "standbyAvailabilityZone": ""
+        },
+        "Storage": {
+          "StorageSizeGB": "[parameters('storageSizeGB')]"
+        },
+        "version": "[parameters('version')]",
+        "Network": {
+          "DelegatedSubnetResourceId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtual_network_name'), variables('subnetDbName'))]",
+          "PrivateDnsZoneResourceId": "[resourceId('Microsoft.Network/privateDnsZones/', concat(parameters('db_server'), '.private.postgres.database.azure.com'))]",
+          "PrivateDnsZoneArmResourceId": "[resourceId('Microsoft.Network/privateDnsZones/', concat(parameters('db_server'), '.private.postgres.database.azure.com'))]"
         }
-      ]
+      }
+    },
+    {
+      "type": "Microsoft.DBforPostgreSQL/flexibleServers/configurations",
+      "apiVersion": "2021-06-01",
+      "name": "[concat(parameters('db_server'), '/require_secure_transport')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.DBforPostgreSQL/flexibleServers/', parameters('db_server'))]"
+      ],
+      "properties": {
+        "value": "OFF",
+        "source": "user-override"
+      }
+    },
+    {
+      "type": "Microsoft.DBforPostgreSQL/flexibleServers/databases",
+      "apiVersion": "2021-06-01",
+      "name": "[concat(parameters('db_server'), '/', parameters('databases').properties[0].name)]",
+      "dependsOn": [
+        "[resourceId('Microsoft.DBforPostgreSQL/flexibleServers/', parameters('db_server'))]"
+      ],
+      "properties": {
+        "charset": "[parameters('databases').properties[0].charset]",
+        "collation": "[parameters('databases').properties[0].collation]"
+      }
     }
   ],
   "outputs": {
     "jdbcConnString": {
       "type": "string",
-      "value": "[concat('jdbc:postgresql://', reference(resourceId('Microsoft.DBforPostgreSQL/servers/', parameters('db_server'))).fullyQualifiedDomainName, ':5432')]"
+      "value": "[concat('jdbc:postgresql://', reference(resourceId('Microsoft.DBforPostgreSQL/flexibleServers/', parameters('db_server'))).fullyQualifiedDomainName, ':5432')]"
     },
     "dbServerName": {
       "type": "string",
@@ -160,7 +220,7 @@
     },
     "xrayConnString": {
       "type": "string",
-      "value": "[concat('postgres://', reference(resourceId('Microsoft.DBforPostgreSQL/servers/', parameters('db_server'))).fullyQualifiedDomainName, ':5432')]"
+      "value": "[concat('postgres://', reference(resourceId('Microsoft.DBforPostgreSQL/flexibleServers/', parameters('db_server'))).fullyQualifiedDomainName)]"
     },
     "db_name": {
       "type": "string",
