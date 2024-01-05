@@ -37,7 +37,7 @@
 - name: Import PostgreSQL GPG public key
   become: true
   ansible.builtin.rpm_key:
-    key: https://download.postgresql.org/pub/repos/yum/RPM-GPG-KEY-PGDG
+    key: "{{ postgres_rpmkey_url }}"
     state: present
   register: download_postgresql_key
   until: download_postgresql_key is success
