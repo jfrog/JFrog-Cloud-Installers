@@ -1,8 +1,9 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
-## [10.16.5] - Jan 01, 2024
-* Postgres - change to the new location of the RPM GPG key URL.
+## [10.16.5] - Jan 05, 2024
+* Postgres - change to the new location of the RPM GPG key URL. [GH-362](https://github.com/jfrog/JFrog-Cloud-Installers/pull/362)
+* Product Updates/fixes
 
 ## [10.16.4] - Dec 21, 2023
 * Artifactory - Upgrade version when tar is already present [GH-356](https://github.com/jfrog/JFrog-Cloud-Installers/pull/356)

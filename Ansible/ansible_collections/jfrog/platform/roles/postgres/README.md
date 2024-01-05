@@ -14,11 +14,6 @@ postgres_allowed_hosts:
 
 **Update this variable to only allow access from Artifactory, Distribution, Insight and Xray.**
 
-
-Since 2024-01-03 the GPG key has a new location.
-```
-postgres_rpmkey_url: "https://download.postgresql.org/pub/repos/yum/keys/PGDG-RPM-GPG-KEY-RHEL"
-```
 ## Example Playbook
 ```
 ---
