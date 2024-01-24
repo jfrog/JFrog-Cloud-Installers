@@ -1,13 +1,17 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [10.17.0] - Jan 24, 2024
+* **IMPORTANT**
+* From 10.17.x platform collection, Artifactory (7.77.x) is not supported on Ubuntu 18.04, Centos/RHEL 7.x
+* Product Updates/fixes
+
 ## [10.16.5] - Jan 05, 2024
 * Postgres - change to the new location of the RPM GPG key URL. [GH-362](https://github.com/jfrog/JFrog-Cloud-Installers/pull/362)
 * Product Updates/fixes
 
 ## [10.16.4] - Dec 21, 2023
 * Artifactory - Upgrade version when tar is already present [GH-356](https://github.com/jfrog/JFrog-Cloud-Installers/pull/356)
-* Product Updates/fixes
 
 ## [10.16.3] - Dec 6, 2023
 * Added How to avoid IPv6 binding in Readme [GH-349](https://github.com/jfrog/JFrog-Cloud-Installers/pull/349)

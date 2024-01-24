@@ -139,10 +139,14 @@ ansible-galaxy collection build
 ## OS support
 The JFrog Platform Ansible Collection can be installed on the following operating systems:
 
-* Ubuntu LTS versions (18.04/20.04/22.04)
-* Centos/RHEL 7.x/8.x/9.x
+* Ubuntu LTS versions (20.04/22.04)
+* Centos/RHEL 8.x/9.x
 * Debian 10.x/11.x
 * Amazon Linux 2
+
+## Note
+
+From 10.17.x platform collection, Artifactory (7.77.x) is not supported on Ubuntu - 18.04, Centos/RHEL - 7.x
 
 ## How to avoid IPv6 binding
 
@@ -163,7 +167,3 @@ artifactory_extra_java_opts: '-server -Xms512m -Xmx4g -Xss256k -XX:+UseG1GC -Dja
 
 ## Known issues
 * Refer [here](https://github.com/jfrog/JFrog-Cloud-Installers/issues?q=is%3Aopen+is%3Aissue+label%3AAnsible)
-* By default, ansible_python_interpreter: "/usr/bin/python3" used , For Centos/RHEL-7, Set this to "/usr/bin/python" . For example
-```bash
-ansible-playbook -vv platform.yml -i hosts.ini -e 'ansible_python_interpreter=/usr/bin/python'
-```
