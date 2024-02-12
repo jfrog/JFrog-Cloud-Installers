@@ -7,6 +7,7 @@
   loop_control:
     loop_var: curr_user
   when: curr_user.enabled | bool
+  no_log: true  # secret passwords
 
 - name: Define OS-specific variables
   ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
