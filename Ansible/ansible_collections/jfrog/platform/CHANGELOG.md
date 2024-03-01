@@ -1,6 +1,10 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [10.17.1] - Feb 29, 2024
+* Artifactory - Upgrade fails during the Check artifactory version [GH-369](https://github.com/jfrog/JFrog-Cloud-Installers/pull/369)
+* Product Updates/fixes
+
 ## [10.17.0] - Jan 24, 2024
 * **IMPORTANT**
 * From 10.17.x platform collection, Artifactory (7.77.x) is not supported on Ubuntu 18.04, Centos/RHEL 7.x
