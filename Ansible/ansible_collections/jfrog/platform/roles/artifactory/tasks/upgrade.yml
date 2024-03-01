@@ -57,15 +57,15 @@
     state: directory
 
 - name: Check artifactory version
-  ansible.builtin.shell: |
-    set -o pipefail;
-    grep artifactory.product.version "{{ artifactory_home }}/app/artifactory.product.version.properties" |cut -d= -f2
-  register: check_version_cmd
+  ansible.builtin.fetch:
+    src: "{{ artifactory_home }}/app/artifactory.product.version.properties"
+    dest: "/tmp/artifactory.product.version.properties"
+    flat: true
   changed_when: false
 
 - name: Set running_version
   ansible.builtin.set_fact:
-    running_version: "{{ check_version_cmd.stdout }}"
+    running_version: "{{ lookup('ansible.builtin.ini', 'artifactory.product.version', type='properties', file='/tmp/artifactory.product.version.properties') }}"
 
 - name: Delete artifactory app directory
   become: true
