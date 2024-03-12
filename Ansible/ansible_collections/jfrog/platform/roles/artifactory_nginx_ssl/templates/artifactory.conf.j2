@@ -13,8 +13,13 @@
   ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384;
   ssl_certificate      {{ ssl_certificate_path }}/{{ ssl_certificate }};
   ssl_certificate_key  {{ ssl_certificate_key_path }}/{{ ssl_certificate_key }};
+  {% if ssl_certificate_fullchain %}
+  ssl_stapling on;
+  ssl_stapling_verify on;
+  {% endif %}
   ssl_session_cache shared:SSL:1m;
   ssl_prefer_server_ciphers   on;
+  
   ## server configuration
   server {
   listen 443 ssl http2;
