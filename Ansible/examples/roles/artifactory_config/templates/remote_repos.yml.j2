@@ -1,0 +1,17 @@
+remoteRepositories:
+{% for r in repo_upstream %}
+  {{ r.key }}:
+    type: {{ r.type }}
+    repoLayout: simple-default
+    url: "{{ r.url  }}/{{ r.key }}/"
+    propertySets:
+      - artifactory
+    contentSynchronisation:
+      enabled: true
+      statistics:
+        enabled: true
+      properties:
+        enabled: true
+      source:
+        originAbsenceDetection: true
+{% endfor %}

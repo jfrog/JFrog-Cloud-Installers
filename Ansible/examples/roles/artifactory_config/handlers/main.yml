@@ -1,0 +1,8 @@
+---
+
+- name: Restart Artifactory
+  ansible.builtin.systemd:
+    name: artifactory
+    state: restarted
+    daemon_reload: true
+

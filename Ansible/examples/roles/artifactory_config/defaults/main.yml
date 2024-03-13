@@ -1,0 +1,31 @@
+---
+# Run checks
+verify_state: true
+# Proxy
+artifactory_proxy_host: ''
+artifactory_proxy_port: ''
+# admin account for API use
+artifactory_admin_username: admin
+artifactory_admin_password: password
+
+repo_users:
+  - username: rpm
+    password: 'Changeit1+'
+  - username: maven
+    password: 'Changeit2-'
+artifactory_delete_anonymous: false
+
+# For 'remote_repos.yml.j2' template
+repo_upstream:
+  - key: nginx
+    url: https://nginx.org/packages/rhel/
+    type: rpm
+  - key: postgresql
+    url: https://download.postgresql.org/pub/repos/yum/
+    type: rpm
+  - key: docker-ce-stable
+    url: https://download.docker.com/linux/centos/8/x86_64/stable/
+    type: rpm
+  - key: kubernetes
+    url: https://packages.cloud.google.com/yum/
+    type: rpm
