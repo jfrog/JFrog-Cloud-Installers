@@ -1,6 +1,13 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [10.17.3] - Mar 14, 2024
+* Postgres - Added no_log to postgres username password assertion [GH-374](https://github.com/jfrog/JFrog-Cloud-Installers/pull/374)
+* Product Updates/fixes
+
+## [10.17.2] - March 7, 2024
+* Fix - ansible.cfg issue
+
 ## [10.17.1] - Feb 29, 2024
 * Artifactory - Upgrade fails during the Check artifactory version [GH-369](https://github.com/jfrog/JFrog-Cloud-Installers/pull/369)
 * Product Updates/fixes
