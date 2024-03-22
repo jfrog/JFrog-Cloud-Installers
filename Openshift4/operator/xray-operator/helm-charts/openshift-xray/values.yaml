@@ -11,13 +11,13 @@ xray:
     url: "OVERRIDE"
     user: "OVERRIDE"
     password: "OVERRIDE"
-  initContainerImage: registry.connect.redhat.com/jfrog/init:7.71.5
+  initContainerImage: registry.connect.redhat.com/jfrog/init:7.77.7
   common:
     rabbitmq:
       connectionConfigFromEnvironment: true
     xrayUserId: "1000721035"
     xrayGroupId: "1000721035"
-    xrayVersion: "3.85.5"
+    xrayVersion: "3.91.3"
     customInitContainers: |
       - name: "prepare-uid-persistent-volume"
         image: "{{ .Values.initContainerImage }}"
@@ -71,7 +71,7 @@ xray:
       registry: registry.connect.redhat.com
       repository: jfrog/xray-router
       imagePullPolicy: IfNotPresent
-      tag: 3.85.5
+      tag: 3.91.3
   
   # RabbitMQ
   ## Configuration values for the rabbitmq dependency
@@ -85,7 +85,7 @@ xray:
     image: 
       registry: registry.connect.redhat.com
       repository: jfrog/xray-rabbitmq
-      tag: 3.85.5
+      tag: 3.91.3
 
     podSecurityContext:
       fsGroup: 1000721001

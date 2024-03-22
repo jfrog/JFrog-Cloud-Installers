@@ -1,5 +1,5 @@
 # Build the manager binary
-FROM quay.io/operator-framework/helm-operator:v1.26
+FROM quay.io/operator-framework/helm-operator:v1.34
 LABEL name="JFrog Xray Enterprise Operator" \
       description="Openshift operator to deploy JFrog Xray Enterprise based on the Red Hat Universal Base Image" \
       vendor="JFrog" \
@@ -13,13 +13,13 @@ USER root
 RUN microdnf install yum \
       && yum -y update-minimal --security --sec-severity=Important --sec-severity=Critical \
       && yum clean all \
-      && microdnf clean all \
       && microdnf install gnutls \
       && microdnf install nettle  \
       && microdnf update openssl-libs \
-      && microdnf update cyrus-sasl-lib
+      && microdnf update cyrus-sasl-lib \
+      && microdnf install sudo \
+      && microdnf clean all
 
-RUN microdnf install sudo
 RUN sudo -u helm bash
 
 USER helm

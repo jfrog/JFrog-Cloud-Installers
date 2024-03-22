@@ -3,9 +3,9 @@
 # JFROG REDHAT UBI PORT TO WORK IN BITNAMI RABBITMQ HELM CHARTS
 
 
-FROM bitnami/rabbitmq:3.8.9-debian-10-r88 as base
+FROM bitnami/rabbitmq:3.12.10-debian-11-r1 as base
 
-FROM registry.access.redhat.com/ubi8
+FROM registry.access.redhat.com/ubi9
 
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
@@ -15,7 +15,7 @@ LABEL name="JFrog Rabbit MQ" \
       summary="JFrog Rabbit MQ (Red Hat UBI)" \
       com.jfrog.license_terms="https://jfrog.com/platform/enterprise-plus-eula/"
 
-ARG RABBITMQ_VERSION=3.8.9-debian-10-r88
+ARG RABBITMQ_VERSION=3.12.10-debian-11-r1
 
 LABEL io.k8s.description="Lightweight open source message broker" \
     io.k8s.display-name="RabbitMQ" \
@@ -37,8 +37,8 @@ ENV GPG_KEY="0A9AF2115F4687BD29803A206B73A36E6026DFCA" \
 
 RUN yum install -y --disableplugin=subscription-manager xz
 RUN set -xe && \
-    curl -LO https://github.com/rabbitmq/erlang-rpm/releases/download/v23.0/erlang-23.0-1.el8.x86_64.rpm && \
-    rpm -Uvh ./erlang-23.0-1.el8.x86_64.rpm && \
+    curl -LO https://github.com/rabbitmq/erlang-rpm/releases/download/v25.0.3/erlang-25.0.3-1.el8.x86_64.rpm && \
+    yum --nogpgcheck localinstall -y --nobest --skip-broken ./erlang-25.0.3-1.el8.x86_64.rpm && \
     rm *.rpm && \
     INSTALL_PKGS="wget procps net-tools hostname" && \
     yum install -y $INSTALL_PKGS && \
