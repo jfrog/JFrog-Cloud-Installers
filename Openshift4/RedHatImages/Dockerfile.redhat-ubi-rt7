@@ -7,7 +7,7 @@ ARG ARTIFACTORY_BASE_VERSION
 FROM docker.bintray.io/jfrog/artifactory-pro:${ARTIFACTORY_BASE_VERSION} AS base
 
 # The new image based on registry.access.redhat.com/ubi
-FROM registry.access.redhat.com/ubi8
+FROM registry.access.redhat.com/ubi9
 
 LABEL name="JFrog Artifactory Pro" \
       description="JFrog Artifactory Pro image based on the Red Hat Universal Base Image." \

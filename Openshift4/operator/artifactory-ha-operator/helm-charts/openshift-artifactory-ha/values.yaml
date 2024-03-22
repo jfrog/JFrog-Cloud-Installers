@@ -10,7 +10,7 @@ artifactory-ha:
     url: "OVERRIDE"
     user: "OVERRIDE"
     password: "OVERRIDE"
-  initContainerImage: registry.connect.redhat.com/jfrog/init:7.71.5
+  initContainerImage: registry.connect.redhat.com/jfrog/init:7.77.7
   waitForDatabase: true
   installerInfo: '{ "productId": "Openshift_artifactory-ha/{{ .Chart.Version }}", "features": [ { "featureId": "ArtifactoryVersion/{{ default .Chart.AppVersion .Values.artifactory.image.version }}" }, { "featureId": "{{ if .Values.postgresql.enabled }}postgresql{{ else }}{{ .Values.database.type }}{{ end }}/0.0.0" }, { "featureId": "Platform/Openshift" }, { "featureId": "Partner/ACC-006983" }, { "featureId": "Channel/Openshift" } ] }'
   artifactory:
@@ -19,7 +19,7 @@ artifactory-ha:
     image:
       registry: registry.connect.redhat.com
       repository: jfrog/artifactory-pro
-      tag: 7.71.5
+      tag: 7.77.7
     node:
       replicaCount: 2
       waitForPrimaryStartup:

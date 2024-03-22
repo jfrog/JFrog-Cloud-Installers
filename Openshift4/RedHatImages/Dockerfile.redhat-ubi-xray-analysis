@@ -22,7 +22,6 @@ ENV JF_XRAY_USER=xray \
 
 COPY --from=base /opt/jfrog/xray /opt/jfrog/xray
 COPY --from=base /var/opt/jfrog/xray /var/opt/jfrog/xray
-COPY --from=base /postgresql-client /postgresql-client
 
 # Add license information to meet the Red Hat container image certification requirements
 COPY --from=base /opt/jfrog/xray/app/doc/* /licenses/
@@ -30,7 +29,7 @@ COPY --from=base /opt/jfrog/xray/app/doc/* /licenses/
 RUN mkdir -p /var/opt/jfrog && chmod 0777 /var/opt/jfrog
 
 RUN useradd -M -s /usr/sbin/nologin --uid ${XRAY_USER_ID} --user-group ${JF_XRAY_USER} && \
-    chown -R ${JF_XRAY_USER}:${JF_XRAY_USER} ${JF_PRODUCT_HOME} ${JF_PRODUCT_DATA_INTERNAL} /postgresql-client && \
+    chown -R ${JF_XRAY_USER}:${JF_XRAY_USER} ${JF_PRODUCT_HOME} ${JF_PRODUCT_DATA_INTERNAL} && \
     yum install -y --disableplugin=subscription-manager wget && \
     yum install -y --disableplugin=subscription-manager procps && \
     yum install -y --disableplugin=subscription-manager net-tools && \
