@@ -3,6 +3,8 @@
 # and applies various things like initContainers, nginx mainConf, etc
 # to enable the artifactory-ha helm chart to work in an openshift environment
 artifactory-ha:
+  containerSecurityContext:
+    enabled: false
   databaseUpgradeReady: true
   database:
     type: "OVERRIDE"
@@ -10,41 +12,30 @@ artifactory-ha:
     url: "OVERRIDE"
     user: "OVERRIDE"
     password: "OVERRIDE"
-  initContainerImage: registry.connect.redhat.com/jfrog/init:7.77.7
+  initContainerImage: registry.connect.redhat.com/jfrog/init:7.77.10
   waitForDatabase: true
   installerInfo: '{ "productId": "Openshift_artifactory-ha/{{ .Chart.Version }}", "features": [ { "featureId": "ArtifactoryVersion/{{ default .Chart.AppVersion .Values.artifactory.image.version }}" }, { "featureId": "{{ if .Values.postgresql.enabled }}postgresql{{ else }}{{ .Values.database.type }}{{ end }}/0.0.0" }, { "featureId": "Platform/Openshift" }, { "featureId": "Partner/ACC-006983" }, { "featureId": "Channel/Openshift" } ] }'
   artifactory:
-    uid: "1000721030"
+    setSecurityContext: false
     ## Change to use RH UBI images
     image:
       registry: registry.connect.redhat.com
       repository: jfrog/artifactory-pro
-      tag: 7.77.7
+      tag: 7.77.10
     node:
       replicaCount: 2
       waitForPrimaryStartup:
         enabled: false
     masterKey: "OVERRIDE"
     joinKey: "OVERRIDE"
-    customInitContainersBegin: |
-      - name: "prepare-uid-persistent-volume"
-        image: "{{ .Values.initContainerImage }}"
-        imagePullPolicy: "{{ .Values.artifactory.image.pullPolicy }}"
-        command:
-          - 'sh'
-          - '-c'
-          - >
-            chown -Rv {{ .Values.artifactory.uid }}:{{ .Values.artifactory.uid }} {{ .Values.artifactory.persistence.mountPath }}
-        securityContext:
-            runAsUser: 0
-        volumeMounts:
-          - mountPath: "{{ .Values.artifactory.persistence.mountPath }}"
-            name: volume
+    customInitContainersBegin: {}
   postgresql:
     enabled: false
   nginx:
-    uid: "1000720104"
-    gid: "1000720107"
+    containerSecurityContext:
+      enabled: false
+    podSecurityContext:
+      enabled: false
     image:
       registry: registry.redhat.io
       repository: rhel8/nginx-116
@@ -59,6 +50,7 @@ artifactory-ha:
     https:
       externalPort: 443
       internalPort: 8443
+    customCommand: [ 'nginx', '-g', 'daemon off;' ]
     mainConf: |
       # Main Nginx configuration file
       worker_processes  4;
