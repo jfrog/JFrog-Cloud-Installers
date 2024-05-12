@@ -1,0 +1,13 @@
+{
+  "name" : "{{ item.name }}",
+  "repo" : {
+    "actions" : {
+      "users" : {
+    "{{ item.dict[0].type }}" : [ "read", "annotate", "write" ]
+      }
+    },
+  "repositories" : [ {% for r in item.dict %}"{{ r.key }}"{% if not loop.last %},{% endif %}{% endfor %} ],
+    "include-patterns" : [ "**" ],
+    "exclude-patterns" : [ ]
+  }
+}
