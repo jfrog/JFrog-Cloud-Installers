@@ -5,6 +5,8 @@
             el7
         {%- elif linux_distro in ['centos8','redhat8'] -%}
             el8
+        {%- elif linux_distro in ['centos9','redhat9'] -%}
+            el9
         {%- endif -%}
 
 - name: Find socat package
