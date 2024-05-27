@@ -1,6 +1,9 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [10.18.1] - May 26, 2024
+* Product Updates/fixes
+
 ## [10.18.0] - May 12, 2024
 * Product Updates/fixes
 * Added a new variable `artifactory_allowNonPostgresql` (default false) in systemYaml to run Artifactory with any database other than PostgreSQL
