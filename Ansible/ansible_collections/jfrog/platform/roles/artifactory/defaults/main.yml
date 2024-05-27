@@ -1,7 +1,7 @@
 # Defaults file for artifactory
 
 # The version of artifactory to install
-artifactory_version: 7.84.10
+artifactory_version: 7.84.12
 
 # Set this to true when SSL is enabled (to use artifactory_nginx_ssl role), default to false (implies artifactory uses artifactory_nginx role )
 artifactory_nginx_ssl_enabled: false
