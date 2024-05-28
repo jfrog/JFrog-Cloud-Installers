@@ -1,0 +1,1 @@
+*Note: Amazon Installers are no longer maintained. Feel free to review this code for your own POC concepts, but we are not continuing to update it or add features. We do plan to revive this in the future with a better implementation.*
