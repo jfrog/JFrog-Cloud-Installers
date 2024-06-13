@@ -13,20 +13,20 @@ system_trust_store_update: 'update-ca-certificates'
 
 system_trust_store:
   path: '/usr/local/share/ca-certificates'
-  owner: 'root'
-  group: 'root'
+  owner: root
+  group: root
   mode: '0755'
 
 system_certs: 
   path: '/etc/ssl/certs'
-  owner: 'root'
-  group: 'root'
+  owner: root
+  group: root
   mode: '0755'
 
 system_private_key: 
   path: '/etc/ssl/private'
-  owner: 'root'
-  group: 'root'
+  owner: root
+  group: root
   mode: '0700'
 
 jfrog_ssl_directory: 

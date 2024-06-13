@@ -20,20 +20,20 @@ system_trust_store_update: 'update-ca-trust'
 
 system_trust_store: 
   path: '/etc/pki/ca-trust/source/anchors'
-  owner: 'root'
-  group: 'root'
+  owner: root
+  group: root
   mode: '0755'
 
 system_certs: 
   path: '/etc/pki/tls/certs'
-  owner: 'root'
-  group: 'root'
+  owner: root
+  group: root
   mode: '0755'
 
 system_private_key: 
   path: '/etc/pki/tls/private'
-  owner: 'root'
-  group: 'root'
+  owner: root
+  group: root
   mode: '0700'
 
 jfrog_ssl_directory: 

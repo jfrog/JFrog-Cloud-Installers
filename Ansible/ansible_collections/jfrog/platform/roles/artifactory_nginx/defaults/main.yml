@@ -1,6 +1,6 @@
 ---
 # defaults file for artifactory_nginx
-## For production deployments,You SHOULD change it.
+## For production deployments, you SHOULD change it.
 
 server_name: "{{ (inventory_hostname if '.' in inventory_hostname else 'test.artifactory.com') }}"
 
