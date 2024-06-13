@@ -12,19 +12,10 @@
 - name: Install prerequisite packages
   ansible.builtin.include_tasks: "{{ ansible_os_family }}.yml"
 
-- name: Install nginx
+- name: Install and configure Nginx
   ansible.builtin.include_role:
     name: artifactory_nginx
-  when:
-    - artifactory_nginx_enabled | bool
-    - not artifactory_nginx_ssl_enabled | bool
-
-- name: Install nginx with SSL
-  ansible.builtin.include_role:
-    name: artifactory_nginx_ssl
-  when:
-    - not artifactory_nginx_enabled | bool
-    - artifactory_nginx_ssl_enabled | bool
+  when: artifactory_nginx_enabled | bool
 
 - name: Ensure group artifactory exist
   become: true

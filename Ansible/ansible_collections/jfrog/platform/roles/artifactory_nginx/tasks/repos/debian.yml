@@ -1,0 +1,14 @@
+---
+- name: Import nginx signing key
+  ansible.builtin.apt_key:
+    url: "{{ nginx_repo_signing_key }}"
+    state: present
+  become: true
+
+- name: Add nginx stable repo
+  ansible.builtin.apt_repository:
+    repo: "deb {{ nginx_official_repo_url }} {{ ansible_facts['ansible_distribution_release'] | lower }} nginx"
+    filename: "{{ nginx_official_repo_filename }}"
+    state: present
+    update_cache: true
+  become: true

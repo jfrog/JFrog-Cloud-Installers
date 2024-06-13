@@ -1,0 +1,65 @@
+---
+nginx_packages:
+  - nginx
+
+nginx_system_daemon: nginx
+
+nginx_system_repositories: "{% if ansible_facts['distribution'] | lower == 'redhat' %}\
+  ['rhel-{{ ansible_facts['distribution_major_version'] }}-for-x86_64-baseos-rpms',\
+  'rhel-{{ ansible_facts['distribution_major_version'] }}-for-x86_64-appstream-rpms']\
+  {% else %}\
+  []\
+  {% endif %}"
+
+###########################
+##      CERTIFICATES     ##
+###########################
+
+system_trust_store_update: 'update-ca-trust'
+
+system_trust_store: 
+  path: '/etc/pki/ca-trust/source/anchors'
+  owner: 'root'
+  group: 'root'
+  mode: '0755'
+
+system_certs: 
+  path: '/etc/pki/tls/certs'
+  owner: 'root'
+  group: 'root'
+  mode: '0755'
+
+system_private_key: 
+  path: '/etc/pki/tls/private'
+  owner: 'root'
+  group: 'root'
+  mode: '0700'
+
+jfrog_ssl_directory: 
+  path: '/var/opt/jfrog/nginx/ssl'
+  mode: '0755'
+
+###########################
+##       TEMPLATES       ##
+###########################
+
+template_nginx_config:
+  src: 'nginx.conf.j2'
+  dst: '/etc/nginx/nginx.conf'
+  owner: root
+  group: root
+  mode: '0755'
+
+template_https_redirect:
+  src: 'redirect_http_to_https.conf.j2'
+  dst: '/etc/nginx/conf.d/redirect_http_to_https.conf'
+  owner: root
+  group: root
+  mode: '0755'
+
+template_nginx_artifactory:
+  src: 'artifactory.conf.j2'
+  dst: '/etc/nginx/conf.d/artifactory.conf'
+  owner: root
+  group: root
+  mode: '0755'

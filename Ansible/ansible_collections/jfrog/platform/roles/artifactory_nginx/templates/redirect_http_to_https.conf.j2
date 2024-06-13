@@ -1,3 +1,4 @@
+{% raw %}
 server {
     listen 80 default_server;
     listen [::]:80 default_server;
@@ -6,3 +7,4 @@ server {
         return 301 https://$host$request_uri;
     }
 }
+{% endraw %}

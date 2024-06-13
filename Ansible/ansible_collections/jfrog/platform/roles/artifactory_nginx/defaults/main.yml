@@ -1,12 +1,39 @@
 ---
 # defaults file for artifactory_nginx
 ## For production deployments,You SHOULD change it.
-server_name: test.artifactory.com
 
-nginx_daemon: nginx
+server_name: "{{ (inventory_hostname if '.' in inventory_hostname else 'test.artifactory.com') }}"
+
+artifactory_nginx_setup_repos: false
+artifactory_nginx_ssl_enabled: false
+
+redirect_http_to_https_enabled: true
+
+ssl_certificate_name: cert.pem
+ssl_certificate: ''
+ssl_private_key_name: key.pem
+ssl_private_key: ''
+ca_certificate_chain_name: ca_certificate_chain.pem
+ca_certificate_chain: ''
 
 nginx_worker_processes: 1
 artifactory_docker_registry_subdomain: false
 
-artifactory_conf_template: artifactory.conf.j2
-nginx_conf_template: nginx.conf.j2
+###########################
+##     DO NOT ALTER      ##
+###########################
+
+nginx_official_repo_mapping:
+  amazon: amzn
+  redhat: rhel
+  centos: centos
+  debian: debian
+  ubuntu: ubuntu
+  alpine: alpine
+  sles: sles
+  aix: aix
+
+nginx_official_repo_filename: 'nginx-stable'
+nginx_official_repo_description: 'nginx stable repo'
+nginx_official_repo_signing_key: 'https://nginx.org/keys/nginx_signing.key'
+nginx_official_repo_url: "https://nginx.org/packages/{{ nginx_official_repo_mapping[ansible_facts['distribution'] | lower] }}"

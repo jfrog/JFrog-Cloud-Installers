@@ -1,0 +1,50 @@
+---
+- name: Import nginx signing key
+  ansible.builtin.rpm_key:
+    key: "{{ nginx_official_repo_signing_key }}"
+    state: present
+  become: true
+
+- name: Add nginx stable repo
+  ansible.builtin.yum_repository:
+    name: "{{ nginx_official_repo_filename }}"
+    description: "{{ nginx_official_repo_description }}"
+    file: "{{ nginx_official_repo_filename }}"
+    baseurl: "{{ nginx_official_repo_url }}"
+    gpgcheck: true
+    enabled: true
+    module_hotfixes: true
+  register: __nginx_setup_repo
+  ignore_errors: true
+  become: true
+
+- name: Fallback to manually adding the repo if the previous task failed
+  ansible.builtin.copy:
+    dest: "/etc/yum.repos.d/{{ nginx_official_repo_filename }}.repo"
+    owner: root
+    group: root
+    mode: '0644'
+    content: |
+      [{{ nginx_official_repo_filename }}]
+      name={{ nginx_official_repo_description }}
+      baseurl={{ nginx_official_repo_url }}/$releasever/$basearch
+      gpgcheck=1
+      enabled=1
+      gpgkey={{ nginx_official_repo_signing_key }}
+      module_hotfixes=true
+  when: __nginx_setup_repo is failed
+  become: true
+
+- name: Update cache (dnf)
+  ansible.builtin.dnf:
+    state: present
+    update_cache: true
+  when: ansible_facts['pkg_mgr'] == 'dnf'
+  become: true
+
+- name: Update cache (yum)
+  ansible.builtin.yum:
+    state: present
+    update_cache: true
+  when: ansible_facts['pkg_mgr'] == 'yum'
+  become: true

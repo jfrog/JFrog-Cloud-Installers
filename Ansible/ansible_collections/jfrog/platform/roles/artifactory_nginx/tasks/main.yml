@@ -1,34 +1,37 @@
-- name: Install prerequisite packages
-  ansible.builtin.include_tasks: "{{ ansible_os_family }}.yml"
+---
+- name: Gather system facts
+  ansible.builtin.setup:
 
-- name: Install nginx
-  become: true
-  ansible.builtin.package:
-    name: nginx
-    state: present
-  register: install_nginx
-  retries: 5
-  delay: 60
-  until: install_nginx is succeeded
+- name: Assert that we support the distribution
+  ansible.builtin.assert:
+    that:
+      - ansible_facts['os_family'] | lower in ['redhat', 'debian']
+    fail_msg: 'Host is unsupported. Aborting.'
+    success_msg: 'Host is supported. Proceeding.'
 
-- name: Copy nginx.conf file
-  become: true
-  ansible.builtin.template:
-    src: "{{ nginx_conf_template }}"
-    dest: /etc/nginx/nginx.conf
-    owner: root
-    group: root
-    mode: '0755'
+- name: Include distribution variables
+  ansible.builtin.include_vars: "{{ item }}"
+  with_first_found:
+    - "vars/{{ ansible_facts['distribution'] | lower }}.yml"
+    - "vars/{{ ansible_facts['os_family'] | lower }}.yml"
+    - "vars/default.yml"
 
-- name: Generate artifactory.conf
-  become: true
-  ansible.builtin.template:
-    src: "{{ artifactory_conf_template }}"
-    dest: /etc/nginx/conf.d/artifactory.conf
-    owner: root
-    group: root
-    mode: '0755'
-  notify: Restart nginx
+- name: Setup Nginx repositories
+  ansible.builtin.include_tasks: "{{ item }}.yml"
+  when: artifactory_nginx_setup_repos | bool
+  with_first_found:
+      - "repos/{{ ansible_facts['distribution'] | lower }}.yml"
+      - "repos/{{ ansible_facts['os_family'] | lower }}.yml"
 
-- name: Restart nginx
-  ansible.builtin.meta: flush_handlers
+- name: Install Nginx
+  ansible.builtin.include_tasks: "{{ item }}"
+  with_first_found:
+      - "install/{{ ansible_facts['pkg_mgr'] }}.yml"
+      - "install/default.yml"
+
+- name: Configure Nginx
+  ansible.builtin.include_tasks: "{{ item }}"
+  with_first_found:
+      - "config/{{ ansible_facts['distribution'] | lower }}.yml"
+      - "config/{{ ansible_facts['os_family'] | lower }}.yml"    
+      - "config/default.yml"
