@@ -4,12 +4,13 @@ nginx_packages:
 
 nginx_system_daemon: nginx
 
-nginx_system_repositories: "{% if ansible_facts['distribution'] | lower == 'redhat' %}\
-  ['rhel-{{ ansible_facts['distribution_major_version'] }}-for-x86_64-baseos-rpms',\
-  'rhel-{{ ansible_facts['distribution_major_version'] }}-for-x86_64-appstream-rpms']\
-  {% else %}\
-  []\
-  {% endif %}"
+nginx_system_repositories: >-
+  {%- if ansible_facts['distribution'] | lower == 'redhat' -%}
+  ['rhel-{{ ansible_facts['distribution_major_version'] }}-for-x86_64-baseos-rpms',
+  'rhel-{{ ansible_facts['distribution_major_version'] }}-for-x86_64-appstream-rpms']
+  {%- else -%}
+  []
+  {%- endif -%}
 
 ###########################
 ##      CERTIFICATES     ##

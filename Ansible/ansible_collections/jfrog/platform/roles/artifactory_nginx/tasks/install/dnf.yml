@@ -3,6 +3,6 @@
   ansible.builtin.dnf:
     name: "{{ nginx_packages }}"
     state: present
-    disablerepo: "{{ '*' if nginx_setup_repos or not nginx_system_repositories else omit }}"
-    enablerepo: "{{ nginx_system_repositories if nginx_setup_repos or not nginx_system_repositories else omit }}"
+    disablerepo: "{{ '*' if nginx_system_repositories is defined and nginx_system_repositories | length > 0 else omit }}"
+    enablerepo: "{{ nginx_system_repositories if nginx_system_repositories is defined and nginx_system_repositories | length > 0 else omit }}"
   become: true

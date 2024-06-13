@@ -1,11 +1,11 @@
 ---
-- name: Import nginx signing key
+- name: Import Nginx signing key
   ansible.builtin.rpm_key:
     key: "{{ nginx_official_repo_signing_key }}"
     state: present
   become: true
 
-- name: Add nginx stable repo
+- name: Add Nginx stable repo
   ansible.builtin.yum_repository:
     name: "{{ nginx_official_repo_filename }}"
     description: "{{ nginx_official_repo_description }}"

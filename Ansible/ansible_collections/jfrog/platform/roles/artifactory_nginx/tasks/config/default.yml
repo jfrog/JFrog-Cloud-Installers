@@ -29,7 +29,7 @@
     mode: "{{ template_nginx_artifactory.mode }}"
   notify: Restart Nginx
 
-- name: Ensure nginx dir exists
+- name: Ensure Nginx dir exists
   become: true
   ansible.builtin.file:
     path: '/var/opt/jfrog/nginx/ssl'
