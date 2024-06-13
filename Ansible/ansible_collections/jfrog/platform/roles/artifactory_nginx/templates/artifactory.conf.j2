@@ -10,22 +10,31 @@ upstream artifactory-direct {
   server 127.0.0.1:8081;
 }
 
-{% if artifactory_nginx_ssl_enabled %}
+{% if artifactory_nginx_ssl_enabled and
+      ssl_certificate is defined and ssl_certificate | length > 0 and
+      ssl_private_key is defined and ssl_private_key | length > 0 %}
 ssl_protocols TLSv1.2 TLSv1.3;
 ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384;
-ssl_certificate      {{ ssl_certificate_path }}/{{ ssl_certificate }};
-ssl_certificate_key  {{ ssl_certificate_key_path }}/{{ ssl_certificate_key }};
+ssl_certificate      {{ system_certs.path }}/{{ ssl_certificate_name | d('cert.pem') }};
+ssl_certificate_key  {{ system_private_key.path }}/{{ ssl_private_key_name | d('key.pem') }};
+  {% if ca_certificate_chain is defined and ca_certificate_chain | length > 0 %}
+ssl_trusted_certificate {{ system_trust_store.path }}/{{ ca_certificate_chain_name | d('ca_certificate_chain.pem') }};
+ssl_stapling on;
+ssl_stapling_verify on;
+  {% endif %}
 ssl_session_cache shared:SSL:1m;
-ssl_prefer_server_ciphers   on;
+ssl_prefer_server_ciphers on;
 {% endif %}
 
 ## server configuration
 server {
 
-  {% if artifactory_nginx_ssl_enabled %}
+  {% if artifactory_nginx_ssl_enabled and
+        ssl_certificate is defined and ssl_certificate | length > 0 and
+        ssl_private_key is defined and ssl_private_key | length > 0 %}
   listen 443 ssl http2;
   {% else %}
-  listen 80 ;
+  listen 80;
   {% endif %}
 
   server_name {{ server_name }};

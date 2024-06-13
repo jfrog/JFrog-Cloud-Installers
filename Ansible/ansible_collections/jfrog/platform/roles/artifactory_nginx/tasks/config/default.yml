@@ -51,6 +51,7 @@
     - redirect_http_to_https_enabled | bool
 
 - name: Copy CA Certificate chain
+  become: true
   ansible.builtin.copy:
     content: "{{ ca_certificate_chain }}"
     dest: "{{ system_trust_store.path }}/{{ ca_certificate_chain_name | d('ca_certificate_chain.pem') }}"
@@ -64,6 +65,7 @@
   when: ca_certificate_chain is defined and ca_certificate_chain | length > 0
 
 - name: Copy SSL Key and Certificate
+  become: true
   ansible.builtin.copy:
     content: "{{ item.src }}"
     dest: "{{ item.dst }}"
@@ -94,5 +96,5 @@
     name: "{{ nginx_system_daemon }}
     enabled: true
 
-- name: Restart Nginx
+- name: Flush all handlers
   ansible.builtin.meta: flush_handlers
