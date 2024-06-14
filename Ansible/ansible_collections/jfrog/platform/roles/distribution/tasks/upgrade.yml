@@ -90,7 +90,7 @@
     state: directory
     owner: "{{ distribution_user }}"
     group: "{{ distribution_group }}"
-    mode: 0644
+    mode: 0755
 
 - name: Configure redis config
   become: true
