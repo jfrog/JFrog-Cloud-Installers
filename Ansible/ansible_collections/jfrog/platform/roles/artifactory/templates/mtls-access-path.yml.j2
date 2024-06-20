@@ -1,0 +1,10 @@
+security:
+  authentication:
+    mtls:
+      enabled: {{ mtls.enabled| lower }}
+      header-name: {{ mtls.header_name }}
+      cache-expiry-secs: {{ mtls.cache_expiry_secs }}
+      extraction-regex: {{ mtls.extraction_regex }}
+      no-auto-create-users: {{ mtls.no_auto_create_users | lower }}
+      allow-user-to-access-profile: {{ mtls.allow_user_to_access_profile | lower }}
+      sync-ldap-groups: {{ mtls.sync_ldap_groups | lower }}
