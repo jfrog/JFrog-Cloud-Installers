@@ -180,3 +180,7 @@
   when:
     - not ansible_check_mode
     - artifactory_start_service | bool
+
+- name: mTLS configuration
+  ansible.builtin.include_tasks: shared/mtls_configuration.yml
+  when: artifactory_version is version('7.77', '>=')
