@@ -1,0 +1,68 @@
+---
+postgresql_bin_path: >-
+  "{{ '/usr/pgsql-' ~ postgresql_version ~ '/bin'
+  if postgresql_use_official_repos else '/usr/bin' }}"
+
+postgresql_data_dir: >-
+  "{{ '/var/lib/pgsql/' ~ postgresql_version ~ '/data'
+  if postgresql_use_official_repos else '/var/lib/pgsql/data' }}"
+
+postgresql_config_dir: >-
+  "{{ '/var/lib/pgsql/' ~ postgresql_version ~ '/data'
+  if postgresql_use_official_repos else '/var/lib/pgsql/data' }}"
+
+postgresql_config_file: >-
+  "{{ '/var/lib/pgsql/' ~ postgresql_version ~ '/data/postgresql.conf'
+  if postgresql_use_official_repos else '/var/lib/pgsql/data/postgresql.conf' }}"
+
+postgresql_daemon: >-
+  "{{ 'postgresql-' ~ postgresql_version ~ '.service'
+  if postgresql_use_official_repos else 'postgresql' }}"
+
+postgresql_unix_socket_directories_mode: '0755'
+postgresql_unix_socket_directories:
+  - /var/run/postgresql
+
+postgresql_external_pid_file: "{{ '/var/run/postgresql/' ~ postgres_version '-main.pid' }}"
+
+# System logrotation drop-in directory
+logrotate_dir: '/etc/logrotate.d'
+
+# PostgreSQL Repository variables
+postgresql_repo_key_id: ''
+postgresql_repo_key_url: >-
+  {{
+    'https://download.postgresql.org/pub/repos/yum/keys/PGDG-RPM-GPG-KEY-Fedora'
+    if ansible_facts['distribution'] | lower == 'fedora'
+    else
+    'https://download.postgresql.org/pub/repos/yum/keys/PGDG-RPM-GPG-KEY-AARCH64-RHEL'
+    if ansible_facts['architecture'] | lower == 'aarch64'
+    else
+    'https://download.postgresql.org/pub/repos/yum/keys/PGDG-RPM-GPG-KEY-RHEL'
+  }}
+
+postgresql_repo_url: >-
+  {{
+    'https://download.postgresql.org/pub/repos/yum/reporpms/EL-'
+    ~ ansible_facts['distribution_major_version']
+    ~ '-'
+    ~ ansible_facts['architecture'] | lower
+    ~ '/pgdg-'
+    ~ ansible_facts['distribution'] | lower
+    ~ '-repo-latest.noarch.rpm'
+  }}
+
+# PostgreSQL Server Packages
+postgresql_packages: >-
+  {{
+    ['postgresql' ~ postgresql_version ~ '-server', 'postgresql' ~ postgresql_version ~ '-contrib']
+    if artifactory_postgresql_use_official_repos
+    else
+    (['@postgresql:' ~ postgresql_version ~ '/server', 'postgresql-contrib']
+    if postgresql_version != '13'
+    else
+    ['postgresql-server', 'postgresql-contrib'])
+  }}
+
+# PostgreSQL Python Library Package
+postgresql_python_library: 'python3-psycopg2'

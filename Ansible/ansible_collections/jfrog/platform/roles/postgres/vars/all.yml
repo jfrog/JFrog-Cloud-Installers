@@ -1,0 +1,5 @@
+---
+# Our mapping to find out if PostgreSQL is supported or not
+distribution_postgresql_support_map:
+  redhat8: [10, 12, 13, 15, 16]
+  redhat9: [13, 15, 16]

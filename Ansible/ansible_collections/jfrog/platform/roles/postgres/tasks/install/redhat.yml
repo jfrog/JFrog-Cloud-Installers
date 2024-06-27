@@ -1,0 +1,90 @@
+---
+- name: Configure PostgreSQL repositories
+  when: artifactory_postgresql_use_official_repos | bool
+  block:
+
+    - name: Import PostgreSQL signing key
+      become: true
+      ansible.builtin.rpm_key:
+        key: "{{ postgres_rpmkey_url }}"
+        state: present
+
+    - name: Add PostgreSQL PDGD repo
+      become: true
+      ansible.builtin.dnf:
+        name: "{{ postgresql_repo_url }}"
+        state: present
+
+    - name: Disable PostgreSQL module
+      become: true
+      ansible.builtin.copy:
+        dest: /etc/dnf/modules.d/postgresql.module
+        owner: root
+        group: root
+        mode: '0644'
+        content: |
+          [postgresql]
+          name=postgresql
+          stream=
+          profiles=
+          state=disabled
+
+    - name: Update cache
+      become: true
+      ansible.builtin.dnf:
+        state: present
+        update_cache: true
+      when: ansible_facts['pkg_mgr'] == 'dnf'
+
+- name: Ensure locale settings are present
+  become: true
+  ansible.builtin.lineinfile:
+    path: /etc/locale.conf
+    regexp: "^{{ item.split('=')[0] }}=.*$"
+    line: "{{ item }}"
+    create: true
+    owner: root
+    group: root
+    mode: '0644'
+    state: present
+  loop:
+    - "LANG={{ postgresql_locale }}"
+    - "LANGUAGE={{ postgresql_locale }}"
+  register: locale_update_result
+
+- name: Install PostgreSQL Python libraries
+  become: true
+  ansible.builtin.dnf:
+    name: "{{ postgresql_python_library }}"
+    state: present
+    disablerepo: "{{ postgresql_install_disablerepo | d(omit, true) }}"
+    enablerepo: "{{ postgresql_install_enablerepo | d(omit, true) }}"
+  when:
+    - postgresql_python_library is defined
+    - postgresql_python_library | length > 0
+
+- name: Install PostgreSQL packages
+  become: true
+  ansible.builtin.dnf:
+    name: "{{ postgresql_packages }}"
+    state: present
+    exclude: python-unversioned-command
+    disablerepo: "{{ postgresql_install_disablerepo | d(omit, true) }}"
+    enablerepo: "{{ postgresql_install_enablerepo | d(omit, true) }}"
+  register: postgresql_install_result
+
+- name: Force-restart PostgreSQL if locales changed
+  become: true
+  ansible.builtin.systemd_service:
+    name: "{{ postgresql_daemon }}"
+    state: restarted
+  when:
+    - locale_update_result.changed
+    - not postgresql_install_result.changed
+
+- name: Ensure PostgreSQL service is started and enabled
+  become: true
+  ansible.builtin.systemd_service:
+    name: "{{ postgresql_daemon }}"
+    state: started
+    enabled: true

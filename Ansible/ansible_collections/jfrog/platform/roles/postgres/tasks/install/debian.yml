@@ -1,0 +1,59 @@
+---
+- name: Configure PostgreSQL repositories
+  when: artifactory_postgresql_use_official_repos | bool
+  block:
+
+    - name: Import PostgreSQL repository signing key
+      become: true
+      ansible.builtin.apt_key:
+        url: "{{ postgresql_repo_key_url }}"
+        id: "{{ postgresql_repo_key_id }}"
+        state: present
+
+    - name: Add PostgreSQL repository
+      become: true
+      ansible.builtin.apt_repository:
+        repo: "{{ postgres_apt_repository_repo }}"
+        state: present
+        filename: pgdg
+
+- name: Ensure locales are present
+  become: true
+  community.general.locale_gen:
+    name: "{{ postgresql_locale }}"
+    state: present
+  register: locale_update_result
+
+- name: Install PostgreSQL Python libraries
+  become: true
+  ansible.builtin.apt:
+    name: "{{ postgresql_python_library }}"
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+  when:
+    - postgresql_python_library is defined
+    - postgresql_python_library | length > 0
+
+- name: Install PostgreSQL Server packages
+  become: true
+  ansible.builtin.apt:
+    name: "{{ postgresql_packages }}"
+    state: present
+  register: postgresql_install_result
+
+- name: Force-restart PostgreSQL if locales changed
+  become: true
+  ansible.builtin.systemd_service:
+    name: "{{ postgresql_daemon }}"
+    state: restarted
+  when:
+    - locale_update_result.changed
+    - not postgresql_install_result.changed
+
+- name: Ensure PostgreSQL service is started and enabled
+  become: true
+  ansible.builtin.systemd_service:
+    name: "{{ postgresql_daemon }}"
+    state: started
+    enabled: true

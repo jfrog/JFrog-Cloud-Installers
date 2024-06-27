@@ -1,0 +1,52 @@
+---
+- name: Ensure PostgreSQL users are present
+  community.postgresql.postgresql_user:
+    name: "{{ item.value.username }}"
+    password: "{{ item.value.userpass }}"
+    encrypted: "{{ item.value.userpass_encrypted | d(omit) }}"
+    state: "{{ item.value.state }}"
+    login_host: "{{ item.value.login_host | d(omit) }}"
+    login_port: "{{ item.value.login_port | d(omit) }}"
+    login_user: "{{ item.value.login_user | d(omit) }}"
+    login_password: "{{ item.value.login_password | d(omit) }}"
+    login_unix_socket: "{{ item.value.login_unix_socket | d(omit) }}"
+  loop: "{{ lookup('ansible.builtin.dict', postgresql_databases_users) }}"
+  no_log: "{{ postgres_users_no_log }}"
+  become: true
+  become_user: "{{ postgresql_user }}"
+  environment:
+    PGOPTIONS: "{{ (postgresql_auth_method == 'scram-sha-256') | ternary('-c password_encryption=scram-sha-256', '') }}"
+
+- name: Ensure PostgreSQL databases are present
+  community.postgresql.postgresql_db:
+    name: "{{ item.value.name }}"
+    lc_collate: "{{ item.value.lc_collate }}"
+    lc_ctype: "{{ item.value.lc_ctype }}"
+    encoding: "{{ item.value.encoding }}"
+    template: "{{ item.value.template }}"
+    login_host: "{{ item.value.login_host | d(omit) }}"
+    login_port: "{{ item.value.login_port | d(omit) }}"
+    login_user: "{{ item.value.login_user | d(omit) }}"
+    login_password: "{{ item.value.login_password | d(omit) }}"
+    login_unix_socket: "{{ item.value.login_unix_socket | d(omit) }}"
+    state: "{{ item.value.state }}"
+  loop: "{{ lookup('ansible.builtin.dict', postgresql_databases_users) }}"
+  become: true
+  become_user: "{{ postgresql_user }}"
+
+- name: Ensure PostgreSQL users privileges are present
+  community.postgresql.postgresql_privs:
+    database: "{{ item.value.name }}"
+    state: "{{ item.value.state }}"
+    privs: "{{ item.value.userprivs }}"
+    roles: "{{ item.value.owner }}"
+    type: database
+    login_host: "{{ item.value.login_host | d(omit) }}"
+    login_port: "{{ item.value.login_port | d(omit) }}"
+    login_user: "{{ item.value.login_user | d(omit) }}"
+    login_password: "{{ item.value.login_password | d(omit) }}"
+    login_unix_socket: "{{ item.value.login_unix_socket | d(omit) }}"
+  loop: "{{ lookup('ansible.builtin.dict', postgresql_databases_users) }}"
+  no_log: "{{ postgres_users_no_log }}"
+  become: true
+  become_user: "{{ postgresql_user }}"
