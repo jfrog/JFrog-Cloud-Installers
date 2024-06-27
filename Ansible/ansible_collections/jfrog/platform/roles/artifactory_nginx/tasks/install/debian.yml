@@ -1,0 +1,26 @@
+---
+- name: Configure NGINX repositories
+  when: nginx_use_official_repos | bool
+  block:
+
+    - name: Import NGINX signing key
+      become: true
+      ansible.builtin.apt_key:
+        url: "{{ nginx_repo_signing_key }}"
+        state: present
+
+    - name: Add NGINX stable repo
+      become: true
+      ansible.builtin.apt_repository:
+        repo: "deb {{ nginx_official_repo_url }} {{ ansible_facts['ansible_distribution_release'] | lower }} nginx"
+        filename: "{{ nginx_official_repo_filename }}"
+        state: present
+        update_cache: true
+
+- name: Install NGINX packages
+  become: true
+  ansible.builtin.apt:
+    name: "{{ nginx_packages }}"
+    state: present
+    update_cache: true
+    cache_valid_time: 3600

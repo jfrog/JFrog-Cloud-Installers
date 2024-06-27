@@ -1,12 +1,39 @@
 ---
 # defaults file for artifactory_nginx
-## For production deployments,You SHOULD change it.
-server_name: test.artifactory.com
 
-nginx_daemon: nginx
+# For production deployments, you SHOULD change it.
+server_name: "{{ artifactory_server_name | d(inventory_hostname if '.' in inventory_hostname else 'test.artifactory.com') }}"
 
-nginx_worker_processes: 1
-artifactory_docker_registry_subdomain: false
+# [NGINX] Tune the number of worker processes used by NGINX. This variable determines how 
+# many concurrent requests NGINX can handle. Default is `auto` so that NGINX determines
+# the optimal number based on the number of available CPU cores.
+nginx_worker_processes: "{{ artifactory_nginx_worker_processes | d('auto') }}"
 
-artifactory_conf_template: artifactory.conf.j2
-nginx_conf_template: nginx.conf.j2
+# [NGINX] If true, creates a rewrite rule for docker registry requests in the NGINX artifactory config.
+nginx_enable_docker_registry_rewrite: "{{ artifactory_nginx_enable_docker_registry_rewrite | d(false) }}"
+
+# [SSL Settings] Important - Set this to true if you want to configure SSL
+nginx_enable_ssl: "{{ artifactory_nginx_enable_ssl | d(false) }}"
+
+# [SSL Settings] Configure NGINX for HTTP to HTTPS redirection
+# Requires `nginx_enable_ssl` to be true
+nginx_enable_http_to_https_redirection: "{{ artifactory_nginx_enable_http_to_https_redirection | d(false) }}"
+
+# [SSL Settings] In a vault file, using a block scalar override the following
+# variables to pass the CA chain, SSL certificate and private key content.
+ca_chain_content: "{{ artifactory_ca_chain_content | d('') }}"
+ssl_certificate_content: "{{ artifactory_ssl_certificate_content | d('') }}"
+ssl_private_key_content: "{{ artifactory_ssl_private_key_content | d('') }}"
+
+# [SSL Settings] Define the CA Chain, certificate and private name when created
+ca_chain_name: "{{ artifactory_ca_chain_name | d('ca_chain.pem') }}"
+ssl_certificate_name: "{{ artifactory_ssl_certificate_name | d(inventory_hostname ~ '.crt.pem') }}"
+ssl_private_key_name: "{{ artifactory_ssl_private_key_name | d(inventory_hostname ~ '.key.pem') }}"
+
+# [Repository] Optional - If you want to use the NGINX official repository set this
+# value to true otherwise leave it to false to install NGINX provided with OS.
+nginx_use_official_repos: "{{ artifactory_nginx_use_official_repos | d(false) }}"
+
+# [Repository] Optional - Centos/RHEL only - pass a list of enabled/disabled repositories if needed.
+nginx_enabled_repositories: "{{ artifactory_nginx_enabled_repositories |d([]) }}"
+nginx_disabled_repositories: "{{ artifactory_nginx_disabled_repositories |d([]) }}" 

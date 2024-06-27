@@ -1,0 +1,98 @@
+---
+- name: Enable httpd_can_network_connect
+  become: true
+  ansible.posix.seboolean:
+    name: httpd_can_network_connect
+    state: true
+    persistent: true
+  when:
+    - ansible_facts['os_family'] | lower == 'redhat'
+    - ansible_facts['selinux']['status'] | lower == 'enabled'
+
+- name: Copy NGINX config file
+  become: true
+  ansible.builtin.template:
+    src: "{{ template_nginx_config.src }}"
+    dest: "{{ template_nginx_config.dst }}"
+    owner: "{{ template_nginx_config.owner }}"
+    group: "{{ template_nginx_config.group }}"
+    mode: "{{ template_nginx_config.mode }}"
+  notify: Restart NGINX
+
+- name: Copy NGINX artifactory config
+  become: true
+  ansible.builtin.template:
+    src: "{{ template_nginx_artifactory.src }}"
+    dest: "{{ template_nginx_artifactory.dst }}"
+    owner: "{{ template_nginx_artifactory.owner }}"
+    group: "{{ template_nginx_artifactory.group }}"
+    mode: "{{ template_nginx_artifactory.mode }}"
+  notify: Restart NGINX
+
+- name: Ensure NGINX dir exists
+  become: true
+  ansible.builtin.file:
+    path: "{{ jfrog_ssl_directory.path }}"
+    state: directory
+    mode: "{{ jfrog_ssl_directory.mode }}"
+  when: nginx_enable_ssl | bool
+
+- name: Copy NGINX redirect config
+  become: true
+  ansible.builtin.template:
+    src: "{{ template_https_redirect.src }}"
+    dest: "{{ template_https_redirect.dst }}"
+    owner: "{{ template_https_redirect.owner }}"
+    group: "{{ template_https_redirect.group }}"
+    mode: "{{ template_https_redirect.mode }}"
+  notify: Restart NGINX
+  when:
+    - nginx_enable_ssl | bool
+    - nginx_enable_http_to_https_redirection | bool
+
+- name: Copy CA Certificate chain
+  become: true
+  ansible.builtin.copy:
+    content: "{{ ca_chain_content }}"
+    dest: "{{ system_trust_store.path }}/{{ ca_chain_name }}"
+    owner: root
+    group: root
+    mode: '0644'
+  no_log: true
+  notify: Update CA trust store
+  when: ca_chain_content is defined and ca_chain_content | length > 0
+
+- name: Copy SSL Key and Certificate
+  become: true
+  ansible.builtin.copy:
+    content: "{{ item.src }}"
+    dest: "{{ item.dst }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+  notify: Restart NGINX
+  no_log: true
+  loop:
+    - src: "{{ ssl_certificate }}"
+      dst: "{{ system_certs.path }}/{{ ssl_certificate_name }}"
+      owner: 'root'
+      group: 'root'
+      mode: '0644'
+    - src: "{{ ssl_private_key }}"
+      dst: "{{ system_private_key.path }}/{{ ssl_private_key_name}}"
+      owner: 'root'
+      group: 'root'
+      mode: '0600'
+  when:
+    - nginx_enable_ssl | bool
+    - ssl_certificate_content is defined and ssl_certificate_content | length > 0
+    - ssl_private_key_content is defined and ssl_private_key_content | length > 0
+
+- name: Ensure NGINX is Enabled
+  become: true
+  ansible.builtin.systemd_service:
+    name: "{{ nginx_system_daemon }}"
+    enabled: true
+
+- name: Flush all handlers
+  ansible.builtin.meta: flush_handlers

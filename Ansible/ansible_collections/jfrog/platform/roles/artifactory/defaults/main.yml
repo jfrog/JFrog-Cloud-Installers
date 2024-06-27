@@ -3,11 +3,11 @@
 # The version of artifactory to install
 artifactory_version: 7.84.14
 
-# Set this to true when SSL is enabled (to use artifactory_nginx_ssl role), default to false (implies artifactory uses artifactory_nginx role )
-artifactory_nginx_ssl_enabled: false
+# [NGINX] Install and configure NGINX with Artifactory (default: true). Set to false if NGINX is not required.
+artifactory_nginx_installed: true
 
-# Set this to false when ngnix is disabled, defaults to true (implies artifactory uses artifactory_nginx role )
-artifactory_nginx_enabled: true
+# [NGINX] Enable and configure NGINX with SSL (default: false)
+artifactory_nginx_enable_ssl: false
 
 # Provide single or HA individual licenses file separated by new line and 2-space indentation and for HA, set artifactory_ha_enabled: true.
 # Example: Replace <license_1> , <license_2> , <license_3> with original licenses

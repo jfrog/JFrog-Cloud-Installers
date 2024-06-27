@@ -1,8 +1,12 @@
 ---
 # handlers file for artifactory_nginx
-- name: Restart nginx
+
+- name: Update CA trust store
   become: true
-  ansible.builtin.systemd:
-    name: "{{ nginx_daemon }}"
+  ansible.builtin.command: "{{ system_trust_store_update | quote }}"
+
+- name: Restart NGINX
+  become: true
+  ansible.builtin.systemd_service:
+    name: "{{ nginx_system_daemon }}"
     state: restarted
-    enabled: true

@@ -1,34 +1,42 @@
-- name: Install prerequisite packages
-  ansible.builtin.include_tasks: "{{ ansible_os_family }}.yml"
+---
+- name: Gather system facts
+  ansible.builtin.setup:
 
-- name: Install nginx
-  become: true
-  ansible.builtin.package:
-    name: nginx
-    state: present
-  register: install_nginx
-  retries: 5
-  delay: 60
-  until: install_nginx is succeeded
+- name: Assert that we support the distribution
+  ansible.builtin.assert:
+    that: ansible_facts['os_family'] | lower in ['redhat', 'debian']
+    fail_msg: 'Host is unsupported. Aborting.'
+    success_msg: 'Host is supported. Proceeding.'
+    quiet: true
 
-- name: Copy nginx.conf file
-  become: true
-  ansible.builtin.template:
-    src: "{{ nginx_conf_template }}"
-    dest: /etc/nginx/nginx.conf
-    owner: root
-    group: root
-    mode: '0755'
+- name: Assert that Red Hat OS family is version 8+
+  ansible.builtin.assert:
+    that: ansible_facts['distribution_major_version'] | int is version('8', '>=')
+    fail_msg: 'Host is unsupported. Aborting.'
+    success_msg: 'Host is supported. Proceeding.'
+    quiet: true
+  when: ansible_facts['os_family'] | lower == 'redhat'
 
-- name: Generate artifactory.conf
-  become: true
-  ansible.builtin.template:
-    src: "{{ artifactory_conf_template }}"
-    dest: /etc/nginx/conf.d/artifactory.conf
-    owner: root
-    group: root
-    mode: '0755'
-  notify: Restart nginx
+- name: Include variables for all distributions
+  ansible.builtin.include_vars: "vars/all.yml"
 
-- name: Restart nginx
-  ansible.builtin.meta: flush_handlers
+- name: Include variables for distribution
+  ansible.builtin.include_vars: "{{ item }}"
+  with_first_found:
+    - "vars/{{ ansible_facts['distribution'] | lower }}.yml"
+    - "vars/{{ ansible_facts['os_family'] | lower }}.yml"
+    - "vars/default.yml"
+
+- name: Include tasks to install NGINX
+  ansible.builtin.include_tasks: "{{ item }}"
+  with_first_found:
+    - "install/{{ ansible_facts['distribution'] | lower }}.yml"
+    - "install/{{ ansible_facts['os_family'] | lower }}.yml"
+    - "install/default.yml"
+
+- name: Include tasks to configure NGINX
+  ansible.builtin.include_tasks: "{{ item }}"
+  with_first_found:
+    - "config/{{ ansible_facts['distribution'] | lower }}.yml"
+    - "config/{{ ansible_facts['os_family'] | lower }}.yml"
+    - "config/default.yml"
