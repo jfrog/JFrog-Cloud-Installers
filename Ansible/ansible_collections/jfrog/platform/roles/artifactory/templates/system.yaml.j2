@@ -1,1 +1,22 @@
-{{ artifactory_systemyaml }}
+configVersion: 1
+shared:
+  security:
+    joinKey: "{{ join_key }}"
+  extraJavaOpts: "{{ artifactory_extra_java_opts }}"
+  node:
+    id: "{{ ansible_fqdn | default(ansible_hostname, true) }}"
+    ip: "{{ ansible_default_ipv4.address | default(ansible_host, true) }}"
+    taskAffinity: {{ artifactory_taskaffinity }}
+    haEnabled: {{ artifactory_ha_enabled }}
+  database:
+    allowNonPostgresql: {{ artifactory_allowNonPostgresql }}
+    type: "{{ artifactory_db_type }}"
+    driver: "{{ artifactory_db_driver }}"
+    url: "{{ artifactory_db_url }}"
+    username: "{{ artifactory_db_user }}"
+    password: "{{ artifactory_db_password }}"
+mc:
+  enabled: {{ artifactory_mc_enabled }}
+router:
+  entrypoints:
+    internalPort: 8046

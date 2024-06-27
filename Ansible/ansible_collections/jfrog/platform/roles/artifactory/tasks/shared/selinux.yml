@@ -1,0 +1,13 @@
+---
+- name: Configure SELinux context
+  become: true
+  community.general.sefcontext:
+    target: "{{ jfrog_home_directory }}/artifactory/app/bin(/.*)?"
+    setype: bin_t
+    reload: true
+    state: present
+
+- name: Restore SELinux content
+  become: true
+  ansible.builtin.command: restorecon -Rv "{{ jfrog_home_directory }}/artifactory/app/bin"
+  changed_when: false

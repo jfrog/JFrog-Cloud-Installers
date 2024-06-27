@@ -1,0 +1,25 @@
+---
+- name: Check if included database driver is the correct version
+  ansible.builtin.stat:
+    path: "{{ artifactory_home }}/app/artifactory/tomcat/lib/postgresql-{{ postgres_driver_version }}.jar"
+  register: included_database_driver
+
+- name: Check if jdbc driver exists
+  ansible.builtin.stat:
+    path: "{{ artifactory_home }}/app/artifactory/tomcat/lib/jf_postgresql-{{ postgres_driver_version }}.jar"
+  when: not included_database_driver.stat.exists
+  register: database_driver
+
+- name: Download jdbc driver
+  ansible.builtin.get_url:
+    url: "{{ postgres_driver_download_url }}"
+    dest: "{{ artifactory_home }}/var/bootstrap/artifactory/tomcat/lib"
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+    mode: '0644'
+  when:
+    - postgres_driver_download | bool
+    - postgres_driver_download_url | d('') | length > 0
+    - not database_driver.stat.exists
+    - not included_database_driver.stat.exists
+  notify: Restart artifactory

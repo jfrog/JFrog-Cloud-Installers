@@ -1,8 +1,0 @@
-- name: Install prerequisite packages
-  become: true
-  ansible.builtin.yum:
-    name: ['net-tools', '{{ selinux_policy_package }}']
-    state: present
-
-- name: Configure SELinux context
-  ansible.builtin.include_tasks: shared/selinux_configure_context.yml

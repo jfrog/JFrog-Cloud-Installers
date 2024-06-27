@@ -1,0 +1,76 @@
+---
+- name: Ensure Debian prerequisite packages are installed
+  become: true
+  ansible.builtin.apt:
+    name: ["net-tools", "locales"]
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+  when: ansible_facts['pkg_mgr'] | lower == 'apt'
+
+- name: Ensure Red Hat prerequisite packages are installed
+  become: true
+  ansible.builtin.dnf:
+    name: ['net-tools', '{{ selinux_policy_package }}']
+    state: present
+  when: ansible_facts['pkg_mgr'] | lower == 'dnf'
+
+- name: Ensure UTF-8 locale exists on debian based systems
+  become: true
+  community.general.locale_gen:
+    name: en_US.UTF-8
+    state: present
+  when: ansible_facts['os_family'] | lower == 'debian'
+
+- name: Ensure artifactory user is added to cron.allow
+  become: true
+  ansible.builtin.lineinfile:
+    path: /etc/cron.allow
+    line: "{{ artifactory_user }}"
+    state: present
+  when: artifactory_allow_crontab | bool
+
+- name: Ensure cron.allow has the right permissions
+  become: true
+  ansible.builtin.file:
+    path: /etc/cron.allow
+    owner: root
+    group: root
+    mode: '0644'
+  when: artifactory_allow_crontab | bool
+
+- name: Ensure group artifactory exists
+  ansible.builtin.group:
+    name: "{{ artifactory_group }}"
+    state: present
+
+- name: Ensure user artifactory exists
+  ansible.builtin.user:
+    name: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+    create_home: true
+    home: "{{ artifactory_home }}"
+    shell: '/bin/bash'
+    state: present
+
+- name: Ensure jfrog_home_directory exists
+  ansible.builtin.file:
+    path: "{{ jfrog_home_directory }}"
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+    state: directory
+    mode: '0755'
+
+- name: Ensure required directories exists
+  become: true
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+    recurse: true
+  loop:
+    - "{{ artifactory_home }}/var/data"
+    - "{{ artifactory_home }}/var/etc"
+    - "{{ artifactory_home }}/var/etc/security/"
+    - "{{ artifactory_home }}/var/etc/artifactory/info/"

@@ -1,0 +1,63 @@
+---
+- name: Check if system.yaml exists
+  become: true
+  ansible.builtin.stat:
+    path: "{{ artifactory_home }}/var/etc/system.yaml"
+  register: _stat_systemyaml
+
+- name: Configure system.yaml
+  become: true
+  ansible.builtin.copy:
+    content: "{{ artifactory_systemyaml }}"
+    dest: "{{ artifactory_home }}/var/etc/system.yaml"
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+    mode: '0644'
+    backup: true
+  notify: Restart artifactory
+
+- name: Apply installer info template
+  become: true
+  ansible.builtin.template:
+    src: installer-info.json.j2
+    dest: "{{ artifactory_home }}/var/etc/artifactory/info/installer-info.json"
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+    mode: '0644'
+    backup: true
+  notify: Restart artifactory
+
+- name: Apply binary store XML content
+  ansible.builtin.template:
+    src: path/to/your_template.xml.j2
+    dest: "{{ artifactory_home }}/var/etc/artifactory/binarystore.xml"
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+    mode: '0644'
+    backup: true
+  notify: Restart artifactory
+
+- name: Apply licenses template
+  become: true
+  ansible.builtin.template:
+    src: artifactory.cluster.license.j2
+    dest: "{{ artifactory_home }}/var/etc/artifactory/artifactory.cluster.license"
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+    mode: '0644'
+    backup: true
+  when: artifactory_licenses | d('') | length > 0
+  notify: Restart artifactory
+
+- name: Apply boostrap credential template
+  become: true
+  ansible.builtin.template:
+    src: bootstrap.creds.j2
+    dest: "{{ artifactory_home }}/var/etc/access/bootstrap.creds"
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+    mode: '0600'
+  when:
+    - artifactory_admin_username | d('') | length > 0
+    - artifactory_admin_password | d('') | length > 0
+  notify: Restart artifactory

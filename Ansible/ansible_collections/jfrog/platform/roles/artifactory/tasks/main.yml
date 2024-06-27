@@ -1,11 +1,41 @@
-- name: Perform installation
-  ansible.builtin.include_tasks: "install.yml"
+---
+- name: Gather system facts
+  ansible.builtin.setup:
+
+- name: Assert that we support the distribution
+  ansible.builtin.assert:
+    that: ansible_facts['os_family'] | lower in ['redhat', 'debian']
+    fail_msg: 'Host is unsupported. Aborting.'
+    success_msg: 'Host is supported. Proceeding.'
+    quiet: true
+
+- name: Assert that Red Hat OS family is version 8+
+  ansible.builtin.assert:
+    that: ansible_facts['distribution_major_version'] | int is version('8', '>=')
+    fail_msg: 'Host is unsupported. Aborting.'
+    success_msg: 'Host is supported. Proceeding.'
+    quiet: true
+  when: ansible_facts['os_family'] | lower == 'redhat'
+
+- name: Include variables for all distributions
+  ansible.builtin.include_vars: "vars/all.yml"
+
+- name: Include variables for this distribution
+  ansible.builtin.include_vars: "{{ item }}"
+  with_first_found:
+    - "vars/{{ ansible_facts['distribution'] | lower ~ ansible_facts['distribution_major_version'] }}.yml"
+    - "vars/{{ ansible_facts['distribution'] | lower }}.yml"
+    - "vars/{{ ansible_facts['os_family'] | lower }}.yml"
+    - "vars/default.yml"
+
+- name: Include artifactory installation tasks
+  ansible.builtin.include_tasks: 'install.yml'
   when:
-    - artifactory_enabled
+    - artifactory_enabled 
     - not artifactory_upgrade_only
 
-- name: Perform upgrade
-  ansible.builtin.include_tasks: "upgrade.yml"
+- name: Include artifactory upgrade tasks
+  ansible.builtin.include_tasks: 'upgrade.yml'
   when:
     - artifactory_enabled
     - artifactory_upgrade_only
