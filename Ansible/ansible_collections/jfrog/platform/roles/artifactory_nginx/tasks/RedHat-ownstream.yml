@@ -1,0 +1,21 @@
+- name: Enable nginx from AppStream
+  become: true
+  ansible.builtin.command: "yum module enable -y nginx:{{ nginx_module }}"
+
+- name: Update yum cache
+  become: true
+  ansible.builtin.yum:
+    state: present
+    update_cache: true
+
+- name: Gather selinux facts
+  ansible.builtin.setup:
+    gather_subset: selinux
+
+- name: Set httpd_can_network_connect
+  become: true
+  ansible.posix.seboolean:
+    name: httpd_can_network_connect
+    state: true
+    persistent: true
+  when: ansible_facts.selinux.status == 'enabled'
