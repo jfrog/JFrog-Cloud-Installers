@@ -30,8 +30,8 @@ Defaults to PostgreSQL default -- allowing only localhost:
 
 Note: For development purposes you may overide it with the following variable:
 
-**THIS SHOULD NOT BE USED FOR PRODUCTION.**
-**Update this variable to only allow access from Artifactory, Distribution, Insight and Xray.**
+**THIS SHOULD NOT BE USED FOR PRODUCTION.**  
+**Update this variable to only allow access from Artifactory, Distribution, Insight and Xray.**  
 
 ```yaml
 postgres_allowed_hosts:
@@ -52,25 +52,25 @@ postgresql_custom_config_options:
 
 #### PostgreSQL Users and Databases Configuration
 
-| Database Attribute        | Example Values                                                                       | Description                                            |
-|---------------------------|--------------------------------------------------------------------------------------|--------------------------------------------------------|
-| `name`                    | `{{ artifactory_db_name | d('artifactory') }}`, `{{ xray_db_name | d('xray') }}`, etc.| Name of the database configured dynamically.          |
-| `username`                | `{{ artifactory_db_user_name | d('artifactory') }}`, etc.                            | Username for the database.                             |
-| `userpass`                | `{{ artifactory_db_user_pass | d('...') }}`                                          | Password for the database user.                        |
-| `userpass_encrypted`      | `{{ artifactory_db_user_pass_encrypted | d('true') }}`                               | Indicates if the password is encrypted.                |
-| `userprivs`               | `{{ artifactory_db_user_privs | d(['ALL']) }}`                                       | Privileges for the user.                               |
-| `owner`                   | `{{ artifactory_db_owner | d(...) }}`                                                | Owner of the database. (default is artifactory_db_user_name)|
-| `lc_collate`, `lc_ctype`  | Locale settings derived from `postgresql_locale`.                                    | Locale settings for collation and character type.      |
-| `encoding`                | `{{ artifactory_db_encoding | d('UTF-8') }}`                                         | Encoding for the database.                             |
-| `template`                | `{{ artifactory_db_template | d('template0') }}`                                     | Template used to create the database.                  |
-| `login_host`              | `{{ artifactory_db_login_host | d('localhost') }}`                                   | Host for logging into the database.                    |
-| `login_port`              | `{{ artifactory_db_login_port | d(null) }}`                                          | Port for logging into the database.                    |
-| `login_user`              | `{{ artifactory_db_login_user | d(postgresql_user) }}`                               | User for logging into the database.                    |
-| `login_password`          | `{{ artifactory_db_login_password | d(null) }}`                                      | Password for logging into the database.                |
-| `login_unix_socket`       | `{{ artifactory_db_unix_socket | d(null) }}`                                         | Unix socket for logging into the database.             |
-| `state`                   | `{{ artifactory_db_state | d(...) }}`                                                | State of the database (present, absent).               |
-| `driver`                  | `{{ artifactory_db_driver | d('org.postgresql.Driver') }}`                           | Database driver.                                       |
-| `url`                     | Dynamically generated JDBC connection strings.                                       | URL for database connections.                          |
+| Database Attribute        | Example Values                                                                        | Description                                            |
+|---------------------------|---------------------------------------------------------------------------------------|--------------------------------------------------------|
+| `name`                    | `{{ artifactory_db_name \| d('artifactory') }}`                                       | Name of the database configured dynamically.          |
+| `username`                | `{{ artifactory_db_user_name \| d('artifactory') }}`                                  | Username for the database.                             |
+| `userpass`                | `{{ artifactory_db_user_pass \| d('...') }}`                                          | Password for the database user.                        |
+| `userpass_encrypted`      | `{{ artifactory_db_user_pass_encrypted \| d('true') }}`                               | Indicates if the password is encrypted.                |
+| `userprivs`               | `{{ artifactory_db_user_privs \| d(['ALL']) }}`                                       | Privileges for the user.                               |
+| `owner`                   | `{{ artifactory_db_owner \| d(...) }}`                                                | Owner of the database. (default is artifactory_db_user_name)|
+| `lc_collate`, `lc_ctype`  | Locale settings derived from `postgresql_locale`.                                     | Locale settings for collation and character type.      |
+| `encoding`                | `{{ artifactory_db_encoding \| d('UTF-8') }}`                                         | Encoding for the database.                             |
+| `template`                | `{{ artifactory_db_template \| d('template0') }}`                                     | Template used to create the database.                  |
+| `login_host`              | `{{ artifactory_db_login_host \| d('localhost') }}`                                   | Host for logging into the database.                    |
+| `login_port`              | `{{ artifactory_db_login_port \| d(null) }}`                                          | Port for logging into the database.                    |
+| `login_user`              | `{{ artifactory_db_login_user \| d(postgresql_user) }}`                               | User for logging into the database.                    |
+| `login_password`          | `{{ artifactory_db_login_password \| d(null) }}`                                      | Password for logging into the database.                |
+| `login_unix_socket`       | `{{ artifactory_db_unix_socket \| d(null) }}`                                         | Unix socket for logging into the database.             |
+| `state`                   | `{{ artifactory_db_state \| d('present')) }}`                                         | State of the database (present, absent).               |
+| `driver`                  | `{{ artifactory_db_driver \| d('org.postgresql.Driver') }}`                           | Database driver.                                       |
+| `url`                     | Dynamically generated JDBC connection URL.                                            | URL for database connections.                          |
 
 ## Example Playbook
 
