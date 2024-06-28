@@ -4,7 +4,7 @@
 # For production deployments, you SHOULD change it.
 server_name: "{{ artifactory_server_name | d(inventory_hostname if '.' in inventory_hostname else 'test.artifactory.com') }}"
 
-# [NGINX] Tune the number of worker processes used by NGINX. This variable determines how 
+# [NGINX] Tune the number of worker processes used by NGINX. This variable determines how
 # many concurrent requests NGINX can handle. Default is `auto` so that NGINX determines
 # the optimal number based on the number of available CPU cores.
 nginx_worker_processes: "{{ artifactory_nginx_worker_processes | d('auto') }}"
@@ -35,5 +35,5 @@ ssl_private_key_name: "{{ artifactory_ssl_private_key_name | d(inventory_hostnam
 nginx_use_official_repos: "{{ artifactory_nginx_use_official_repos | d(false) }}"
 
 # [Repository] Optional - Centos/RHEL only - pass a list of enabled/disabled repositories if needed.
-nginx_enabled_repositories: "{{ artifactory_nginx_enabled_repositories |d([]) }}"
-nginx_disabled_repositories: "{{ artifactory_nginx_disabled_repositories |d([]) }}" 
+nginx_enabled_repositories: "{{ artifactory_nginx_enabled_repositories | d([]) }}"
+nginx_disabled_repositories: "{{ artifactory_nginx_disabled_repositories | d([]) }}"

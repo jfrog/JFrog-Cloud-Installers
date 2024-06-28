@@ -1,5 +1,5 @@
 ---
-- name: Include tasks to configure prerequisites 
+- name: Include tasks to configure prerequisites
   ansible.builtin.include_tasks: 'shared/prerequisites.yml'
 
 - name: Install NGINX

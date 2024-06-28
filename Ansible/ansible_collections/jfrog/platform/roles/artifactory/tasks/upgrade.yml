@@ -1,5 +1,5 @@
 ---
-- name: Include tasks to configure prerequisites 
+- name: Include tasks to configure prerequisites
   ansible.builtin.include_tasks: 'shared/prerequisites.yml'
 
 - name: Include tasks to apply and restore SELinux contexts on RHEL based systems
@@ -28,7 +28,11 @@
 
     - name: Set running_version
       ansible.builtin.set_fact:
-        running_version: "{{ lookup('ansible.builtin.ini', 'artifactory.product.version', type='properties', file='/tmp/artifactory.product.version.properties') }}"
+        running_version: >-
+          "{{ lookup('ansible.builtin.ini',
+                    'artifactory.product.version',
+                    type='properties',
+                    file='/tmp/artifactory.product.version.properties') }}"
 
     - name: Delete old artifactory app directory
       ansible.builtin.file:

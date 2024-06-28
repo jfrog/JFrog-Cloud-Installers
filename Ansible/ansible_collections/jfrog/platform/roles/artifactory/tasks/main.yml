@@ -31,7 +31,7 @@
 - name: Include artifactory installation tasks
   ansible.builtin.include_tasks: 'install.yml'
   when:
-    - artifactory_enabled 
+    - artifactory_enabled
     - not artifactory_upgrade_only
 
 - name: Include artifactory upgrade tasks

@@ -59,8 +59,8 @@ artifactory_gid: 1030
 # If this is an upgrade
 artifactory_upgrade_only: false
 
-# To run Artifactory with any database other than PostgreSQL, allowNonPostgresql set to true
-artifactory_allowNonPostgresql: false
+# To run Artifactory with any database other than PostgreSQL, artifactory_allow_non_postgresql set to true
+artifactory_allow_non_postgresql: false
 
 # Default username and password, uncomment and change to manage with ansible
 # artifactory_admin_username: admin

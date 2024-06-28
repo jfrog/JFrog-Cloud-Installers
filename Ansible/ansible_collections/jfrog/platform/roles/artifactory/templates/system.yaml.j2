@@ -9,7 +9,7 @@ shared:
     taskAffinity: {{ artifactory_taskaffinity }}
     haEnabled: {{ artifactory_ha_enabled }}
   database:
-    allowNonPostgresql: {{ artifactory_allowNonPostgresql }}
+    allowNonPostgresql: {{ artifactory_allow_non_postgresql }}
     type: "{{ artifactory_db_type }}"
     driver: "{{ artifactory_db_driver }}"
     url: "{{ artifactory_db_url }}"

@@ -1,10 +1,4 @@
 ---
-## [Repository] variables for NGINX official repository
-nginx_official_repo_filename: 'nginx-stable'
-nginx_official_repo_description: 'nginx stable repo'
-nginx_official_repo_signing_key: 'https://nginx.org/keys/nginx_signing.key'
-nginx_official_repo_url: "https://nginx.org/packages/{{ nginx_official_repo_mapping[ansible_facts['distribution'] | lower] }}"
-
 ## [Repository] OS mapping variable for NGINX official repository
 nginx_official_repo_mapping:
   amazon: amzn
@@ -15,3 +9,9 @@ nginx_official_repo_mapping:
   alpine: alpine
   sles: sles
   aix: aix
+
+## [Repository] variables for NGINX official repository
+nginx_official_repo_filename: 'nginx-stable'
+nginx_official_repo_description: 'nginx stable repo'
+nginx_official_repo_signing_key: 'https://nginx.org/keys/nginx_signing.key'
+nginx_official_repo_url: "https://nginx.org/packages/{{ nginx_official_repo_mapping[ansible_facts['distribution'] | lower] }}"
