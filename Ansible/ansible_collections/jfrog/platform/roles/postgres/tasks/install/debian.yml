@@ -1,6 +1,6 @@
 ---
 - name: Configure PostgreSQL repositories
-  when: artifactory_postgresql_use_official_repos | bool
+  when: postgresql_use_official_repos | bool
   become: true
   block:
 
@@ -26,18 +26,18 @@
 - name: Install PostgreSQL Python libraries
   become: true
   ansible.builtin.apt:
-    name: "{{ postgresql_python_library }}"
+    name: "{{ postgresql_os_python_library }}"
     state: present
     update_cache: true
     cache_valid_time: 3600
   when:
-    - postgresql_python_library is defined
-    - postgresql_python_library | length > 0
+    - postgresql_os_python_library is defined
+    - postgresql_os_python_library | length > 0
 
 - name: Install PostgreSQL Server packages
   become: true
   ansible.builtin.apt:
-    name: "{{ postgresql_packages }}"
+    name: "{{ postgresql_os_packages }}"
     state: present
   register: postgresql_install_result
 

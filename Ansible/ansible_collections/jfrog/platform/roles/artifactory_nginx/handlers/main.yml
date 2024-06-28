@@ -3,10 +3,10 @@
 
 - name: Update CA trust store
   become: true
-  ansible.builtin.command: "{{ system_trust_store_update }}"
+  ansible.builtin.command: "{{ artifactory_nginx_os_cmd_truststore_update }}"
 
 - name: Restart NGINX
   become: true
   ansible.builtin.systemd_service:
-    name: "{{ nginx_system_daemon }}"
+    name: "{{ artifactory_nginx_os_daemon }}"
     state: restarted

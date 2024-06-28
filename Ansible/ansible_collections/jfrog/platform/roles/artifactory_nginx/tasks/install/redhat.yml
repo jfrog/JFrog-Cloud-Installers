@@ -1,20 +1,20 @@
 ---
 - name: Configure NGINX repositories
-  when: nginx_use_official_repos | bool
+  when: artifactory_nginx_use_official_repos | bool
   become: true
   block:
 
     - name: Import NGINX signing key
       ansible.builtin.rpm_key:
-        key: "{{ nginx_official_repo_signing_key }}"
+        key: "{{ artifactory_nginx_official_repo_signing_key }}"
         state: present
 
     - name: Add NGINX stable repo
       ansible.builtin.yum_repository:
-        name: "{{ nginx_official_repo_filename }}"
-        description: "{{ nginx_official_repo_description }}"
-        file: "{{ nginx_official_repo_filename }}"
-        baseurl: "{{ nginx_official_repo_url }}"
+        name: "{{ artifactory_nginx_official_repo_filename }}"
+        description: "{{ artifactory_nginx_official_repo_description }}"
+        file: "{{ artifactory_nginx_official_repo_filename }}"
+        baseurl: "{{ artifactory_nginx_official_repo_url }}"
         gpgcheck: true
         enabled: true
         module_hotfixes: true
@@ -23,17 +23,17 @@
 
     - name: Fallback to manually adding the repo if the previous task failed
       ansible.builtin.copy:
-        dest: "/etc/yum.repos.d/{{ nginx_official_repo_filename }}.repo"
+        dest: "/etc/yum.repos.d/{{ artifactory_nginx_official_repo_filename }}.repo"
         owner: root
         group: root
         mode: '0644'
         content: |
-          [{{ nginx_official_repo_filename }}]
-          name={{ nginx_official_repo_description }}
-          baseurl={{ nginx_official_repo_url }}/$releasever/$basearch
+          [{{ artifactory_nginx_official_repo_filename }}]
+          name={{ artifactory_nginx_official_repo_description }}
+          baseurl={{ artifactory_nginx_official_repo_url }}/$releasever/$basearch
           gpgcheck=1
           enabled=1
-          gpgkey={{ nginx_official_repo_signing_key }}
+          gpgkey={{ artifactory_nginx_official_repo_signing_key }}
           module_hotfixes=true
       when: __nginx_setup_repo is failed
 
@@ -45,7 +45,7 @@
 - name: Install NGINX
   become: true
   ansible.builtin.dnf:
-    name: "{{ nginx_packages }}"
+    name: "{{ artifactory_nginx_os_packages }}"
     state: present
-    disablerepo: "{{ nginx_disabled_repositories | d(omit, true) }}"
-    enablerepo: "{{ nginx_enabled_repositories | d(omit, true) }}"
+    disablerepo: "{{ artifactory_nginx_disabled_repositories | d(omit, true) }}"
+    enablerepo: "{{ artifactory_nginx_enabled_repositories | d(omit, true) }}"

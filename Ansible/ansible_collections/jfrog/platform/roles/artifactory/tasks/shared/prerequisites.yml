@@ -11,7 +11,7 @@
 - name: Ensure Red Hat prerequisite packages are installed
   become: true
   ansible.builtin.dnf:
-    name: ['net-tools', '{{ selinux_policy_package }}']
+    name: ['net-tools', '{{ artifactory_selinux_policy_package }}']
     state: present
   when: ansible_facts['pkg_mgr'] | lower == 'dnf'
 
@@ -51,14 +51,14 @@
     name: "{{ artifactory_user }}"
     group: "{{ artifactory_group }}"
     create_home: true
-    home: "{{ artifactory_home }}"
+    home: "{{ artifactory_application_dir }}"
     shell: '/bin/bash'
     state: present
 
-- name: Ensure jfrog_home_directory exists
+- name: Ensure artifactory_jfrog_dir exists
   become: true
   ansible.builtin.file:
-    path: "{{ jfrog_home_directory }}"
+    path: "{{ artifactory_jfrog_dir }}"
     owner: "{{ artifactory_user }}"
     group: "{{ artifactory_group }}"
     state: directory
@@ -73,7 +73,7 @@
     group: "{{ artifactory_group }}"
     recurse: true
   loop:
-    - "{{ artifactory_home }}/var/data"
-    - "{{ artifactory_home }}/var/etc"
-    - "{{ artifactory_home }}/var/etc/security/"
-    - "{{ artifactory_home }}/var/etc/artifactory/info/"
+    - "{{ artifactory_application_dir }}/var/data"
+    - "{{ artifactory_application_dir }}/var/etc"
+    - "{{ artifactory_application_dir }}/var/etc/security/"
+    - "{{ artifactory_application_dir }}/var/etc/artifactory/info/"

@@ -19,14 +19,13 @@ postgresql_daemon: >-
   "{{ 'postgresql-' ~ postgresql_version ~ '.service'
   if postgresql_use_official_repos else 'postgresql' }}"
 
-postgresql_unix_socket_directories_mode: '0755'
-postgresql_unix_socket_directories:
+postgresql_os_unix_socket_dirs:
   - /var/run/postgresql
 
-postgresql_external_pid_file: "{{ '/var/run/postgresql/' ~ postgres_version '-main.pid' }}"
+postgresql_os_external_pid_file: "{{ '/var/run/postgresql/' ~ postgres_version '-main.pid' }}"
 
 # System logrotation drop-in directory
-logrotate_dir: '/etc/logrotate.d'
+postgresql_os_logrotate_dir: '/etc/logrotate.d'
 
 # PostgreSQL Repository variables
 postgresql_repo_key_id: ''
@@ -53,10 +52,10 @@ postgresql_repo_url: >-
   }}
 
 # PostgreSQL Server Packages
-postgresql_packages: >-
+postgresql_os_packages: >-
   {{
     ['postgresql' ~ postgresql_version ~ '-server', 'postgresql' ~ postgresql_version ~ '-contrib']
-    if artifactory_postgresql_use_official_repos
+    if postgresql_use_official_repos
     else
     (['@postgresql:' ~ postgresql_version ~ '/server', 'postgresql-contrib']
     if postgresql_version != '13'
@@ -65,4 +64,4 @@ postgresql_packages: >-
   }}
 
 # PostgreSQL Python Library Package
-postgresql_python_library: 'python3-psycopg2'
+postgresql_os_python_library: 'python3-psycopg2'

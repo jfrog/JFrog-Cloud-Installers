@@ -13,7 +13,7 @@
     login_password: "{{ item.value.login_password | d(omit) }}"
     login_unix_socket: "{{ item.value.login_unix_socket | d(omit) }}"
   loop: "{{ lookup('ansible.builtin.dict', postgresql_databases_users) }}"
-  no_log: "{{ postgres_users_no_log  | d(true) }}"
+  no_log: "{{ postgresql_users_no_log  | d(true) }}"
   environment:
     PGOPTIONS: "{{ (postgresql_auth_method == 'scram-sha-256') | ternary('-c password_encryption=scram-sha-256', '') }}"
 
@@ -49,4 +49,4 @@
     login_password: "{{ item.value.login_password | d(omit) }}"
     login_unix_socket: "{{ item.value.login_unix_socket | d(omit) }}"
   loop: "{{ lookup('ansible.builtin.dict', postgresql_databases_users) }}"
-  no_log: "{{ postgres_users_no_log | d(true) }}"
+  no_log: "{{ postgresql_users_no_log | d(true) }}"

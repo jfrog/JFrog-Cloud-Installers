@@ -30,15 +30,15 @@ postgresql_hba_entries:
 # - {type: host, database: all, user: all, address: '0.0.0.0/0', auth_method: trust }
 
 # Whether to output user data when managing users.
-postgres_users_no_log: true
+postgresql_users_no_log: true
 
 # Base configuration option that will be set by default.
 # Any of these can be overriden in `postgresql_custom_config_options`
 postgresql_default_config_options:
   - option: 'unix_socket_directories'
-    value: "{{ postgresql_unix_socket_directories | join(',') }}"
+    value: "{{ postgresql_os_unix_socket_dirs | join(',') }}"
   - option: 'external_pid_file'
-    value: "{{ postgresql_external_pid_file }}"
+    value: "{{ postgresql_os_external_pid_file }}"
   - option: 'max_connections'
     value: '1000'
 

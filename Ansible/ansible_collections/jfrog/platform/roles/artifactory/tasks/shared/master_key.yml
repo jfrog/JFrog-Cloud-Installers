@@ -2,7 +2,7 @@
 - name: Configure master key
   become: true
   ansible.builtin.copy:
-    dest: "{{ artifactory_home }}/var/etc/security/master.key"
+    dest: "{{ artifactory_application_dir }}/var/etc/security/master.key"
     content: "{{ master_key }}"
     owner: "{{ artifactory_user }}"
     group: "{{ artifactory_group }}"

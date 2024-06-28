@@ -1,6 +1,6 @@
 ---
 - name: Configure PostgreSQL repositories
-  when: artifactory_postgresql_use_official_repos | bool
+  when: postgresql_use_official_repos | bool
   become: true
   block:
 
@@ -52,18 +52,18 @@
 - name: Install PostgreSQL Python libraries
   become: true
   ansible.builtin.dnf:
-    name: "{{ postgresql_python_library }}"
+    name: "{{ postgresql_os_python_library }}"
     state: present
     disablerepo: "{{ postgresql_install_disablerepo | d(omit, true) }}"
     enablerepo: "{{ postgresql_install_enablerepo | d(omit, true) }}"
   when:
-    - postgresql_python_library is defined
-    - postgresql_python_library | length > 0
+    - postgresql_os_python_library is defined
+    - postgresql_os_python_library | length > 0
 
 - name: Install PostgreSQL packages
   become: true
   ansible.builtin.dnf:
-    name: "{{ postgresql_packages }}"
+    name: "{{ postgresql_os_packages }}"
     state: present
     exclude: python-unversioned-command
     disablerepo: "{{ postgresql_install_disablerepo | d(omit, true) }}"

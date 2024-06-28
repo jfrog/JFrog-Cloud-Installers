@@ -1,3 +1,4 @@
+---
 # platform collection version
 platform_collection_version: 10.18.2
 
@@ -5,4 +6,16 @@ platform_collection_version: 10.18.2
 ansible_marketplace: galaxy
 
 # Artifactory system service name
-artifactory_daemon: artifactory
+artifactory_os_daemon: artifactory
+
+# Artifactory dynamic variables for tar archive
+artifactory_tar_name: jfrog-artifactory-pro-{{ artifactory_version }}-linux.tar.gz
+
+artifactory_untar_dir: "{{ artifactory_jfrog_dir }}/artifactory-{{ artifactory_flavour }}-{{ artifactory_version }}"
+
+artifactory_tar_url: "https://releases.jfrog.io/artifactory/artifactory-pro/org/artifactory/pro/jfrog-artifactory-pro/\
+  {{ artifactory_version }}/{{ artifactory_tar_name }}"
+
+# Artifactory dynamic variables for postgresql archive
+artifactory_postgresql_driver_download_url: "https://repo1.maven.org/maven2/org/postgresql/postgresql/\
+  {{ artifactory_postgresql_driver_version }}/postgresql-{{ artifactory_postgresql_driver_version }}.jar"

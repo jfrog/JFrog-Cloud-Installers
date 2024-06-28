@@ -3,11 +3,11 @@
 # The version of artifactory to install
 artifactory_version: 7.84.14
 
+# **Mandatory.** The hostname used to access the Artifactory server. Adjust for production environments.
+artifactory_server_name: "{{ inventory_hostname if '.' in inventory_hostname else 'test.artifactory.com' }}"
+
 # [NGINX] Install and configure NGINX with Artifactory (default: true). Set to false if NGINX is not required.
 artifactory_nginx_installed: true
-
-# [NGINX] Enable and configure NGINX with SSL (default: false)
-artifactory_nginx_enable_ssl: false
 
 # Provide single or HA individual licenses file separated by new line and 2-space indentation and for HA, set artifactory_ha_enabled: true.
 # Example: Replace <license_1> , <license_2> , <license_3> with original licenses
@@ -17,6 +17,9 @@ artifactory_nginx_enable_ssl: false
 #   <license_2>
 
 #   <license_3>
+
+# If this is an upgrade-only
+artifactory_upgrade_only: false
 
 # To enable HA, set to true
 artifactory_ha_enabled: false
@@ -28,36 +31,30 @@ artifactory_taskaffinity: any
 artifactory_mc_enabled: true
 
 # The location where Artifactory should install
-jfrog_home_directory: /opt/jfrog
+artifactory_jfrog_dir: "{{ jfrog_home_directory | d('/opt/jfrog') }}"
 
-artifactory_home: "{{ jfrog_home_directory }}/artifactory"
+artifactory_application_dir: "{{ artifactory_jfrog_dir }}/artifactory"
 
 # Pick the Artifactory flavour to install, can be also cpp-ce/jcr/pro
 artifactory_flavour: pro
 
+# Artifactory extra Java Options
 artifactory_extra_java_opts: -server -Xms512m -Xmx4g -Xss256k -XX:+UseG1GC
-artifactory_tar_file_name: jfrog-artifactory-pro-{{ artifactory_version }}-linux.tar.gz
-artifactory_tar: "https://releases.jfrog.io/artifactory/artifactory-pro/org/artifactory/pro/jfrog-artifactory-pro/\
-  {{ artifactory_version }}/{{ artifactory_tar_file_name }}"
-artifactory_untar_home: "{{ jfrog_home_directory }}/artifactory-{{ artifactory_flavour }}-{{ artifactory_version }}"
 
 # Timeout in seconds for URL request
 artifactory_download_timeout: 10
 
 # Added optional variable to download from external url
-postgres_driver_download: true
-postgres_driver_version: 42.6.0
-postgres_driver_download_url: "https://repo1.maven.org/maven2/org/postgresql/postgresql/\
-  {{ postgres_driver_version }}/postgresql-{{ postgres_driver_version }}.jar"
+artifactory_postgresql_driver_download: true
+artifactory_postgresql_driver_version: '42.6.0'
 
+# Default system user/group
 artifactory_user: artifactory
 artifactory_group: artifactory
 
+# Default system user/group ID
 artifactory_uid: 1030
 artifactory_gid: 1030
-
-# If this is an upgrade
-artifactory_upgrade_only: false
 
 # To run Artifactory with any database other than PostgreSQL, artifactory_allow_non_postgresql set to true
 artifactory_allow_non_postgresql: false

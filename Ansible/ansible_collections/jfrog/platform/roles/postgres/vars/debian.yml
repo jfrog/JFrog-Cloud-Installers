@@ -5,14 +5,13 @@ postgresql_config_dir: "/etc/postgresql/{{ postgresql_version }}/main"
 postgresql_config_file: "/etc/postgresql/{{ postgresql_version }}/main/postgresql.conf"
 postgresql_daemon: "{{ 'postgresql@' ~ postgresql_version ~ '-main' if postgresql_use_official_repos else 'postgresql' }}"
 
-postgresql_unix_socket_directories_mode: '0755'
-postgresql_unix_socket_directories:
+postgresql_os_unix_socket_dirs:
   - /var/run/postgresql
 
-postgresql_external_pid_file: "{{ '/var/run/postgresql/' ~ postgres_version '-main.pid' }}"
+postgresql_os_external_pid_file: "{{ '/var/run/postgresql/' ~ postgres_version '-main.pid' }}"
 
 # System logrotation drop-in directory
-logrotate_dir: '/etc/logrotate.d'
+postgresql_os_logrotate_dir: '/etc/logrotate.d'
 
 # PostgreSQL Repository variables
 postgresql_repo_key_id: '0x7FCC7D46ACCC4CF8'
@@ -20,13 +19,13 @@ postgresql_repo_key_url: 'https://www.postgresql.org/media/keys/ACCC4CF8.asc'
 postgresql_repo_url: "deb https://apt.postgresql.org/pub/repos/apt/ {{ ansible_facts['distribution_release'] | lower }}-pgdg main"
 
 # PostgreSQL Server Packages
-postgresql_packages: >-
+postgresql_os_packages: >-
   {{
     ['postgresql-' ~ postgresql_version ~ '-server', 'postgresql-contrib-' ~ postgresql_version]
-    if artifactory_postgresql_use_official_repos
+    if postgresql_use_official_repos
     else
     ['postgresql', 'postgresql-contrib', 'libpq-dev']
   }}
 
 # PostgreSQL Python Library Package
-postgresql_python_library: 'python3-psycopg2'
+postgresql_os_python_library: 'python3-psycopg2'

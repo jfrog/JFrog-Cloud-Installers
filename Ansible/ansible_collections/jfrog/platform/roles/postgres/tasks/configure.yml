@@ -45,7 +45,7 @@
   become: true
   ansible.builtin.copy:
     content: "{{ postgresql_logrotate_content }}"
-    dest: "{{ logrotate_dir | d('/etc/logrotate.d') }}/postgresql"
+    dest: "{{ postgresql_os_logrotate_dir | d('/etc/logrotate.d') }}/postgresql"
     owner: root
     group: root
     mode: '0644'

@@ -1,34 +1,34 @@
 ---
-nginx_packages:
+artifactory_nginx_os_packages:
   - nginx
 
-nginx_system_daemon: 'nginx'
+artifactory_nginx_os_daemon: nginx
 
 ###########################
 ##      CERTIFICATES     ##
 ###########################
 
-system_trust_store_update: 'update-ca-trust'
+artifactory_nginx_os_cmd_truststore_update: 'update-ca-trust'
 
-system_trust_store:
+artifactory_nginx_os_dir_truststore:
   path: '/etc/pki/ca-trust/source/anchors'
   owner: root
   group: root
   mode: '0755'
 
-system_certs:
+artifactory_nginx_os_dir_certs:
   path: '/etc/pki/tls/certs'
   owner: root
   group: root
   mode: '0755'
 
-system_private_key:
+artifactory_nginx_os_dir_ssl:
   path: '/etc/pki/tls/private'
   owner: root
   group: root
   mode: '0700'
 
-jfrog_ssl_directory:
+artifactory_nginx_os_dir_jfrog_ssl:
   path: '/var/opt/jfrog/nginx/ssl'
   mode: '0755'
 
@@ -36,21 +36,21 @@ jfrog_ssl_directory:
 ##       TEMPLATES       ##
 ###########################
 
-template_nginx_config:
+artifactory_nginx_tpl_nginx_config:
   src: 'nginx.conf.j2'
   dst: '/etc/nginx/nginx.conf'
   owner: root
   group: root
   mode: '0755'
 
-template_https_redirect:
+artifactory_nginx_tpl_https_redirect:
   src: 'redirect_http_to_https.conf.j2'
   dst: '/etc/nginx/conf.d/redirect_http_to_https.conf'
   owner: root
   group: root
   mode: '0755'
 
-template_nginx_artifactory:
+artifactory_nginx_tpl_artifactory_config:
   src: 'artifactory.conf.j2'
   dst: '/etc/nginx/conf.d/artifactory.conf'
   owner: root

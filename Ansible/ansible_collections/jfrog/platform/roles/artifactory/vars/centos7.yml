@@ -1,1 +1,2 @@
-selinux_policy_package: policycoreutils-python
+---
+artifactory_selinux_policy_package: policycoreutils-python

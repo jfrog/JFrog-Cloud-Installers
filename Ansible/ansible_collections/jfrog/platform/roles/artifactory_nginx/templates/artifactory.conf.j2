@@ -10,13 +10,13 @@ upstream artifactory-direct {
   server 127.0.0.1:8081;
 }
 
-{% if nginx_enable_ssl %}
+{% if artifactory_nginx_enable_ssl %}
 ssl_protocols TLSv1.2 TLSv1.3;
 ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384;
-ssl_certificate      {{ system_certs.path }}/{{ ssl_certificate_name }};
-ssl_certificate_key  {{ system_private_key.path }}/{{ ssl_private_key_name }};
-  {% if ca_chain_content is defined and ca_chain_content | length > 0 %}
-ssl_trusted_certificate {{ system_trust_store.path }}/{{ ca_chain_name }};
+ssl_certificate      {{ artifactory_nginx_os_dir_certs.path }}/{{ artifactory_nginx_ssl_certificate_name }};
+ssl_certificate_key  {{ artifactory_nginx_os_dir_ssl.path }}/{{ artifactory_nginx_ssl_private_key_name }};
+  {% if artifactory_nginx_ca_chain_content is defined and artifactory_nginx_ca_chain_content | length > 0 %}
+ssl_trusted_certificate {{ artifactory_nginx_os_dir_truststore.path }}/{{ artifactory_nginx_ca_chain_name }};
 ssl_stapling on;
 ssl_stapling_verify on;
   {% endif %}
@@ -27,13 +27,13 @@ ssl_prefer_server_ciphers on;
 ## server configuration
 server {
 
-  {% if nginx_enable_ssl %}
+  {% if artifactory_nginx_enable_ssl %}
   listen 443 ssl http2;
   {% else %}
   listen 80;
   {% endif %}
 
-  server_name {{ server_name }};
+  server_name {{ artifactory_nginx_server_name }};
   
   if ($http_x_forwarded_proto = '') {
     set $http_x_forwarded_proto  $scheme;
@@ -46,7 +46,7 @@ server {
   rewrite ^/$ /ui/ redirect;
   rewrite ^/ui$ /ui/ redirect;
 
-  {% if nginx_enable_docker_registry_rewrite %}
+  {% if artifactory_nginx_enable_docker_registry_rewrite %}
   rewrite ^/(v1|v2)/(.*) /artifactory/api/docker/$repo/$1/$2;
 
   {% endif %}

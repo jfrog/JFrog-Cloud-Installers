@@ -2,14 +2,14 @@
 - name: Check if system.yaml exists
   become: true
   ansible.builtin.stat:
-    path: "{{ artifactory_home }}/var/etc/system.yaml"
+    path: "{{ artifactory_application_dir }}/var/etc/system.yaml"
   register: _stat_systemyaml
 
 - name: Configure system.yaml
   become: true
   ansible.builtin.copy:
     content: "{{ artifactory_systemyaml }}"
-    dest: "{{ artifactory_home }}/var/etc/system.yaml"
+    dest: "{{ artifactory_application_dir }}/var/etc/system.yaml"
     owner: "{{ artifactory_user }}"
     group: "{{ artifactory_group }}"
     mode: '0644'
@@ -20,7 +20,7 @@
   become: true
   ansible.builtin.template:
     src: installer-info.json.j2
-    dest: "{{ artifactory_home }}/var/etc/artifactory/info/installer-info.json"
+    dest: "{{ artifactory_application_dir }}/var/etc/artifactory/info/installer-info.json"
     owner: "{{ artifactory_user }}"
     group: "{{ artifactory_group }}"
     mode: '0644'
@@ -30,7 +30,7 @@
 - name: Apply binary store XML content
   ansible.builtin.template:
     src: path/to/your_template.xml.j2
-    dest: "{{ artifactory_home }}/var/etc/artifactory/binarystore.xml"
+    dest: "{{ artifactory_application_dir }}/var/etc/artifactory/binarystore.xml"
     owner: "{{ artifactory_user }}"
     group: "{{ artifactory_group }}"
     mode: '0644'
@@ -41,7 +41,7 @@
   become: true
   ansible.builtin.template:
     src: artifactory.cluster.license.j2
-    dest: "{{ artifactory_home }}/var/etc/artifactory/artifactory.cluster.license"
+    dest: "{{ artifactory_application_dir }}/var/etc/artifactory/artifactory.cluster.license"
     owner: "{{ artifactory_user }}"
     group: "{{ artifactory_group }}"
     mode: '0644'
@@ -53,7 +53,7 @@
   become: true
   ansible.builtin.template:
     src: bootstrap.creds.j2
-    dest: "{{ artifactory_home }}/var/etc/access/bootstrap.creds"
+    dest: "{{ artifactory_application_dir }}/var/etc/access/bootstrap.creds"
     owner: "{{ artifactory_user }}"
     group: "{{ artifactory_group }}"
     mode: '0600'

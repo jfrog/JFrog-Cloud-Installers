@@ -2,15 +2,15 @@
 - name: Ensure user ownership of files in jfrog_home_directory is correct
   become: true
   ansible.builtin.command: >-
-    find {{ jfrog_home_directory }} ! -user {{ artifactory_user }}
+    find {{ artifactory_jfrog_dir }} ! -user {{ artifactory_user }}
     -print -exec chown {{ artifactory_user }} {} \;
-  register: user_ownerships
-  changed_when: user_ownerships.stdout_lines | length > 0
+  register: __fix_user_ownerships
+  changed_when: __fix_user_ownerships.stdout_lines | length > 0
 
-- name: Ensure group ownership of files in jfrog_home_directory is correct
+- name: Ensure group ownership of files in artifactory_jfrog_dir is correct
   become: true
   ansible.builtin.command: >-
-    find {{ jfrog_home_directory }} ! -group {{ artifactory_group }}
+    find {{ artifactory_jfrog_dir }} ! -group {{ artifactory_group }}
     -print -exec chgrp {{ artifactory_group }} {} \;
-  register: group_ownerships
-  changed_when: group_ownerships.stdout_lines | length > 0
+  register: __fix_group_ownerships
+  changed_when: __fix_group_ownerships.stdout_lines | length > 0

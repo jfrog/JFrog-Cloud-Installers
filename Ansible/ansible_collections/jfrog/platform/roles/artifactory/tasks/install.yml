@@ -16,13 +16,13 @@
 
     - name: Check if app directory exists
       ansible.builtin.stat:
-        path: "{{ artifactory_home }}/app"
+        path: "{{ artifactory_application_dir }}/app"
       register: app_dir_check
 
     - name: Copy untar directory to artifactory home
       ansible.builtin.copy:
-        src: "{{ artifactory_untar_home }}/"
-        dest: "{{ artifactory_home }}"
+        src: "{{ artifactory_untar_dir }}/"
+        dest: "{{ artifactory_application_dir }}"
         owner: "{{ artifactory_user }}"
         group: "{{ artifactory_group }}"
         mode: '0755'
@@ -54,7 +54,7 @@
 - name: Ensure artifactory service is started and enabled
   become: true
   ansible.builtin.systemd_service:
-    name: "{{ artifactory_daemon }}"
+    name: "{{ artifactory_os_daemon }}"
     state: started
     enabled: true
 

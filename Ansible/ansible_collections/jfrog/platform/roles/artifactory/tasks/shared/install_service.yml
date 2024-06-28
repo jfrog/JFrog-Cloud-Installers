@@ -2,5 +2,5 @@
 - name: Install artifactory service
   become: true
   ansible.builtin.command:
-    cmd: "{{ artifactory_home }}/app/bin/installService.sh"
+    cmd: "{{ artifactory_application_dir }}/app/bin/installService.sh"
   notify: Restart artifactory
