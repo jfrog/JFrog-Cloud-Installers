@@ -51,9 +51,6 @@
 - name: Include tasks to configure JDBC driver
   ansible.builtin.include_tasks: 'shared/jdbc_driver.yml'
 
-- name: Include tasks to install Artifactory service
-  ansible.builtin.include_tasks: 'shared/all.yml'
-
 - name: Include tasks to install artifactory service
   ansible.builtin.include_tasks: 'shared/install_service.yml'
 

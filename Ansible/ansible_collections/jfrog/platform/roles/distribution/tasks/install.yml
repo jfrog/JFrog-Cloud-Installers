@@ -27,7 +27,7 @@
 - name: Allow reading cron.allow
   ansible.builtin.file:
     path: /etc/cron.allow
-    mode: 0644
+    mode: '0644'
   when: distribution_allow_crontab
 
 - name: Check if distribution tar already exists
@@ -71,7 +71,7 @@
     dest: "{{ distribution_home }}"
     owner: "{{ distribution_user }}"
     group: "{{ distribution_group }}"
-    mode: 0755
+    mode: '0755'
     remote_src: true
   when: not app_dir_check.stat.exists
 
@@ -96,7 +96,7 @@
     content: "{{ master_key }}"
     owner: "{{ distribution_user }}"
     group: "{{ distribution_group }}"
-    mode: 0640
+    mode: '0640'
 
 - name: Check if install.sh wrapper script exist
   become: true
@@ -124,7 +124,7 @@
   ansible.builtin.template:
     src: "redis.conf.j2"
     dest: "{{ distribution_home }}/var/etc/redis/redis.conf"
-    mode: 0644
+    mode: '0644'
   notify: Restart distribution
 
 - name: Check if systemyaml exists
@@ -138,7 +138,7 @@
   ansible.builtin.template:
     src: "{{ distribution_system_yaml_template }}"
     dest: "{{ distribution_home }}/var/etc/system.yaml"
-    mode: 0644
+    mode: '0644'
   when:
     - distribution_systemyaml is defined
     - distribution_systemyaml | length > 0
@@ -150,7 +150,7 @@
   ansible.builtin.template:
     src: installer-info.json.j2
     dest: "{{ distribution_home }}/var/etc/info/installer-info.json"
-    mode: 0644
+    mode: '0644'
   notify: Restart distribution
 
 - name: Update distribution permissions

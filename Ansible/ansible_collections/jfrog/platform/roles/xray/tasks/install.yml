@@ -27,7 +27,7 @@
 - name: Allow reading cron.allow
   ansible.builtin.file:
     path: /etc/cron.allow
-    mode: 0644
+    mode: '0644'
   when: xray_allow_crontab
 
 - name: Check if xray tar exists
@@ -71,7 +71,7 @@
     dest: "{{ xray_home }}"
     owner: "{{ xray_user }}"
     group: "{{ xray_group }}"
-    mode: 0755
+    mode: '0755'
     remote_src: true
   when: not app_dir_check.stat.exists
 
@@ -95,7 +95,7 @@
     content: "{{ master_key }}"
     owner: "{{ xray_user }}"
     group: "{{ xray_group }}"
-    mode: 0640
+    mode: '0640'
 
 - name: Setup rabbitmq
   ansible.builtin.import_tasks: rabbitmq/setup/RedHat.yml
@@ -131,7 +131,7 @@
   ansible.builtin.template:
     src: "rabbitmq.conf.j2"
     dest: "{{ xray_home }}/app/bin/rabbitmq/rabbitmq.conf"
-    mode: 0644
+    mode: '0644'
   notify: Restart xray
 
 - name: Configure installer info
@@ -139,7 +139,7 @@
   ansible.builtin.template:
     src: installer-info.json.j2
     dest: "{{ xray_home }}/var/etc/info/installer-info.json"
-    mode: 0644
+    mode: '0644'
   notify: Restart xray
 
 - name: Check if system.yaml exists
@@ -153,7 +153,7 @@
   ansible.builtin.template:
     src: "{{ xray_system_yaml_template }}"
     dest: "{{ xray_home }}/var/etc/system.yaml"
-    mode: 0644
+    mode: '0644'
   when:
     - xray_systemyaml is defined
     - xray_systemyaml | length > 0

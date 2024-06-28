@@ -1,5 +1,5 @@
 - name: Install prerequisite packages
   become: true
-  ansible.builtin.yum:
+  ansible.builtin.dnf:
     name: ["expect", "acl"]
     state: present

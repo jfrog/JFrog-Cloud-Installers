@@ -81,7 +81,7 @@
   ansible.builtin.template:
     src: "rabbitmq.conf.j2"
     dest: "{{ xray_home }}/app/bin/rabbitmq/rabbitmq.conf"
-    mode: 0644
+    mode: '0644'
   when:
     - download_xray.changed
   notify: Restart xray
@@ -97,7 +97,7 @@
   ansible.builtin.template:
     src: "{{ xray_system_yaml_template }}"
     dest: "{{ xray_home }}/var/etc/system.yaml"
-    mode: 0644
+    mode: '0644'
   when:
     - xray_systemyaml is defined
     - xray_systemyaml | length > 0
@@ -109,7 +109,7 @@
   ansible.builtin.template:
     src: installer-info.json.j2
     dest: "{{ xray_home }}/var/etc/info/installer-info.json"
-    mode: 0644
+    mode: '0644'
   notify: Restart xray
 
 - name: Ensure permissions are correct
@@ -131,7 +131,7 @@
 - name: Allow reading cron.allow
   ansible.builtin.file:
     path: /etc/cron.allow
-    mode: 0644
+    mode: '0644'
   when: xray_allow_crontab
 
 - name: Restart xray

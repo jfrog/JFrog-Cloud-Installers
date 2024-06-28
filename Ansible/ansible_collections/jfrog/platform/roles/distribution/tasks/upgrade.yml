@@ -52,7 +52,7 @@
   ansible.builtin.template:
     src: "{{ distribution_system_yaml_template }}"
     dest: "{{ distribution_home }}/var/etc/system.yaml"
-    mode: 0644
+    mode: '0644'
   when:
     - distribution_systemyaml is defined
     - distribution_systemyaml | length > 0
@@ -90,14 +90,14 @@
     state: directory
     owner: "{{ distribution_user }}"
     group: "{{ distribution_group }}"
-    mode: 0755
+    mode: '0755'
 
 - name: Configure redis config
   become: true
   ansible.builtin.template:
     src: "redis.conf.j2"
     dest: "{{ distribution_home }}/var/etc/redis/redis.conf"
-    mode: 0644
+    mode: '0644'
   notify: Restart distribution
 
 - name: Configure installer info
@@ -105,7 +105,7 @@
   ansible.builtin.template:
     src: installer-info.json.j2
     dest: "{{ distribution_home }}/var/etc/info/installer-info.json"
-    mode: 0644
+    mode: '0644'
   notify: Restart distribution
 
 - name: Update distribution permissions
@@ -127,7 +127,7 @@
 - name: Allow reading cron.allow
   ansible.builtin.file:
     path: /etc/cron.allow
-    mode: 0644
+    mode: '0644'
   when: distribution_allow_crontab
 
 - name: Restart distribution

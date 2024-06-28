@@ -27,7 +27,7 @@
 - name: Allow reading cron.allow
   ansible.builtin.file:
     path: /etc/cron.allow
-    mode: 0644
+    mode: '0644'
   when: insight_allow_crontab
 
 - name: Check if insight tar already exists
@@ -71,7 +71,7 @@
     dest: "{{ insight_home }}"
     owner: "{{ insight_user }}"
     group: "{{ insight_group }}"
-    mode: 0755
+    mode: '0755'
     remote_src: true
   when: not app_dir_check.stat.exists
 
@@ -95,7 +95,7 @@
     content: "{{ master_key }}"
     owner: "{{ insight_user }}"
     group: "{{ insight_group }}"
-    mode: 0640
+    mode: '0640'
 
 - name: Setup elasticsearch
   ansible.builtin.import_tasks: setup-elasticsearch.yml
@@ -128,7 +128,7 @@
     dest: "{{ insight_home }}/var/etc/info/installer-info.json"
     owner: "{{ insight_user }}"
     group: "{{ insight_group }}"
-    mode: 0644
+    mode: '0644'
   notify: Restart insight
 
 - name: Check if system.yaml exists
@@ -144,7 +144,7 @@
     dest: "{{ insight_home }}/var/etc/system.yaml"
     owner: "{{ insight_user }}"
     group: "{{ insight_group }}"
-    mode: 0644
+    mode: '0644'
   when:
     - insight_systemyaml is defined
     - insight_systemyaml | length > 0

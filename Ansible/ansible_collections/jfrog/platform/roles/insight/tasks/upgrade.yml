@@ -65,7 +65,7 @@
     dest: "{{ insight_home }}/var/etc/system.yaml"
     owner: "{{ insight_user }}"
     group: "{{ insight_group }}"
-    mode: 0644
+    mode: '0644'
   when:
     - insight_systemyaml is defined
     - insight_systemyaml | length > 0
@@ -101,7 +101,7 @@
   ansible.builtin.template:
     src: installer-info.json.j2
     dest: "{{ insight_home }}/var/etc/info/installer-info.json"
-    mode: 0644
+    mode: '0644'
   notify: Restart insight
 
 - name: Update correct permissions
@@ -123,7 +123,7 @@
 - name: Allow reading cron.allow
   ansible.builtin.file:
     path: /etc/cron.allow
-    mode: 0644
+    mode: '0644'
   when: insight_allow_crontab
 
 - name: Restart insight
