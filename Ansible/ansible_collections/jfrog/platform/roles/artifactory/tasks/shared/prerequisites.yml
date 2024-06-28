@@ -40,11 +40,13 @@
   when: artifactory_allow_crontab | bool
 
 - name: Ensure group artifactory exists
+  become: true
   ansible.builtin.group:
     name: "{{ artifactory_group }}"
     state: present
 
 - name: Ensure user artifactory exists
+  become: true
   ansible.builtin.user:
     name: "{{ artifactory_user }}"
     group: "{{ artifactory_group }}"
@@ -54,6 +56,7 @@
     state: present
 
 - name: Ensure jfrog_home_directory exists
+  become: true
   ansible.builtin.file:
     path: "{{ jfrog_home_directory }}"
     owner: "{{ artifactory_user }}"

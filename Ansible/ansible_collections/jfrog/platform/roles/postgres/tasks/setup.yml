@@ -1,5 +1,7 @@
 ---
 - name: Ensure PostgreSQL users are present
+  become: true
+  become_user: "{{ postgresql_user }}"
   community.postgresql.postgresql_user:
     name: "{{ item.value.username }}"
     password: "{{ item.value.userpass }}"
@@ -11,13 +13,13 @@
     login_password: "{{ item.value.login_password | d(omit) }}"
     login_unix_socket: "{{ item.value.login_unix_socket | d(omit) }}"
   loop: "{{ lookup('ansible.builtin.dict', postgresql_databases_users) }}"
-  no_log: "{{ postgres_users_no_log }}"
-  become: true
-  become_user: "{{ postgresql_user }}"
+  no_log: "{{ postgres_users_no_log  | d(true) }}"
   environment:
     PGOPTIONS: "{{ (postgresql_auth_method == 'scram-sha-256') | ternary('-c password_encryption=scram-sha-256', '') }}"
 
 - name: Ensure PostgreSQL databases are present
+  become: true
+  become_user: "{{ postgresql_user }}"
   community.postgresql.postgresql_db:
     name: "{{ item.value.name }}"
     lc_collate: "{{ item.value.lc_collate }}"
@@ -31,10 +33,10 @@
     login_unix_socket: "{{ item.value.login_unix_socket | d(omit) }}"
     state: "{{ item.value.state }}"
   loop: "{{ lookup('ansible.builtin.dict', postgresql_databases_users) }}"
-  become: true
-  become_user: "{{ postgresql_user }}"
 
 - name: Ensure PostgreSQL users privileges are present
+  become: true
+  become_user: "{{ postgresql_user }}"
   community.postgresql.postgresql_privs:
     database: "{{ item.value.name }}"
     state: "{{ item.value.state }}"
@@ -47,6 +49,4 @@
     login_password: "{{ item.value.login_password | d(omit) }}"
     login_unix_socket: "{{ item.value.login_unix_socket | d(omit) }}"
   loop: "{{ lookup('ansible.builtin.dict', postgresql_databases_users) }}"
-  no_log: "{{ postgres_users_no_log }}"
-  become: true
-  become_user: "{{ postgresql_user }}"
+  no_log: "{{ postgres_users_no_log | d(true) }}"

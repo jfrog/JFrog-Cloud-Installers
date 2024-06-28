@@ -1,16 +1,19 @@
 ---
 - name: Check if included database driver is the correct version
+  become: true
   ansible.builtin.stat:
     path: "{{ artifactory_home }}/app/artifactory/tomcat/lib/postgresql-{{ postgres_driver_version }}.jar"
   register: included_database_driver
 
 - name: Check if jdbc driver exists
+  become: true
   ansible.builtin.stat:
     path: "{{ artifactory_home }}/app/artifactory/tomcat/lib/jf_postgresql-{{ postgres_driver_version }}.jar"
   when: not included_database_driver.stat.exists
   register: database_driver
 
 - name: Download jdbc driver
+  become: true
   ansible.builtin.get_url:
     url: "{{ postgres_driver_download_url }}"
     dest: "{{ artifactory_home }}/var/bootstrap/artifactory/tomcat/lib"

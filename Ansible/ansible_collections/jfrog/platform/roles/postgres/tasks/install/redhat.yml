@@ -1,22 +1,20 @@
 ---
 - name: Configure PostgreSQL repositories
   when: artifactory_postgresql_use_official_repos | bool
+  become: true
   block:
 
     - name: Import PostgreSQL signing key
-      become: true
       ansible.builtin.rpm_key:
         key: "{{ postgres_rpmkey_url }}"
         state: present
 
     - name: Add PostgreSQL PDGD repo
-      become: true
       ansible.builtin.dnf:
         name: "{{ postgresql_repo_url }}"
         state: present
 
     - name: Disable PostgreSQL module
-      become: true
       ansible.builtin.copy:
         dest: /etc/dnf/modules.d/postgresql.module
         owner: root
@@ -30,7 +28,6 @@
           state=disabled
 
     - name: Update cache
-      become: true
       ansible.builtin.dnf:
         state: present
         update_cache: true

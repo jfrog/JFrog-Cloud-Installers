@@ -3,7 +3,7 @@
 
 - name: Update CA trust store
   become: true
-  ansible.builtin.command: "{{ system_trust_store_update | quote }}"
+  ansible.builtin.command: "{{ system_trust_store_update }}"
 
 - name: Restart NGINX
   become: true

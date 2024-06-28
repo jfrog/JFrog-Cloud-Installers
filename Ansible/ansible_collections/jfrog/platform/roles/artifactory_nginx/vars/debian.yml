@@ -3,7 +3,6 @@ nginx_packages:
   - nginx
 
 nginx_system_daemon: nginx
-nginx_system_repositories: []
 
 ###########################
 ##      CERTIFICATES     ##

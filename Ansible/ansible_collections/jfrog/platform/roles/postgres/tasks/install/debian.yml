@@ -1,17 +1,16 @@
 ---
 - name: Configure PostgreSQL repositories
   when: artifactory_postgresql_use_official_repos | bool
+  become: true
   block:
 
     - name: Import PostgreSQL repository signing key
-      become: true
       ansible.builtin.apt_key:
         url: "{{ postgresql_repo_key_url }}"
         id: "{{ postgresql_repo_key_id }}"
         state: present
 
     - name: Add PostgreSQL repository
-      become: true
       ansible.builtin.apt_repository:
         repo: "{{ postgres_apt_repository_repo }}"
         state: present

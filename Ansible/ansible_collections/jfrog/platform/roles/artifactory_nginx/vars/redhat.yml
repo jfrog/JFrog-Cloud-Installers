@@ -1,5 +1,6 @@
 ---
-nginx_packages: ['nginx']
+nginx_packages:
+  - nginx
 
 nginx_system_daemon: 'nginx'
 
