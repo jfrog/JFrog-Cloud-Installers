@@ -18,7 +18,11 @@
   ## server configuration
   server {
   listen 443 ssl http2;
+{% if artifactory_docker_registry_subdomain %}
+  server_name ~(?<repo>.+)\.{{ server_name }};
+{% else %}
   server_name {{ server_name }};
+{% endif %}
   if ($http_x_forwarded_proto = '') {
   set $http_x_forwarded_proto  $scheme;
   }
