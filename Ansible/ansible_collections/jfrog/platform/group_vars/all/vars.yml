@@ -20,7 +20,7 @@ artifactory_db_user: artifactory
 artifactory_db_password: password
 artifactory_db_driver: org.postgresql.Driver
 artifactory_db_url: >-
-  jdbc:postgresql://{{ (hostvars[groups['postgres_servers'][0]].ansible_host }}:{{ artifactory_db_login_port | d('5432') }}/{{ artifactory_db_name | d('artifactory') }}
+  jdbc:postgresql://{{ hostvars[groups['postgres_servers'][0]].ansible_host }}:{{ artifactory_db_login_port | d('5432') }}/{{ artifactory_db_name | d('artifactory') }}
 
 # Xray DB details
 xray_db_type: postgresql
@@ -29,7 +29,7 @@ xray_db_user: xray
 xray_db_password: password
 xray_db_driver: org.postgresql.Driver
 xray_db_url: >-
-  jdbc:postgresql://{{ (hostvars[groups['postgres_servers'][0]].ansible_host }}:{{ xray_db_login_port | d('5432') }}/{{ xray_db_name | d('xray') }}
+  jdbc:postgresql://{{ hostvars[groups['postgres_servers'][0]].ansible_host }}:{{ xray_db_login_port | d('5432') }}/{{ xray_db_name | d('xray') }}
 
 # Distribution DB details
 distribution_db_type: postgresql
@@ -38,7 +38,7 @@ distribution_db_user: distribution
 distribution_db_password: password
 distribution_db_driver: org.postgresql.Driver
 distribution_db_url: >-
-  jdbc:postgresql://{{ (hostvars[groups['postgres_servers'][0]].ansible_host }}:{{ distribution_db_login_port | d('5432') }}/{{ distribution_db_name | d('distribution') }}
+  jdbc:postgresql://{{ hostvars[groups['postgres_servers'][0]].ansible_host }}:{{ distribution_db_login_port | d('5432') }}/{{ distribution_db_name | d('distribution') }}
 
 # Insight DB details
 insight_db_type: postgresql
@@ -47,7 +47,7 @@ insight_db_user: insight
 insight_db_password: password
 insight_db_driver: org.postgresql.Driver
 insight_db_url: >-
-  jdbc:postgresql://{{ (hostvars[groups['postgres_servers'][0]].ansible_host }}:{{ insight_db_login_port | d('5432') }}/{{ insight_db_name | d('insight') }}
+  jdbc:postgresql://{{ hostvars[groups['postgres_servers'][0]].ansible_host }}:{{ insight_db_login_port | d('5432') }}/{{ insight_db_name | d('insight') }}
 
 # For Centos/RHEL-7, Set this to "/usr/bin/python"
 ansible_python_interpreter: "/usr/bin/python3"
