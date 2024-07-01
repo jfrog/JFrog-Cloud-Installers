@@ -1,0 +1,16 @@
+---
+- name: Ensure prerequisite packages are installed
+  become: true
+  ansible.builtin.apt:
+    name: ["net-tools", "locales"]
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+  when: ansible_facts['pkg_mgr'] | lower == 'apt'
+
+- name: Ensure UTF-8 locale is configured
+  become: true
+  community.general.locale_gen:
+    name: en_US.UTF-8
+    state: present
+  when: ansible_facts['os_family'] | lower == 'debian'

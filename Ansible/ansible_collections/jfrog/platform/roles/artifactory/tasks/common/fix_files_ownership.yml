@@ -1,0 +1,9 @@
+---
+- name: Ensure ownership of files in artifactory directory
+  become: true
+  ansible.builtin.file:
+    path: "{{ artifactory_dir }}"
+    state: directory
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+    recurse: true

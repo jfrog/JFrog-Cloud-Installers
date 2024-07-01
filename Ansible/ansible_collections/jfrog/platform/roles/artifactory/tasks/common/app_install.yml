@@ -1,0 +1,20 @@
+---
+- name: Flush Handlers
+  ansible.builtin.meta: flush_handlers
+
+- name: Check if artifactory app directory exists
+  become: true
+  ansible.builtin.stat:
+    path: "{{ artifactory_dir }}/app"
+  register: stat_artifactory_app_dir
+
+- name: Copy untar directory to artifactory directory
+  become: true
+  ansible.builtin.copy:
+    src: "{{ artifactory_tar_extract_dir }}/"
+    dest: "{{ artifactory_dir }}"
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+    mode: '0755'
+    remote_src: true
+  when: not stat_artifactory_app_dir.stat.exists

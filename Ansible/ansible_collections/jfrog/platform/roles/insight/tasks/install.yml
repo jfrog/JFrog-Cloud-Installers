@@ -1,3 +1,4 @@
+---
 - name: Install prerequisite packages
   ansible.builtin.include_tasks: "{{ ansible_os_family }}.yml"
 
@@ -5,30 +6,72 @@
   become: true
   ansible.builtin.group:
     name: "{{ insight_group }}"
+    gid: "{{ insight_gid | d(omit, true) }}"
     state: present
 
 - name: Ensure user insight exist
   become: true
   ansible.builtin.user:
     name: "{{ insight_user }}"
+    uid: "{{ insight_uid | d(omit, true) }}"
     group: "{{ insight_group }}"
     create_home: true
     home: "{{ insight_home }}"
     shell: /bin/bash
     state: present
 
-- name: Allow using crontab
+- name: Ensure insight user is added to cron.allow
+  become: true
   ansible.builtin.lineinfile:
     path: /etc/cron.allow
     line: "{{ insight_user }}"
+    create: true
+    owner: root
+    group: root
+    mode: '0644'
     state: present
-  when: insight_allow_crontab
+  when: insight_allow_crontab | bool
 
-- name: Allow reading cron.allow
+- name: Ensure required directories exists and belong to insight user
+  become: true
   ansible.builtin.file:
-    path: /etc/cron.allow
-    mode: 0644
-  when: insight_allow_crontab
+    path: "{{ dir_item }}"
+    owner: "{{ insight_user }}"
+    group: "{{ insight_group }}"
+    state: directory
+    recurse: true
+  loop:
+    - "{{ insight_home }}/var"
+    - "{{ insight_home }}/var/etc"
+    - "{{ insight_home }}/var/etc/security"
+    - "{{ insight_home }}/var/etc/info"
+  loop_control:
+    loop_var: dir_item
+    label: dir_item
+
+- name: Ensure systemd insight drop-in directory exists
+  become: true
+  ansible.builtin.file:
+    path: /etc/systemd/system/insight.service.d/
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Ensure ulimit is configured for insight service
+  become: true
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/insight.service.d/01-ansible-override.conf
+    content: |
+      [Service]
+      LimitNOFILE=32000
+    owner: root
+    group: root
+    mode: '0644'
+    backup: true
+  notify:
+    - Reload systemd
+    - Restart insight
 
 - name: Check if insight tar already exists
   become: true
@@ -71,22 +114,9 @@
     dest: "{{ insight_home }}"
     owner: "{{ insight_user }}"
     group: "{{ insight_group }}"
-    mode: 0755
+    mode: '0755'
     remote_src: true
   when: not app_dir_check.stat.exists
-
-- name: Create required directories
-  become: true
-  ansible.builtin.file:
-    path: "{{ item }}"
-    state: directory
-    recurse: true
-    owner: "{{ insight_user }}"
-    group: "{{ insight_group }}"
-  loop:
-    - "{{ insight_home }}/var/etc"
-    - "{{ insight_home }}/var/etc/security/"
-    - "{{ insight_home }}/var/etc/info/"
 
 - name: Configure master key
   become: true
@@ -95,7 +125,7 @@
     content: "{{ master_key }}"
     owner: "{{ insight_user }}"
     group: "{{ insight_group }}"
-    mode: 0640
+    mode: '0640'
 
 - name: Setup elasticsearch
   ansible.builtin.import_tasks: setup-elasticsearch.yml
@@ -128,7 +158,7 @@
     dest: "{{ insight_home }}/var/etc/info/installer-info.json"
     owner: "{{ insight_user }}"
     group: "{{ insight_group }}"
-    mode: 0644
+    mode: '0644'
   notify: Restart insight
 
 - name: Check if system.yaml exists
@@ -144,21 +174,21 @@
     dest: "{{ insight_home }}/var/etc/system.yaml"
     owner: "{{ insight_user }}"
     group: "{{ insight_group }}"
-    mode: 0644
+    mode: '0644'
   when:
     - insight_systemyaml is defined
     - insight_systemyaml | length > 0
     - insight_systemyaml_override or (not systemyaml.stat.exists)
   notify: Restart insight
 
-- name: Update correct permissions
+- name: Ensure all files are owned by insight user and group
   become: true
   ansible.builtin.file:
     path: "{{ insight_home }}"
-    state: directory
-    recurse: true
     owner: "{{ insight_user }}"
     group: "{{ insight_group }}"
+    state: directory
+    recurse: true
 
 - name: Install insight as a service
   become: true
@@ -178,6 +208,6 @@
     status_code: 200
   register: result
   until: result is succeeded
-  retries: 25
+  retries: 30
   delay: 5
   when: not ansible_check_mode

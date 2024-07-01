@@ -1,0 +1,12 @@
+---
+- name: Configure artifactory.cluster.license file
+  become: true
+  ansible.builtin.template:
+    src: 'artifactory.cluster.license.j2'
+    dest: "{{ artifactory_dir }}/var/etc/artifactory/artifactory.cluster.license"
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+    mode: '0644'
+    backup: true
+  when: artifactory_licenses | d('') | length > 0
+  notify: Restart artifactory

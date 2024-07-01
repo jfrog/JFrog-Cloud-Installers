@@ -1,3 +1,31 @@
+---
+- name: Ensure xray user is added to cron.allow
+  become: true
+  ansible.builtin.lineinfile:
+    path: /etc/cron.allow
+    line: "{{ xray_user }}"
+    create: true
+    owner: root
+    group: root
+    mode: '0644'
+    state: present
+  when: xray_allow_crontab | bool
+
+- name: Ensure required directories exists and belong to xray user
+  become: true
+  ansible.builtin.file:
+    path: "{{ dir_item }}"
+    owner: "{{ xray_user }}"
+    group: "{{ xray_group }}"
+    state: directory
+    recurse: true
+  loop:
+    - "{{ xray_home }}/var/etc"
+    - "{{ xray_home }}/var/etc/info/"
+    - "{{ xray_home }}/var/etc/security/"
+  loop_control:
+    loop_var: dir_item
+
 - name: Check if xray tar exists
   become: true
   ansible.builtin.stat:
@@ -10,6 +38,9 @@
     url: "{{ xray_tar }}"
     timeout: "{{ xray_download_timeout }}"
     dest: "{{ jfrog_home_directory }}"
+    owner: "{{ xray_user }}"
+    group: "{{ xray_group }}"
+    mode: '0644'
   register: download_xray
   until: download_xray is succeeded
   retries: 3
@@ -81,7 +112,9 @@
   ansible.builtin.template:
     src: "rabbitmq.conf.j2"
     dest: "{{ xray_home }}/app/bin/rabbitmq/rabbitmq.conf"
-    mode: 0644
+    owner: "{{ xray_user }}"
+    group: "{{ xray_group }}"
+    mode: '0644'
   when:
     - download_xray.changed
   notify: Restart xray
@@ -97,7 +130,9 @@
   ansible.builtin.template:
     src: "{{ xray_system_yaml_template }}"
     dest: "{{ xray_home }}/var/etc/system.yaml"
-    mode: 0644
+    owner: "{{ xray_user }}"
+    group: "{{ xray_group }}"
+    mode: '0644'
   when:
     - xray_systemyaml is defined
     - xray_systemyaml | length > 0
@@ -109,30 +144,19 @@
   ansible.builtin.template:
     src: installer-info.json.j2
     dest: "{{ xray_home }}/var/etc/info/installer-info.json"
-    mode: 0644
-  notify: Restart xray
-
-- name: Ensure permissions are correct
-  become: true
-  ansible.builtin.file:
-    path: "{{ jfrog_home_directory }}"
-    state: directory
     owner: "{{ xray_user }}"
     group: "{{ xray_group }}"
-    recurse: true
+    mode: '0644'
+  notify: Restart xray
 
-- name: Allow using crontab
-  ansible.builtin.lineinfile:
-    path: /etc/cron.allow
-    line: "{{ xray_user }}"
-    state: present
-  when: xray_allow_crontab
-
-- name: Allow reading cron.allow
+- name: Ensure all files are owned by xray user and group
+  become: true
   ansible.builtin.file:
-    path: /etc/cron.allow
-    mode: 0644
-  when: xray_allow_crontab
+    path: "{{ xray_home }}"
+    owner: "{{ xray_user }}"
+    group: "{{ xray_group }}"
+    state: directory
+    recurse: true
 
 - name: Restart xray
   ansible.builtin.meta: flush_handlers
@@ -146,7 +170,7 @@
     status_code: 200
   register: result
   until: result is succeeded
-  retries: 25
+  retries: 30
   delay: 5
   when:
     - not ansible_check_mode

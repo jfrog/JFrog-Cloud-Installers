@@ -1,0 +1,35 @@
+---
+- name: Check if artifactory archive already exists
+  become: true
+  ansible.builtin.stat:
+    path: "{{ artifactory_jfrog_dir }}/{{ artifactory_tar_name }}"
+  register: stat_artifactory_tar
+
+- name: Download artifactory archive
+  become: true
+  ansible.builtin.get_url:
+    url: "{{ artifactory_tar_url }}"
+    timeout: "{{ artifactory_tar_dl_timeout }}"
+    dest: "{{ artifactory_jfrog_dir }}"
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+    mode: '0644'
+  register: stdo_dl_artifactory_tar
+  until: stdo_dl_artifactory_tar is succeeded
+  retries: 3
+  when: not stat_artifactory_tar.stat.exists
+
+- name: Extract artifactory archive
+  become: true
+  ansible.builtin.unarchive:
+    src: "{{ artifactory_jfrog_dir }}/{{ artifactory_tar_name }}"
+    dest: "{{ artifactory_jfrog_dir }}"
+    remote_src: true
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+    creates: "{{ artifactory_tar_extract_dir }}"
+  register: stdo_extract_artifactory_tar
+  notify: 'Stop artifactory'
+  when:
+    - not ansible_check_mode
+    - stdo_dl_artifactory_tar is succeeded

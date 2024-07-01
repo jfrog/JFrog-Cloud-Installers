@@ -1,108 +1,179 @@
-# Default version of Postgres server to install.
-postgres_version: 13
+---
+# Defaults file for postgres
 
-# Default listen_addresses of Postgres server
-postgres_listen_addresses: 0.0.0.0
+# Postgres version to install (default: 13)
+postgresql_version: '13'
 
-# Default port of Postgres server
-postgres_port: 5432
+# Set to true if you want to use PostgreSQL official repository (default: false)
+# By design this role installs PostgreSQL included with the distribution.
+postgresql_use_official_repos: false
 
-# Location of GPG key used to sign the RPMs
-postgres_rpmkey_url: "https://download.postgresql.org/pub/repos/yum/keys/PGDG-RPM-GPG-KEY-RHEL"
+# Define PostgreSQL user/group (default: postgres)
+postgresql_user: postgres
+postgresql_group: postgres
 
-# Server version in package:
-postgres_server_pkg_version: "{{ postgres_version | replace('.', '') }}"
+# PostgreSQL Password Authentication method
+# https://www.postgresql.org/docs/current/auth-password.html
+# `md5` or `scram-sha-256` (md5 is deprecated)
+postgresql_auth_method: 'scram-sha-256'
 
-# Whether or not the files are on ZFS.
-postgres_server_volume_is_zfs: false
+# Define the locales for PostgreSQL databases.
+postgresql_locale: 'en_US.UTF-8'
 
-# Postgres setting max_connections.
-postgres_server_max_connections: 1000
+# Host based authentication (hba) entries to be added to the pg_hba.conf.
+postgresql_hba_entries:
+  - {type: local, database: all, user: postgres, auth_method: peer}
+  - {type: local, database: all, user: all, auth_method: peer}
+  - {type: host, database: all, user: all, address: '127.0.0.1/32', auth_method: "{{ postgresql_auth_method }}"}
+  - {type: host, database: all, user: all, address: '::1/128', auth_method: "{{ postgresql_auth_method }}"}
+# - {type: host, database: all, user: all, address: '0.0.0.0/0', auth_method: trust }
 
-# Postgres setting shared_buffers.
-postgres_server_shared_buffers: 128MB
+# Dynamically add the HBA entries of hosts in inventory file
+postgresql_hba_add_inventory_hosts: false
 
-# Postgres setting maintenance_work_mem.
-postgres_server_maintenance_work_mem: 64MB
+# Whether to output user data when managing users.
+postgresql_users_no_log: true
 
-# Postgres setting effective_io_concurrency.
-postgres_server_effective_io_concurrency: 1
+# Postgresql users and databases default configuration
+# Each setting can be overwritten in group_vars/all/vars.yml
+artifactory_enabled: true
+artifactory_db_name: artifactory
+artifactory_db_user: artifactory
+artifactory_db_password: password
+artifactory_db_password_encrypted: 'true'
+artifactory_db_user_privs: ['ALL']
+artifactory_db_owner: artifactory
+artifactory_db_lc_collate: 'en_US.UTF-8'
+artifactory_db_lc_ctype: 'en_US.UTF-8'
+artifactory_db_encoding: 'UTF-8'
+artifactory_db_template: template0
+artifactory_db_login_host: ''
+artifactory_db_login_port: ''
+artifactory_db_login_user: ''
+artifactory_db_login_password: ''
+artifactory_db_unix_socket: ''
+artifactory_db_state: "{{ artifactory_enabled | bool | ternary('present', 'absent') }}"
 
-# Postgres setting max_worker_processes.
-postgres_server_max_worker_processes: 8
+xray_enabled: true
+xray_db_name: xray
+xray_db_user: xray
+xray_db_password: password
+xray_db_password_encrypted: 'true'
+xray_db_user_privs: ['ALL']
+xray_db_owner: xray
+xray_db_lc_collate: 'en_US.UTF-8'
+xray_db_lc_ctype: 'en_US.UTF-8'
+xray_db_encoding: 'UTF-8'
+xray_db_template: template0
+xray_db_login_host: ''
+xray_db_login_port: ''
+xray_db_login_user: ''
+xray_db_login_password: ''
+xray_db_unix_socket: ''
+xray_db_state: "{{ xray_enabled | bool | ternary('present', 'absent') }}"
 
-# Postgres setting max_parallel_maintenance_workers.
-postgres_server_max_parallel_maintenance_workers: 2
+distribution_enabled: true
+distribution_db_name: distribution
+distribution_db_user: distribution
+distribution_db_password: password
+distribution_db_password_encrypted: 'true'
+distribution_db_user_privs: ['ALL']
+distribution_db_owner: distribution
+distribution_db_lc_collate: 'en_US.UTF-8'
+distribution_db_lc_ctype: 'en_US.UTF-8'
+distribution_db_encoding: 'UTF-8'
+distribution_db_template: template0
+distribution_db_login_host: ''
+distribution_db_login_port: ''
+distribution_db_login_user: ''
+distribution_db_login_password: ''
+distribution_db_unix_socket: ''
+distribution_db_state: "{{ distribution_enabled| bool | ternary('present', 'absent') }}"
 
-# Postgres setting max_parallel_workers_per_gather.
-postgres_server_max_parallel_workers_per_gather: 2
+insight_enabled: true
+insight_db_name: insight
+insight_db_user: insight
+insight_db_password: password
+insight_db_password_encrypted: 'true'
+insight_db_user_privs: ['ALL']
+insight_db_owner: insight
+insight_db_lc_collate: 'en_US.UTF-8'
+insight_db_lc_ctype: 'en_US.UTF-8'
+insight_db_encoding: 'UTF-8'
+insight_db_template: template0
+insight_db_login_host: ''
+insight_db_login_port: ''
+insight_db_login_user: ''
+insight_db_login_password: ''
+insight_db_unix_socket: ''
+insight_db_state: "{{ insight_enabled | bool | ternary('present', 'absent') }}"
 
-# Postgres setting parallel_leader_participation.
-postgres_server_parallel_leader_participation: true
+# RHEL/CentOS only. Define repositories to enable/disable for PostgreSQL installation.
+postgresql_install_enablerepo: []
+postgresql_install_disablerepo: []
 
-# Postgres setting max_parallel_workers.
-postgres_server_max_parallel_workers: 8
+# Base configuration option that will be set by default.
+# Any of these can be overriden in `postgresql_custom_config_options`
+postgresql_default_config_options:
+  - option: 'unix_socket_directories'
+    value: "{{ postgresql_os_unix_socket_dirs | join(',') }}"
+  - option: 'external_pid_file'
+    value: "{{ postgresql_os_external_pid_file }}"
+  - option: 'max_connections'
+    value: '1000'
 
-# Postgres setting max_locks_per_transaction.
-postgres_server_max_locks_per_transaction: 64
+# Custom configuration options that will be set in postgresql.conf.
+# For logging option refer to: https://www.postgresql.org/docs/current/runtime-config-logging.html
+postgresql_custom_config_options: []
 
-# Configuration for "random access" cost.
-postgres_server_random_page_cost: "4.0"
+# Example below to configure a total of 1GB per week of logs
+# Ensure you set postgresql_add_logrotate to true
+# Compatible with pgbadger
 
-# User name that the postgres user runs as.
-postgres_user: postgres
+# postgresql_custom_config_options:
+#   - option: 'logging_collector'
+#     value: 'on'
+#   - option: 'log_directory'
+#     value: '/var/log/postgresql'
+#   - option: 'log_filename'
+#     value: 'postgresql-%Y%m%d%H%M%S.log'
+#   - option: 'log_file_mode'
+#     value: '0600'
+#   - option: 'log_truncate_on_rotation'
+#     value: 'on'
+#   - option: 'log_rotation_age'
+#     value: '1d'
+#   - option: 'log_rotation_size'
+#     value: '143000'
+#   - option: 'log_line_prefix'
+#     value: '%t [%p]: db=%d,user=%u,app=%a,client=%h '
+#   - option: 'log_min_duration_statement'
+#     value: '0'
+#   - option: 'log_checkpoints'
+#     value: 'on'
+#   - option: 'log_connections'
+#     value: 'on'
+#   - option: 'log_disconnections'
+#     value: 'on'
+#   - option: 'log_lock_waits'
+#     value: 'on'
+#   - option: 'log_temp_files'
+#     value: '0'
+#   - option: 'log_autovacuum_min_duration'
+#     value: '0'
+#   - option: 'log_error_verbosity'
+#     value: 'default'
 
-postgres_locale: "en_US.UTF-8"
-# Whether or not to lock checkpoints.
-postgres_server_log_checkpoints: false
-
-# Whether or not to lock connects.
-postgres_server_log_connections: false
-
-# Whether or not to lock disconnects.
-postgres_server_log_disconnections: false
-
-# Whether or not to log duration
-postgres_server_log_duration: false
-
-# Error logging verbosity.
-postgres_server_log_error_verbosity: "default"
-
-# Whether or not to log the host name.
-postgres_server_log_hostname: false
-
-# Whether or not to lock waits.
-postgres_server_log_lock_waits: false
-
-# Which statements to log.
-postgres_server_log_statements: "none"
-
-# Whether or not to enable the auto_explain module.
-postgres_server_auto_explain_enabled: false
-
-# Minimal duration to log auto explain for.
-postgres_server_auto_explain_log_min_duration: -1
-
-# Whether or not to use EXPLAIN ANALYZE.
-postgres_server_auto_explain_log_analyze: true
-
-# Sets the hosts that can access the database
-postgres_allowed_hosts:
-  - {
-      type: "host",
-      database: "all",
-      user: "all",
-      address: "0.0.0.0/0",
-      method: "trust",
-    }
-
-# PostgreSQL misc settings
-postgresql_bin_path: "{{ default_postgresql_bin_path }}"
-postgresql_config_path: "{{ default_postgresql_config_path }}"
-postgresql_data_dir: "{{ default_postgresql_data_dir }}"
-postgresql_daemon: "{{ default_postgresql_daemon }}"
-postgresql_external_pid_file: "{{ default_postgresql_external_pid_file }}"
-
-postgres_apt_key_id: "{{ default_postgres_apt_key_id }}"
-postgres_apt_key_url: "{{ default_postgres_apt_key_url }}"
-postgres_apt_repository_repo: "{{ default_postgres_apt_repository_repo }}"
+# Set to true if you want to add logrotate option.
+# Will be applied if log_directory is not a relative path+.
+postgresql_add_logrotate: false
+postgresql_logrotate_content: |
+  {{ postgresql_effective_log_dir }}/*.log {
+      hourly
+      missingok
+      rotate 7
+      compress
+      delaycompress
+      notifempty
+      nocreate
+  }

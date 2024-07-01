@@ -1,0 +1,12 @@
+---
+- name: Ensure artifactory user is added to cron.allow
+  become: true
+  ansible.builtin.lineinfile:
+    path: /etc/cron.allow
+    line: "{{ artifactory_user }}"
+    create: true
+    owner: root
+    group: root
+    mode: '0644'
+    state: present
+  when: artifactory_allow_crontab | bool

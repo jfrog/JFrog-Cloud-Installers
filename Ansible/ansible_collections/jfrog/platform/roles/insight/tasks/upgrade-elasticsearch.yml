@@ -46,7 +46,7 @@
     state: directory
     owner: elasticsearch
     group: elasticsearch
-    mode: 0755
+    mode: '0755'
 
 - name: Find elasticsearch package
   become: true
@@ -84,7 +84,7 @@
     dest: "{{ insight_es_conf_base }}/elasticsearch.yml"
     owner: elasticsearch
     group: elasticsearch
-    mode: 0644
+    mode: '0644'
   when: unarchive_result.extract_results.rc | default(128) == 0
 
 - name: Create empty unicast_hosts.txt file
@@ -94,7 +94,7 @@
     state: touch
     owner: elasticsearch
     group: elasticsearch
-    mode: 0644
+    mode: '0644'
 
 - name: Upgrade searchguard plugin
   ansible.builtin.import_tasks: upgrade-searchguard.yml

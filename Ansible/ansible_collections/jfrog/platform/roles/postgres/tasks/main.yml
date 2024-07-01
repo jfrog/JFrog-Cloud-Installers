@@ -1,3 +1,62 @@
-- name: Install postgres
-  ansible.builtin.include_tasks: "install.yml"
-  when: postgres_enabled | bool
+---
+- name: Gather system facts
+  ansible.builtin.setup:
+
+- name: Assert that we support the distribution
+  ansible.builtin.assert:
+    that: ansible_facts['os_family'] | lower in ['redhat', 'debian']
+    fail_msg: 'Host is unsupported. Aborting.'
+    success_msg: 'Host is supported. Proceeding.'
+    quiet: true
+
+- name: Assert that Red Hat OS family is version 8+
+  ansible.builtin.assert:
+    that: ansible_facts['distribution_major_version'] | int is version('8', '>=')
+    fail_msg: 'Host is unsupported. Aborting.'
+    success_msg: 'Host is supported. Proceeding.'
+    quiet: true
+  when: ansible_facts['os_family'] | lower == 'redhat'
+
+- name: Include global variables
+  ansible.builtin.include_vars: 'vars/all.yml'
+
+- name: Check if PostgreSQL version is supported on distribution
+  ansible.builtin.assert:
+    that: >-
+      postgresql_version | int in
+      postgresql_redhat_support_map[
+        ansible_facts['distribution'] | lower ~
+        ansible_facts['distribution_major_version']
+      ]
+    success_msg: >-
+      PostgreSQL version {{ postgresql_version }} is supported on
+      {{ ansible_facts['distribution'] | lower }}
+      {{ ansible_facts['distribution_major_version'] }}
+    fail_msg: >-
+      PostgreSQL version {{ postgresql_version }} is not supported on
+      {{ ansible_facts['distribution'] | lower }}
+      {{ ansible_facts['distribution_major_version'] }}
+    quiet: false
+  when: postgresql_use_official_repos | bool
+
+- name: Include distribution variables
+  ansible.builtin.include_vars: "{{ item }}"
+  with_first_found:
+    - "vars/{{ ansible_facts['distribution'] | lower }}.yml"
+    - "vars/{{ ansible_facts['os_family'] | lower }}.yml"
+    - "vars/default.yml"
+
+- name: Include tasks to install PostgreSQL
+  ansible.builtin.include_tasks: "{{ item }}"
+  with_first_found:
+    - "install/{{ ansible_facts['distribution'] | lower }}.yml"
+    - "install/{{ ansible_facts['os_family'] | lower }}.yml"
+
+- name: Include tasks to initialize PostgreSQL
+  ansible.builtin.include_tasks: initialize.yml
+
+- name: Include tasks to configure PostgreSQL settings
+  ansible.builtin.include_tasks: configure.yml
+
+- name: Include tasks to setup PostgreSQL users and databases
+  ansible.builtin.include_tasks: setup.yml

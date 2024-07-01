@@ -1,0 +1,80 @@
+---
+# Our mapping to find out if PostgreSQL is supported or not on Red Hat based systems
+postgresql_redhat_support_map:
+  redhat8: [10, 12, 13, 15, 16]
+  redhat9: [13, 15, 16]
+
+# PostgreSQL databases users dictionary
+postgresql_databases_users:
+
+  artifactory:
+    name: "{{ artifactory_db_name }}"
+    username: "{{ artifactory_db_user }}"
+    userpass: "{{ artifactory_db_password }}"
+    userpass_encrypted: "{{ artifactory_db_password_encrypted }}"
+    userprivs: "{{ artifactory_db_user_privs }}"
+    owner: "{{ artifactory_db_owner }}"
+    lc_collate: "{{ artifactory_db_lc_collate }}"
+    lc_ctype: "{{ artifactory_db_lc_ctype }}"
+    encoding: "{{ artifactory_db_encoding }}"
+    template: "{{ artifactory_db_template }}"
+    login_host: "{{ artifactory_db_login_host | d(omit, true) }}"
+    login_port: "{{ artifactory_db_login_port | d(omit, true) }}"
+    login_user: "{{ artifactory_db_login_user | d(omit, true) }}"
+    login_password: "{{ artifactory_db_login_password | d(omit, true) }}"
+    login_unix_socket: "{{ artifactory_db_unix_socket | d(omit, true) }}"
+    state: "{{ artifactory_db_state }}"
+
+  xray:
+    name: "{{ xray_db_name }}"
+    username: "{{ xray_db_user }}"
+    userpass: "{{ xray_db_password }}"
+    userpass_encrypted: "{{ xray_db_password_encrypted }}"
+    userprivs: "{{ xray_db_user_privs }}"
+    owner: "{{ xray_db_owner }}"
+    lc_collate: "{{ xray_db_lc_collate }}"
+    lc_ctype: "{{ xray_db_lc_ctype }}"
+    encoding: "{{ xray_db_encoding }}"
+    template: "{{ xray_db_template }}"
+    login_host: "{{ xray_db_login_host | d(omit, true) }}"
+    login_port: "{{ xray_db_login_port | d(omit, true) }}"
+    login_user: "{{ xray_db_login_user | d(omit, true) }}"
+    login_password: "{{ xray_db_login_password | d(omit, true) }}"
+    login_unix_socket: "{{ xray_db_unix_socket | d(omit, true) }}"
+    state: "{{ xray_db_state }}"
+
+  distribution:
+    name: "{{ distribution_db_name }}"
+    username: "{{ distribution_db_user }}"
+    userpass: "{{ distribution_db_password }}"
+    userpass_encrypted: "{{ distribution_db_password_encrypted }}"
+    userprivs: "{{ distribution_db_user_privs }}"
+    owner: "{{ distribution_db_owner }}"
+    lc_collate: "{{ distribution_db_lc_collate }}"
+    lc_ctype: "{{ distribution_db_lc_ctype }}"
+    encoding: "{{ distribution_db_encoding }}"
+    template: "{{ distribution_db_template }}"
+    login_host: "{{ distribution_db_login_host | d(omit, true) }}"
+    login_port: "{{ distribution_db_login_port | d(omit, true) }}"
+    login_user: "{{ distribution_db_login_user | d(omit, true) }}"
+    login_password: "{{ distribution_db_login_password | d(omit, true) }}"
+    login_unix_socket: "{{ distribution_db_unix_socket | d(omit, true) }}"
+    state: "{{ distribution_db_state }}"
+
+  insight:
+    name: "{{ insight_db_name }}"
+    username: "{{ insight_db_user }}"
+    userpass: "{{ insight_db_password }}"
+    userpass_encrypted: "{{ insight_db_password_encrypted }}"
+    userprivs: "{{ insight_db_user_privs }}"
+    owner: "{{ insight_db_owner }}"
+    lc_collate: "{{ insight_db_lc_collate }}"
+    lc_ctype: "{{ insight_db_lc_ctype }}"
+    encoding: "{{ insight_db_encoding }}"
+    template: "{{ insight_db_template }}"
+    login_host: "{{ insight_db_login_host | d(omit, true) }}"
+    login_port: "{{ insight_db_login_port | d(omit, true) }}"
+    login_user: "{{ insight_db_login_user | d(omit, true) }}"
+    login_password: "{{ insight_db_login_password | d(omit, true) }}"
+    login_unix_socket: "{{ insight_db_unix_socket | d(omit, true) }}"
+    state: "{{ insight_db_state }}"

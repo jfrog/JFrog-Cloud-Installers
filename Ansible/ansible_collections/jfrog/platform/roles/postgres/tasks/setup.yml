@@ -1,0 +1,60 @@
+---
+- name: Ensure PostgreSQL users are present
+  become: true
+  become_user: "{{ postgresql_user }}"
+  community.postgresql.postgresql_user:
+    name: "{{ psqluser.value.username }}"
+    password: "{{ psqluser.value.userpass }}"
+    encrypted: "{{ psqluser.value.userpass_encrypted }}"
+    state: "{{ psqluser.value.state }}"
+    login_host: "{{ psqluser.value.login_host | d(omit, true) }}"
+    login_port: "{{ psqluser.value.login_port | d(omit, true) }}"
+    login_user: "{{ psqluser.value.login_user | d(omit, true) }}"
+    login_password: "{{ psqluser.value.login_password | d(omit, true) }}"
+    login_unix_socket: "{{ psqluser.value.login_unix_socket | d(omit, true) }}"
+    conn_limit: '-1'
+  loop: "{{ lookup('ansible.builtin.dict', postgresql_databases_users) }}"
+  loop_control:
+    loop_var: psqluser
+  no_log: "{{ postgresql_users_no_log | d(true) }}"
+  environment:
+    PGOPTIONS: "{{ (postgresql_auth_method == 'scram-sha-256') | ternary('-c password_encryption=scram-sha-256', '') }}"
+
+- name: Ensure PostgreSQL databases are present
+  become: true
+  become_user: "{{ postgresql_user }}"
+  community.postgresql.postgresql_db:
+    name: "{{ psqldb.value.name }}"
+    lc_collate: "{{ psqldb.value.lc_collate }}"
+    lc_ctype: "{{ psqldb.value.lc_ctype }}"
+    encoding: "{{ psqldb.value.encoding }}"
+    template: "{{ psqldb.value.template }}"
+    login_host: "{{ psqldb.value.login_host | d(omit, true) }}"
+    login_port: "{{ psqldb.value.login_port | d(omit, true) }}"
+    login_user: "{{ psqldb.value.login_user | d(omit, true) }}"
+    login_password: "{{ psqldb.value.login_password | d(omit, true) }}"
+    login_unix_socket: "{{ psqldb.value.login_unix_socket | d(omit, true) }}"
+    state: "{{ psqldb.value.state }}"
+  loop: "{{ lookup('ansible.builtin.dict', postgresql_databases_users) }}"
+  loop_control:
+    loop_var: psqldb
+  no_log: "{{ postgresql_users_no_log | d(true) }}"
+
+- name: Ensure PostgreSQL users privileges are present
+  become: true
+  become_user: "{{ postgresql_user }}"
+  community.postgresql.postgresql_privs:
+    database: "{{ psqlprivs.value.name }}"
+    state: "{{ psqlprivs.value.state }}"
+    privs: "{{ psqlprivs.value.userprivs | join(',') }}"
+    roles: "{{ psqlprivs.value.owner }}"
+    type: database
+    login_host: "{{ psqlprivs.value.login_host | d(omit, true) }}"
+    login_port: "{{ psqlprivs.value.login_port | d(omit, true) }}"
+    login_user: "{{ psqlprivs.value.login_user | d(omit, true) }}"
+    login_password: "{{ psqlprivs.value.login_password | d(omit, true) }}"
+    login_unix_socket: "{{ psqlprivs.value.login_unix_socket | d(omit, true) }}"
+  loop: "{{ lookup('ansible.builtin.dict', postgresql_databases_users) }}"
+  loop_control:
+    loop_var: psqlprivs
+  no_log: "{{ postgresql_users_no_log | d(true) }}"

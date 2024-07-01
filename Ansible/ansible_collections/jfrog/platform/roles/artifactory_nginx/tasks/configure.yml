@@ -1,0 +1,101 @@
+---
+- name: Enable httpd_can_network_connect
+  become: true
+  ansible.posix.seboolean:
+    name: httpd_can_network_connect
+    state: true
+    persistent: true
+  when:
+    - ansible_facts['os_family'] | lower == 'redhat'
+    - ansible_facts['selinux']['status'] | lower == 'enabled'
+
+- name: Copy NGINX config file
+  become: true
+  ansible.builtin.template:
+    src: "{{ artifactory_nginx_tpl_nginx_config.src }}"
+    dest: "{{ artifactory_nginx_tpl_nginx_config.dst }}"
+    owner: "{{ artifactory_nginx_tpl_nginx_config.owner }}"
+    group: "{{ artifactory_nginx_tpl_nginx_config.group }}"
+    mode: "{{ artifactory_nginx_tpl_nginx_config.mode }}"
+  notify: Restart NGINX
+
+- name: Copy NGINX artifactory config
+  become: true
+  ansible.builtin.template:
+    src: "{{ artifactory_nginx_tpl_artifactory_config.src }}"
+    dest: "{{ artifactory_nginx_tpl_artifactory_config.dst }}"
+    owner: "{{ artifactory_nginx_tpl_artifactory_config.owner }}"
+    group: "{{ artifactory_nginx_tpl_artifactory_config.group }}"
+    mode: "{{ artifactory_nginx_tpl_artifactory_config.mode }}"
+  notify: Restart NGINX
+
+# TODO: Find out if certificate needs to be copied to into this directory.
+- name: Ensure NGINX dir exists
+  become: true
+  ansible.builtin.file:
+    path: "{{ artifactory_nginx_os_dir_jfrog_ssl.path }}"
+    state: directory
+    mode: "{{ artifactory_nginx_os_dir_jfrog_ssl.mode }}"
+  when: artifactory_nginx_enable_ssl | bool
+
+- name: Copy NGINX redirect config
+  become: true
+  ansible.builtin.template:
+    src: "{{ artifactory_nginx_tpl_https_redirect.src }}"
+    dest: "{{ artifactory_nginx_tpl_https_redirect.dst }}"
+    owner: "{{ artifactory_nginx_tpl_https_redirect.owner }}"
+    group: "{{ artifactory_nginx_tpl_https_redirect.group }}"
+    mode: "{{ artifactory_nginx_tpl_https_redirect.mode }}"
+  notify: Restart NGINX
+  when:
+    - artifactory_nginx_enable_ssl | bool
+    - artifactory_nginx_enable_http_to_https_redirection | bool
+
+- name: Copy CA Certificate chain
+  become: true
+  ansible.builtin.copy:
+    content: "{{ artifactory_nginx_ca_chain_content }}"
+    dest: "{{ artifactory_nginx_os_dir_truststore.path }}/{{ artifactory_nginx_ca_chain_name }}"
+    owner: root
+    group: root
+    mode: '0644'
+  no_log: true
+  notify: Update CA trust store
+  when: artifactory_nginx_ca_chain_content is defined and artifactory_nginx_ca_chain_content | length > 0
+
+- name: Copy SSL Key and Certificate
+  become: true
+  ansible.builtin.copy:
+    content: "{{ ssl_item.src }}"
+    dest: "{{ ssl_item.dst }}"
+    owner: "{{ ssl_item.owner }}"
+    group: "{{ ssl_item.group }}"
+    mode: "{{ ssl_item.mode }}"
+  notify: Restart NGINX
+  no_log: true
+  loop:
+    - src: "{{ artifactory_nginx_ssl_certificate_content }}"
+      dst: "{{ artifactory_nginx_os_dir_certs.path }}/{{ artifactory_nginx_ssl_certificate_name }}"
+      owner: 'root'
+      group: 'root'
+      mode: '0644'
+    - src: "{{ artifactory_nginx_ssl_private_key_content }}"
+      dst: "{{ artifactory_nginx_os_dir_ssl.path }}/{{ artifactory_nginx_ssl_private_key_name }}"
+      owner: 'root'
+      group: 'root'
+      mode: '0600'
+  loop_control:
+    loop_var: ssl_item
+  when:
+    - artifactory_nginx_enable_ssl | bool
+    - artifactory_nginx_ssl_certificate_content is defined and artifactory_nginx_ssl_certificate_content | length > 0
+    - artifactory_nginx_ssl_private_key_content is defined and artifactory_nginx_ssl_private_key_content | length > 0
+
+- name: Ensure NGINX is Enabled
+  become: true
+  ansible.builtin.systemd_service:
+    name: "{{ artifactory_nginx_os_daemon }}"
+    enabled: true
+
+- name: Flush all handlers
+  ansible.builtin.meta: flush_handlers

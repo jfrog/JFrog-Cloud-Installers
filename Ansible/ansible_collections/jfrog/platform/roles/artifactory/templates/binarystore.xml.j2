@@ -1,1 +1,4 @@
-{{ artifactory_binarystore }}
+<?xml version="1.0" encoding="UTF-8"?>
+<config version="{% if artifactory_ha_enabled %}2{% else %}1{% endif %}">
+  <chain template="{% if artifactory_ha_enabled %}cluster-file-system{% else %}file-system{% endif %}"/>
+</config>

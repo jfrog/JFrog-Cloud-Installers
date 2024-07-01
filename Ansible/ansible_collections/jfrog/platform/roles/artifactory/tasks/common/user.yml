@@ -1,0 +1,18 @@
+---
+- name: Ensure group artifactory exists
+  become: true
+  ansible.builtin.group:
+    name: "{{ artifactory_group }}"
+    gid: "{{ artifactory_gid | d(omit, true) }}"
+    state: present
+
+- name: Ensure user artifactory exists
+  become: true
+  ansible.builtin.user:
+    name: "{{ artifactory_user }}"
+    uid: "{{ artifactory_uid | d(omit, true) }}"
+    group: "{{ artifactory_group }}"
+    create_home: true
+    home: "{{ artifactory_dir }}"
+    shell: '/bin/bash'
+    state: present

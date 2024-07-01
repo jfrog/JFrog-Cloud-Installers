@@ -29,10 +29,10 @@ xray_service_file: /lib/systemd/system/xray.service
 
 # Xray users and groups
 xray_user: xray
-xray_group: xray
+xray_uid: '1035'
 
-xray_uid: 1035
-xray_gid: 1035
+xray_group: xray
+xray_gid: '1035'
 
 xray_daemon: xray
 
@@ -109,4 +109,5 @@ xray_systemyaml_override: false
 xray_start_service: true
 
 # Allow xray user to create crontab rules
-xray_allow_crontab: false
+# Required to configure logrotate for /opt/jfrog/../console.log
+xray_allow_crontab: true

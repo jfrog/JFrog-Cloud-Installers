@@ -1,0 +1,36 @@
+---
+- name: Flush Handlers
+  ansible.builtin.meta: flush_handlers
+
+- name: Check artifactory version
+  become: true
+  ansible.builtin.fetch:
+    src: "{{ artifactory_dir }}/app/artifactory.product.version.properties"
+    dest: "/tmp/artifactory.product.version.properties"
+    flat: true
+  changed_when: false
+
+- name: Set running_version
+  ansible.builtin.set_fact:
+    running_version: >-
+      "{{ lookup('ansible.builtin.ini',
+                 'artifactory.product.version',
+                 type='properties',
+                 file='/tmp/artifactory.product.version.properties') }}"
+
+- name: Delete old artifactory app directory
+  become: true
+  ansible.builtin.file:
+    path: "{{ artifactory_dir }}/app"
+    state: absent
+  when:
+    - running_version != artifactory_version
+    - stdo_extract_artifactory_tar is changed
+
+- name: Copy new artifactory app directory
+  become: true
+  ansible.builtin.command: "cp -r {{ artifactory_tar_extract_dir }}/app/. {{ artifactory_dir }}/app"
+  notify: Restart artifactory
+  when:
+    - running_version != artifactory_version
+    - stdo_extract_artifactory_tar is changed

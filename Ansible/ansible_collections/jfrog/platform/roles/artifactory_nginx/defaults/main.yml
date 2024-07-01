@@ -1,12 +1,39 @@
 ---
 # defaults file for artifactory_nginx
-## For production deployments,You SHOULD change it.
-server_name: test.artifactory.com
 
-nginx_daemon: nginx
+# For production deployments, you SHOULD change it.
+artifactory_nginx_server_name: "{{ artifactory_server_name | d(inventory_hostname if '.' in inventory_hostname else 'test.artifactory.com') }}"
 
-nginx_worker_processes: 1
-artifactory_docker_registry_subdomain: false
+# [NGINX] Tune the number of worker processes used by NGINX. This variable determines how
+# many concurrent requests NGINX can handle. Default is `auto` so that NGINX determines
+# the optimal number based on the number of available CPU cores.
+artifactory_nginx_worker_processes: 'auto'
 
-artifactory_conf_template: artifactory.conf.j2
-nginx_conf_template: nginx.conf.j2
+# [NGINX] If true, creates a rewrite rule for docker registry requests in the NGINX artifactory config.
+artifactory_nginx_enable_docker_registry_rewrite: false
+
+# [SSL Settings] Important - Set this to true if you want to configure SSL
+artifactory_nginx_enable_ssl: false
+
+# [SSL Settings] Configure NGINX for HTTP to HTTPS redirection
+# Requires `artifactory_nginx_enable_ssl` to be true
+artifactory_nginx_enable_http_to_https_redirection: false
+
+# [SSL Settings] In a vault file, using a block scalar override the following
+# variables to pass the CA chain, SSL certificate and private key content.
+artifactory_nginx_ca_chain_content: ''
+artifactory_nginx_ssl_certificate_content: ''
+artifactory_nginx_ssl_private_key_content: ''
+
+# [SSL Settings] Define the CA Chain, certificate and private name when created
+artifactory_nginx_ca_chain_name: 'ca_chain.pem'
+artifactory_nginx_ssl_certificate_name: "{{ inventory_hostname ~ '.crt.pem' }}"
+artifactory_nginx_ssl_private_key_name: "{{ inventory_hostname ~ '.key.pem' }}"
+
+# [Repository] Optional - If you want to use the NGINX official repository set this
+# value to true otherwise leave it to false to install NGINX provided with OS.
+artifactory_nginx_use_official_repos: false
+
+# [Repository] Optional - Centos/RHEL only - pass a list of enabled/disabled repositories if needed.
+artifactory_nginx_enabled_repositories: []
+artifactory_nginx_disabled_repositories: []
