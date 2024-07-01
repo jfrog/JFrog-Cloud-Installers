@@ -1,0 +1,17 @@
+---
+## [Repository] OS mapping variable for NGINX official repository
+artifactory_nginx_official_repo_mapping:
+  amazon: amzn
+  redhat: rhel
+  centos: centos
+  debian: debian
+  ubuntu: ubuntu
+  alpine: alpine
+  sles: sles
+  aix: aix
+
+## [Repository] variables for NGINX official repository
+artifactory_nginx_official_repo_filename: 'nginx-stable'
+artifactory_nginx_official_repo_description: 'nginx stable repo'
+artifactory_nginx_official_repo_signing_key: 'https://nginx.org/keys/nginx_signing.key'
+artifactory_nginx_official_repo_url: "https://nginx.org/packages/{{ artifactory_nginx_official_repo_mapping[ansible_facts['distribution'] | lower] }}"

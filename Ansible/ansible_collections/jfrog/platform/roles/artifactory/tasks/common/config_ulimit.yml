@@ -1,0 +1,24 @@
+---
+- name: Ensure drop-in directory exists
+  become: true
+  ansible.builtin.file:
+    path: /etc/systemd/system/artifactory.service.d/
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Ensure ulimit is configured for artifactory service
+  become: true
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/artifactory.service.d/01-ansible-override.conf
+    content: |
+      [Service]
+      LimitNOFILE=32000
+    owner: root
+    group: root
+    mode: '0644'
+    backup: true
+  notify:
+    - Reload systemd
+    - Restart artifactory

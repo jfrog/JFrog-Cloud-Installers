@@ -1,0 +1,27 @@
+---
+- name: Ensure artifactory_jfrog_dir exists
+  become: true
+  ansible.builtin.file:
+    path: "{{ artifactory_jfrog_dir }}"
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+    state: directory
+    mode: '0755'
+
+- name: Ensure required directories exists
+  become: true
+  ansible.builtin.file:
+    path: "{{ dir_item }}"
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+    state: directory
+    recurse: true
+  loop:
+    - "{{ artifactory_dir }}/var"
+    - "{{ artifactory_dir }}/var/data"
+    - "{{ artifactory_dir }}/var/etc"
+    - "{{ artifactory_dir }}/var/etc/security/"
+    - "{{ artifactory_dir }}/var/etc/artifactory/info/"
+  loop_control:
+    loop_var: dir_item
+    label: dir_item

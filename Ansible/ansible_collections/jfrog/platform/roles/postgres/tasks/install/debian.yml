@@ -1,0 +1,42 @@
+---
+- name: Configure PostgreSQL repositories
+  when: postgresql_use_official_repos | bool
+  become: true
+  block:
+
+    - name: Import PostgreSQL repository signing key
+      ansible.builtin.apt_key:
+        url: "{{ postgresql_repo_key_url }}"
+        id: "{{ postgresql_repo_key_id }}"
+        state: present
+
+    - name: Add PostgreSQL repository
+      ansible.builtin.apt_repository:
+        repo: "{{ postgres_apt_repository_repo }}"
+        state: present
+        filename: pgdg
+
+- name: Ensure locales are present
+  become: true
+  community.general.locale_gen:
+    name: "{{ postgresql_locale }}"
+    state: present
+  register: locale_update_result
+
+- name: Install PostgreSQL Python libraries
+  become: true
+  ansible.builtin.apt:
+    name: "{{ postgresql_os_python_library }}"
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+  when:
+    - postgresql_os_python_library is defined
+    - postgresql_os_python_library | length > 0
+
+- name: Install PostgreSQL Server packages
+  become: true
+  ansible.builtin.apt:
+    name: "{{ postgresql_os_packages }}"
+    state: present
+  register: postgresql_install_result

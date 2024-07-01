@@ -22,7 +22,7 @@
     recurse: true
     owner: elasticsearch
     group: elasticsearch
-    mode: 0644
+    mode: '0644'
   loop:
     - "{{ insight_es_conf_base }}"
     - "{{ insight_es_data_dir }}"
@@ -73,7 +73,7 @@
     state: directory
     owner: elasticsearch
     group: elasticsearch
-    mode: 0644
+    mode: '0644'
 
 - name: Extract elasticsearch package
   become: true
@@ -108,7 +108,7 @@
     dest: "{{ insight_es_conf_base }}/elasticsearch.yml"
     owner: elasticsearch
     group: elasticsearch
-    mode: 0644
+    mode: '0644'
   when: unarchive_result.extract_results.rc | default(128) == 0
 
 - name: Generate elasticsearch.yml template file
@@ -118,7 +118,7 @@
     dest: "{{ insight_es_conf_base }}/elasticsearch.yml"
     owner: elasticsearch
     group: elasticsearch
-    mode: 0644
+    mode: '0644'
   when: unarchive_result.extract_results.rc | default(128) == 0
 
 - name: Create empty unicast_hosts.txt file
@@ -126,7 +126,7 @@
   ansible.builtin.file:
     path: "{{ insight_es_conf_base }}/unicast_hosts.txt"
     state: touch
-    mode: 0664
+    mode: '0664'
     owner: elasticsearch
     group: elasticsearch
 
@@ -141,7 +141,7 @@
     recurse: true
     owner: elasticsearch
     group: elasticsearch
-    mode: 0755
+    mode: '0755'
   loop:
     - "{{ insight_es_conf_base }}"
     - "{{ insight_es_data_dir }}"

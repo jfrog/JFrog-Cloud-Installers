@@ -29,16 +29,16 @@ insight_service_file: /lib/systemd/system/insight.service
 
 # Insight users and groups
 insight_user: insight
-insight_group: insight
+insight_uid: '1045'
 
-insight_uid: 1040
-insight_gid: 1040
+insight_group: insight
+insight_gid: '1045'
 
 insight_daemon: insight
 
 # Insight ElasticSearch Details
-es_uid: 1060
-es_gid: 1060
+es_uid: '1060'
+es_gid: '1060'
 
 insight_es_conf_base: "/etc/elasticsearch"
 insight_es_user: admin
@@ -87,4 +87,5 @@ insight_systemyaml: |-
 insight_systemyaml_override: false
 
 # Allow insight user to create crontab rules
-insight_allow_crontab: false
+# Required to configure logrotate for /opt/jfrog/../console.log
+insight_allow_crontab: true

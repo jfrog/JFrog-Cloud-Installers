@@ -1,6 +1,6 @@
 ---
-- name: Restart postgresql
+- name: Restart PostgreSQL
   become: true
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: "{{ postgresql_daemon }}"
     state: restarted

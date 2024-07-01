@@ -5,7 +5,7 @@
     dest: "{{ insight_es_conf_base }}/{{ item }}"
     owner: elasticsearch
     group: elasticsearch
-    mode: 0600
+    mode: '0600'
   loop:
     - "localhost.pem"
     - "localhost.key"
@@ -39,7 +39,7 @@
     dest: "{{ insight_es_searchgaurd_home }}/tools/{{ item }}"
     owner: elasticsearch
     group: elasticsearch
-    mode: 0600
+    mode: '0600'
   loop:
     - "sgadmin.pem"
     - "sgadmin.key"
@@ -52,7 +52,7 @@
     dest: "{{ insight_es_searchgaurd_home }}/sgconfig/{{ item }}"
     owner: elasticsearch
     group: elasticsearch
-    mode: 0600
+    mode: '0600'
   loop:
     - "sg_roles.yml"
     - "sg_roles_mapping.yml"
@@ -64,4 +64,4 @@
     path: "{{ insight_es_searchgaurd_home }}/tools/sgadmin.sh"
     owner: elasticsearch
     group: elasticsearch
-    mode: 0700
+    mode: '0700'

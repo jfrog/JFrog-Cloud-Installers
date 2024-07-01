@@ -1,3 +1,4 @@
+---
 - name: Install prerequisite packages
   ansible.builtin.include_tasks: "{{ ansible_os_family }}.yml"
 
@@ -5,30 +6,71 @@
   become: true
   ansible.builtin.group:
     name: "{{ xray_group }}"
+    gid: "{{ xray_gid | d(omit, true) }}"
     state: present
 
 - name: Ensure user xray exist
   become: true
   ansible.builtin.user:
     name: "{{ xray_user }}"
+    uid: "{{ xray_uid | d(omit, true) }}"
     group: "{{ xray_group }}"
     create_home: true
     home: "{{ xray_home }}"
     shell: /bin/bash
     state: present
 
-- name: Allow using crontab
+- name: Ensure xray user is added to cron.allow
+  become: true
   ansible.builtin.lineinfile:
     path: /etc/cron.allow
     line: "{{ xray_user }}"
+    create: true
+    owner: root
+    group: root
+    mode: '0644'
     state: present
-  when: xray_allow_crontab
+  when: xray_allow_crontab | bool
 
-- name: Allow reading cron.allow
+- name: Ensure required directories exists and belong to xray user
+  become: true
   ansible.builtin.file:
-    path: /etc/cron.allow
-    mode: 0644
-  when: xray_allow_crontab
+    path: "{{ dir_item }}"
+    owner: "{{ xray_user }}"
+    group: "{{ xray_group }}"
+    state: directory
+    recurse: true
+  loop:
+    - "{{ xray_home }}/var/etc"
+    - "{{ xray_home }}/var/etc/info/"
+    - "{{ xray_home }}/var/etc/security/"
+  loop_control:
+    loop_var: dir_item
+
+- name: Ensure systemd xray drop-in directory exists
+  become: true
+  ansible.builtin.file:
+    path: /etc/systemd/system/xray.service.d/
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Ensure ulimit and ELIXIR_ERL_OPTIONS is configured for xray service
+  become: true
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/xray.service.d/01-ansible-override.conf
+    content: |
+      [Service]
+      LimitNOFILE=32000
+      Environment="ELIXIR_ERL_OPTIONS=+fnu"
+    owner: root
+    group: root
+    mode: '0644'
+    backup: true
+  notify:
+    - Reload systemd
+    - Restart xray
 
 - name: Check if xray tar exists
   become: true
@@ -42,6 +84,9 @@
     url: "{{ xray_tar }}"
     timeout: "{{ xray_download_timeout }}"
     dest: "{{ jfrog_home_directory }}"
+    owner: "{{ xray_user }}"
+    group: "{{ xray_group }}"
+    mode: '0644'
   register: download_xray
   until: download_xray is succeeded
   retries: 3
@@ -71,22 +116,9 @@
     dest: "{{ xray_home }}"
     owner: "{{ xray_user }}"
     group: "{{ xray_group }}"
-    mode: 0755
+    mode: '0755'
     remote_src: true
   when: not app_dir_check.stat.exists
-
-- name: Create required directories
-  become: true
-  ansible.builtin.file:
-    path: "{{ item }}"
-    state: directory
-    recurse: true
-    owner: "{{ xray_user }}"
-    group: "{{ xray_group }}"
-  loop:
-    - "{{ xray_home }}/var/etc"
-    - "{{ xray_home }}/var/etc/info/"
-    - "{{ xray_home }}/var/etc/security/"
 
 - name: Configure master key
   become: true
@@ -95,7 +127,7 @@
     content: "{{ master_key }}"
     owner: "{{ xray_user }}"
     group: "{{ xray_group }}"
-    mode: 0640
+    mode: '0640'
 
 - name: Setup rabbitmq
   ansible.builtin.import_tasks: rabbitmq/setup/RedHat.yml
@@ -131,7 +163,7 @@
   ansible.builtin.template:
     src: "rabbitmq.conf.j2"
     dest: "{{ xray_home }}/app/bin/rabbitmq/rabbitmq.conf"
-    mode: 0644
+    mode: '0644'
   notify: Restart xray
 
 - name: Configure installer info
@@ -139,7 +171,7 @@
   ansible.builtin.template:
     src: installer-info.json.j2
     dest: "{{ xray_home }}/var/etc/info/installer-info.json"
-    mode: 0644
+    mode: '0644'
   notify: Restart xray
 
 - name: Check if system.yaml exists
@@ -153,20 +185,20 @@
   ansible.builtin.template:
     src: "{{ xray_system_yaml_template }}"
     dest: "{{ xray_home }}/var/etc/system.yaml"
-    mode: 0644
+    mode: '0644'
   when:
     - xray_systemyaml is defined
     - xray_systemyaml | length > 0
     - xray_systemyaml_override or (not systemyaml.stat.exists)
   notify: Restart xray
 
-- name: Ensure permissions are correct
+- name: Ensure all files are owned by xray user and group
   become: true
   ansible.builtin.file:
-    path: "{{ jfrog_home_directory }}"
-    state: directory
+    path: "{{ xray_home }}"
     owner: "{{ xray_user }}"
     group: "{{ xray_group }}"
+    state: directory
     recurse: true
 
 - name: Install xray as a service
@@ -189,7 +221,7 @@
     status_code: 200
   register: result
   until: result is succeeded
-  retries: 25
+  retries: 30
   delay: 5
   when:
     - not ansible_check_mode

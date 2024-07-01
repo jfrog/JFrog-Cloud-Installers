@@ -1,0 +1,18 @@
+---
+- name: Ensure artifactory service is started and enabled
+  become: true
+  ansible.builtin.systemd_service:
+    name: artifactory
+    state: started
+    enabled: true
+
+- name: Ensure artifactory is up and running
+  ansible.builtin.uri:
+    url: http://127.0.0.1:8082/router/api/v1/system/health
+    timeout: 130
+    status_code: 200
+  register: upcheck_test
+  until: upcheck_test is succeeded
+  retries: 30
+  delay: 5
+  when: not ansible_check_mode

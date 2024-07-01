@@ -1,8 +1,0 @@
----
-# handlers file for artifactory_nginx_ssl
-- name: Restart nginx
-  become: true
-  ansible.builtin.systemd:
-    name: "{{ nginx_daemon }}"
-    state: restarted
-    enabled: true

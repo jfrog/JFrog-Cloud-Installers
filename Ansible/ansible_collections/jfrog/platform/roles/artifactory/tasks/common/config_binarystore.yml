@@ -1,0 +1,11 @@
+---
+- name: Configure binarystore.xml file
+  become: true
+  ansible.builtin.template:
+    src: 'binarystore.xml.j2'
+    dest: "{{ artifactory_dir }}/var/etc/artifactory/binarystore.xml"
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+    mode: '0644'
+    backup: true
+  notify: Restart artifactory

@@ -1,0 +1,15 @@
+---
+- name: Configure SELinux context
+  become: true
+  community.general.sefcontext:
+    target: "{{ artifactory_jfrog_dir }}/artifactory/app/bin(/.*)?"
+    setype: bin_t
+    reload: true
+    state: present
+  when: ansible_facts['os_family'] | lower == 'redhat'
+
+- name: Restore SELinux content
+  become: true
+  ansible.builtin.command: restorecon -Rv "{{ artifactory_jfrog_dir }}/artifactory/app/bin"
+  changed_when: false
+  when: ansible_facts['os_family'] | lower == 'redhat'

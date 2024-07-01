@@ -1,0 +1,7 @@
+---
+- name: Install Artifactory service
+  become: true
+  ansible.builtin.command: 
+    cmd: './installService.sh'
+    chdir: "{{ artifactory_dir }}/app/bin"
+    creates: '/lib/systemd/system/artifactory.service'

@@ -1,0 +1,74 @@
+---
+- name: Configure PostgreSQL repositories
+  when: postgresql_use_official_repos | bool
+  become: true
+  block:
+
+    - name: Import PostgreSQL signing key
+      ansible.builtin.rpm_key:
+        key: "{{ postgres_rpmkey_url }}"
+        state: present
+
+    - name: Add PostgreSQL PDGD repo
+      ansible.builtin.dnf:
+        name: "{{ postgresql_repo_url }}"
+        state: present
+
+    - name: Disable PostgreSQL module
+      ansible.builtin.copy:
+        dest: /etc/dnf/modules.d/postgresql.module
+        owner: root
+        group: root
+        mode: '0644'
+        content: |
+          [postgresql]
+          name=postgresql
+          stream=
+          profiles=
+          state=disabled
+
+- name: Ensure locale settings are present
+  become: true
+  ansible.builtin.lineinfile:
+    path: /etc/locale.conf
+    regexp: "^{{ locale.split('=')[0] }}=.*$"
+    line: "{{ locale }}"
+    create: true
+    owner: root
+    group: root
+    mode: '0644'
+    state: present
+  loop:
+    - "LANG={{ postgresql_locale }}"
+    - "LANGUAGE={{ postgresql_locale }}"
+  loop_control:
+    loop_var: locale
+  register: locale_update_result
+
+- name: Clean DNF cache
+  become: true
+  ansible.builtin.command: dnf clean all
+  when: ansible_facts['pkg_mgr'] == 'dnf'
+
+- name: Install PostgreSQL Python libraries
+  become: true
+  ansible.builtin.dnf:
+    name: "{{ postgresql_os_python_library }}"
+    disablerepo: "{{ postgresql_install_disablerepo | d(omit, true) }}"
+    enablerepo: "{{ postgresql_install_enablerepo | d(omit, true) }}"
+    update_cache: true
+    state: present
+  when:
+    - postgresql_os_python_library is defined
+    - postgresql_os_python_library | length > 0
+
+- name: Install PostgreSQL packages
+  become: true
+  ansible.builtin.dnf:
+    name: "{{ postgresql_os_packages }}"
+    exclude: python-unversioned-command
+    disablerepo: "{{ postgresql_install_disablerepo | d(omit, true) }}"
+    enablerepo: "{{ postgresql_install_enablerepo | d(omit, true) }}"
+    update_cache: true
+    state: present
+  register: postgresql_install_result

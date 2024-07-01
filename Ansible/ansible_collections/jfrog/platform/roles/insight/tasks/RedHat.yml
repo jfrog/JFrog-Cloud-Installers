@@ -1,5 +1,14 @@
+---
+- name: Clean DNF cache
+  become: true
+  ansible.builtin.command: dnf clean all
+  when: ansible_facts['pkg_mgr'] == 'dnf'
+
 - name: Install prerequisite packages
   become: true
-  ansible.builtin.yum:
-    name: ["expect", "acl"]
+  ansible.builtin.dnf:
+    name:
+      - expect
+      - acl
+    update_cache: true
     state: present

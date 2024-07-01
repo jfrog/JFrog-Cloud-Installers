@@ -1,0 +1,14 @@
+---
+- name: Clean DNF cache
+  become: true
+  ansible.builtin.command: dnf clean all
+  when: ansible_facts['pkg_mgr'] == 'dnf'
+
+- name: Ensure prerequisite packages are installed
+  become: true
+  ansible.builtin.dnf:
+    name: 
+      - net-tools
+      - "{{ artifactory_selinux_policy_package }}"
+    update_cache: true
+    state: present

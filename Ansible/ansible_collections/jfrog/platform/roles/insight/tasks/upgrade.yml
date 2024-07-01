@@ -1,3 +1,32 @@
+---
+- name: Ensure insight user is added to cron.allow
+  become: true
+  ansible.builtin.lineinfile:
+    path: /etc/cron.allow
+    line: "{{ insight_user }}"
+    create: true
+    owner: root
+    group: root
+    mode: '0644'
+    state: present
+  when: insight_allow_crontab | bool
+
+- name: Ensure required directories exists and belong to insight user
+  become: true
+  ansible.builtin.file:
+    path: "{{ dir_item }}"
+    owner: "{{ insight_user }}"
+    group: "{{ insight_group }}"
+    state: directory
+    recurse: true
+  loop:
+    - "{{ insight_home }}/var"
+    - "{{ insight_home }}/var/etc"
+    - "{{ insight_home }}/var/etc/security"
+    - "{{ insight_home }}/var/etc/info"
+  loop_control:
+    loop_var: dir_item
+
 - name: Check if insight tar exists
   become: true
   ansible.builtin.stat:
@@ -65,7 +94,7 @@
     dest: "{{ insight_home }}/var/etc/system.yaml"
     owner: "{{ insight_user }}"
     group: "{{ insight_group }}"
-    mode: 0644
+    mode: '0644'
   when:
     - insight_systemyaml is defined
     - insight_systemyaml | length > 0
@@ -101,30 +130,17 @@
   ansible.builtin.template:
     src: installer-info.json.j2
     dest: "{{ insight_home }}/var/etc/info/installer-info.json"
-    mode: 0644
+    mode: '0644'
   notify: Restart insight
 
-- name: Update correct permissions
+- name: Ensure all files are owned by insight user and group
   become: true
   ansible.builtin.file:
     path: "{{ insight_home }}"
-    state: directory
-    recurse: true
     owner: "{{ insight_user }}"
     group: "{{ insight_group }}"
-
-- name: Allow using crontab
-  ansible.builtin.lineinfile:
-    path: /etc/cron.allow
-    line: "{{ insight_user }}"
-    state: present
-  when: insight_allow_crontab
-
-- name: Allow reading cron.allow
-  ansible.builtin.file:
-    path: /etc/cron.allow
-    mode: 0644
-  when: insight_allow_crontab
+    state: directory
+    recurse: true
 
 - name: Restart insight
   ansible.builtin.meta: flush_handlers
@@ -136,6 +152,6 @@
     status_code: 200
   register: result
   until: result is succeeded
-  retries: 25
+  retries: 30
   delay: 5
   when: not ansible_check_mode

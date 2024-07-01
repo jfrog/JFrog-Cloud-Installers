@@ -1,0 +1,10 @@
+---
+- name: Configure artifactory master key
+  become: true
+  ansible.builtin.copy:
+    dest: "{{ artifactory_dir }}/var/etc/security/master.key"
+    content: "{{ master_key }}"
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+    mode: '0640'
+  notify: Restart artifactory

@@ -1,11 +1,104 @@
-- name: Perform installation
-  ansible.builtin.include_tasks: "install.yml"
-  when:
-    - artifactory_enabled
-    - not artifactory_upgrade_only
+---
+- name: Gather system facts
+  ansible.builtin.setup:
 
-- name: Perform upgrade
-  ansible.builtin.include_tasks: "upgrade.yml"
+- name: Assert that we support the distribution
+  ansible.builtin.assert:
+    that: ansible_facts['os_family'] | lower in ['redhat', 'debian']
+    fail_msg: 'Host is unsupported. Aborting.'
+    success_msg: 'Host is supported. Proceeding.'
+    quiet: true
+
+- name: Assert that Red Hat OS family is version 8+
+  ansible.builtin.assert:
+    that: ansible_facts['distribution_major_version'] | int is version('8', '>=')
+    fail_msg: 'Host is unsupported. Aborting.'
+    success_msg: 'Host is supported. Proceeding.'
+    quiet: true
+  when: ansible_facts['os_family'] | lower == 'redhat'
+
+- name: Include variables for all distributions
+  ansible.builtin.include_vars: 'vars/all.yml'
+
+- name: Include variables for this distribution
+  ansible.builtin.include_vars: "{{ item }}"
+  with_first_found:
+    - "vars/{{ ansible_facts['distribution'] | lower ~ ansible_facts['distribution_major_version'] }}.yml"
+    - "vars/{{ ansible_facts['distribution'] | lower }}.yml"
+    - "vars/{{ ansible_facts['os_family'] | lower }}.yml"
+    - "vars/default.yml"
+
+- name: Install NGINX
+  ansible.builtin.include_role:
+    name: artifactory_nginx
   when:
-    - artifactory_enabled
-    - artifactory_upgrade_only
+    - artifactory_enabled | bool
+    - artifactory_nginx_installed | bool
+    - not artifactory_upgrade_only | bool
+
+- name: Flush Handlers
+  ansible.builtin.meta: flush_handlers
+
+- name: Include artifactory installation tasks
+  ansible.builtin.include_tasks: "common/{{ install_task }}.yml"
+  loop:
+    - "packages_{{ ansible_facts['os_family'] | lower }}"
+    - user
+    - config_cron
+    - directories
+    - get_archive
+    - app_install
+    - config_system
+    - config_installer
+    - config_binarystore
+    - config_licenses
+    - config_credentials
+    - config_master_key
+    - get_jdbc_driver
+    - selinux
+    - fix_files_ownership
+    - run_service_install
+    - config_ulimit
+    - fix_pidfile
+    - selinux
+    - fix_files_ownership
+  loop_control:
+    loop_var: install_task
+    label: install_task
+  when:
+    - artifactory_enabled | bool
+    - not artifactory_upgrade_only | bool
+
+- name: Include artifactory upgrade tasks
+  ansible.builtin.include_tasks: "common/{{ upgrade_task }}.yml"
+  loop:
+    - "packages_{{ ansible_facts['os_family'] | lower }}"
+    - config_cron
+    - directories
+    - get_archive
+    - app_upgrade
+    - config_system
+    - config_installer
+    - config_binarystore
+    - config_licenses
+    - config_credentials
+    - get_jdbc_driver
+    - selinux
+    - fix_files_ownership
+    - run_service_install
+    - config_ulimit
+    - fix_pidfile
+    - selinux
+    - fix_files_ownership
+  loop_control:
+    loop_var: upgrade_task
+    label: upgrade_task
+  when:
+    - artifactory_enabled | bool
+    - artifactory_upgrade_only | bool
+
+- name: Flush Handlers
+  ansible.builtin.meta: flush_handlers
+
+- name: Ensure artifactory is up and running
+  ansible.builtin.include_tasks: 'common/upcheck.yml'

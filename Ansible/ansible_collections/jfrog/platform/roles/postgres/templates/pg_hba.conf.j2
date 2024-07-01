@@ -4,15 +4,20 @@
 #
 # See: https://www.postgresql.org/docs/current/static/auth-pg-hba-conf.html
 
-# TYPE  DATABASE        USER            ADDRESS                 METHOD
-## localhost connections through Unix port (user name), IPv4, IPv6 (MD5 pw).
-local   all             all                                     peer
-host    all             all             127.0.0.1/32            md5
-host    all             all             ::1/128                 md5
+# Default entries
+{% for client in postgresql_hba_entries %}
+{{ client.type }} {{ client.database }} {{ client.user }} {{ client.address| d('') }} {{ client.auth_method }} {{ client.auth_options | d("") }}
+{% endfor %}
 
-## remote connections IPv4
-{% if postgres_allowed_hosts and postgres_allowed_hosts is iterable -%}
-{%- for host in postgres_allowed_hosts %}
-{{ host.type | default('host') }}         {{ host.database | default('all') }}        {{ host.user | default('all') }}             {{ host.address | default('0.0.0.0/0') }}            {{ item.auth | default('trust') }}
+{% if postgresql_hba_add_inventory_hosts %}
+# Dynamic entries from Artifactory inventory
+{% for group in ['artifactory_servers', 'xray_servers', 'distribution_servers', 'insight_servers'] %}
+{% if groups[group] is defined %}
+{% for host in groups[group] %}
+{% if hostvars[host]['ansible_host'] is defined %}
+host {{ hostvars[host][(group | replace('_servers', '')) + '_db_name'] | d('all') }} {{ hostvars[host][(group | replace('_servers', '')) + '_db_user'] | d('all') }} {{ hostvars[host]['ansible_host'] }}/32 {{ postgresql_auth_method }}
+{% endif %}
+{% endfor %}
+{% endif %}
 {% endfor %}
 {% endif %}

@@ -1,0 +1,104 @@
+---
+- name: Set PostgreSQL environment variables
+  become: true
+  ansible.builtin.template:
+    src: postgres.sh.j2
+    dest: /etc/profile.d/postgres.sh
+    mode: '0644'
+  notify: Restart PostgreSQL
+
+- name: Convert postgresql_default_config_options to dictionary
+  ansible.builtin.set_fact:
+    __dict_postgresql_default_config_options: "{{ postgresql_default_config_options | items2dict(key_name='option', value_name='value') }}"
+
+- name: Convert postgresql_custom_config_options to dictionary
+  ansible.builtin.set_fact:
+    __dict_postgresql_custom_config_options: "{{ postgresql_custom_config_options | items2dict(key_name='option', value_name='value') }}"
+
+- name: Merge PostgreSQL configuration options
+  ansible.builtin.set_fact:
+    __dict_postgresql_config_options: "{{ __dict_postgresql_default_config_options | combine(__dict_postgresql_custom_config_options) }}"
+
+- name: Define postgresql_effective_log_dir, if log_directory is absolute
+  ansible.builtin.set_fact:
+    postgresql_effective_log_dir: "{{ __dict_postgresql_config_options['log_directory'] }}"
+  when: 
+    - __dict_postgresql_config_options['log_directory'] is defined
+    - __dict_postgresql_config_options['log_directory'] is match('^/')
+
+- name: Define postgresql_effective_log_dir, if log_directory is relative
+  ansible.builtin.set_fact:
+    postgresql_effective_log_dir: "{{ postgresql_data_dir }}/{{ __dict_postgresql_config_options['log_directory'] }}"
+  when: 
+    - __dict_postgresql_config_options['log_directory'] is defined
+    - __dict_postgresql_config_options['log_directory'] is not match('^/')
+
+- name: Ensure PostgreSQL log directory exists
+  become: true
+  ansible.builtin.file:
+    path: "{{ postgresql_effective_log_dir }}"
+    owner: "{{ postgresql_user }}"
+    group: "{{ postgresql_group }}"
+    state: directory
+    mode: '0700'
+  when:
+    - postgresql_effective_log_dir is defined
+    - postgresql_effective_log_dir | length > 0
+
+- name: Ensure PostgreSQL log rotation is configured
+  become: true
+  ansible.builtin.copy:
+    content: "{{ postgresql_logrotate_content }}"
+    dest: "{{ postgresql_os_logrotate_dir | d('/etc/logrotate.d') }}/postgresql"
+    owner: root
+    group: root
+    mode: '0644'
+  when:
+    - postgresql_add_logrotate | d(false) | bool
+    - postgresql_logrotate_content | d('') | length > 0
+    - __dict_postgresql_config_options['log_directory'] is not match('^/')
+
+- name: Ensure PostgreSQL unix socket directories exist
+  become: true
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ postgresql_user }}"
+    group: "{{ postgresql_group }}"
+    mode: '0755'
+  loop: "{{ __dict_postgresql_config_options['unix_socket_directories'].split(',') }}"
+  when:
+    - __dict_postgresql_config_options['unix_socket_directories'] is defined
+    - __dict_postgresql_config_options['unix_socket_directories'] | length > 0
+
+- name: Configure global settings
+  become: true
+  ansible.builtin.lineinfile:
+    dest: "{{ postgresql_config_file }}"
+    regexp: "^#?{{ item.option }}.+$"
+    line: "{{ item.option }} = '{{ item.value }}'"
+    state: "{{ item.state | default('present') }}"
+    mode: '0644'
+  loop: "{{ postgresql_default_config_options + postgresql_custom_config_options }}"
+  notify: Restart PostgreSQL
+
+- name: Configure host based authentication
+  become: true
+  ansible.builtin.template:
+    src: 'pg_hba.conf.j2'
+    dest: "{{ postgresql_config_dir }}/pg_hba.conf"
+    owner: "{{ postgresql_user }}"
+    group: "{{ postgresql_group }}"
+    mode: '0600'
+  notify: Restart PostgreSQL
+  when: postgresql_hba_entries | d([]) | length > 0
+
+- name: Flush all handlers
+  ansible.builtin.meta: flush_handlers
+
+- name: Ensure PostgreSQL service is started and enabled
+  become: true
+  ansible.builtin.systemd_service:
+    name: "{{ postgresql_daemon }}"
+    state: started
+    enabled: true

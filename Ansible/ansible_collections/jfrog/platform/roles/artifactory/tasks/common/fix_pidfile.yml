@@ -1,0 +1,10 @@
+---
+- name: Update PIDFile in Artifactory service file
+  become: true
+  ansible.builtin.lineinfile:
+    path: /usr/lib/systemd/system/artifactory.service
+    regexp: '^PIDFile=/var/run/artifactory.pid'
+    line: 'PIDFile=/run/artifactory.pid'
+  notify:
+    - Reload systemd
+    - Restart artifactory
