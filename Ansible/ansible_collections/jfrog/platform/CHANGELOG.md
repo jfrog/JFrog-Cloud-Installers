@@ -1,6 +1,9 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [10.18.3] - July 15, 2024
+* Product Updates/fixes
+
 ## [10.18.2] - June 12, 2024
 * Distribution - Fixed redis directory permission bug for upgrades
 * Product Updates/fixes
