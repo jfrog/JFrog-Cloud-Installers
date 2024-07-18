@@ -1,0 +1,4 @@
+export PARTNER_ID=Partner/ACC-006983
+export INTEGRATION_NAME=Openshift_xray/1.0.0
+export JF_PRODUCT_HOME=/opt/jfrog/xray
+export XRAYDIST=docker

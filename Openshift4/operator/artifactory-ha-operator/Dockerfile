@@ -19,7 +19,9 @@ RUN microdnf install yum \
       && microdnf install nettle  \
       && microdnf update openssl-libs 
 
-RUN microdnf install sudo 
+RUN microdnf update -y
+RUN microdnf install sudo
+
 RUN sudo -u helm bash
 
 USER helm

@@ -1,12 +1,38 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
-## [10.17.2] - Mar 12, 2024
+
+## [10.18.4] - Mar 12, 2024
 * artifactory_nginx_ssl - OCSP stapling support [GH-358](https://github.com/jfrog/JFrog-Cloud-Installers/pull/358)
+
+## [10.18.3] - July 15, 2024
+* Product Updates/fixes
+
+## [10.18.2] - June 12, 2024
+* Distribution - Fixed redis directory permission bug for upgrades
+* Product Updates/fixes
+
+## [10.18.1] - May 26, 2024
+* Product Updates/fixes
+
+## [10.18.0] - May 12, 2024
+* Product Updates/fixes
+* Added a new variable `artifactory_allowNonPostgresql` (default false) in systemYaml to run Artifactory with any database other than PostgreSQL
+* Xray - Support RHEL 9 in rabbitmq setup [GH-354](https://github.com/jfrog/JFrog-Cloud-Installers/pull/354)
+
+## [10.17.4] - May 2, 2024
+* Product Updates/fixes
+
+## [10.17.3] - Mar 14, 2024
+* Postgres - Added no_log to postgres username password assertion [GH-374](https://github.com/jfrog/JFrog-Cloud-Installers/pull/374)
+* Product Updates/fixes
+
+## [10.17.2] - March 7, 2024
+* Fix - ansible.cfg issue
+
 
 ## [10.17.1] - Feb 29, 2024
 * Artifactory - Upgrade fails during the Check artifactory version [GH-369](https://github.com/jfrog/JFrog-Cloud-Installers/pull/369)
-* Product Updates/fixes
 
 ## [10.17.0] - Jan 24, 2024
 * **IMPORTANT**
