@@ -1,8 +1,9 @@
-# JFrog Unified Platform On Openshift 
+# JFrog Platform On Openshift 
 
 ## Announcement (August 2024)  
-JFrog Platform on Openshift official support was added to the JFrog Helm Charts. 
-JFrog highly recommends using JFrog Helm Charts for deployments on OpenShift clusters.
+JFrog Platform on Openshift official support was added to the [JFrog Helm Charts](https://github.com/jfrog/charts/tree/master). 
+
+JFrog highly recommends using Helm Charts for deployments on Openshift clusters.
 
 For more information, see [Install Artifactory HA](https://jfrog.com/help/r/jfrog-installation-setup-documentation/install-artifactory-ha-on-openshift) and [Install Xray HA](https://jfrog.com/help/r/jfrog-installation-setup-documentation/xray-ha-openshift-installation).
 
