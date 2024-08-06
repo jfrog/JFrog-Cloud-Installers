@@ -7,7 +7,7 @@ JFrog highly recommends using JFrog Helm Charts for deployments on OpenShift clu
 For more information, see [Install Artifactory HA](https://jfrog.com/help/r/jfrog-installation-setup-documentation/install-artifactory-ha-on-openshift) and [Install Xray HA](https://jfrog.com/help/r/jfrog-installation-setup-documentation/xray-ha-openshift-installation).
 
 ## JFrog Openshift Operators
-The JFrog Openshift Operators are maintained  alternative methods of deploying JFrog productsfor OpenShift platforms based on the JFrog Helm Charts.
+The JFrog Openshift Operators are maintained as alternative method of deploying JFrog products for OpenShift platforms.
 
 ### Repo Layout
 
