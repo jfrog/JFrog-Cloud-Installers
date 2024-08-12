@@ -1,10 +1,16 @@
-# JFrog Unified Platform On Openshift 
+# JFrog Platform On Openshift 
 
-JFrog Unified Platform on Openshift official support is for the operator deployment only through Openshift's Operatorhub.
+## Announcement (August 2024)  
+JFrog Platform on Openshift official support was added to the [JFrog Helm Charts](https://github.com/jfrog/charts/tree/master). 
 
-Openshift OperatorHub will contain the latest official supported version. We strive to always release every minor version to Openshift's Operatorhub.
+JFrog highly recommends using Helm Charts for deployments on Openshift clusters.
 
-## Repo Layout
+For more information, see [Install Artifactory HA](https://jfrog.com/help/r/jfrog-installation-setup-documentation/install-artifactory-ha-on-openshift) and [Install Xray HA](https://jfrog.com/help/r/jfrog-installation-setup-documentation/xray-ha-openshift-installation).
+
+## JFrog Openshift Operators
+The JFrog Openshift Operators are maintained as alternative method of deploying JFrog products for OpenShift platforms.
+
+### Repo Layout
 
 | Folder                          | Purpose                                                 |
 |---------------------------------|---------------------------------------------------------|
@@ -17,15 +23,13 @@ Openshift OperatorHub will contain the latest official supported version. We str
 | operator/xray-operator          | Xray Enterprise Operator                                |
 | operator/pipeline-operator      | Pipelines Operator (Beta)                               |
 
-## How to install?
+### How to install?
 
 You can find the Redhat certified Operators in the Operatorhub in your Openshift web console.
 
 You will need to be an administrator of your Openshift cluster to install our operator.
 
-Additional steps can be found at [JFrog Partner support wiki](https://www.jfrog.com/confluence/display/JFROG/JFrog+Partner+Integrations#JFrogPartnerIntegrations-redhatopenshift]).
-
-## Security Context Constraints
+### Security Context Constraints
 
 The `restricted` security context constraint will prevent the helm or operator from deploying into Openshift on most namespaces.
 
@@ -37,7 +41,7 @@ Below is an example of applying the `anyuid` scc to the service account `openshi
 
 Once the `anyuid` scc has been applied to the correct service accounts the helm charts or operators will deploy into your Openshift cluster.
 
-## Custom User or Group Ids
+### Custom User or Group Ids
 
 The images uploaded to `registry.redhat.connect.com` that the helm charts and operators use have been modified from the standard docker images available at `docker.bintray.io`
 
@@ -45,7 +49,7 @@ These images have been customized to run in the Openshift user id and group id r
 
 If you need to use another custom user id and/or group id range you can change the `uid` and `gid` values in `values.yaml` of the relevant helm chart or operator yaml deployment.
 
-## No Root Environments
+### No Root Environments
 
 Some environments do not allow root. In these scenarios users can remove the `customInitContainersBegin` from the example values.yaml below:
 
@@ -68,7 +72,7 @@ Some environments do not allow root. In these scenarios users can remove the `cu
 
 Once this has been removed there is no other root user permissions are required to deploy into Openshift.
 
-## Why are there different helm charts?
+### Why are there different helm charts?
 
 The charts in the helm folder are used specifically to create the helm based operator for the certification process to enable it into the Openshift Operatorhub as a certified operator.
 
@@ -76,12 +80,12 @@ The `values.yaml` contained in those relevant charts have been modified to work 
 
 Helm users can reference the `values.yaml` to modify their own deployments to work with Openshift.
 
-## Contributing
+### Contributing
 Please read [CONTRIBUTING.md](JFrog-Cloud-Installers/Openshift4/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
-## Versioning
+### Versioning
 We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/jfrog/JFrog-Cloud-Installers/tags).
 
-## Contact
+### Contact
 
 Github issues are the preferred way to communicate with the team. The team is notified via Slack when a new issue is created.
