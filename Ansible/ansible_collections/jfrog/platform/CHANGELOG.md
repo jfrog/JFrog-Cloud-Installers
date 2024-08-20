@@ -1,8 +1,14 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
-## [10.19.2] - Aug 12, 2024
+## [10.19.4] - Aug 20, 2024
 * artifactory_nginx_ssl - OCSP stapling support [GH-358](https://github.com/jfrog/JFrog-Cloud-Installers/pull/358)
+
+## [10.19.3] - Aug 16, 2024
+* Product Updates/fixes
+
+## [10.19.2] - Aug 9, 2024
+* Product Updates/fixes
 
 ## [10.19.1] - Aug 6, 2024
 * Product Updates/fixes
