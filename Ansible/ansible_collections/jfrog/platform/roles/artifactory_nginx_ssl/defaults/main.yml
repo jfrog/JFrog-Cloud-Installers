@@ -18,3 +18,5 @@ ssl_certificate_path: /etc/pki/tls/certs
 ssl_certificate_key_path: /etc/pki/tls/private
 ssl_certificate: cert.pem
 ssl_certificate_key: cert.key
+# if ssl_certificate has the full certificate chain then OCSP stapling can be enabled
+ssl_certificate_fullchain: false
