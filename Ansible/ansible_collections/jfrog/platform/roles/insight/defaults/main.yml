@@ -71,6 +71,7 @@ insight_systemyaml: |-
       driver: "{{ insight_db_driver }}"
       url: "{{ insight_db_url }}"
       username: "{{ insight_db_user }}"
+      password: "{{ insight_db_password }}"
     elasticsearch:
       unicastFile: {{ insight_es_conf_base }}/config/unicast_hosts.txt
       password: {{ insight_es_password }}

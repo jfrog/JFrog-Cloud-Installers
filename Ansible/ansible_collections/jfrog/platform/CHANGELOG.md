@@ -1,6 +1,19 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [10.19.7] - Oct 23, 2024
+* Product Updates/fixes
+
+## [10.19.6] - Oct 8, 2024
+* Product Updates/fixes
+
+## [10.19.5] - Sep 11, 2024
+* Fixed Insight Password bug with system yaml override [GH-408](https://github.com/jfrog/JFrog-Cloud-Installers/issues/408)
+* Product Updates/fixes
+
+## [10.19.4] - Aug 28, 2024
+* Product Updates/fixes
+
 ## [10.19.3] - Aug 16, 2024
 * Product Updates/fixes
 
