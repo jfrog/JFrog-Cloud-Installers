@@ -168,7 +168,7 @@
     - artifactory_licenses | length > 0
   notify: Restart artifactory
 
-- name: Set up Artifactory admin account 
+- name: Set up Artifactory admin account
   become: true
   ansible.builtin.template:
     src: bootstrap.creds.j2
@@ -176,7 +176,7 @@
     owner: "{{ artifactory_user }}"
     group: "{{ artifactory_group }}"
     mode: 0600
-  when: 
+  when:
     - artifactory_admin_username is defined
     - artifactory_admin_password is defined
   notify: Restart artifactory
@@ -236,3 +236,7 @@
   when:
     - not ansible_check_mode
     - artifactory_start_service | bool
+
+- name: mTLS configuration
+  ansible.builtin.include_tasks: shared/mtls_configuration.yml
+  when: artifactory_version is version('7.77', '>=')
