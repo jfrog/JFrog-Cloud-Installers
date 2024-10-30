@@ -1,6 +1,9 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [10.20.0] - Oct 29, 2024
+* Product Updates/fixes
+
 ## [10.19.7] - Oct 23, 2024
 * Product Updates/fixes
 
