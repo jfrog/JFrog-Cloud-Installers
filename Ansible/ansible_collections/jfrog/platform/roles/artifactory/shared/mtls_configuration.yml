@@ -1,0 +1,50 @@
+
+- name: Read access.config.latest.yml file
+  ansible.builtin.include_vars:
+    file: "{{ artifactory_home }}/var/etc/access/access.config.latest.yml"
+    name: access_config_latest
+
+- name: Checking the current mtl status
+  set_fact:
+    is_mtls_enabled: "{{ access_config_latest.security.authentication.mtls.enabled | default(false) }}"
+
+- block:
+  - name: Create the access.config.patch.yml file
+    template:
+      src: mtls-access-path.yml.j2
+      dest: "{{ artifactory_home }}/var/etc/access/access.config.patch.yml"
+      owner: "{{ artifactory_user }}"
+      group: "{{ artifactory_group }}"
+    notify: Restart artifactory
+
+  - name: Restart artifactory
+    ansible.builtin.meta: flush_handlers
+    when:
+      - artifactory_start_service | bool
+
+  - name: Make sure artifactory is up and running
+    ansible.builtin.uri:
+      url: http://127.0.0.1:8082/router/api/v1/system/health
+      timeout: 130
+      status_code: 200
+    register: result
+    until: result is succeeded
+    retries: 25
+    delay: 5
+    when:
+      - not ansible_check_mode
+      - artifactory_start_service | bool
+
+  when: >
+      (mtls.enabled == false and is_mtls_enabled == true) or
+      (mtls.enabled == true and is_mtls_enabled == false) or
+      ( (mtls.enabled == true and is_mtls_enabled == true) and
+        (
+          mtls.header_name != access_config_latest.security.authentication.mtls['header-name'] or
+          mtls.cache_expiry_secs != access_config_latest.security.authentication.mtls['cache-expiry-secs'] or
+          mtls.extraction_regex != access_config_latest.security.authentication.mtls['extraction-regex'] or
+          mtls.no_auto_create_users != access_config_latest.security.authentication.mtls['no-auto-create-users'] or
+          mtls.allow_user_to_access_profile != access_config_latest.security.authentication.mtls['allow-user-to-access-profile'] or
+          mtls.sync_ldap_groups != access_config_latest.security.authentication.mtls['sync-ldap-groups']
+        )
+      )

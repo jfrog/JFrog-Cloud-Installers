@@ -117,3 +117,12 @@ artifactory_systemyaml_override: false
 
 # Allow artifactory user to create crontab rules
 artifactory_allow_crontab: false
+
+mtls:
+  enabled: false
+  header_name: X-JFrog-Client-Cert    # name of the HTTP header that contains the client certificate
+  cache_expiry_secs: 100              # period (seconds) during which a successful mTLS authentication should be considered valid
+  extraction_regex: (.*)              # regular expression used to extract the username from the certificate's subject CN
+  no_auto_create_users: false         # avoid automatic creation of users in the system if they do not exist
+  allow_user_to_access_profile: false # allow created users (based on the flag above) access their profile page in the UI
+  sync_ldap_groups: false             # automatically associate the authenticated user with groups returned from LDAP
