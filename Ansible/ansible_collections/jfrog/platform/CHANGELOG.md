@@ -1,6 +1,14 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [10.20.1] - Nov 26, 2024
+* Postgres - Fixed auth method in pg_hba.conf file [GH-428](https://github.com/jfrog/JFrog-Cloud-Installers/pull/428)
+* Artifactory - Fixed issue around /etc/cron.allow does not exist [GH-420](https://github.com/jfrog/JFrog-Cloud-Installers/issues/420)
+* Xray - Added `centos_gpg_key` variable to override defaults [GH-420](https://github.com/jfrog/JFrog-Cloud-Installers/issues/413)
+* Added support for RHEL 9
+* Artifactory - Added AccessConfig Patch support to use mTLS [GH-392](https://github.com/jfrog/JFrog-Cloud-Installers/pull/392)
+* Product Updates/fixes
+
 ## [10.20.0] - Oct 29, 2024
 * Product Updates/fixes
 

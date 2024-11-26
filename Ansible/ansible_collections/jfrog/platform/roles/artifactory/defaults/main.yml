@@ -1,7 +1,7 @@
 # Defaults file for artifactory
 
 # The version of artifactory to install
-artifactory_version: 7.98.7
+artifactory_version: 7.98.9
 
 # Set this to true when SSL is enabled (to use artifactory_nginx_ssl role), default to false (implies artifactory uses artifactory_nginx role )
 artifactory_nginx_ssl_enabled: false
@@ -117,3 +117,11 @@ artifactory_systemyaml_override: false
 
 # Allow artifactory user to create crontab rules
 artifactory_allow_crontab: false
+
+# Provide access config patch content 
+artifactory_access_config_patch: |-
+# security:
+#   authentication:
+#     mtls:
+#       enabled: true                  
+#       extraction-regex: (.*)

@@ -6,6 +6,7 @@
     path: /etc/cron.allow
     line: "{{ artifactory_user }}"
     state: present
+    create: true
   when: artifactory_allow_crontab
 
 - name: Allow reading cron.allow
@@ -153,6 +154,9 @@
     - artifactory_systemyaml | length > 0
     - artifactory_systemyaml_override or (not systemyaml.stat.exists)
   notify: Restart artifactory
+
+- name: Configure access config
+  ansible.builtin.include_tasks: shared/access_configuration.yml
 
 - name: Install Service
   ansible.builtin.include_tasks: shared/install_service.yml

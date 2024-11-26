@@ -8,6 +8,7 @@ nginx_daemon: nginx
 redirect_http_to_https_enabled: true
 
 nginx_worker_processes: 1
+
 artifactory_docker_registry_subdomain: false
 
 artifactory_conf_template: artifactory.conf.j2
@@ -18,3 +19,11 @@ ssl_certificate_path: /etc/pki/tls/certs
 ssl_certificate_key_path: /etc/pki/tls/private
 ssl_certificate: cert.pem
 ssl_certificate_key: cert.key
+
+## If we want to use mTLS, set the mtls_ca_certificate_install variable to true and provide the ca certificate and key
+mtls_ca_certificate_install: false
+mtls_mtls_ca_certificate_crt_name: ca.crt
+mtls_ca_certificate_path: /etc/pki/tls/certs
+mtls_mtls_ca_certificate_key_name: ca.key  
+mtls_ca_certificate_crt: |
+mtls_ca_certificate_key: |
