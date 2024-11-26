@@ -22,6 +22,13 @@
   if ($http_x_forwarded_proto = '') {
   set $http_x_forwarded_proto  $scheme;
   }
+  ##Set up mTLS Verification and Certificate Termination on the Reverse Proxy
+  {% if mtls_ca_certificate_install %}
+  ssl_verify_client      on;
+  ssl_verify_depth       2;
+  ssl_client_certificate {{ mtls_ca_certificate_path }}/{{ mtls_mtls_ca_certificate_crt_name }};
+  proxy_set_header X-JFrog-Client-Cert $ssl_client_escaped_cert;
+  {% endif %}
   ## Application specific logs
   access_log /var/log/nginx/artifactory-access.log;
   error_log /var/log/nginx/artifactory-error.log;
