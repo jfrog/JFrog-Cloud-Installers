@@ -71,6 +71,9 @@ artifactory_allowNonPostgresql: false
 # artifactory_admin_username: admin
 # artifactory_admin_password: password
 
+# Set this to true to generate a bootstrap admin token - https://jfrog.com/help/r/jfrog-installation-setup-documentation/create-an-automatic-admin-token
+artifactory_generate_bootstrap_token: false
+
 artifactory_service_file: /lib/systemd/system/artifactory.service
 
 # Provide systemyaml content below with 2-space indentation
@@ -118,10 +121,10 @@ artifactory_systemyaml_override: false
 # Allow artifactory user to create crontab rules
 artifactory_allow_crontab: false
 
-# Provide access config patch content 
+# Provide access config patch content
 artifactory_access_config_patch: |-
 # security:
 #   authentication:
 #     mtls:
-#       enabled: true                  
+#       enabled: true
 #       extraction-regex: (.*)
