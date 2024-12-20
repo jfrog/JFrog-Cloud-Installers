@@ -24,7 +24,7 @@ insight_home: "{{ jfrog_home_directory }}/insight"
 
 insight_install_script_path: "{{ insight_home }}/app/bin"
 insight_thirdparty_path: "{{ insight_home }}/app/third-party"
-insight_archive_service_cmd: "{{ insight_install_script_path }}/installService.sh"
+insight_archive_service_cmd: "{{ insight_install_script_path }}/installService.sh --user {{ insight_user }} --group {{ insight_group }}"
 insight_service_file: /lib/systemd/system/insight.service
 
 # Insight users and groups
