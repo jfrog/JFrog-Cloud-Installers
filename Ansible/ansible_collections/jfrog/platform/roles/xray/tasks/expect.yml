@@ -10,7 +10,7 @@
         while { $CYCLE_END == 0 } {
             expect {
                 {% for each_request in exp_scenarios %}
-                    -nocase -re {{ '{' }}{{ each_request.expecting }}.*} {
+                    -nocase -re {{ '{' }}{{ each_request.expecting }}.*{{ '}' }} {
                         send "{{ each_request.sending }}\n"
                     }
                 {% endfor %}
@@ -19,7 +19,7 @@
                 }
             }
             set count "[expr $count + 1]"
-            if { $count > 16} {
+            if { $count > 16 } {
                 exit 128
             }
         }

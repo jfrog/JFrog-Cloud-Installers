@@ -126,6 +126,7 @@
     path: /etc/cron.allow
     line: "{{ xray_user }}"
     state: present
+    create: true
   when: xray_allow_crontab
 
 - name: Allow reading cron.allow

@@ -92,5 +92,39 @@
   no_log: true
   when: ssl_certificate_install
 
+- name: Ensure mtls_ca_certificate_key_path exists
+  become: true
+  ansible.builtin.file:
+    path: "{{ mtls_ca_certificate_path }}"
+    state: directory
+    mode: 0755
+  when: 
+    - mtls_ca_certificate_install
+    - artifactory_version is version('7.77.0', '>=')
+
+- name: Configure ca certificate
+  become: true
+  ansible.builtin.template:
+    src: certificate.crt.j2
+    dest: "{{ mtls_ca_certificate_path }}/{{ mtls_mtls_ca_certificate_crt_name }}"
+    mode: 0644
+  notify: Restart nginx
+  no_log: true
+  when: 
+    - mtls_ca_certificate_install
+    - artifactory_version is version('7.77.0', '>=')
+
+- name: Configure ca key
+  become: true
+  ansible.builtin.template:
+    src: certificate.cakey.j2
+    dest: "{{ mtls_ca_certificate_path }}/{{ mtls_mtls_ca_certificate_key_name }}"
+    mode: 0600
+  notify: Restart nginx
+  no_log: true
+  when: 
+    - mtls_ca_certificate_install
+    - artifactory_version is version('7.77.0', '>=')
+
 - name: Restart nginx
   ansible.builtin.meta: flush_handlers

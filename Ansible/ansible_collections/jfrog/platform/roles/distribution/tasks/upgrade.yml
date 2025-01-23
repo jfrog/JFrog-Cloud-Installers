@@ -122,6 +122,7 @@
     path: /etc/cron.allow
     line: "{{ distribution_user }}"
     state: present
+    create: true
   when: distribution_allow_crontab
 
 - name: Allow reading cron.allow
