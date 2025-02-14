@@ -9,7 +9,7 @@ distribution_installer_scenario:
       "sending": "{{ join_key }}"
       }
     - {
-        "expecting": "jfrog url:",
+        "expecting": "jfrog url( \\[.+)?:(?!.*Skipping prompt)",
         "sending": "{{ jfrog_url }}"
       }
     - {

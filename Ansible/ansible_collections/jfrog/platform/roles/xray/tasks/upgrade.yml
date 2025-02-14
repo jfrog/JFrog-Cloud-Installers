@@ -72,6 +72,7 @@
     apply:
       environment:
         YQ_PATH: "{{ xray_thirdparty_path }}/yq"
+  register: xray_install_flag
   when:
     - install_wrapper_script.stat.exists
     - download_xray.changed
@@ -101,7 +102,7 @@
   when:
     - xray_systemyaml is defined
     - xray_systemyaml | length > 0
-    - xray_systemyaml_override or (not systemyaml.stat.exists)
+    - xray_systemyaml_override or (not systemyaml.stat.exists) or (xray_install_flag is succeeded )
   notify: Restart xray
 
 - name: Configure installer info
@@ -136,9 +137,7 @@
   when: xray_allow_crontab
 
 - name: Restart xray
-  become: true
-  become_user: xray
-  ansible.builtin.command: "{{ xray_home }}/app/bin/xray.sh restart"
+  ansible.builtin.meta: flush_handlers
   when:
     - xray_start_service | bool
 

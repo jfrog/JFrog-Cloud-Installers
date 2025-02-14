@@ -125,6 +125,7 @@
     apply:
       environment:
         YQ_PATH: "{{ xray_thirdparty_path }}/yq"
+  register: xray_install_flag
   when: install_wrapper_script.stat.exists
 
 - name: Configure rabbitmq config
@@ -158,7 +159,7 @@
   when:
     - xray_systemyaml is defined
     - xray_systemyaml | length > 0
-    - xray_systemyaml_override or (not systemyaml.stat.exists)
+    - xray_systemyaml_override or (not systemyaml.stat.exists) or (xray_install_flag is succeeded )
   notify: Restart xray
 
 - name: Ensure permissions are correct
@@ -170,33 +171,16 @@
     group: "{{ xray_group }}"
     recurse: true
 
-- name: Include interactive installer scripts
-  ansible.builtin.include_vars: script/archive.yml
-
-- name: Install xray
-  ansible.builtin.include_tasks: expect.yml
-  vars:
-    exp_executable_cmd: "./install.sh -u {{ xray_user }} -g {{ xray_group }}"
-    exp_dir: "{{ xray_install_script_path }}"
-    exp_scenarios: "{{ xray_installer_scenario['main'] }}"
+- name: Install xray as a service
+  become: true
+  ansible.builtin.command: "{{ xray_archive_service_cmd }}"
   args:
-    apply:
-      environment:
-        YQ_PATH: "{{ xray_thirdparty_path }}/yq"
-  when: install_wrapper_script.stat.exists
+    chdir: "{{ xray_install_script_path }}"
+    creates: "{{ xray_service_file }}"
+  register: check_service_status_result
 
-- name: Ensure /opt/jfrog/xray directory has correct ownership
-  become: true
-  ansible.builtin.file:
-    path: "{{ xray_home }}"
-    owner: xray
-    group: xray
-    recurse: yes
-
-- name: Restart Xray
-  become: true
-  become_user: xray
-  ansible.builtin.command: "{{ xray_home }}/app/bin/xray.sh start"
+- name: Restart xray
+  ansible.builtin.meta: flush_handlers
   when:
     - xray_start_service | bool
 

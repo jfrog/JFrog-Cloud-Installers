@@ -17,6 +17,10 @@ xray_installer_scenario:
         "sending": "{{ ansible_host }}"
       }
     - {
+        "expecting": "do you want to continue",
+        "sending": "y"
+      }
+    - {
         "expecting": "are you adding an additional node",
         "sending": "{% if xray_ha_node_type is defined and xray_ha_node_type == 'master' %}n{% else %}y{% endif %}"
       }
