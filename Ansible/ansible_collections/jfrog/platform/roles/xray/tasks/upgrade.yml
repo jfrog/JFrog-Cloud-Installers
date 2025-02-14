@@ -136,7 +136,9 @@
   when: xray_allow_crontab
 
 - name: Restart xray
-  ansible.builtin.meta: flush_handlers
+  become: true
+  become_user: xray
+  ansible.builtin.command: "{{ xray_home }}/app/bin/xray.sh restart"
   when:
     - xray_start_service | bool
 

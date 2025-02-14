@@ -33,12 +33,3 @@
   roles:
     - role: distribution
       when: distribution_enabled | bool
-
-- name: Play for insight_servers
-  hosts: insight_servers
-  collections:
-    - community.general
-    - ansible.posix
-  roles:
-    - role: insight
-      when: insight_enabled | bool
