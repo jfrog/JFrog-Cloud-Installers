@@ -3,7 +3,7 @@
 # JFROG REDHAT UBI PORT TO WORK IN BITNAMI RABBITMQ HELM CHARTS
 
 
-FROM bitnami/rabbitmq:3.12.10-debian-11-r1 as base
+FROM bitnami/rabbitmq:3.12.13-debian-11-r0 as base
 
 FROM registry.access.redhat.com/ubi9
 
@@ -15,7 +15,7 @@ LABEL name="JFrog Rabbit MQ" \
       summary="JFrog Rabbit MQ (Red Hat UBI)" \
       com.jfrog.license_terms="https://jfrog.com/platform/enterprise-plus-eula/"
 
-ARG RABBITMQ_VERSION=3.12.10-debian-11-r1
+ARG RABBITMQ_VERSION=3.12.13-debian-11-r0
 
 LABEL io.k8s.description="Lightweight open source message broker" \
     io.k8s.display-name="RabbitMQ" \
