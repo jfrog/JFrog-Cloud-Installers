@@ -1,56 +1,40 @@
 # Defaults file for xray
 
 # The version of xray to install
-xray_version: 3.107.11
-
+xray_version: 3.107.21
 # Whether to enable HA
 xray_ha_enabled: false
-
 xray_ha_node_type: master
-
 # The location where xray should install
 jfrog_home_directory: /opt/jfrog
-
 # The remote xray download file
 xray_tar_file_name: jfrog-xray-{{ xray_version }}-linux.tar.gz
 xray_tar: https://releases.jfrog.io/artifactory/jfrog-xray/xray-linux/{{ xray_version }}/{{ xray_tar_file_name }}
-
 # Timeout in seconds for URL request
 xray_download_timeout: 10
-
 # The xray install directory
 xray_untar_home: "{{ jfrog_home_directory }}/jfrog-xray-{{ xray_version }}-linux"
 xray_home: "{{ jfrog_home_directory }}/xray"
-
 xray_install_script_path: "{{ xray_home }}/app/bin"
 xray_thirdparty_path: "{{ xray_home }}/app/third-party"
 xray_archive_service_cmd: "{{ xray_install_script_path }}/installService.sh"
 xray_service_file: /lib/systemd/system/xray.service
-
 # Xray users and groups
 xray_user: xray
 xray_group: xray
-
 xray_uid: 1035
 xray_gid: 1035
-
 xray_daemon: xray
-
 # Rabbitmq user
 xray_rabbitmq_user: guest
 xray_rabbitmq_password: guest
 xray_rabbitmq_url: "amqp://localhost:5672/"
 xray_rabbitmq_default_cookie: "XRAY_RABBITMQ_COOKIE"
-
 # if this is an upgrade
 xray_upgrade_only: false
-
 xray_system_yaml_template: system.yaml.j2
-
 linux_distro: "{{ ansible_distribution | lower }}{{ ansible_distribution_major_version }}"
-
 centos_gpg_key: "https://www.centos.org/keys/RPM-GPG-KEY-CentOS-Official"
-
 xray_db_util_search_filter:
   ubuntu18:
     db5: 'db5.3-util.*ubuntu1.1.*amd64\.deb'
@@ -71,17 +55,29 @@ xray_db_util_search_filter:
     db: 'libdb-utils-5.3.*el7.x86_64.rpm'
   redhat9:
     db: 'libdb-utils-5.3.*el9.x86_64.rpm'
-
-
 yum_python_interpreter: >-
-    {%- if linux_distro is not defined -%}
-        /usr/bin/python3
-    {%- elif linux_distro in ['centos7', 'redhat7'] -%}
-        /usr/bin/python
-    {%- else -%}
-        /usr/bin/python3
-    {%- endif -%}
+  {%- if linux_distro is not defined -%}
 
+
+
+
+
+      /usr/bin/python3
+  {%- elif linux_distro in ['centos7', 'redhat7'] -%}
+
+
+
+
+
+      /usr/bin/python
+  {%- else -%}
+
+
+
+
+
+      /usr/bin/python3
+  {%- endif -%}
 # Provide systemyaml content below with 2-space indentation
 xray_systemyaml: |-
   configVersion: 1
@@ -108,11 +104,8 @@ xray_systemyaml: |-
   router:
     entrypoints:
       internalPort: 8046
-
 # Note: xray_systemyaml_override is by default false,  if you want to change default xray_systemyaml
 xray_systemyaml_override: false
-
 xray_start_service: true
-
 # Allow xray user to create crontab rules
 xray_allow_crontab: false

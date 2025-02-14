@@ -1,14 +1,11 @@
 # Defaults file for artifactory
 
 # The version of artifactory to install
-artifactory_version: 7.98.9
-
+artifactory_version: 7.98.13
 # Set this to true when SSL is enabled (to use artifactory_nginx_ssl role), default to false (implies artifactory uses artifactory_nginx role )
 artifactory_nginx_ssl_enabled: false
-
 # Set this to false when ngnix is disabled, defaults to true (implies artifactory uses artifactory_nginx role )
 artifactory_nginx_enabled: true
-
 # Provide single or HA individual licenses file separated by new line and 2-space indentation and for HA, set artifactory_ha_enabled: true.
 # Example: Replace <license_1> , <license_2> , <license_3> with original licenses
 # artifactory_licenses: |-
@@ -20,62 +17,43 @@ artifactory_nginx_enabled: true
 
 # To enable HA, set to true
 artifactory_ha_enabled: false
-
 # By default, all nodes are primary (CNHA) - https://www.jfrog.com/confluence/display/JFROG/High+Availability#HighAvailability-Cloud-NativeHighAvailability
 artifactory_taskaffinity: any
-
 # To enable mission-control in artifactory (>= 7.27.x) applicable only on E+ license
 artifactory_mc_enabled: true
-
 # The location where Artifactory should install
 jfrog_home_directory: /opt/jfrog
-
 # Pick the Artifactory flavour to install, can be also cpp-ce/jcr/pro
 artifactory_flavour: pro
-
 # Whether to start Artifactory
 artifactory_start_service: true
-
 artifactory_extra_java_opts: -server -Xms512m -Xmx4g -Xss256k -XX:+UseG1GC
 artifactory_system_yaml_template: system.yaml.j2
 artifactory_tar_file_name: jfrog-artifactory-pro-{{ artifactory_version }}-linux.tar.gz
 artifactory_home: "{{ jfrog_home_directory }}/artifactory"
-artifactory_tar: "https://releases.jfrog.io/artifactory/artifactory-pro/org/artifactory/pro/jfrog-artifactory-pro/\
-  {{ artifactory_version }}/{{ artifactory_tar_file_name }}"
+artifactory_tar: "https://releases.jfrog.io/artifactory/artifactory-pro/org/artifactory/pro/jfrog-artifactory-pro/{{ artifactory_version }}/{{ artifactory_tar_file_name }}"
 artifactory_untar_home: "{{ jfrog_home_directory }}/artifactory-{{ artifactory_flavour }}-{{ artifactory_version }}"
-
 # Timeout in seconds for URL request
 artifactory_download_timeout: 10
-
 # Added optional variable to download from external url
 postgres_driver_download: true
 postgres_driver_version: 42.6.0
-postgres_driver_download_url: "https://repo1.maven.org/maven2/org/postgresql/postgresql/\
-  {{ postgres_driver_version }}/postgresql-{{ postgres_driver_version }}.jar"
-
+postgres_driver_download_url: "https://repo1.maven.org/maven2/org/postgresql/postgresql/{{ postgres_driver_version }}/postgresql-{{ postgres_driver_version }}.jar"
 artifactory_user: artifactory
 artifactory_group: artifactory
-
 artifactory_daemon: artifactory
-
 artifactory_uid: 1030
 artifactory_gid: 1030
-
 # If this is an upgrade
 artifactory_upgrade_only: false
-
 # To run Artifactory with any database other than PostgreSQL, allowNonPostgresql set to true
 artifactory_allowNonPostgresql: false
-
 # Default username and password, uncomment and change to manage with ansible
 # artifactory_admin_username: admin
 # artifactory_admin_password: password
-
 # Set this to true to generate a bootstrap admin token - https://jfrog.com/help/r/jfrog-installation-setup-documentation/create-an-automatic-admin-token
 artifactory_generate_bootstrap_token: false
-
 artifactory_service_file: /lib/systemd/system/artifactory.service
-
 # Provide systemyaml content below with 2-space indentation
 artifactory_systemyaml: |-
   configVersion: 1
@@ -100,7 +78,6 @@ artifactory_systemyaml: |-
   router:
     entrypoints:
       internalPort: 8046
-
 # Provide binarystore XML content below with 2-space indentation
 artifactory_binarystore: |-
   {%- if artifactory_ha_enabled -%}
@@ -114,13 +91,10 @@ artifactory_binarystore: |-
     <chain template="file-system"/>
   </config>
   {%- endif -%}
-
 # Note: artifactory_systemyaml_override is by default false,  if you want to change default artifactory_systemyaml
 artifactory_systemyaml_override: false
-
 # Allow artifactory user to create crontab rules
 artifactory_allow_crontab: false
-
 # Provide access config patch content
 artifactory_access_config_patch: |-
 # security:

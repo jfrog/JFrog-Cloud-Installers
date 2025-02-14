@@ -1,6 +1,9 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [10.20.4] - January 07, 2025
+* Product Updates/fixes
+
 ## [10.20.1] - Nov 26, 2024
 * Postgres - Fixed auth method in pg_hba.conf file [GH-428](https://github.com/jfrog/JFrog-Cloud-Installers/pull/428)
 * Artifactory - Fixed issue around /etc/cron.allow does not exist [GH-420](https://github.com/jfrog/JFrog-Cloud-Installers/issues/420)
