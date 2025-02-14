@@ -118,6 +118,7 @@
     apply:
       environment:
         YQ_PATH: "{{ distribution_thirdparty_path }}/yq"
+  register: distribution_install_flag
   when: install_wrapper_script.stat.exists
 
 - name: Configure redis config
@@ -143,7 +144,7 @@
   when:
     - distribution_systemyaml is defined
     - distribution_systemyaml | length > 0
-    - distribution_systemyaml_override or (not systemyaml.stat.exists)
+    - distribution_systemyaml_override or (not systemyaml.stat.exists) or (distribution_install_flag is succeeded )
   notify: Restart distribution
 
 - name: Configure installer info
@@ -181,6 +182,6 @@
     status_code: 200
   register: result
   until: result is succeeded
-  retries: 25
-  delay: 5
+  retries: 40
+  delay: 10
   when: not ansible_check_mode

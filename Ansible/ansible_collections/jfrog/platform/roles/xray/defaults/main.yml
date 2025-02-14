@@ -1,7 +1,7 @@
 # Defaults file for xray
 
 # The version of xray to install
-xray_version: 3.111.9
+xray_version: 3.111.13
 
 # Whether to enable HA
 xray_ha_enabled: false
@@ -24,7 +24,7 @@ xray_home: "{{ jfrog_home_directory }}/xray"
 
 xray_install_script_path: "{{ xray_home }}/app/bin"
 xray_thirdparty_path: "{{ xray_home }}/app/third-party"
-xray_archive_service_cmd: "{{ xray_install_script_path }}/install.sh"
+xray_archive_service_cmd: "{{ xray_install_script_path }}/installService.sh"
 xray_service_file: /lib/systemd/system/xray.service
 
 # Xray users and groups
@@ -102,7 +102,7 @@ xray_systemyaml: |-
         value: "{{ xray_rabbitmq_default_cookie }}"
       url: "{{ xray_rabbitmq_url }}"
       username: "{{ xray_rabbitmq_user }}"
-      password: "{{xray_rabbitmq_password }}"
+      password: "{{ xray_rabbitmq_password }}"
     security:
       joinKey: {{ join_key }}
   router:

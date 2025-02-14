@@ -1,6 +1,10 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [11.0.1] - Feb 12, 2025
+* Fixed an issue with running install.sh for Xray and Distribution. [GH-424](https://github.com/jfrog/JFrog-Cloud-Installers/issues/424)
+* Product Updates/fixes
+
 ## [11.0.0] - Jan 30, 2025
 * Insight role has been removed. Use the 10.x version of the platform collection for installation and upgrades.
 * Artifactory - Added ability to generate bootstrap admin token for artifactory [GH-432](https://github.com/jfrog/JFrog-Cloud-Installers/pull/432)
