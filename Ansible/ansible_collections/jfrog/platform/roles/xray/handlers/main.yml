@@ -2,14 +2,12 @@
 # handlers file for xray
 - name: Restart xray
   become: true
-  ansible.builtin.systemd:
-    name: "{{ xray_daemon }}"
-    state: restarted
+  become_user: xray
+  ansible.builtin.command: "{{ xray_home }}/app/bin/xray.sh restart"
   when:
     - xray_start_service | bool
 
 - name: Stop xray
   become: true
-  ansible.builtin.systemd:
-    name: "{{ xray_daemon }}"
-    state: stopped
+  become_user: xray
+  ansible.builtin.command: "{{ xray_home }}/app/bin/xray.sh stop"

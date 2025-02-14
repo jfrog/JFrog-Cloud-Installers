@@ -1,7 +1,9 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
-## [10.20.4] - January 07, 2025
+## [11.0.0] - Jan 30, 2025
+* Insight role has been removed. Use the 10.x version of the platform collection for installation and upgrades.
+* Artifactory - Added ability to generate bootstrap admin token for artifactory [GH-432](https://github.com/jfrog/JFrog-Cloud-Installers/pull/432)
 * Product Updates/fixes
 
 ## [10.20.1] - Nov 26, 2024
@@ -9,7 +11,7 @@ All changes to this collection will be documented in this file.
 * Artifactory - Fixed issue around /etc/cron.allow does not exist [GH-420](https://github.com/jfrog/JFrog-Cloud-Installers/issues/420)
 * Xray - Added `centos_gpg_key` variable to override defaults [GH-420](https://github.com/jfrog/JFrog-Cloud-Installers/issues/413)
 * Added support for RHEL 9
-* Artifactory - Added AccessConfig Patch support to use mTLS [GH-392](https://github.com/jfrog/JFrog-Cloud-Installers/pull/392)
+* Artifactory - Added AccessConfig Patch support to use mTLS [GH-392](https://github.com/jfrog/JFrog-Cloud-Installers/issues/392)
 * Product Updates/fixes
 
 ## [10.20.0] - Oct 29, 2024

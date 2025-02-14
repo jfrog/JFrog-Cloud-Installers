@@ -10,7 +10,6 @@ jfrog_url: >-
 artifactory_enabled: true
 xray_enabled: true
 distribution_enabled: true
-insight_enabled: true
 postgres_enabled: true
 
 # Artifactory DB details
@@ -40,15 +39,6 @@ distribution_db_password: password
 distribution_db_url: >-
   jdbc:postgresql://{{ hostvars[groups['postgres_servers'][0]]['ansible_host'] }}:5432/{{ distribution_db_name }}?sslmode=disable
 
-# Insight DB details
-insight_db_type: postgresql
-insight_db_driver: org.postgresql.Driver
-insight_db_name: insight
-insight_db_user: insight
-insight_db_password: password
-insight_db_url: >-
-  jdbc:postgresql://{{ hostvars[groups['postgres_servers'][0]]['ansible_host'] }}:5432/{{ insight_db_name }}?sslmode=disable
-
 # Postgresql users and databases/schemas
 database:
   artifactory:
@@ -69,12 +59,6 @@ database:
     username: "{{ distribution_db_user }}"
     password: "{{ distribution_db_password }}"
     enabled: "{{ distribution_enabled }}"
-  insight:
-    name: "{{ insight_db_name }}"
-    owner: "{{ insight_db_user }}"
-    username: "{{ insight_db_user }}"
-    password: "{{ insight_db_password }}"
-    enabled: "{{ insight_enabled }}"
 
 # For Centos/RHEL-7, Set this to "/usr/bin/python"
 ansible_python_interpreter: "/usr/bin/python3"

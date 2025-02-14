@@ -1,5 +1,0 @@
-- name: Install prerequisite packages
-  become: true
-  ansible.builtin.yum:
-    name: ["expect", "acl"]
-    state: present
