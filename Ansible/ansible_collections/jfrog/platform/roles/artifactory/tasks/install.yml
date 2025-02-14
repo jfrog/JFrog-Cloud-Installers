@@ -114,6 +114,7 @@
     - "{{ artifactory_home }}/var/etc"
     - "{{ artifactory_home }}/var/etc/security/"
     - "{{ artifactory_home }}/var/etc/artifactory/info/"
+    - "{{ artifactory_home }}/var/bootstrap/etc/access/keys"
 
 - name: Check if system.yaml exists
   become: true
@@ -172,7 +173,7 @@
     - artifactory_licenses | length > 0
   notify: Restart artifactory
 
-- name: Set up Artifactory admin account 
+- name: Set up Artifactory admin account
   become: true
   ansible.builtin.template:
     src: bootstrap.creds.j2
@@ -180,9 +181,21 @@
     owner: "{{ artifactory_user }}"
     group: "{{ artifactory_group }}"
     mode: 0600
-  when: 
+  when:
     - artifactory_admin_username is defined
     - artifactory_admin_password is defined
+  notify: Restart artifactory
+
+- name: Generate Artifactory bootstrap admin token
+  become: true
+  ansible.builtin.file:
+    path: "{{ artifactory_home }}/var/bootstrap/etc/access/keys/generate.token.json"
+    state: touch
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+    mode: 0600
+  when:
+    - artifactory_generate_bootstrap_token | bool
   notify: Restart artifactory
 
 - name: Check if included database driver is the correct version
