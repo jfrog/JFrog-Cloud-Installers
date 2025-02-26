@@ -7,6 +7,7 @@ LABEL name="JFrog Init Container" \
       description="JFrog Init Container image based on the Red Hat Universal Base Image." \
       vendor="JFrog" \
       summary="JFrog Init Container (Red Hat UBI)" \
+      maintainer="Jfrog for Redhat Openshift" \
       com.jfrog.license_terms="https://jfrog.com/platform/enterprise-plus-eula/"
 
 # install the necessary programs for the init container

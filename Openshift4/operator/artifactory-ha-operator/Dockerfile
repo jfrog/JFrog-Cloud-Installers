@@ -5,6 +5,7 @@ LABEL name="JFrog Artifactory Enterprise Operator" \
       description="Openshift operator to deploy JFrog Artifactory Enterprise based on the Red Hat Universal Base Image." \
       vendor="JFrog" \
       summary="JFrog Artifactory Enterprise Operator" \
+      maintainer="Jfrog for Redhat Openshift" \
       com.jfrog.license_terms="https://jfrog.com/artifactory/eula/"
 
 # Adding security checks for container vulnerability scan
