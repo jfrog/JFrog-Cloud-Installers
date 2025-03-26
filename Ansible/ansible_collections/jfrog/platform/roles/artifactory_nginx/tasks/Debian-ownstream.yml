@@ -1,5 +1,5 @@
 - name: ensure apt-transport-https is installed
-  anible.builtin.napt:
+  anible.builtin.apt:
     name: apt-transport-https
     state: present
 
