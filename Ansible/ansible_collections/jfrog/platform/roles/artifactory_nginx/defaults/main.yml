@@ -6,7 +6,7 @@
 nginx_daemon: nginx
 nginx_upstream: true
 nginx_upstream_repo_key: https://nginx.org/keys/nginx_signing.key
-nginx_upstream_repo_baseurl: https://nginx.org/packages
+nginx_upstream_repo_baseurl: https://nginx.org/packages/mainline
 nginx_module: '1.24'
 redirect_http_to_https_enabled: true
 
