@@ -9,7 +9,7 @@
     url: "{{ nginx_upstream_repo_key }}"
     state: present
 
-- name: Add nginx stable repo
+- name: Add nginx repo
   become: true
   ansible.builtin.apt_repository:
     repo: 'deb {{ nginx_upstream_repo_baseurl }}/{{ ansible_distribution | lower }}/ {{ ansible_distribution_release }} nginx'
