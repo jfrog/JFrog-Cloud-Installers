@@ -1,7 +1,7 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
-## [11.0.4] - March 12, 2025
+## [11.0.5] - March 27, 2025
 * Removed obsolete variable `artifactory_flavour` [GH-409](https://github.com/jfrog/JFrog-Cloud-Installers/issues/409)
 * Product Updates/fixes
 
