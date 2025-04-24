@@ -1,6 +1,8 @@
-- name: Enable nginx from AppStream
+- name: Install nginx module from AppStream
   become: true
-  ansible.builtin.command: "yum module enable -y nginx:{{ nginx_module }}"
+  ansible.builtin.yum:
+    name: "@nginx:{{ nginx_module }}"
+    state: present
 
 - name: Update yum cache
   become: true

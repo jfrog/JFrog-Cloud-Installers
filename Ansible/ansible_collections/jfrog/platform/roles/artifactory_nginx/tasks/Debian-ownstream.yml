@@ -1,20 +1,3 @@
-- name: ensure apt-transport-https is installed
-  anible.builtin.apt:
-    name: apt-transport-https
-    state: present
-
-- name: Add upstream nginx apt key
-  become: true
-  ansible.builtin.apt_key:
-    url: "{{ nginx_upstream_repo_key }}"
-    state: present
-
-- name: Add nginx repo
-  become: true
-  ansible.builtin.apt_repository:
-    repo: 'deb {{ nginx_upstream_repo_baseurl }}/{{ ansible_distribution | lower }}/ {{ ansible_distribution_release }} nginx'
-    state: present
-
 - name: Update apt cache
   become: true
   ansible.builtin.apt:

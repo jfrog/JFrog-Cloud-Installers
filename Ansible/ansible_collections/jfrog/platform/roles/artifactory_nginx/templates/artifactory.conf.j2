@@ -12,22 +12,33 @@
 {% if artifactory_nginx_ssl_enabled is defined and artifactory_nginx_ssl_enabled %}
   ssl_protocols TLSv1.2 TLSv1.3;
   ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384;
-  ssl_certificate      {{ ssl_certificate_path }}/{{ ssl_certificate }};
-  ssl_certificate_key  {{ ssl_certificate_key_path }}/{{ ssl_certificate_key }};
+  ssl_certificate      {{ ssl_certificate_path }}/{{ ssl_certificate_name }};
+  ssl_certificate_key  {{ ssl_certificate_key_path }}/{{ ssl_certificate_key_name }};
   ssl_session_cache shared:SSL:1m;
   ssl_prefer_server_ciphers   on;
   {% endif %}
   ## server configuration
   server {
-{% if artifactory_nginx_ssl_enabled is defined and artifactory_nginx_ssl_enabled %}
+ {% if artifactory_nginx_ssl_enabled is defined and artifactory_nginx_ssl_enabled %}
   listen 443 ssl http2;
 {% else %}
   listen 80;
 {% endif %}
+{% if artifactory_docker_registry_subdomain %}
+  server_name ~(?<repo>.+)\.{{ server_name }};
+{% else %}
   server_name {{ server_name }};
+{% endif %}
   if ($http_x_forwarded_proto = '') {
   set $http_x_forwarded_proto  $scheme;
   }
+  ##Set up mTLS Verification and Certificate Termination on the Reverse Proxy
+  {% if mtls_ca_certificate_install %}
+  ssl_verify_client      on;
+  ssl_verify_depth       2;
+  ssl_client_certificate {{ mtls_ca_certificate_path }}/{{ mtls_mtls_ca_certificate_crt_name }};
+  proxy_set_header X-JFrog-Client-Cert $ssl_client_escaped_cert;
+  {% endif %}
   ## Application specific logs
   access_log /var/log/nginx/artifactory-access.log;
   error_log /var/log/nginx/artifactory-error.log;

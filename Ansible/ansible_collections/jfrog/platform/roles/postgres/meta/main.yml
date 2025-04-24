@@ -11,17 +11,21 @@ galaxy_info:
   platforms:
     - name: EL
       versions:
-        - 7
         - 8
+        - 9
     - name: Ubuntu
       versions:
-        - bionic
         - focal
         - jammy
+        - noble
     - name: Debian
       versions:
         - buster
         - bullseye
+        - bookworm
+    - name: Amazon
+      versions:
+        - 3
   galaxy_tags:
     - postgres
     - jfrog
