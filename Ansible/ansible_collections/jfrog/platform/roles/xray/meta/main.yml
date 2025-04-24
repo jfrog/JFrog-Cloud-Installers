@@ -15,12 +15,14 @@ galaxy_info:
         - 9
     - name: Ubuntu
       versions:
-        - bionic
         - focal
         - jammy
     - name: Debian
       versions:
         - buster
         - bullseye
+    - name: Amazon
+      versions:
+        - 3
   galaxy_tags:
     - jfrog

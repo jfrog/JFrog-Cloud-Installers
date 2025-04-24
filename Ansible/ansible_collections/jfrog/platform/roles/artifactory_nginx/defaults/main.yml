@@ -1,12 +1,78 @@
----
 # defaults file for artifactory_nginx
+
 ## For production deployments,You SHOULD change it.
-server_name: test.artifactory.com
+server_name: arifactory.example.com
 
 nginx_daemon: nginx
+
+# When set to true, this enables the use of the official NGINX upstream repository
+# instead of the default system package repository (e.g., from OS vendors like Ubuntu/Debian/RHEL).
+# This is recommended when you want the latest stable or mainline version of NGINX directly from nginx.org.
+# Make sure to also configure `nginx_upstream_repo_key` and `nginx_upstream_repo_baseurl` accordingly.
+nginx_upstream: true
+
+# This variable defines the URL of the official NGINX GPG signing key.
+# It is used to verify the authenticity and integrity of packages from the NGINX repository.
+# This should be left as-is unless NGINX changes the key location.
+# Ref: https://nginx.org/en/linux_packages.html#Signing_Key
+nginx_upstream_repo_key: https://nginx.org/keys/nginx_signing.key
+
+# Defines the base URL for the official NGINX repository.
+# Use "https://nginx.org/packages/mainline" for the latest **mainline** (development) release.
+# Use "https://nginx.org/packages" for the **stable** release (less frequent updates).
+# By default, this is set to the mainline repository to ensure access to the most recent features and fixes.
+nginx_upstream_repo_baseurl: https://nginx.org/packages/mainline
+
+nginx_module: '1.24'
+redirect_http_to_https_enabled: true
 
 nginx_worker_processes: 1
 artifactory_docker_registry_subdomain: false
 
 artifactory_conf_template: artifactory.conf.j2
 nginx_conf_template: nginx.conf.j2
+
+# Enable or disable SSL certificate installation
+ssl_certificate_install: true
+
+# Path where the SSL certificate will be stored
+ssl_certificate_path: /etc/pki/tls/certs
+
+# Path where the SSL certificate key will be stored
+ssl_certificate_key_path: /etc/pki/tls/private
+
+# Filename of the SSL certificate
+ssl_certificate_name: cert.pem
+
+# Filename of the SSL private key
+ssl_certificate_key_name: cert.key
+
+# Content of the SSL certificate. Paste the certificate content here if not using a file.
+ssl_certificate: |
+  # Placeholder for cert content
+# Content of the SSL certificate key. Paste the key content here if not using a file.
+ssl_certificate_key: |
+  # Placeholder for cert content
+
+## If we want to use mTLS, set the `mtls_ca_certificate_install` variable to true 
+## and provide the CA certificate and key content or configure the file paths accordingly.
+
+# Enable or disable the installation of mTLS CA certificate
+mtls_ca_certificate_install: false
+
+# Name of the CA certificate file (used for mutual TLS)
+mtls_mtls_ca_certificate_crt_name: ca.crt
+
+# Path where the CA certificate should be installed
+mtls_ca_certificate_path: /etc/pki/tls/certs
+
+# Name of the CA certificate key file (if applicable)
+mtls_mtls_ca_certificate_key_name: ca.key  
+
+# Content of the CA certificate. If not using a file, paste the certificate content here.
+mtls_ca_certificate_crt: |
+  # Placeholder for cert content
+
+# Content of the CA private key. If not using a file, paste the key
+mtls_ca_certificate_key: |
+  # Placeholder for cert content

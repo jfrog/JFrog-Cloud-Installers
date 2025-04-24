@@ -1,6 +1,16 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [11.1.0] - April 24, 2025
+* Artifactory – Renamed `artifactory_allowNonPostgresql` to `artifactory_allow_non_postgresql` to align with variable naming conventions.
+* Artifactory – Fixed a bug when enabling `artifactory_docker_registry_subdomain` [GH-359](https://github.com/jfrog/JFrog-Cloud-Installers/pull/359)
+* **Important changes**
+* Artifactory - Refactored Nginx roles to combine into single one [GH-443](https://github.com/jfrog/JFrog-Cloud-Installers/pull/443/)
+* Artifactory - Added new variables `ssl_certificate_name` and `ssl_certificate_key_name` for certificate names
+* Artifactory - Added Readme instructions (artifactory_nginx/README.md) for generating certificates `ssl_certificate_key` and `ssl_certificate`
+* Postgres - Added `postgres_yum_repository_repo` variable to override the default repository
+* Product Updates
+
 ## [11.0.6] - Apr 10, 2025
 * Product Updates/fixes
 

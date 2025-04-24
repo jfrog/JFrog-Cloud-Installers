@@ -3,3 +3,7 @@ default_postgresql_config_path: /var/lib/pgsql/{{ postgres_version }}/data
 default_postgresql_data_dir: /var/lib/pgsql/{{ postgres_version }}/data
 default_postgresql_daemon: postgresql-{{ postgres_version }}.service
 default_postgresql_external_pid_file: /var/run/postgresql/{{ postgres_version }}-main.pid
+
+default_postgres_rpmkey_url: "https://download.postgresql.org/pub/repos/yum/keys/PGDG-RPM-GPG-KEY-RHEL"
+default_postgres_yum_repository_repo: >-
+  https://download.postgresql.org/pub/repos/yum/reporpms/EL-{{ ansible_distribution_major_version }}-x86_64/pgdg-redhat-repo-latest.noarch.rpm

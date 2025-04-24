@@ -1,0 +1,8 @@
+- name: Update apt cache
+  become: true
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+  register: apt_update_cache
+  retries: 5
+  delay: 60

@@ -1,24 +1,24 @@
 - name: Import nginx signing key
   become: true
   ansible.builtin.rpm_key:
-    key: https://nginx.org/keys/nginx_signing.key
+    key: "{{ nginx_upstream_repo_key }}"
     state: present
 
-- name: Add nginx stable repo
+- name: Add nginx repo
   become: true
   ansible.builtin.copy:
-    dest: /etc/yum.repos.d/nginx-stable.repo
+    dest: /etc/yum.repos.d/nginx-main.repo
     owner: root
     group: root
     mode: '0644'
     content: |
-        [nginx-stable]
-        name=nginx stable repo
-        baseurl=https://nginx.org/packages/{{ (ansible_distribution == 'Amazon') | ternary('amzn2','centos') }}/$releasever/$basearch/
+        [nginx]
+        name=nginx repo
+        baseurl={{ nginx_upstream_repo_baseurl }}/{{ (ansible_distribution == 'Amazon') | ternary('amzn','centos') }}/$releasever/$basearch/
         gpgcheck=1
         enabled=1
-        gpgkey=https://nginx.org/keys/nginx_signing.key
-        module_hotfixes=true
+        gpgkey="{{ nginx_upstream_repo_key }}"
+        module_hotfixes=1
 
 - name: Update yum cache
   become: true

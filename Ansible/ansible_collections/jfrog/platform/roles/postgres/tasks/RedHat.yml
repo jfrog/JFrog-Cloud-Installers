@@ -47,12 +47,8 @@
 - name: Install PostgreSQL repository
   become: true
   ansible.builtin.yum:
-    name: "{{ base }}/reporpms/EL-{{ version }}-x86_64/{{ repo_file_name }}"
+    name: "{{ postgres_yum_repository_repo }}"
     state: present
-  vars:
-    base: https://download.postgresql.org/pub/repos/yum
-    version: "{{ ansible_distribution_major_version }}"
-    repo_file_name: pgdg-redhat-repo-latest.noarch.rpm
   register: download_postgresql_repo
   until: download_postgresql_repo is success
   retries: 3

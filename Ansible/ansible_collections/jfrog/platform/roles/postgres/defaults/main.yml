@@ -7,9 +7,6 @@ postgres_listen_addresses: 0.0.0.0
 # Default port of Postgres server
 postgres_port: 5432
 
-# Location of GPG key used to sign the RPMs
-postgres_rpmkey_url: "https://download.postgresql.org/pub/repos/yum/keys/PGDG-RPM-GPG-KEY-RHEL"
-
 # Server version in package:
 postgres_server_pkg_version: "{{ postgres_version | replace('.', '') }}"
 
@@ -106,3 +103,9 @@ postgresql_external_pid_file: "{{ default_postgresql_external_pid_file }}"
 postgres_apt_key_id: "{{ default_postgres_apt_key_id }}"
 postgres_apt_key_url: "{{ default_postgres_apt_key_url }}"
 postgres_apt_repository_repo: "{{ default_postgres_apt_repository_repo }}"
+
+# This variable allows you to override the default PostgreSQL YUM repository
+postgres_yum_repository_repo: "{{ default_postgres_yum_repository_repo }}"
+
+# Location of GPG key used to sign the RPMs
+postgres_rpmkey_url: "{{ default_postgres_rpmkey_url }}"

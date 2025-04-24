@@ -3,7 +3,7 @@ dependencies: []
 
 galaxy_info:
   author: "JFrog Maintainers Team <installers@jfrog.com>"
-  description: "This role installs NGINX for artifactory. This role is automatically called by the artifactory role and isn't intended to be used separately."
+  description: "This role installs NGINX for artifactory and optionally configures nginx for SSL. This role is automatically called by the artifactory role and isn't intended to be used separately."
   company: JFrog
   issue_tracker_url: "https://github.com/jfrog/JFrog-Cloud-Installers/issues"
   license: license (Apache-2.0)
@@ -11,20 +11,20 @@ galaxy_info:
   platforms:
     - name: EL
       versions:
-        - 7
         - 8
+        - 9
     - name: Ubuntu
       versions:
-        - bionic
         - focal
         - jammy
     - name: Debian
       versions:
         - buster
         - bullseye
+        - bookworm
     - name: Amazon
       versions:
-        - 2
+        - 3
   galaxy_tags:
     - artifactory
     - jfrog
