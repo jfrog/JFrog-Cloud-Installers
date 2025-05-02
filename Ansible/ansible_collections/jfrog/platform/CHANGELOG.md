@@ -1,6 +1,9 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [11.1.1] - Apr 30, 2025
+* Product Updates/fixes
+
 ## [11.1.0] - April 24, 2025
 * Artifactory – Renamed `artifactory_allowNonPostgresql` to `artifactory_allow_non_postgresql` to align with variable naming conventions.
 * Artifactory – Fixed a bug when enabling `artifactory_docker_registry_subdomain` [GH-359](https://github.com/jfrog/JFrog-Cloud-Installers/pull/359)
