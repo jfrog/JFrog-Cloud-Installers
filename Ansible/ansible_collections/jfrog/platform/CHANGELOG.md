@@ -1,8 +1,11 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [11.1.2] - May 08, 2025
+* Update dependency artifactory version to 7.111.7
+
 ## [11.1.1] - Apr 30, 2025
-* Product Updates/fixes
+* Update dependency xray version to 3.118.11
 
 ## [11.1.0] - April 24, 2025
 * Artifactory – Renamed `artifactory_allowNonPostgresql` to `artifactory_allow_non_postgresql` to align with variable naming conventions.
