@@ -1,7 +1,8 @@
 # Defaults file for artifactory
 
 # The version of artifactory to install
-artifactory_version: 7.111.7
+artifactory_version: 7.111.8
+
 # NGINX is enabled by default.
 # To completely disable NGINX (not recommended), set both `artifactory_nginx_enabled` and `artifactory_nginx_ssl_enabled` to false.
 artifactory_nginx_enabled: true
