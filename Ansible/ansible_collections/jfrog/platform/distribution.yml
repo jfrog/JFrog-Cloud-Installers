@@ -1,7 +1,0 @@
-- name: Play for distribution_servers
-  hosts: distribution_servers
-  collections:
-    - community.general
-  roles:
-    - role: distribution
-      when: distribution_enabled | bool

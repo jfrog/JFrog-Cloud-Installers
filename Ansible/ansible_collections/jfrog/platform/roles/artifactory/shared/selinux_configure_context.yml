@@ -1,8 +1,0 @@
----
-- name: Configure SELinux context
-  become: true
-  community.general.sefcontext:
-    target: "{{ jfrog_home_directory }}/artifactory/app/bin(/.*)?"
-    setype: bin_t
-    state: present
-  when: ansible_selinux.status == 'enabled'

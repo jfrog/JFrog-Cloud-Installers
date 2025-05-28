@@ -1,8 +1,0 @@
-- name: Play for postgres_servers
-  hosts: postgres_servers
-  collections:
-    - community.postgresql
-    - community.general
-  roles:
-    - role: postgres
-      when: postgres_enabled | bool
