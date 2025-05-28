@@ -1,7 +1,8 @@
 # Defaults file for xray
 
 # The version of xray to install
-xray_version: 3.118.13
+xray_version: 3.118.17
+
 # Whether to enable HA
 xray_ha_enabled: false
 xray_ha_node_type: master
