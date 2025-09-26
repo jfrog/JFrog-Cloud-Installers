@@ -36,7 +36,7 @@ jobs:
           sudo curl -sL https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -o /usr/bin/yq
           sudo chmod +x /usr/bin/yq
 
-      - name: Run Ansible update check
+      - name: Run Ansible collection update check
         id: check
         run: |
           chmod +x .github/workflows/check_updates.sh
@@ -65,7 +65,7 @@ jobs:
 
           # Set variables
           VERSION="${{ needs.check-ansible-update.outputs.latest-version }}"
-          echo "TIMESTAMP=$(TZ='Asia/Kolkata' date +%Y%m%d-%H%M%S)"
+          TIMESTAMP=$(TZ='Asia/Kolkata' date +%Y%m%d-%H%M%S)
           BRANCH="platform-$VERSION-$TIMESTAMP"
           COLLECTION_DIR="Ansible/ansible_collections/jfrog/platform"
 
