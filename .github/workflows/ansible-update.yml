@@ -43,6 +43,7 @@ jobs:
           .github/workflows/check_updates.sh
         env:
           FORCE_UPDATE: ${{ inputs.force_update }}
+          ARTIFACTORY_URL: "https://releases.jfrog.io/artifactory/ansible/collections/jfrog/platform"
 
   update-ansible-collection:
     name: Update Ansible Collection
@@ -58,6 +59,7 @@ jobs:
       - name: Update and Create PR for collection 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ARTIFACTORY_URL: "https://releases.jfrog.io/artifactory/ansible/collections/jfrog/platform"
         run: |
           # Configure git
           git config --global user.name "IN-Automation"
@@ -80,12 +82,21 @@ jobs:
           # Remove old content
           rm -rf "$COLLECTION_DIR"/*
           
-          # Download and extract latest collection
-          curl -L -o platform.tar.gz "https://galaxy.ansible.com/download/jfrog-platform-${VERSION}.tar.gz"
-          mkdir tmp && tar -xzf platform.tar.gz -C tmp
+          # Download and extract latest collection from JFrog Artifactory
+          curl -L -o platform.tar.gz "${ARTIFACTORY_URL}/jfrog-platform-${VERSION}.tar.gz"
+          mkdir -p tmp
+          tar -xzf platform.tar.gz -C tmp
+          
+          # List contents to debug
+          echo "Extracted contents:"
+          ls -la tmp/
 
           # Copy contents (preserve galaxy.yml)
-          cp -r tmp/jfrog-platform/* "$COLLECTION_DIR/"
+          cp -r tmp/* "$COLLECTION_DIR/"
+          
+          # List contents after copy to debug
+          echo "Collection directory contents:"
+          ls -la "$COLLECTION_DIR/"
 
           # Remove unwanted files
           rm -f "$COLLECTION_DIR/FILES.json" "$COLLECTION_DIR/MANIFEST.json"
