@@ -33,7 +33,15 @@ fi
 echo "Current: $CURRENT_VERSION | Latest: $LATEST_VERSION"
 
 if [[ "$CURRENT_VERSION" != "$LATEST_VERSION" ]] || [[ "$FORCE_UPDATE" == "true" ]]; then
-  ANSIBLE_UPDATE_AVAILABLE="true"
+  # Check if tag already exists
+  RAW_TAG=""ansible-platform-$LATEST_VERSION"
+  FORMATTED_TAG="${RAW_TAG//\//-}"
+  
+  if git tag -l | grep -q "^$FORMATTED_TAG$" && [[ "$FORCE_UPDATE" != "true" ]]; then
+    echo "Tag $FORMATTED_TAG already exists, skipping update"
+  else
+    ANSIBLE_UPDATE_AVAILABLE="true"
+  fi
 fi
 
 # GitHub Action outputs
