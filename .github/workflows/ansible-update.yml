@@ -39,8 +39,8 @@ jobs:
       - name: Run Ansible update check
         id: check
         run: |
-          chmod +x .github/workflow/check_updates.sh
-          .github/workflow/check_updates.sh
+          chmod +x .github/workflows/check_updates.sh
+          .github/workflows/check_updates.sh
         env:
           FORCE_UPDATE: ${{ inputs.force_update }}
 
