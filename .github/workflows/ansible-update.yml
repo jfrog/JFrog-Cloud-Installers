@@ -6,7 +6,12 @@ on:
   workflow_dispatch:
     inputs:
       force_update:
-        description: 'Force update even if versions are the same'
+        description: 'Force update even if versions are the same (optional)'
+        required: false
+        default: false
+        type: boolean
+      create_release:
+        description: 'Create GitHub release for updated ansible collection (optional)'
         required: false
         default: false
         type: boolean
@@ -34,8 +39,8 @@ jobs:
       - name: Run Ansible update check
         id: check
         run: |
-          chmod +x .github/scripts/check_updates.sh
-          .github/scripts/check_updates.sh
+          chmod +x .github/workflow/check_updates.sh
+          .github/workflow/check_updates.sh
         env:
           FORCE_UPDATE: ${{ inputs.force_update }}
 
@@ -50,7 +55,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Update Ansible Collection and Create PR
+      - name: Update and Create PR for collection 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -63,6 +68,11 @@ jobs:
           echo "TIMESTAMP=$(TZ='Asia/Kolkata' date +%Y%m%d-%H%M%S)"
           BRANCH="platform-$VERSION-$TIMESTAMP"
           COLLECTION_DIR="Ansible/ansible_collections/jfrog/platform"
+
+          # Create labels if they don't exist
+          gh label create automated --color "0E8A16" --description "Automated changes" || true
+          gh label create update --color "1D76DB" --description "Update pull request" || true
+          
 
           # Create new branch
           git checkout -b "$BRANCH"
@@ -86,40 +96,61 @@ jobs:
           # Clean up temporary files
           rm -rf tmp platform.tar.gz
 
-          # Commit and push changes
+          # Add changes and create commit
           git add "$COLLECTION_DIR"
-          git commit -m "[ansible] JFrog Platform ${VERSION} release"
-          git push origin "$BRANCH"
+          if git commit -m "[ansible] JFrog Platform ${VERSION} release"; then
+              # Create and push tag
+              RAW_TAG="platform-${VERSION}"
+              TAG="${RAW_TAG//\//-}"
+              git tag "$TAG"
+              
+              # Push branch and tag
+              git push origin "$BRANCH"
+              git push origin "$TAG"
+              # Create PR with detailed information
+              TITLE="[ansible] JFrog Platform ${VERSION} release"
+              BODY="## Ansible Collection Update Details
 
-          # Create PR
-          gh pr create \
-            --title "[ansible] JFrog Platform ${VERSION} release" \
-            --body "Automated update of JFrog Ansible Collection to version ${VERSION}." \
-            --base main \
-            --head "$BRANCH" \
-            --label "automated,ansible"
+              🔄 Updating JFrog Platform Ansible Collection
+              - Version: ${VERSION}
+              - Previous Version: ${{ needs.check-ansible-update.outputs.current-version }}
+              
+              ${needs.check-ansible-update.outputs.update-summary}
+              
+              This is an automated update by the JFrog Ansible Collection update workflow."
 
-  tag-ansible-release:
-    name: Tag Ansible release
-    needs: [check-ansible-update, update-ansible-collection]
-    if: needs.check-ansible-update.outputs.update-available == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Clone JFrog-Cloud-Installers
-        run: |
-          git clone git@github.com:jfrog/JFrog-Cloud-Installers.git
-          cd JFrog-Cloud-Installers
-          git config user.name "IN-Automation"
-          git config user.email "in-automation@jfrog.com"
+              gh pr create \
+                --title "$TITLE" \
+                --body "$BODY" \
+                --base main \
+                --head "$BRANCH" \
+                --label "automated" \
+                --label "ansible"
 
-      - name: Create tag and push
-        working-directory: JFrog-Cloud-Installers
+              echo "Successfully created PR for Ansible Collection update"
+          else
+              echo "No changes detected for Ansible Collection"
+              # Clean up the branch if no changes
+              git checkout main
+              git branch -D "$BRANCH"
+          fi
+
+          # Return to main branch
+          git checkout main
+
+
+      - name: Create GitHub Releases (if enabled)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: ${{ inputs.create_release == 'true' }}
         run: |
           VERSION="${{ needs.check-ansible-update.outputs.latest-version }}"
-          git fetch --all
-          git checkout main
-          git pull
-
-          TAG_NAME="ansible/platform/${VERSION}"
-          git tag "$TAG_NAME"
-          git push origin "$TAG_NAME"
+          TAG="platform-${VERSION}"
+          
+          gh release create "$TAG" \
+            --title "JFrog Platform Ansible Collection ${VERSION}" \
+            --notes "Release for JFrog Platform Ansible Collection ${VERSION}
+            
+            Changes in this release:
+            ${needs.check-ansible-update.outputs.update-summary}" \
+            || echo "Release already exists"
