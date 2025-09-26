@@ -1,0 +1,138 @@
+name: Auto Update Ansible Collection
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      force_update:
+        description: 'Force update even if versions are the same'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  check-ansible-update:
+    name: Check for Ansible update
+    runs-on: ubuntu-latest
+    outputs:
+      update-available: ${{ steps.check.outputs.ansible-update-available }}
+      current-version: ${{ steps.check.outputs.current-ansible-version }}
+      latest-version: ${{ steps.check.outputs.latest-ansible-version }}
+      update-summary: ${{ steps.check.outputs.update-summary }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl jq
+          sudo curl -sL https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -o /usr/bin/yq
+          sudo chmod +x /usr/bin/yq
+
+      - name: Run Ansible update check
+        id: check
+        run: |
+          chmod +x .github/scripts/check_updates.sh
+          .github/scripts/check_updates.sh
+        env:
+          FORCE_UPDATE: ${{ inputs.force_update }}
+
+  update-ansible-collection:
+    name: Update Ansible Collection
+    needs: check-ansible-update
+    if: needs.check-ansible-update.outputs.update-available == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Git Config
+        run: |
+          git config --global user.name "IN-Automation"
+          git config --global user.email "in-automation@jfrog.com"
+
+      - name: Set variables
+        id: vars
+        run: |
+          VERSION="${{ needs.check-ansible-update.outputs.latest-version }}"
+          BRANCH="platform/${VERSION}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+
+      - name: Prepare updated collection
+        working-directory: JFrog-Cloud-Installers
+        run: |
+          VERSION="${{ steps.vars.outputs.version }}"
+          BRANCH="${{ steps.vars.outputs.branch }}"
+
+          git checkout -b "$BRANCH"
+
+          COLLECTION_DIR="Ansible/ansible_collections/jfrog/platform"
+
+          # Remove old content
+          rm -rf "$COLLECTION_DIR"/*
+          
+          # Download latest collection tarball
+          curl -L -o platform.tar.gz "https://galaxy.ansible.com/download/jfrog-platform-${VERSION}.tar.gz"
+          mkdir tmp && tar -xzf platform.tar.gz -C tmp
+
+          # Copy contents (preserve galaxy.yml)
+          cp -r tmp/jfrog-platform/* "$COLLECTION_DIR/"
+
+          # Remove unwanted files
+          rm -f "$COLLECTION_DIR/FILES.json" "$COLLECTION_DIR/MANIFEST.json"
+
+          # Restore galaxy.yml from repo history
+          git checkout HEAD~1 -- "$COLLECTION_DIR/galaxy.yml" || echo "galaxy.yml restored manually"
+
+          # Clean up
+          rm -rf tmp platform.tar.gz
+
+      - name: Commit changes
+        working-directory: JFrog-Cloud-Installers
+        run: |
+          VERSION="${{ steps.vars.outputs.version }}"
+          BRANCH="${{ steps.vars.outputs.branch }}"
+
+          git add Ansible/ansible_collections/jfrog/platform
+          git commit -m "[ansible] JFrog Platform ${VERSION} release"
+          git push origin "$BRANCH"
+
+      - name: Create Pull Request
+        working-directory: JFrog-Cloud-Installers
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ steps.vars.outputs.version }}"
+          BRANCH="${{ steps.vars.outputs.branch }}"
+
+          gh pr create \
+            --title "[ansible] JFrog Platform ${VERSION} release" \
+            --body "Automated update of JFrog Ansible Collection to version ${VERSION}." \
+            --base main \
+            --head "$BRANCH" \
+            --label "automated,ansible"
+
+  tag-ansible-release:
+    name: Tag Ansible release
+    needs: [check-ansible-update, update-ansible-collection]
+    if: needs.check-ansible-update.outputs.update-available == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone JFrog-Cloud-Installers
+        run: |
+          git clone git@github.com:jfrog/JFrog-Cloud-Installers.git
+          cd JFrog-Cloud-Installers
+          git config user.name "IN-Automation"
+          git config user.email "in-automation@jfrog.com"
+
+      - name: Create tag and push
+        working-directory: JFrog-Cloud-Installers
+        run: |
+          VERSION="${{ needs.check-ansible-update.outputs.latest-version }}"
+          git fetch --all
+          git checkout main
+          git pull
+
+          TAG_NAME="ansible/platform/${VERSION}"
+          git tag "$TAG_NAME"
+          git push origin "$TAG_NAME"
