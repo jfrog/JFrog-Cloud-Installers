@@ -1,7 +1,7 @@
 # defaults file for distribution
 
 # The version of distribution to install
-distribution_version: 2.33.0
+distribution_version: 2.33.2
 # whether to enable HA
 distribution_ha_enabled: false
 distribution_ha_node_type: master
