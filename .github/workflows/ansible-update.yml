@@ -45,33 +45,32 @@ jobs:
     if: needs.check-ansible-update.outputs.update-available == 'true'
     runs-on: ubuntu-latest
     steps:
-      - name: Setup Git Config
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Update Ansible Collection and Create PR
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # Configure git
           git config --global user.name "IN-Automation"
           git config --global user.email "in-automation@jfrog.com"
 
-      - name: Set variables
-        id: vars
-        run: |
+          # Set variables
           VERSION="${{ needs.check-ansible-update.outputs.latest-version }}"
-          BRANCH="platform/${VERSION}"
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
-
-      - name: Prepare updated collection
-        working-directory: JFrog-Cloud-Installers
-        run: |
-          VERSION="${{ steps.vars.outputs.version }}"
-          BRANCH="${{ steps.vars.outputs.branch }}"
-
-          git checkout -b "$BRANCH"
-
+          echo "TIMESTAMP=$(TZ='Asia/Kolkata' date +%Y%m%d-%H%M%S)"
+          BRANCH="platform-$VERSION-$TIMESTAMP"
           COLLECTION_DIR="Ansible/ansible_collections/jfrog/platform"
+
+          # Create new branch
+          git checkout -b "$BRANCH"
 
           # Remove old content
           rm -rf "$COLLECTION_DIR"/*
           
-          # Download latest collection tarball
+          # Download and extract latest collection
           curl -L -o platform.tar.gz "https://galaxy.ansible.com/download/jfrog-platform-${VERSION}.tar.gz"
           mkdir tmp && tar -xzf platform.tar.gz -C tmp
 
@@ -84,27 +83,15 @@ jobs:
           # Restore galaxy.yml from repo history
           git checkout HEAD~1 -- "$COLLECTION_DIR/galaxy.yml" || echo "galaxy.yml restored manually"
 
-          # Clean up
+          # Clean up temporary files
           rm -rf tmp platform.tar.gz
 
-      - name: Commit changes
-        working-directory: JFrog-Cloud-Installers
-        run: |
-          VERSION="${{ steps.vars.outputs.version }}"
-          BRANCH="${{ steps.vars.outputs.branch }}"
-
-          git add Ansible/ansible_collections/jfrog/platform
+          # Commit and push changes
+          git add "$COLLECTION_DIR"
           git commit -m "[ansible] JFrog Platform ${VERSION} release"
           git push origin "$BRANCH"
 
-      - name: Create Pull Request
-        working-directory: JFrog-Cloud-Installers
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          VERSION="${{ steps.vars.outputs.version }}"
-          BRANCH="${{ steps.vars.outputs.branch }}"
-
+          # Create PR
           gh pr create \
             --title "[ansible] JFrog Platform ${VERSION} release" \
             --body "Automated update of JFrog Ansible Collection to version ${VERSION}." \
