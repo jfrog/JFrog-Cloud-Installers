@@ -67,10 +67,11 @@ jobs:
           git config --global user.email "in-automation@jfrog.com"
 
           # Set variables
+          WORKSPACE_DIR="$PWD"
           VERSION="${{ needs.check-ansible-update.outputs.latest-version }}"
           TIMESTAMP=$(TZ='Asia/Kolkata' date +%Y%m%d-%H%M%S)
           BRANCH="platform-$VERSION-$TIMESTAMP"
-          COLLECTION_DIR="Ansible/ansible_collections/jfrog/platform"
+          COLLECTION_DIR="$WORKSPACE_DIR/Ansible/ansible_collections/jfrog/platform"
 
           # Create labels if they don't exist
           gh label create automated --color "0E8A16" --description "Automated changes" || true
@@ -78,38 +79,36 @@ jobs:
           
 
           # Create new branch
-          git checkout -b "$BRANCH"
+          git checkout -b "$BRANCH" "${{ github.event.repository.default_branch }}"
 
           # Remove old content
           rm -rf "$COLLECTION_DIR"/*
           
-          # Download and extract latest collection from JFrog Artifactory
-          echo "Downloading from: ${ARTIFACTORY_URL}${VERSION/jfrog-platform-${VERSION}.tar.gz"
-          if ! curl -L -f -o platform.tar.gz "${ARTIFACTORY_URL}${VERSION}/jfrog-platform-${VERSION}.tar.gz"; then
-            echo "Error: Failed to download collection from Artifactory"
-            exit 1
-          fi
+          echo "📦 Downloading collection: ${ARTIFACTORY_URL}${VERSION}/jfrog-platform-${VERSION}.tar.gz"
 
-          # Verify the downloaded file
-          if [ ! -s platform.tar.gz ]; then
-            echo "Error: Downloaded file is empty"
+          curl -Lf -o "${WORKSPACE_DIR}/platform.tar.gz" "${ARTIFACTORY_URL}${VERSION}/jfrog-platform-${VERSION}.tar.gz" || {
+            echo "Failed to download collection from Artifactory"
             exit 1
-          fi
+          }
 
-          # Create tmp directory and extract
-          mkdir -p tmp
-          if ! tar -xzf platform.tar.gz -C tmp; then
-            echo "Error: Failed to extract the collection. Invalid tar.gz format"
-            cat platform.tar.gz | head -n 5
+          [ -s "${WORKSPACE_DIR}/platform.tar.gz" ] || {
+            echo "Downloaded file is empty"
             exit 1
-          fi
+          }
+
+          mkdir -p "${WORKSPACE_DIR}/tmp"
+          tar -xzf "${WORKSPACE_DIR}/platform.tar.gz" -C "${WORKSPACE_DIR}/tmp" || {
+            echo "Failed to extract collection (invalid tar.gz)"
+            head -n 5 "${WORKSPACE_DIR}/platform.tar.gz"
+            exit 1
+          }
           
           # List contents to debug
           echo "Extracted contents:"
           ls -la tmp/
 
           # Copy contents (preserve galaxy.yml)
-          cp -r tmp/* "$COLLECTION_DIR/"
+          cp -r "${WORKSPACE_DIR}/tmp/"* "$COLLECTION_DIR/"
           
           # List contents after copy to debug
           echo "Collection directory contents:"
@@ -122,7 +121,7 @@ jobs:
           git checkout HEAD~1 -- "$COLLECTION_DIR/galaxy.yml" || echo "galaxy.yml restored manually"
 
           # Clean up temporary files
-          rm -rf tmp platform.tar.gz
+          rm -rf "${WORKSPACE_DIR}/tmp" "${WORKSPACE_DIR}/platform.tar.gz"
 
           # Add changes and create commit
           git add "$COLLECTION_DIR"
@@ -150,7 +149,7 @@ jobs:
               gh pr create \
                 --title "$TITLE" \
                 --body "$BODY" \
-                --base main \
+                --base "${{ github.event.repository.default_branch }}" \
                 --head "$BRANCH" \
                 --label "automated" \
                 --label "ansible"
@@ -159,12 +158,12 @@ jobs:
           else
               echo "No changes detected for Ansible Collection"
               # Clean up the branch if no changes
-              git checkout main
+              git checkout "${{ github.event.repository.default_branch }}"
               git branch -D "$BRANCH"
           fi
 
-          # Return to main branch
-          git checkout main
+          # Return to default branch
+          git checkout "${{ github.event.repository.default_branch }}"
 
 
       - name: Create GitHub Releases (if enabled)
