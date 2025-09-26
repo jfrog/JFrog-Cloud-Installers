@@ -20,6 +20,8 @@ jobs:
   check-ansible-update:
     name: Check for Ansible update
     runs-on: ubuntu-latest
+    env:
+      ARTIFACTORY_URL: "https://releases.jfrog.io/artifactory/ansible/collections/jfrog/platform"
     outputs:
       update-available: ${{ steps.check.outputs.ansible-update-available }}
       current-version: ${{ steps.check.outputs.current-ansible-version }}
@@ -43,7 +45,6 @@ jobs:
           .github/workflows/check_updates.sh
         env:
           FORCE_UPDATE: ${{ inputs.force_update }}
-          ARTIFACTORY_URL: "https://releases.jfrog.io/artifactory/ansible/collections/jfrog/platform"
 
   update-ansible-collection:
     name: Update Ansible Collection
