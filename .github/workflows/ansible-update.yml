@@ -81,8 +81,26 @@ jobs:
           # Create new branch
           git checkout -b "$BRANCH" "${{ github.event.repository.default_branch }}"
 
+          # Backup and update galaxy.yml before cleaning
+          if [ -f "$COLLECTION_DIR/galaxy.yml" ]; then
+            # Backup existing galaxy.yml
+            cp "$COLLECTION_DIR/galaxy.yml" "${WORKSPACE_DIR}/galaxy.yml.backup"
+            echo "Backed up existing galaxy.yml"
+          fi
+
           # Remove old content
           rm -rf "$COLLECTION_DIR"/*
+          
+          # Restore and update galaxy.yml
+          if [ -f "${WORKSPACE_DIR}/galaxy.yml.backup" ]; then
+            cp "${WORKSPACE_DIR}/galaxy.yml.backup" "$COLLECTION_DIR/galaxy.yml"
+            # Update version in galaxy.yml
+            sed -i "s/^version: .*/version: \"${VERSION}\"/" "$COLLECTION_DIR/galaxy.yml"
+            echo "Restored galaxy.yml and updated version to ${VERSION}"
+          else
+            echo "No existing galaxy.yml to restore"
+            exit 1
+          fi
           
           echo "📦 Downloading collection: ${ARTIFACTORY_URL}${VERSION}/jfrog-platform-${VERSION}.tar.gz"
 
@@ -117,11 +135,14 @@ jobs:
           # Remove unwanted files
           rm -f "$COLLECTION_DIR/FILES.json" "$COLLECTION_DIR/MANIFEST.json"
 
-          # Restore galaxy.yml from repo history
-          git checkout HEAD~1 -- "$COLLECTION_DIR/galaxy.yml" || echo "galaxy.yml restored manually"
+          # Verify galaxy.yml exists and is not empty
+          if [ ! -s "$COLLECTION_DIR/galaxy.yml" ]; then
+            echo "Error: galaxy.yml is missing or empty"
+            exit 1
+          fi
 
           # Clean up temporary files
-          rm -rf "${WORKSPACE_DIR}/tmp" "${WORKSPACE_DIR}/platform.tar.gz"
+          rm -rf "${WORKSPACE_DIR}/tmp" "${WORKSPACE_DIR}/platform.tar.gz" "${WORKSPACE_DIR}/galaxy.yml.backup"
 
           # Add changes and create commit
           git add "$COLLECTION_DIR"
