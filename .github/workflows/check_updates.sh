@@ -9,7 +9,6 @@ CURRENT_VERSION=""
 LATEST_VERSION=""
 COLLECTION_NAME="jfrog.platform"
 COLLECTION_DIR="Ansible/ansible_collections/jfrog/platform"
-ARTIFACTORY_URL="https://releases.jfrog.io/artifactory/ansible/collections/jfrog/platform/"
 
 # Get latest version from Ansible Galaxy
 LATEST_VERSION=$(curl -s "$ARTIFACTORY_URL" | \
