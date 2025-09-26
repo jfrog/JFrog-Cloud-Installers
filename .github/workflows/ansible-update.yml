@@ -127,13 +127,14 @@ jobs:
           git add "$COLLECTION_DIR"
           if git commit -m "[ansible] JFrog Platform ${VERSION} release"; then
               # Create and push tag
-              RAW_TAG="platform-${VERSION}"
+              RAW_TAG="ansible-platform-${VERSION}"
               TAG="${RAW_TAG//\//-}"
               git tag "$TAG"
               
               # Push branch and tag
               git push origin "$BRANCH"
               git push origin "$TAG"
+
               # Create PR with detailed information
               TITLE="[ansible] JFrog Platform ${VERSION} release"
               BODY="## Ansible Collection Update Details
@@ -141,9 +142,7 @@ jobs:
               🔄 Updating JFrog Platform Ansible Collection
               - Version: ${VERSION}
               - Previous Version: ${{ needs.check-ansible-update.outputs.current-version }}
-              
-              ${needs.check-ansible-update.outputs.update-summary}
-              
+                            
               This is an automated update by the JFrog Ansible Collection update workflow."
 
               gh pr create \
