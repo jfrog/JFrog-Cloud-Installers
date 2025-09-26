@@ -4,62 +4,49 @@ set -euo pipefail
 set -x
 
 FORCE_UPDATE="${FORCE_UPDATE:-false}"
-
-ANSIBLE_COLLECTION_PATH="Ansible/ansible_collections/jfrog/platform/galaxy.yml"
 ANSIBLE_UPDATE_AVAILABLE="false"
-CURRENT_ANSIBLE_VERSION=""
-LATEST_ANSIBLE_VERSION=""
-SUMMARY_FILE="summary.md"
+CURRENT_VERSION=""
+LATEST_VERSION=""
+COLLECTION_NAME="jfrog.platform"
+COLLECTION_DIR="Ansible/ansible_collections/jfrog/platform"
+GALAXY_API="https://galaxy.ansible.com/api/v3/collections/jfrog/platform/"
 
-# Get current version from local galaxy.yml
-if [ -f "$ANSIBLE_COLLECTION_PATH" ]; then
-  CURRENT_ANSIBLE_VERSION=$(yq '.version' "$ANSIBLE_COLLECTION_PATH")
+# Get latest version from Ansible Galaxy
+LATEST_VERSION=$(curl -s "${GALAXY_API}" | jq -r '.latest_version.version')
+
+# Get current version from galaxy.yml
+if [ -f "$COLLECTION_DIR/galaxy.yml" ]; then
+  CURRENT_VERSION=$(yq '.version' "$COLLECTION_DIR/galaxy.yml")
 else
-  echo "galaxy.yml not found at $ANSIBLE_COLLECTION_PATH"
-  echo "ansible-update-available=false" >> "$GITHUB_OUTPUT"
-  echo "current-ansible-version=" >> "$GITHUB_OUTPUT"
-  echo "latest-ansible-version=" >> "$GITHUB_OUTPUT"
-  exit 0
+  echo "galaxy.yml not found in $COLLECTION_DIR"
 fi
 
-# Get latest version from Ansible Galaxy API
-GALAXY_URL="https://galaxy.ansible.com/api/v2/collections/jfrog/platform/"
-LATEST_ANSIBLE_VERSION=$(curl -s "$GALAXY_URL" | jq -r '.latest_version.version // empty')
+echo "Current: $CURRENT_VERSION | Latest: $LATEST_VERSION"
 
-if [ -z "$LATEST_ANSIBLE_VERSION" ]; then
-  echo "Could not fetch latest version from Ansible Galaxy."
-  echo "ansible-update-available=false" >> "$GITHUB_OUTPUT"
-  echo "current-ansible-version=$CURRENT_ANSIBLE_VERSION" >> "$GITHUB_OUTPUT"
-  echo "latest-ansible-version=" >> "$GITHUB_OUTPUT"
-  exit 0
-fi
-
-# Determine if update is needed
-if [[ "$LATEST_ANSIBLE_VERSION" != "$CURRENT_ANSIBLE_VERSION" ]] || [[ "$FORCE_UPDATE" == "true" ]]; then
+if [[ "$CURRENT_VERSION" != "$LATEST_VERSION" ]] || [[ "$FORCE_UPDATE" == "true" ]]; then
   ANSIBLE_UPDATE_AVAILABLE="true"
-else
-  ANSIBLE_UPDATE_AVAILABLE="false"
 fi
 
-# Write outputs for GitHub Actions
+# GitHub Action outputs
 echo "ansible-update-available=$ANSIBLE_UPDATE_AVAILABLE" >> "$GITHUB_OUTPUT"
-echo "current-ansible-version=$CURRENT_ANSIBLE_VERSION" >> "$GITHUB_OUTPUT"
-echo "latest-ansible-version=$LATEST_ANSIBLE_VERSION" >> "$GITHUB_OUTPUT"
+echo "current-ansible-version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
+echo "latest-ansible-version=$LATEST_VERSION" >> "$GITHUB_OUTPUT"
 
-# Generate markdown summary
+# Markdown summary
 {
-  echo "## Ansible Collection Update Status"
+  echo "## Ansible Collection Update Check"
+  echo ""
+  echo "| Collection       | Current Version | Latest Version |"
+  echo "|------------------|-----------------|----------------|"
+  printf '| %-16s | %-15s | %-14s |\n' "$COLLECTION_NAME" "$CURRENT_VERSION" "$LATEST_VERSION"
   echo ""
   if [[ "$ANSIBLE_UPDATE_AVAILABLE" == "true" ]]; then
-    echo "| Collection       | Current Version   | Latest Version    |"
-    echo "|------------------|-------------------|-------------------|"
-    printf "| %-16s | %-17s | %-17s |\n" "jfrog.platform" "$CURRENT_ANSIBLE_VERSION" "$LATEST_ANSIBLE_VERSION"
+    echo "Update available!"
   else
-    echo "_Ansible collection is already up to date._"
+    echo "Already up to date."
   fi
-} > "$SUMMARY_FILE"
+} > summary.md
 
-# Add to GitHub Actions summary output
 echo "update-summary<<EOF" >> "$GITHUB_OUTPUT"
-cat "$SUMMARY_FILE" >> "$GITHUB_OUTPUT"
+cat summary.md >> "$GITHUB_OUTPUT"
 echo "EOF" >> "$GITHUB_OUTPUT"
