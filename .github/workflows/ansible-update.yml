@@ -85,7 +85,7 @@ jobs:
           
           # Download and extract latest collection from JFrog Artifactory
           echo "Downloading from: ${ARTIFACTORY_URL}${VERSION/jfrog-platform-${VERSION}.tar.gz"
-          if ! curl -L -f -o platform.tar.gz "${ARTIFACTORY_URL}${VERSION}jfrog-platform-${VERSION}.tar.gz"; then
+          if ! curl -L -f -o platform.tar.gz "${ARTIFACTORY_URL}${VERSION}/jfrog-platform-${VERSION}.tar.gz"; then
             echo "Error: Failed to download collection from Artifactory"
             exit 1
           fi
