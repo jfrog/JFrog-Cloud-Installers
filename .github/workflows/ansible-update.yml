@@ -21,7 +21,7 @@ jobs:
     name: Check for Ansible update
     runs-on: ubuntu-latest
     env:
-      ARTIFACTORY_URL: "https://releases.jfrog.io/artifactory/ansible/collections/jfrog/platform"
+      ARTIFACTORY_URL: "https://releases.jfrog.io/artifactory/ansible/collections/jfrog/platform/"
     outputs:
       update-available: ${{ steps.check.outputs.ansible-update-available }}
       current-version: ${{ steps.check.outputs.current-ansible-version }}
@@ -60,7 +60,7 @@ jobs:
       - name: Update and Create PR for collection 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ARTIFACTORY_URL: "https://releases.jfrog.io/artifactory/ansible/collections/jfrog/platform"
+          ARTIFACTORY_URL: "https://releases.jfrog.io/artifactory/ansible/collections/jfrog/platform/"
         run: |
           # Configure git
           git config --global user.name "IN-Automation"

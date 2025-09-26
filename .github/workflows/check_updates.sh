@@ -4,7 +4,7 @@ set -euo pipefail
 set -x
 
 FORCE_UPDATE="${FORCE_UPDATE:-false}"
-ARTIFACTORY_URL="${ARTIFACTORY_URL:-https://releases.jfrog.io/artifactory/ansible/collections/jfrog/platform}"
+ARTIFACTORY_URL="${ARTIFACTORY_URL:-https://releases.jfrog.io/artifactory/ansible/collections/jfrog/platform/}"
 ANSIBLE_UPDATE_AVAILABLE="false"
 CURRENT_VERSION=""
 LATEST_VERSION=""
