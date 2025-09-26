@@ -9,10 +9,19 @@ CURRENT_VERSION=""
 LATEST_VERSION=""
 COLLECTION_NAME="jfrog.platform"
 COLLECTION_DIR="Ansible/ansible_collections/jfrog/platform"
-GALAXY_API="https://galaxy.ansible.com/api/v3/collections/jfrog/platform/"
+ARTIFACTORY_URL="https://releases.jfrog.io/artifactory/ansible/collections/jfrog/platform/"
 
 # Get latest version from Ansible Galaxy
-LATEST_VERSION=$(curl -s "${GALAXY_API}" | jq -r '.latest_version.version')
+LATEST_VERSION=$(curl -s "$ARTIFACTORY_URL" | \
+  sed -nE 's|.*href="([0-9]+\.[0-9]+\.[0-9]+)/?".*|\1|p' | \
+  sort -V | tail -n 1)
+
+if [[ -z "$LATEST_VERSION" ]]; then
+  echo "Failed to fetch latest version from $ARTIFACTORY_URL"
+  exit 1
+fi
+
+echo "Latest version : $LATEST_VERSION"
 
 # Get current version from galaxy.yml
 if [ -f "$COLLECTION_DIR/galaxy.yml" ]; then
