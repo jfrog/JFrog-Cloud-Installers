@@ -1,6 +1,10 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [11.2.2] - September 02, 2025
+* Update dependency artifactory version to 7.117.15
+* Update dependency distribution version to 2.33.2
+
 ## [11.2.1] - August 19, 2025
 * Update dependency artifactory version to 7.117.14
 * Update dependency xray version to 3.124.20
