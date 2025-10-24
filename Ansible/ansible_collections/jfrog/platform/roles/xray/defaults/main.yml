@@ -57,22 +57,10 @@ xray_db_util_search_filter:
     db: 'libdb-utils-5.3.*el9.x86_64.rpm'
 yum_python_interpreter: >-
   {%- if linux_distro is not defined -%}
-
-
-
-
       /usr/bin/python3
   {%- elif linux_distro in ['centos7', 'redhat7'] -%}
-
-
-
-
       /usr/bin/python
   {%- else -%}
-
-
-
-
       /usr/bin/python3
   {%- endif -%}
 # Provide systemyaml content below with 2-space indentation
