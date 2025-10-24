@@ -134,6 +134,14 @@ jobs:
 
           # Remove unwanted files
           rm -f "$COLLECTION_DIR/FILES.json" "$COLLECTION_DIR/MANIFEST.json"
+          
+          # Fix whitespace issues in specific files
+          XRAY_DEFAULTS_FILE="$COLLECTION_DIR/roles/xray/defaults/main.yml"
+          if [ -f "$XRAY_DEFAULTS_FILE" ]; then
+            echo "Normalizing whitespace in xray defaults file"
+            # Fix the yum_python_interpreter line specifically
+            sed -i 's/yum_python_interpreter:[[:space:]]*>-[[:space:]]*/yum_python_interpreter: >-/' "$XRAY_DEFAULTS_FILE"
+          fi
 
           # Verify galaxy.yml exists and is not empty
           if [ ! -s "$COLLECTION_DIR/galaxy.yml" ]; then
@@ -144,9 +152,19 @@ jobs:
           # Clean up temporary files
           rm -rf "${WORKSPACE_DIR}/tmp" "${WORKSPACE_DIR}/platform.tar.gz" "${WORKSPACE_DIR}/galaxy.yml.backup"
 
-          # Add changes and create commit
+          # Configure git to ignore whitespace changes
+          git config core.autocrlf false
+          git config core.whitespace trailing-space,space-before-tab
+          git config apply.whitespace fix
+          
+          # Add changes and create commit (ignore whitespace-only changes)
           git add "$COLLECTION_DIR"
-          if git commit -m "[ansible] JFrog Platform ${VERSION} release"; then
+          
+          # Check if there are any non-whitespace changes
+          if git diff --cached --ignore-space-change --ignore-all-space --ignore-blank-lines --quiet; then
+            echo "Only whitespace changes detected, skipping commit"
+            git reset HEAD "$COLLECTION_DIR"
+          elif git commit -m "[ansible] JFrog Platform ${VERSION} release"; then
               # Create and push tag
               RAW_TAG="ansible-platform-${VERSION}"
               TAG="${RAW_TAG//\//-}"
@@ -176,7 +194,7 @@ jobs:
 
               echo "Successfully created PR for Ansible Collection update"
           else
-              echo "No changes detected for Ansible Collection"
+              echo "No meaningful changes detected for Ansible Collection"
               # Clean up the branch if no changes
               git checkout "${{ github.event.repository.default_branch }}"
               git branch -D "$BRANCH"
