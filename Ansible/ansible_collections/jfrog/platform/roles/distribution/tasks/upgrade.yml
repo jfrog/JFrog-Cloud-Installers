@@ -34,12 +34,12 @@
   ansible.builtin.file:
     path: "{{ distribution_home }}/app"
     state: absent
-  when: download_distribution.changed
+  when: download_distribution is defined and (download_distribution.changed | d(false))
 
 - name: Copy new app to distribution app
   become: true
   ansible.builtin.command: "cp -r {{ distribution_untar_home }}/app/. {{ distribution_home }}/app"
-  when: download_distribution.changed
+  when: download_distribution is defined and (download_distribution.changed | d(false))
 
 - name: Check if system.yaml exists
   become: true
@@ -64,7 +64,8 @@
   ansible.builtin.stat:
     path: "{{ distribution_install_script_path }}/install.sh"
   register: install_wrapper_script
-  when: download_distribution.changed
+  when: download_distribution is defined and (download_distribution.changed | d(false))
+
 
 - name: Include interactive installer scripts
   ansible.builtin.include_vars: script/archive.yml
@@ -80,8 +81,8 @@
       environment:
         YQ_PATH: "{{ distribution_thirdparty_path }}/yq"
   when:
-    - install_wrapper_script.stat.exists
-    - download_distribution.changed
+    - download_distribution is defined and (download_distribution.changed | d(false))
+    - install_wrapper_script is defined and ((install_wrapper_script.stat | d({})).exists | d(false))
 
 - name: Ensure redis config directory exists
   become: true

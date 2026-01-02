@@ -1,7 +1,7 @@
 # Defaults file for xray
 
 # The version of xray to install
-xray_version: 3.131.27
+xray_version: 3.131.31
 # Whether to enable HA
 xray_ha_enabled: false
 xray_ha_node_type: master
@@ -62,6 +62,7 @@ yum_python_interpreter: >-
 
 
 
+
       /usr/bin/python3
   {%- elif linux_distro in ['centos7', 'redhat7'] -%}
 
@@ -69,8 +70,10 @@ yum_python_interpreter: >-
 
 
 
+
       /usr/bin/python
   {%- else -%}
+
 
 
 
