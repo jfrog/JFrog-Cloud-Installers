@@ -148,7 +148,7 @@ The JFrog Platform Ansible Collection can be installed on the following operatin
 
 * From 10.17.x platform collection, Artifactory (7.77.x) is not supported on Ubuntu - 18.04, Centos/RHEL - 7.x
 
-* From 10.18.x platform collection , It is recommended to use Postgresql 15 for fresh installations , Change `postgres_version : 15` in postgres/defaults/vars.yaml
+* From 10.18.x platform collection , It is recommended to use Postgresql 15 for fresh installations , Change `postgres_version: 15` in postgres/defaults/vars.yaml for other versions. NOTE: postgres_version 13 is End-of-life.
 
 ## How to avoid IPv6 binding
 
