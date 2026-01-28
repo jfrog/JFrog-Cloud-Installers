@@ -34,30 +34,31 @@
   ansible.builtin.file:
     path: "{{ xray_home }}/app"
     state: absent
-  when: download_xray.changed
+  when: download_xray is defined and (download_xray.changed | d(false))
 
 - name: Copy new app to xray app
   become: true
   ansible.builtin.command: "cp -r {{ xray_untar_home }}/app/. {{ xray_home }}/app"
-  when: download_xray.changed
+  when: download_xray is defined and (download_xray.changed | d(false))
 
 - name: Upgrade rabbitmq
   ansible.builtin.import_tasks: rabbitmq/upgrade/RedHat.yml
   when:
     - ansible_os_family == 'RedHat'
-    - download_xray.changed
+    - download_xray is defined and (download_xray.changed | d(false))
 
 - name: Upgrade rabbitmq
   ansible.builtin.import_tasks: rabbitmq/upgrade/Debian.yml
   when:
     - ansible_os_family == 'Debian'
-    - download_xray.changed
+    - download_xray is defined and (download_xray.changed | d(false))
 
 - name: Check if install.sh wrapper script exist
   become: true
   ansible.builtin.stat:
     path: "{{ xray_install_script_path }}/install.sh"
   register: install_wrapper_script
+  when: download_xray is defined and (download_xray.changed | d(false))
 
 - name: Include interactive installer scripts
   ansible.builtin.include_vars: script/archive.yml
@@ -74,8 +75,8 @@
         YQ_PATH: "{{ xray_thirdparty_path }}/yq"
   register: xray_install_flag
   when:
-    - install_wrapper_script.stat.exists
-    - download_xray.changed
+    - install_wrapper_script is defined and ((install_wrapper_script.stat | d({})).exists | d(false))
+    - download_xray is defined and (download_xray.changed | d(false))
 
 - name: Configure rabbitmq config
   become: true
@@ -84,7 +85,7 @@
     dest: "{{ xray_home }}/app/bin/rabbitmq/rabbitmq.conf"
     mode: 0644
   when:
-    - download_xray.changed
+    - download_xray is defined and (download_xray.changed | d(false))
   notify: Restart xray
 
 - name: Check if systemyaml exists

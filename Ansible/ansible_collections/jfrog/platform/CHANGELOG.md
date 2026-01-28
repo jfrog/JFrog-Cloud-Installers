@@ -1,9 +1,16 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
-## [11.3.6] - January 02, 2026
-* Update dependency artifactory version to 7.125.10
-* Update dependency xray version to 3.131.31
+## [11.4.0] - January 27, 2026
+* Update dependency artifactory version to 7.133.3
+* Update dependency xray version to 3.131.35
+* Update dependency distribution version to 2.36.2
+* Update dependency postgres version to 17, as postgres 13 is EOL.
+
+## [11.3.7] - January 06, 2026
+* Xray - Handle undefined variables in Xray upgrade playbook [GH-459](https://github.com/jfrog/JFrog-Cloud-Installers/issues/459)
+
+## [11.3.6] - December 31, 2025
 * Distribution - Handle undefined variables in Distribution upgrade playbook [GH-459](https://github.com/jfrog/JFrog-Cloud-Installers/issues/459)
 
 ## [11.3.5] - December 19, 2025
