@@ -84,23 +84,6 @@
     - download_distribution is defined and (download_distribution.changed | d(false))
     - install_wrapper_script is defined and ((install_wrapper_script.stat | d({})).exists | d(false))
 
-- name: Ensure redis config directory exists
-  become: true
-  ansible.builtin.file:
-    path: "{{ distribution_home }}/var/etc/redis/"
-    state: directory
-    owner: "{{ distribution_user }}"
-    group: "{{ distribution_group }}"
-    mode: 0755
-
-- name: Configure redis config
-  become: true
-  ansible.builtin.template:
-    src: "redis.conf.j2"
-    dest: "{{ distribution_home }}/var/etc/redis/redis.conf"
-    mode: 0644
-  notify: Restart distribution
-
 - name: Configure installer info
   become: true
   ansible.builtin.template:

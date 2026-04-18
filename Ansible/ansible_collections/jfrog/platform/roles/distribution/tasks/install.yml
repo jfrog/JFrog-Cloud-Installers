@@ -88,7 +88,6 @@
     - "{{ distribution_home }}/var/etc"
     - "{{ distribution_home }}/var/etc/security/"
     - "{{ distribution_home }}/var/etc/info/"
-    - "{{ distribution_home }}/var/etc/redis/"
 
 - name: Configure master key
   become: true
@@ -120,14 +119,6 @@
         YQ_PATH: "{{ distribution_thirdparty_path }}/yq"
   register: distribution_install_flag
   when: install_wrapper_script.stat.exists
-
-- name: Configure redis config
-  become: true
-  ansible.builtin.template:
-    src: "redis.conf.j2"
-    dest: "{{ distribution_home }}/var/etc/redis/redis.conf"
-    mode: 0644
-  notify: Restart distribution
 
 - name: Check if systemyaml exists
   become: true
