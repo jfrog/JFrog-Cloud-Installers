@@ -1,0 +1,531 @@
+# Copyright (c) 2026 JFrog Ltd. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0.
+# See LICENSE file in the project root for full license information.
+---
+
+input_groups:
+  credentials:
+    display_label: Credentials
+    collapsible: true
+    index: 0
+    inputs:
+      - k8s_credentials
+  infrastructure:
+    display_label: Infrastructure
+    collapsible: true
+    index: 1
+    inputs:
+      - namespace
+  persistence:
+    display_label: Persistence
+    collapsible: true
+    index: 2
+    inputs:
+      - persistence
+      - persistence_type
+      - filesystem_cache_enabled
+      - storage_class
+      - pvc_access_mode
+      - pvc_size
+      - nfs_ip
+      - nfs_capacity
+  database:
+    display_label: Database Configuration
+    collapsible: true
+    index: 3
+    inputs:
+      - postgresql_enabled
+      - create_bundled_db_secret
+      - create_external_db_secret
+      - database_admin_password
+      - database_host
+      - database_port
+      - database_ssl_mode
+      - database_user
+      - database_password
+  chart_settings:
+    display_label: Chart Settings
+    collapsible: true
+    index: 4
+    inputs:
+      - release_name
+      - chart_version
+      - sizing_template
+      - ingress_nginx_version
+  licensing:
+    display_label: Licensing
+    collapsible: true
+    index: 5
+    inputs:
+      - create_license_secret
+      - license_secret_ref
+  networking:
+    display_label: Networking
+    collapsible: true
+    index: 6
+    inputs:
+      - nginx_enabled
+      - ingress_enabled
+      - install_ingress_controller
+      - ingress_class_name
+      - ingress_host
+
+inputs:
+
+  k8s_credentials:
+    type: secret_key
+    hidden: false
+    allow_update: false
+    required: true
+    display_label: Kubernetes Credentials Secret
+    description: Name of the DAP secret storing Kubernetes credentials (ssl_ca_cert, token).
+    constraints:
+      - type: k8s
+        error_message: Secret must be of type k8s (Kubernetes credentials).
+    display:
+      group: credentials
+      index: 0
+
+  persistence:
+    type: string
+    hidden: false
+    allow_update: true
+    required: true
+    display_label: Persistence
+    description: >-
+      storage_type: Select a persistence type (file-system or nfs).
+      storage_class: PVC-backed storage using a Kubernetes StorageClass.
+    default: storage_class
+    constraints:
+      - valid_values:
+          - storage_type
+          - storage_class
+        error_message: Must be storage_type or storage_class.
+    display:
+      group: persistence
+      index: 0
+
+  persistence_type:
+    type: string
+    hidden: false
+    allow_update: true
+    required: false
+    display_label: Persistence Type
+    description: >-
+      file-system: local or PVC-backed file storage.
+      nfs: external NFS server mount.
+    default: file-system
+    only_with:
+      persistence: storage_type
+    constraints:
+      - valid_values:
+          - file-system
+          - nfs
+        error_message: Must be file-system or nfs.
+    display:
+      group: persistence
+      index: 1
+
+  filesystem_cache_enabled:
+    type: string
+    hidden: false
+    allow_update: true
+    required: false
+    display_label: File-System Cache Enabled
+    description: Enable Artifactory's local file-system cache layer.
+    default: "false"
+    only_with:
+      persistence: storage_type
+      persistence_type: file-system
+    constraints:
+      - valid_values:
+          - "true"
+          - "false"
+        error_message: Must be true or false.
+    display:
+      group: persistence
+      index: 2
+
+  storage_class:
+    type: string
+    hidden: false
+    allow_update: false
+    required: false
+    display_label: Storage Class
+    description: Kubernetes StorageClass name for persistent volumes. Leave empty to use cluster default.
+    default: ""
+    only_with:
+      persistence: storage_class
+    constraints:
+      - pattern: '^$|^[a-z0-9][a-z0-9\-]*$'
+        error_message: Must be empty or a valid StorageClass name.
+    display:
+      group: persistence
+      index: 3
+
+  pvc_access_mode:
+    type: string
+    hidden: false
+    allow_update: false
+    required: false
+    display_label: PVC Access Mode
+    description: Access mode for the PersistentVolumeClaim.
+    default: ReadWriteOnce
+    only_with:
+      persistence: storage_class
+    constraints:
+      - valid_values:
+          - ReadWriteOnce
+          - ReadWriteMany
+          - ReadOnlyMany
+        error_message: Must be ReadWriteOnce, ReadWriteMany, or ReadOnlyMany.
+    display:
+      group: persistence
+      index: 4
+
+  pvc_size:
+    type: string
+    hidden: false
+    allow_update: false
+    required: false
+    display_label: PVC Size
+    description: Storage default size. Should be increased for production deployments.
+    default: "20Gi"
+    only_with:
+      persistence: storage_class
+    constraints:
+      - pattern: '^[0-9]+(Gi|Ti|Mi|G|T|M)$'
+        error_message: Must be a valid Kubernetes storage size (e.g., 20Gi, 100Gi).
+    display:
+      group: persistence
+      index: 5
+
+  nfs_ip:
+    type: string
+    hidden: false
+    allow_update: true
+    required: false
+    display_label: NFS Server IP
+    description: IP address of the external NFS server.
+    default: ""
+    only_with:
+      persistence: storage_type
+      persistence_type: nfs
+    constraints:
+      - pattern: '^$|^(\d{1,3}\.){3}\d{1,3}$'
+        error_message: Must be empty or a valid IPv4 address.
+    display:
+      group: persistence
+      index: 6
+
+  nfs_capacity:
+    type: string
+    hidden: false
+    allow_update: true
+    required: false
+    display_label: NFS Capacity
+    description: Storage capacity for NFS mount (e.g., 200Gi).
+    default: "200Gi"
+    only_with:
+      persistence: storage_type
+      persistence_type: nfs
+    constraints:
+      - pattern: '^[0-9]+(Gi|Ti|Mi|G|T|M)$'
+        error_message: Must be a valid Kubernetes storage capacity (e.g., 200Gi, 1Ti).
+    display:
+      group: persistence
+      index: 7
+
+  postgresql_enabled:
+    type: string
+    hidden: false
+    allow_update: true
+    required: true
+    display_label: Bundled PostgreSQL
+    description: >-
+      When true, the bundled PostgreSQL subchart is deployed. Set to false
+      to connect to an external PostgreSQL instance.
+    default: "true"
+    constraints:
+      - valid_values:
+          - "true"
+          - "false"
+        error_message: Must be true or false.
+    display:
+      group: database
+      index: 0
+
+  create_bundled_db_secret:
+    type: integer
+    hidden: false
+    allow_update: false
+    required: false
+    display_label: Create Bundled Database Secret
+    description: >-
+      Create a K8s secret with default bundled PostgreSQL credentials
+      (postgres / artifactory / artifactory). 0 = No, 1 = Yes.
+    default: 0
+    only_with:
+      postgresql_enabled: "true"
+    constraints:
+      - valid_values: [0, 1]
+        error_message: Must be 0 (skip) or 1 (create).
+    display:
+      group: database
+      index: 1
+
+  create_external_db_secret:
+    type: integer
+    hidden: false
+    allow_update: false
+    required: false
+    display_label: Create External Database Secret
+    description: >-
+      Create a K8s secret with credentials from DAP secrets below.
+      0 = No, 1 = Yes.
+    default: 0
+    only_with:
+      postgresql_enabled: "false"
+    constraints:
+      - valid_values: [0, 1]
+        error_message: Must be 0 (skip) or 1 (create).
+    display:
+      group: database
+      index: 2
+
+  database_admin_password:
+    type: secret_key
+    hidden: false
+    allow_update: false
+    required: true
+    display_label: Database Admin Password
+    description: >-
+      DAP general secret holding the PostgreSQL admin (superuser) password.
+      Used by the init container to create product databases.
+    only_with:
+      postgresql_enabled: "false"
+    constraints:
+      - type: general
+        error_message: Secret must be of type general.
+    display:
+      group: database
+      index: 3
+
+  database_host:
+    type: string
+    hidden: false
+    allow_update: false
+    required: true
+    display_label: Database Host
+    description: >-
+      Hostname of the PostgreSQL server. Default matches the bundled
+      subchart service name. Override for external databases.
+    default: jfrog-platform-postgresql
+    only_with:
+      postgresql_enabled: "false"
+    constraints:
+      - pattern: '^[a-zA-Z0-9]([a-zA-Z0-9\-\.]*[a-zA-Z0-9])?$'
+        error_message: Must be a valid hostname or IP address.
+    display:
+      group: database
+      index: 4
+
+  database_port:
+    type: string
+    hidden: false
+    allow_update: false
+    required: true
+    display_label: Database Port
+    description: >-
+      Port number of the external PostgreSQL server.
+    default: "5432"
+    only_with:
+      postgresql_enabled: "false"
+    constraints:
+      - pattern: '^\d{1,5}$'
+        error_message: Must be a valid port number (1-65535).
+    display:
+      group: database
+      index: 5
+
+  database_ssl_mode:
+    type: string
+    hidden: false
+    allow_update: false
+    required: true
+    display_label: Database SSL Mode
+    description: >-
+      PostgreSQL SSL connection mode. Use require or verify-full for
+      external production databases.
+    default: disable
+    only_with:
+      postgresql_enabled: "false"
+    constraints:
+      - valid_values:
+          - disable
+          - require
+          - verify-ca
+          - verify-full
+        error_message: Must be disable, require, verify-ca, or verify-full.
+    display:
+      group: database
+      index: 6
+
+  database_user:
+    type: secret_key
+    hidden: false
+    allow_update: false
+    required: true
+    display_label: Database User
+    description: >-
+      DAP general secret holding the Artifactory PostgreSQL database username.
+    only_with:
+      postgresql_enabled: "false"
+    constraints:
+      - type: general
+        error_message: Secret must be of type general.
+    display:
+      group: database
+      index: 7
+
+  database_password:
+    type: secret_key
+    hidden: false
+    allow_update: false
+    required: true
+    display_label: Database Password
+    description: >-
+      DAP general secret holding the Artifactory PostgreSQL database password.
+    only_with:
+      postgresql_enabled: "false"
+    constraints:
+      - type: general
+        error_message: Secret must be of type general.
+    display:
+      group: database
+      index: 8
+
+  sizing_template:
+    type: string
+    hidden: false
+    allow_update: true
+    required: true
+    display_label: Sizing Template
+    description: >
+      Resource sizing profile for all JFrog Platform components.
+      xsmall - 1 replica, 1 CPU / 4 Gi (dev/test, minimum).
+      small - 1 replica, 1 CPU / 5 Gi (small teams, up to ~50 users).
+      medium - 2 replicas, 1 CPU / 5 Gi each (HA, up to ~500 users).
+      large - 3 replicas, 2 CPU / 12 Gi each (large orgs, up to ~2000 users).
+      xlarge - 4 replicas, 2 CPU / 16 Gi each (very large orgs, up to ~5000 users).
+      2xlarge - 6 replicas, 4 CPU / 24 Gi each (enterprise-scale, 5000+ users).
+    default: small
+    constraints:
+      - valid_values:
+          - xsmall
+          - small
+          - medium
+          - large
+          - xlarge
+          - 2xlarge
+        error_message: Must be one of xsmall, small, medium, large, xlarge, 2xlarge.
+    display:
+      group: chart_settings
+      index: 2
+
+  create_license_secret:
+    type: integer
+    hidden: false
+    allow_update: false
+    required: false
+    display_label: Create License Secret
+    description: >-
+      Create a Kubernetes Secret with the Artifactory license from a DAP
+      general secret. 0 = No (trial mode), 1 = Yes. When set to 0,
+      Artifactory starts in trial mode and the license can be applied
+      later via the UI.
+    default: 0
+    constraints:
+      - valid_values: [0, 1]
+        error_message: Must be 0 (skip) or 1 (create).
+    display:
+      group: licensing
+      index: 0
+
+  license_secret_ref:
+    type: secret_key
+    hidden: false
+    allow_update: true
+    required: false
+    display_label: License Secret
+    description: >-
+      DAP general secret containing the raw Artifactory license text.
+      Store the license key content as-is in the secret value.
+      For HA, store the full multi-license file content.
+      Required only when Create License Secret is set to 1.
+    constraints:
+      - type: general
+        error_message: Secret must be of type general.
+    display:
+      group: licensing
+      index: 1
+
+  install_ingress_controller:
+    type: integer
+    hidden: false
+    allow_update: true
+    required: false
+    display_label: Install Ingress Controller
+    description: >-
+      Install an ingress-nginx controller on the cluster before deploying
+      Artifactory. 0 = No, 1 = Yes.
+    default: 0
+    only_with:
+      nginx_enabled: "false"
+      ingress_enabled: "true"
+    constraints:
+      - valid_values: [0, 1]
+        error_message: Must be 0 (skip) or 1 (install).
+    display:
+      group: networking
+      index: 2
+
+  ingress_class_name:
+    type: string
+    hidden: false
+    allow_update: true
+    required: false
+    display_label: "Ingress Class Name"
+    description: >-
+      Name of an existing Kubernetes IngressClass to bind the Artifactory Ingress to.
+      Examples: nginx, istio, haproxy.
+    default: nginx
+    only_with:
+      nginx_enabled: "false"
+      ingress_enabled: "true"
+    constraints:
+      - pattern: '^[a-z0-9][a-z0-9\-\.]*$'
+        error_message: Must be a valid ingress class name.
+    display:
+      group: networking
+      index: 3
+
+  ingress_host:
+    type: string
+    hidden: false
+    allow_update: true
+    required: false
+    display_label: "Ingress Host"
+    description: >-
+      DNS hostname for the Ingress resource (e.g., artifactory.example.com).
+    default: "artifactory.example.com"
+    only_with:
+      nginx_enabled: "false"
+      ingress_enabled: "true"
+    constraints:
+      - pattern: '^$|^[a-z0-9]([a-z0-9\-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9\-]*[a-z0-9])?)+$'
+        error_message: Must be empty or a valid DNS hostname (e.g., artifactory.example.com).
+    display:
+      group: networking
+      index: 4

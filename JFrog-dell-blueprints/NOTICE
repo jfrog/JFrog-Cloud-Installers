@@ -1,0 +1,16 @@
+jfrog-dell-blueprints
+Copyright 2026 JFrog Ltd.
+
+This project contains Dell TOSCA blueprints for deploying JFrog products
+on Kubernetes clusters via the Dell Application Platform (DAP).
+
+This project uses the following third-party components:
+
+JFrog Platform Helm Chart:
+- jfrog/jfrog-platform - https://github.com/jfrog/charts - Licensed under Apache License 2.0
+
+Dell Application Platform:
+- Dell TOSCA types and Helm plugin - Proprietary, provided by Dell Technologies
+
+Any modifications or contributions to this project should include
+appropriate attributions as described in the above licenses.

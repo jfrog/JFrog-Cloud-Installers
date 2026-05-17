@@ -1,0 +1,34 @@
+# Copyright (c) 2026 JFrog Ltd. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0.
+# See LICENSE file in the project root for full license information.
+---
+
+tosca_definitions_version: dell_1_1
+
+description: Changelog for jfrog-platform
+
+imports:
+  - dell/types/types.yaml
+
+labels:
+  csys-obj-type:
+    values:
+      - environment
+
+blueprint_labels:
+  obj-type:
+    values:
+      - helm
+  csys-obj-type:
+    values:
+      - environment
+
+dsl_definitions:
+  changelog:
+    1.0.0:
+      - ticket: INST-20783
+        developer: srinivasg@jfrog.com
+        description: >
+          Initial JFrog Platform blueprint wrapping the official
+          jfrog/jfrog-platform Helm chart.
