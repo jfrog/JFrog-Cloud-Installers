@@ -1,0 +1,41 @@
+# Example: Bundled PostgreSQL + Licensed
+#
+# Same as the default but with a license applied at deploy time.
+# The license is stored in a DAP general secret and written to a
+# Kubernetes Secret before Helm install.
+#
+# Prerequisites:
+#   1. Create a DAP general secret (e.g., "artifactory-license") containing
+#      the raw Artifactory license text.  Paste the full license content
+#      starting with "products:" — do NOT base64-encode it.
+#
+# DAP UI steps:
+#   1. Credentials       → select your Kubernetes credentials secret
+#   2. Database           → set Create Bundled Database Secret to 1
+#   3. Licensing          → set Create License Secret to 1
+#                         → select the license secret from the dropdown
+#   4. Leave other groups at defaults
+#   5. Click Deploy
+
+inputs:
+
+  # ── Credentials (required) ───────────────────────────────────────
+  k8s_credentials: my-k8s-secret
+
+  # ── Infrastructure ───────────────────────────────────────────────
+  namespace: jfrog-platform
+
+  # ── Database ─────────────────────────────────────────────────────
+  postgresql_enabled: "true"
+  create_bundled_db_secret: 1                 # Yes — create K8s secret with bundled defaults
+
+  # ── Licensing ────────────────────────────────────────────────────
+  create_license_secret: 1                # Yes — create K8s Secret with license
+  license_secret_ref: artifactory-license # DAP general secret name
+
+  # ── Chart Settings ──────────────────────────────────────────────
+  release_name: jfrog-platform
+  sizing_template: small
+
+  # ── Networking ──────────────────────────────────────────────────
+  nginx_enabled: "true"
