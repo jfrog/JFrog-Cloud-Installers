@@ -1,0 +1,73 @@
+# Example: HA Production Deployment
+#
+# Full production setup with:
+#   - External PostgreSQL
+#   - Enterprise HA license (multiple keys for multiple replicas)
+#   - Large sizing template (3 Artifactory replicas)
+#   - Kubernetes Ingress with TLS
+#   - PVC-backed persistence with a specific StorageClass
+#
+# Prerequisites:
+#   1. External PostgreSQL with pre-created "artifactory" database.
+#   2. DAP general secrets for database credentials (3 secrets).
+#   3. DAP general secret with the HA license file containing one
+#      license key per Artifactory replica.
+#   4. An ingress controller on the cluster.
+#   5. DNS + TLS certificate for the ingress hostname.
+#   6. A StorageClass that supports ReadWriteOnce (e.g., gp3, managed-csi).
+#
+# DAP UI steps:
+#   1. Credentials       → select Kubernetes credentials secret
+#   2. Persistence        → select storage_class mode
+#                         → set Storage Class (e.g., gp3)
+#                         → set PVC Size (e.g., 200Gi)
+#   3. Database           → set Bundled PostgreSQL to "false"
+#                         → set Create External Database Secret to 1
+#                         → fill in external DB connection details
+#                         → select DAP secrets for credentials
+#   4. Chart Settings     → set Sizing Template to "large"
+#   5. Licensing          → set Create License Secret to 1
+#                         → select the HA license secret
+#   6. Networking         → set Bundled NGINX to "false"
+#                         → set Kubernetes Ingress to "true"
+#                         → set Ingress Host
+#   7. Click Deploy
+
+inputs:
+
+  # ── Credentials (required) ───────────────────────────────────────
+  k8s_credentials: prod-k8s-secret
+
+  # ── Infrastructure ───────────────────────────────────────────────
+  namespace: jfrog-platform
+
+  # ── Persistence (PVC) ──────────────────────────────────────────
+  persistence: storage_class
+  storage_class: gp3
+  pvc_access_mode: ReadWriteOnce
+  pvc_size: "200Gi"
+
+  # ── Database (external) ─────────────────────────────────────────
+  postgresql_enabled: "false"
+  create_external_db_secret: 1                # Yes — create K8s secret from DAP secrets
+  database_host: pg-primary.prod.internal
+  database_port: "5432"
+  database_ssl_mode: verify-full
+  database_admin_password: prod-pg-admin-password
+  database_user: prod-pg-artif-user
+  database_password: prod-pg-artif-password
+
+  # ── Chart Settings ──────────────────────────────────────────────
+  release_name: jfrog-platform
+  sizing_template: large
+
+  # ── Licensing ────────────────────────────────────────────────────
+  create_license_secret: 1                # Yes — create K8s Secret with license
+  license_secret_ref: prod-artifactory-ha-license
+
+  # ── Networking (Ingress) ────────────────────────────────────────
+  nginx_enabled: "false"
+  ingress_enabled: "true"
+  install_ingress_controller: 0           # No — already have one in prod
+  ingress_class_name: nginx
+  ingress_host: artifactory.prod.example.com

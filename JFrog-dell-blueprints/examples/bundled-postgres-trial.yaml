@@ -1,0 +1,44 @@
+# Example: Bundled PostgreSQL + Trial License (Default)
+#
+# Simplest deployment — uses the bundled PostgreSQL subchart and starts
+# Artifactory in trial mode.  Only the k8s credentials secret is required.
+#
+# Prerequisites:
+#   1. A DAP Kubernetes credentials secret (type: k8s).
+#
+# DAP UI steps:
+#   1. Credentials group  → select your Kubernetes credentials secret
+#   2. Database            → set Create Bundled Database Secret to 1
+#   3. Leave all other groups at their defaults
+#   4. Click Deploy
+#
+# What happens behind the scenes:
+#   - postgresql_enabled = "true"  →  bundled PostgreSQL subchart is deployed
+#   - create_bundled_db_secret = 1     →  K8s Secret "jfrog-platform-database-creds"
+#                                      created with bundled defaults
+#                                      (postgres / artifactory / artifactory)
+#   - create_license_secret = 0   →  no license K8s Secret, Artifactory
+#                                      starts in trial mode
+#   - Namespace "jfrog-platform" created before Helm install
+
+inputs:
+
+  # ── Credentials (required) ───────────────────────────────────────
+  k8s_credentials: my-k8s-secret          # DAP secret name (type: k8s)
+
+  # ── Infrastructure ───────────────────────────────────────────────
+  namespace: jfrog-platform               # default
+
+  # ── Database ─────────────────────────────────────────────────────
+  postgresql_enabled: "true"              # default — bundled PostgreSQL
+  create_bundled_db_secret: 1                 # Yes — create K8s secret with bundled defaults
+
+  # ── Licensing ────────────────────────────────────────────────────
+  create_license_secret: 0                # No — trial mode
+
+  # ── Chart Settings ──────────────────────────────────────────────
+  release_name: jfrog-platform            # default
+  sizing_template: small                  # default
+
+  # ── Networking ──────────────────────────────────────────────────
+  nginx_enabled: "true"                   # default — LoadBalancer

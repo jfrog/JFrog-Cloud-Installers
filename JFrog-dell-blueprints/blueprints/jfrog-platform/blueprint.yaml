@@ -1,0 +1,38 @@
+# Copyright (c) 2026 JFrog Ltd. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0.
+# See LICENSE file in the project root for full license information.
+---
+
+tosca_definitions_version: dell_1_1
+
+description: >
+  Deploys JFrog Platform (Artifactory only) on a Kubernetes cluster
+  using the official jfrog/jfrog-platform Helm chart.
+
+imports:
+  - dell/types/types.yaml
+  - plugin:helm-plugin?version= >=1.4.0.0,<2.0.0.0
+  - plugin:kubernetes-plugin?version= >=3.3.0.0,<4.0.0.0
+  - top_level/inputs.yaml
+  - top_level/inputs_hidden.yaml
+  - top_level/outputs.yaml
+  - application/00_namespace_and_secrets.yaml
+  - application/01_ingress_nginx.yaml
+  - application/02_jfrog_platform.yaml
+
+labels:
+  csys-obj-type:
+    values:
+      - environment
+  solution:
+    values:
+      - jfrog-platform
+
+blueprint_labels:
+  obj-type:
+    values:
+      - helm
+  csys-obj-type:
+    values:
+      - environment
