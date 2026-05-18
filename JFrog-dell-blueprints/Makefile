@@ -34,7 +34,7 @@ resolve_chart_version:
 ifneq ($(strip $(CHART_VERSION)),)
 	$(eval RESOLVED_CHART_VERSION := $(CHART_VERSION))
 else
-	$(eval RESOLVED_CHART_VERSION := $(shell ./scripts/get_latest_jfrog_platform_version.sh | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1))
+	$(eval RESOLVED_CHART_VERSION := $(shell ./scripts/get_latest_jfrog_platform_version.sh | grep -oEm1 '[0-9]+\.[0-9]+\.[0-9]+'))
 endif
 	@if [ -z "$(RESOLVED_CHART_VERSION)" ]; then \
 		echo "Error: Unable to resolve Helm chart version." >&2; \
