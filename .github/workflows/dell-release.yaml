@@ -1,0 +1,40 @@
+name: Release JFrog Dell Blueprint
+
+on:
+  push:
+    tags:
+      - "jfrog-dell-blueprints/v*"
+  workflow_dispatch:
+    inputs:
+      chart_version:
+        description: "Helm chart version for sizing templates (default: latest)"
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract version from tag
+        id: version
+        run: echo "version=${GITHUB_REF_NAME#jfrog-dell-blueprints/v}" >> "$GITHUB_OUTPUT"
+
+      - name: Build zip artifact
+        working-directory: JFrog-Dell-Blueprints
+        run: |
+          make all \
+            VERSION="${{ steps.version.outputs.version }}" \
+            CHART_VERSION="${{ inputs.chart_version }}"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "v${{ steps.version.outputs.version }}"
+          generate_release_notes: true
+          files: "JFrog-Dell-Blueprints/target/jfrog-dell-${{ steps.version.outputs.version }}.zip"

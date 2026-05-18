@@ -1,0 +1,104 @@
+# Copyright (c) 2026 JFrog Ltd. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0.
+# See LICENSE file in the project root for full license information.
+---
+
+inputs:
+
+  namespace:
+    type: string
+    hidden: false
+    allow_update: false
+    required: true
+    display_label: Kubernetes Namespace
+    description: Target namespace for JFrog Platform (created if it does not exist).
+    default: jfrog-platform
+    constraints:
+      - pattern: '^[a-z0-9][a-z0-9\-]{0,62}$'
+        error_message: Must be a valid Kubernetes namespace name.
+    display:
+      group: infrastructure
+      index: 0
+
+  release_name:
+    type: string
+    hidden: false
+    allow_update: false
+    required: true
+    display_label: Helm Release Name
+    description: Name of the Helm release for this deployment. Fixed at build time.
+    default: jfrog-platform
+    constraints:
+      - pattern: '^[a-z0-9][a-z0-9\-]{0,52}$'
+        error_message: Must be a valid Helm release name.
+    display:
+      group: chart_settings
+      index: 0
+
+  chart_version:
+    type: string
+    hidden: false
+    allow_update: false
+    required: true
+    display_label: Chart Version
+    description: Version of the jfrog/jfrog-platform Helm chart. Injected automatically during release packaging.
+    default: 0.0.0
+    constraints:
+      - pattern: '^\d+\.\d+\.\d+$'
+        error_message: Must be a valid semantic version.
+    display:
+      group: chart_settings
+      index: 1
+
+  ingress_nginx_version:
+    type: string
+    hidden: true
+    allow_update: false
+    required: true
+    display_label: Ingress NGINX Chart Version
+    description: Version of the ingress-nginx Helm chart. Pinned at build time for reproducibility.
+    default: 4.12.1
+    constraints:
+      - pattern: '^\d+\.\d+\.\d+$'
+        error_message: Must be a valid semantic version.
+    display:
+      group: chart_settings
+      index: 3
+
+  nginx_enabled:
+    type: string
+    hidden: false
+    allow_update: true
+    required: true
+    display_label: Bundled NGINX (LoadBalancer)
+    description: >-
+      Enable the chart's bundled NGINX reverse-proxy with a LoadBalancer service.
+      Set to true for LoadBalancer mode. Set to false to use Kubernetes Ingress instead.
+    default: "true"
+    constraints:
+      - valid_values: ["true", "false"]
+        error_message: Must be true or false.
+    display:
+      group: networking
+      index: 0
+
+  ingress_enabled:
+    type: string
+    hidden: false
+    allow_update: true
+    required: true
+    display_label: Kubernetes Ingress
+    description: >-
+      Enable a Kubernetes Ingress resource for external access.
+      Set to true when Bundled NGINX is false.
+    default: "false"
+    only_with:
+      nginx_enabled: "false"
+    constraints:
+      - valid_values: ["true", "false"]
+        error_message: Must be true or false.
+    display:
+      group: networking
+      index: 1
+

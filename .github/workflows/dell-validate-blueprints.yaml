@@ -1,0 +1,35 @@
+name: Validate Dell Blueprints
+
+on:
+  pull_request:
+    paths:
+      - "JFrog-Dell-Blueprints/**/blueprint.yaml"
+      - "JFrog-Dell-Blueprints/**/CHANGELOG.yaml"
+      - "JFrog-Dell-Blueprints/scripts/validate_blueprints.sh"
+      - ".github/workflows/dell-validate-blueprints.yaml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install validator dependency
+        run: python -m pip install --upgrade pip pyyaml
+
+      - name: Run blueprint validation
+        working-directory: JFrog-Dell-Blueprints
+        run: |
+          chmod +x scripts/validate_blueprints.sh
+          ./scripts/validate_blueprints.sh

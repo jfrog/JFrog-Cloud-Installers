@@ -1,0 +1,38 @@
+# Copyright (c) 2026 JFrog Ltd. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0.
+# See LICENSE file in the project root for full license information.
+---
+
+capabilities:
+  release_name:
+    description: Name of the deployed Helm release
+    value: { get_input: release_name }
+
+  namespace:
+    description: Kubernetes namespace of the deployment
+    value: { get_input: namespace }
+
+  sizing:
+    description: Applied sizing template
+    value: { get_input: sizing_template }
+
+  platform_url_ingress:
+    description: Artifactory URL when using ingress deployment mode.
+    value:
+      concat:
+        - "http://"
+        - { get_input: ingress_host }
+        - "/artifactory"
+
+  platform_url_command:
+    description: >-
+      Run this command to get the Artifactory external IP when using
+      nginx/LoadBalancer deployment mode.
+    value:
+      concat:
+        - "kubectl get svc "
+        - { get_input: release_name }
+        - "-artifactory-nginx -n "
+        - { get_input: namespace }
+        - " -o jsonpath='{.status.loadBalancer.ingress[0].ip}'"
