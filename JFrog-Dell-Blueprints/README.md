@@ -153,7 +153,7 @@ For branch protection, set the required status check to:
 
 ## Releasing a New Version
 
-Releases are automated via GitHub Actions. When a version tag (`jfrog-dell-blueprints/v*`) is pushed, the workflow:
+Releases are automated via GitHub Actions. When a version tag (`JFrog-Dell-Blueprints/v*`) is pushed, the workflow:
 
 1. Syncs sizing templates from the JFrog Platform Helm chart
 2. Extracts the NGINX `mainConf` from the chart (overriding `worker_processes` to prevent OOM)
@@ -213,8 +213,8 @@ NEW_VERSION=1.0.0 ./scripts/release.sh -y
 The script will:
 
 1. Check out the default branch and pull latest
-2. Create a `jfrog-dell-blueprints/v<version>` branch
-3. Push the branch and create an annotated `jfrog-dell-blueprints/v<version>` tag
+2. Create a `JFrog-Dell-Blueprints/v<version>` branch
+3. Push the branch and create an annotated `JFrog-Dell-Blueprints/v<version>` tag
 4. Push the tag, which triggers the GitHub Actions workflow to build and publish the release
 
 #### Specifying Helm Chart Version in CI

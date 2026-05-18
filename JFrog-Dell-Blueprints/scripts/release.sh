@@ -70,10 +70,10 @@ get_latest_local_tag() {
 get_latest_chart_version() {
   local chart_name="$1"
   local repo_index="https://charts.jfrog.io/index.yaml"
-  curl -sL "$repo_index" 2>/dev/null \
-    | grep -oE "${chart_name}-[0-9]+\.[0-9]+\.[0-9]+\.tgz" \
-    | head -1 \
-    | grep -oE '[0-9]+\.[0-9]+\.[0-9]+'
+  local index tgz_match
+  index=$(curl -sL "$repo_index" 2>/dev/null) || return 1
+  tgz_match=$(grep -oEm1 "${chart_name}-[0-9]+\.[0-9]+\.[0-9]+\.tgz" <<< "$index") || return 1
+  grep -oE '[0-9]+\.[0-9]+\.[0-9]+' <<< "$tgz_match"
 }
 
 # ── Blueprint catalogue ─────────────────────────────────────────────

@@ -4,5 +4,5 @@ Template to deploy/manage JFrog Artifactory enterprise cluster on various cloud 
 
 * [Ansible](Ansible/ansible_collections/jfrog/platform/README.md)
 * [Openshift 4](Openshift4/README.md)
-* [JFrog-dell-blueprints](JFrog-dell-blueprints/README.md)
+* [JFrog-Dell-Blueprints](JFrog-Dell-Blueprints/README.md)
 
