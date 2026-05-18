@@ -1,6 +1,6 @@
 #!/bin/bash
 # Fetch the latest stable version of the JFrog Platform Helm chart.
-# Requires: curl, grep, sort, head (no Helm CLI needed).
+# Requires: curl, grep (no Helm CLI needed).
 
 set -euo pipefail
 
@@ -11,10 +11,10 @@ REPO_INDEX_URL="https://charts.jfrog.io/index.yaml"
 # the target chart to extract the version without needing yq or Helm CLI.
 get_latest_chart_version() {
   local chart_name="$1"
-  curl -sL "$REPO_INDEX_URL" 2>/dev/null \
-    | grep -oE "${chart_name}-[0-9]+\.[0-9]+\.[0-9]+\.tgz" \
-    | head -1 \
-    | grep -oE '[0-9]+\.[0-9]+\.[0-9]+'
+  local index tgz_match
+  index=$(curl -sL "$REPO_INDEX_URL" 2>/dev/null) || return 1
+  tgz_match=$(grep -oEm1 "${chart_name}-[0-9]+\.[0-9]+\.[0-9]+\.tgz" <<< "$index") || return 1
+  grep -oE '[0-9]+\.[0-9]+\.[0-9]+' <<< "$tgz_match"
 }
 
 CHARTS=(
