@@ -1,0 +1,75 @@
+# Copyright (c) 2026 JFrog Ltd. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0.
+# See LICENSE file in the project root for full license information.
+---
+
+# This file holds inputs that are NOT user-visible.  Only fixed
+# build-time values or DAP-internal mappings belong here per Dell
+# review item #13.
+#
+# The chart_version value below is overwritten by the build pipeline
+# (see Makefile) with the resolved chart version.  All other settings
+# stay constant across deployments and live in inputs.yaml.
+
+inputs:
+
+  chart_version:
+    type: string
+    hidden: true
+    allow_update: true
+    required: true
+    display_label: Chart Version
+    description: >-
+      jfrog/jfrog-platform Helm chart version. Injected automatically
+      by the build pipeline; forwarded from the orchestrator and never
+      customer-editable on this child blueprint.
+    default: 11.5.3
+
+  license_secret_name:
+    type: string
+    hidden: true
+    allow_update: false
+    required: true
+    display_label: License Kubernetes Secret Name
+    description: Name of the Kubernetes Secret created with the Artifactory license.
+    default: jfrog-platform-license
+
+  database_secret_name:
+    type: string
+    hidden: true
+    allow_update: false
+    required: true
+    display_label: Database Credentials Kubernetes Secret Name
+    description: Name of the Kubernetes Secret created with database credentials.
+    default: jfrog-platform-database-creds
+
+  master_key_secret_name:
+    type: string
+    hidden: true
+    allow_update: false
+    required: false
+    display_label: Master Key Kubernetes Secret Name
+    description: >-
+      Name of the Kubernetes Secret created with the Artifactory master
+      key (data field 'master-key').  The compute_key_secret_names node
+      resolves masterKeySecretName to this value only when
+      create_master_key_secret == 1; otherwise it is passed to the chart
+      empty so the chart helper falls back to its auto-generated
+      <release>-artifactory secret.
+    default: jfrog-platform-master-key
+
+  join_key_secret_name:
+    type: string
+    hidden: true
+    allow_update: false
+    required: false
+    display_label: Join Key Kubernetes Secret Name
+    description: >-
+      Name of the Kubernetes Secret created with the Artifactory join
+      key (data field 'join-key').  The compute_key_secret_names node
+      resolves joinKeySecretName to this value only when
+      create_join_key_secret == 1; otherwise it is passed to the chart
+      empty so the chart helper falls back to its auto-generated
+      <release>-artifactory secret.
+    default: jfrog-platform-join-key

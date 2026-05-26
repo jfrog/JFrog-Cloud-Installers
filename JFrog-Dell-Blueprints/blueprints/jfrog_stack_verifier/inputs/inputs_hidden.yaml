@@ -1,0 +1,61 @@
+# Copyright (c) 2026 JFrog Ltd. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0.
+# See LICENSE file in the project root for full license information.
+---
+
+inputs:
+
+  blueprint_job_image:
+    type: string
+    hidden: true
+    allow_update: false
+    required: true
+    display_label: Stack Verifier Job Image
+    description: Image (path/tag) used by the verification Kubernetes Job.
+    default: "dtzar/helm-kubectl:3.19"
+
+  k8s_min_version:
+    type: string
+    hidden: true
+    allow_update: false
+    required: true
+    display_label: Minimum Kubernetes Version
+    description: Minimum acceptable Kubernetes server version.
+    default: "v1.30"
+
+  min_ready_nodes:
+    type: integer
+    hidden: true
+    allow_update: false
+    required: true
+    display_label: Minimum Ready Nodes
+    description: Minimum number of Ready nodes required.
+    default: 1
+
+  service_account_name:
+    type: string
+    hidden: true
+    allow_update: false
+    required: true
+    display_label: Service Account Name
+    description: ServiceAccount used by the verification Job.
+    default: jfrog-stack-verifier-sa
+
+  cluster_role_binding_name:
+    type: string
+    hidden: true
+    allow_update: false
+    required: true
+    display_label: ClusterRoleBinding Name
+    description: ClusterRoleBinding granting read access to the verifier Job.
+    default: jfrog-stack-verifier-crb
+
+  pull_secret_name:
+    type: string
+    hidden: true
+    allow_update: false
+    required: true
+    display_label: Image Pull Secret Name
+    description: Secret name created in the target namespace for pulling the verifier image.
+    default: jfrog-stack-verifier-pull-secret

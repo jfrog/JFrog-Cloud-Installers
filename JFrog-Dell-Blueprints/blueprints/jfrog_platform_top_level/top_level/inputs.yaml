@@ -6,11 +6,14 @@
 
 input_groups:
   credentials:
-    display_label: Credentials
+    display_label: k8s_target_cluster
     collapsible: true
     index: 0
     inputs:
+      - target_type
+      - target_deployment_id
       - k8s_credentials
+      - container_registry_credentials_secret
   infrastructure:
     display_label: Infrastructure
     collapsible: true
@@ -42,17 +45,19 @@ input_groups:
       - database_host
       - database_port
       - database_ssl_mode
-      - database_user
-      - database_password
+      - database_credentials
   chart_settings:
     display_label: Chart Settings
     collapsible: true
     index: 4
     inputs:
       - release_name
-      - chart_version
       - sizing_template
       - ingress_nginx_version
+      - ingress_nginx_repo_url
+      - jfrog_helm_repo_url
+      - container_registry_name
+      - create_pull_secret
   licensing:
     display_label: Licensing
     collapsible: true
@@ -60,6 +65,10 @@ input_groups:
     inputs:
       - create_license_secret
       - license_secret_ref
+      - create_master_key_secret
+      - master_key_secret_ref
+      - create_join_key_secret
+      - join_key_secret_ref
   networking:
     display_label: Networking
     collapsible: true
@@ -73,20 +82,90 @@ input_groups:
 
 inputs:
 
+  target_type:
+    type: string
+    constraints:
+      - valid_values:
+          - External
+          - AI
+        error_message: Must be 'External' or 'AI'.
+    hidden: false
+    allow_update: false
+    display_label: Target Kubernetes Type
+    description: >
+      Select the target Kubernetes environment type. Options: 'AI' for integrated AI clusters, 'External' for other Kubernetes clusters.
+    display:
+      group: k8s_target_cluster
+      index: 0
+
+  target_deployment_id:
+    type: deployment_id
+    constraints:
+      - labels:
+          - external-infrastructure: { get_input: [ k8s_deployment_constraints, { get_input: target_type } ] }
+    hidden: false
+    allow_update: false
+    display_label: Target Kubernetes Deployment
+    required: true
+    description: |
+      The Deployment ID of the target Kubernetes cluster.
+    display:
+      group: k8s_target_cluster
+      index: 1
+
+  # -- Credentials -------------------------------------------------
   k8s_credentials:
     type: secret_key
     hidden: false
     allow_update: false
     required: true
-    display_label: Kubernetes Credentials Secret
-    description: Name of the DAP secret storing Kubernetes credentials (ssl_ca_cert, token).
+    display_label: Cluster Access Secret
+    description: |
+      Secret name containing details needed for Kubernetes cluster.
+      Required keys: host, port, verify_ssl, ssl_ca_cert.
+      For verify_ssl='TLS': also requires cert_file, key_file.
+      For verify_ssl='Token': also requires token.
     constraints:
       - type: k8s
-        error_message: Secret must be of type k8s (Kubernetes credentials).
+        error_message: Secret must be of type 'k8s' containing cluster access details.
     display:
-      group: credentials
+      group: k8s_target_cluster
+      index: 0
+  
+  container_registry_credentials_secret:
+    type: secret_key
+    hidden: false
+    allow_update: false
+    required: false
+    display_label: Container Registry Credentials Secret
+    description: >-
+      DAP basic_auth secret with username/password for pulling the
+      stack verifier container image from a private registry. Leave
+      empty when using a public registry (e.g., docker.io).
+    constraints:
+      - type: basic_auth
+        error_message: Secret must be of type basic_auth (username/password).
+    display:
+      group: k8s_target_cluster
+      index: 2
+
+  # -- Infrastructure ----------------------------------------------
+  namespace:
+    type: string
+    hidden: false
+    allow_update: false
+    required: true
+    display_label: Kubernetes Namespace
+    description: Target namespace for JFrog Platform (created if it does not exist).
+    default: jfrog-platform
+    constraints:
+      - pattern: '^[a-z0-9][a-z0-9\-]{0,62}$'
+        error_message: Must be a valid Kubernetes namespace name.
+    display:
+      group: infrastructure
       index: 0
 
+  # -- Persistence -------------------------------------------------
   persistence:
     type: string
     hidden: false
@@ -237,6 +316,7 @@ inputs:
       group: persistence
       index: 7
 
+  # -- Database ----------------------------------------------------
   postgresql_enabled:
     type: string
     hidden: false
@@ -244,9 +324,10 @@ inputs:
     required: true
     display_label: Bundled PostgreSQL
     description: >-
-      When true, the bundled PostgreSQL subchart is deployed. Set to false
-      to connect to an external PostgreSQL instance.
-    default: "true"
+      When true, the bundled PostgreSQL subchart is deployed. Defaults
+      to false (connect to an external PostgreSQL instance); set to true
+      only for trial / dev / single-replica deployments.
+    default: "false"
     constraints:
       - valid_values:
           - "true"
@@ -269,7 +350,7 @@ inputs:
     only_with:
       postgresql_enabled: "true"
     constraints:
-      - valid_values: [0, 1]
+      - in_range: [0, 1]
         error_message: Must be 0 (skip) or 1 (create).
     display:
       group: database
@@ -288,7 +369,7 @@ inputs:
     only_with:
       postgresql_enabled: "false"
     constraints:
-      - valid_values: [0, 1]
+      - in_range: [0, 1]
         error_message: Must be 0 (skip) or 1 (create).
     display:
       group: database
@@ -337,8 +418,7 @@ inputs:
     allow_update: false
     required: true
     display_label: Database Port
-    description: >-
-      Port number of the external PostgreSQL server.
+    description: Port number of the external PostgreSQL server.
     default: "5432"
     only_with:
       postgresql_enabled: "false"
@@ -372,39 +452,40 @@ inputs:
       group: database
       index: 6
 
-  database_user:
+  database_credentials:
     type: secret_key
     hidden: false
     allow_update: false
     required: true
-    display_label: Database User
+    display_label: Database Credentials
     description: >-
-      DAP general secret holding the Artifactory PostgreSQL database username.
+      DAP basic_auth secret containing the Artifactory PostgreSQL
+      username and password. The secret must have 'username' and
+      'password' fields.
     only_with:
       postgresql_enabled: "false"
     constraints:
-      - type: general
-        error_message: Secret must be of type general.
+      - type: basic_auth
+        error_message: Secret must be of type basic_auth (username/password).
     display:
       group: database
       index: 7
 
-  database_password:
-    type: secret_key
+  # -- Chart Settings ----------------------------------------------
+  release_name:
+    type: string
     hidden: false
     allow_update: false
     required: true
-    display_label: Database Password
-    description: >-
-      DAP general secret holding the Artifactory PostgreSQL database password.
-    only_with:
-      postgresql_enabled: "false"
+    display_label: Helm Release Name
+    description: Name of the Helm release for the JFrog Platform deployment.
+    default: jfrog-platform
     constraints:
-      - type: general
-        error_message: Secret must be of type general.
+      - pattern: '^[a-z0-9][a-z0-9\-]{0,52}$'
+        error_message: Must be a valid Helm release name.
     display:
-      group: database
-      index: 8
+      group: chart_settings
+      index: 0
 
   sizing_template:
     type: string
@@ -420,6 +501,11 @@ inputs:
       large - 3 replicas, 2 CPU / 12 Gi each (large orgs, up to ~2000 users).
       xlarge - 4 replicas, 2 CPU / 16 Gi each (very large orgs, up to ~5000 users).
       2xlarge - 6 replicas, 4 CPU / 24 Gi each (enterprise-scale, 5000+ users).
+      IMPORTANT: medium / large / xlarge / 2xlarge require an Artifactory
+      Enterprise license (one per replica). For these tiers you MUST set
+      "Create License Secret" to 1 AND select a "License Secret" in the
+      Licensing group, otherwise the install will abort during input
+      validation. xsmall and small can run in trial mode (license optional).
     default: small
     constraints:
       - valid_values:
@@ -432,22 +518,113 @@ inputs:
         error_message: Must be one of xsmall, small, medium, large, xlarge, 2xlarge.
     display:
       group: chart_settings
+      index: 1
+
+  ingress_nginx_version:
+    type: string
+    hidden: false
+    allow_update: true
+    required: true
+    display_label: Ingress NGINX Chart Version
+    description: Version of the ingress-nginx Helm chart used when installing the optional controller.
+    default: 4.12.1
+    constraints:
+      - pattern: '^\d+\.\d+\.\d+$'
+        error_message: Must be a valid semantic version.
+    display:
+      group: chart_settings
       index: 2
 
+  ingress_nginx_repo_url:
+    type: string
+    hidden: false
+    allow_update: false
+    required: true
+    display_label: Ingress NGINX Helm Repository
+    description: >-
+      Helm repository URL for the ingress-nginx chart. Override with
+      an internal mirror URL for air-gapped deployments.
+    default: https://kubernetes.github.io/ingress-nginx
+    constraints:
+      - pattern: '^https?://.+'
+        error_message: Must be a valid HTTP/HTTPS URL.
+    display:
+      group: chart_settings
+      index: 3
+
+  jfrog_helm_repo_url:
+    type: string
+    hidden: false
+    allow_update: false
+    required: true
+    display_label: JFrog Helm Repository
+    description: >-
+      Helm repository URL for the JFrog Platform chart. Override with
+      an internal mirror URL for air-gapped deployments.
+    default: https://charts.jfrog.io
+    constraints:
+      - pattern: '^https?://.+'
+        error_message: Must be a valid HTTP/HTTPS URL.
+    display:
+      group: chart_settings
+      index: 4
+
+  container_registry_name:
+    type: string
+    hidden: false
+    allow_update: false
+    required: true
+    display_label: Container Registry Hostname
+    description: >-
+      Container registry used to pull the stack verifier image
+      (default: docker.io). Override with an internal registry
+      hostname for air-gapped deployments.
+    default: docker.io
+    constraints:
+      - pattern: '^[a-zA-Z0-9]([a-zA-Z0-9\-\.:]*[a-zA-Z0-9])?$'
+        error_message: Must be a valid registry hostname (optionally with port).
+    display:
+      group: chart_settings
+      index: 5
+
+  create_pull_secret:
+    type: integer
+    hidden: false
+    allow_update: false
+    required: false
+    display_label: Pull Stack Verifier Image From Private Registry
+    description: >-
+      Controls whether the stack verifier creates an image-pull Secret
+      for its container image. 1 = private registry (create the Secret
+      from container_registry_credentials_secret and attach it to the
+      verification Job). 0 = public registry (skip the Secret and pull
+      anonymously). Leave 0 when container_registry_name is a public
+      registry such as docker.io.
+    default: 0
+    constraints:
+      - in_range: [0, 1]
+        error_message: Must be 0 (public registry) or 1 (private registry).
+    display:
+      group: chart_settings
+      index: 6
+
+  # -- Licensing ---------------------------------------------------
   create_license_secret:
     type: integer
     hidden: false
     allow_update: false
     required: false
-    display_label: Create License Secret
+    display_label: Create License Secret (required = 1 for medium and above)
     description: >-
       Create a Kubernetes Secret with the Artifactory license from a DAP
       general secret. 0 = No (trial mode), 1 = Yes. When set to 0,
       Artifactory starts in trial mode and the license can be applied
-      later via the UI.
+      later via the UI. MUST be 1 when Sizing Template is medium, large,
+      xlarge, or 2xlarge (Enterprise license required, one per replica) -
+      the input validator aborts the install otherwise.
     default: 0
     constraints:
-      - valid_values: [0, 1]
+      - in_range: [0, 1]
         error_message: Must be 0 (skip) or 1 (create).
     display:
       group: licensing
@@ -458,17 +635,149 @@ inputs:
     hidden: false
     allow_update: true
     required: false
-    display_label: License Secret
+    display_label: License Secret (required for medium and above)
     description: >-
       DAP general secret containing the raw Artifactory license text.
-      Store the license key content as-is in the secret value.
-      For HA, store the full multi-license file content.
-      Required only when Create License Secret is set to 1.
+      REQUIRED when "Create License Secret" is 1, including for every
+      Sizing Template medium and above (medium / large / xlarge /
+      2xlarge). Optional only for xsmall / small (trial mode). The input
+      validator aborts the install if this is empty for medium+ tiers.
     constraints:
       - type: general
         error_message: Secret must be of type general.
     display:
       group: licensing
+      index: 1
+
+  create_master_key_secret:
+    type: integer
+    hidden: false
+    allow_update: false
+    required: false
+    display_label: Create Master Key Secret
+    description: >-
+      Create a Kubernetes Secret holding the Artifactory master key from
+      a DAP general secret. 0 = No (chart's auto-generated default master
+      key is used; insecure example value, NOT recommended for
+      production). 1 = Yes (the K8s Secret 'jfrog-platform-master-key' is
+      created with data key 'master-key' from the supplied DAP secret).
+      Optional at every sizing tier; provide one for any production /
+      HA install since the chart's hardcoded default is documented as
+      an example only.
+    default: 0
+    constraints:
+      - in_range: [0, 1]
+        error_message: Must be 0 (use chart default) or 1 (inject DAP secret).
+    display:
+      group: licensing
+      index: 2
+
+  master_key_secret_ref:
+    type: secret_key
+    hidden: false
+    allow_update: false
+    required: false
+    only_with:
+      create_master_key_secret: 1
+    display_label: Master Key Secret
+    description: >-
+      DAP general secret containing the raw Artifactory master key.
+      Must be EXACTLY 64 hexadecimal characters (matches the chart's
+      values.yaml format for global.masterKey, generated via
+      'openssl rand -hex 32'). Required when create_master_key_secret
+      is 1. The input validator fails early if the value is missing,
+      the wrong length, or contains non-hex characters. Used as the
+      'master-key' field of the Kubernetes Secret referenced by
+      artifactory.masterKeySecretName.
+    constraints:
+      - type: general
+        error_message: Secret must be of type general.
+    display:
+      group: licensing
+      index: 3
+
+  create_join_key_secret:
+    type: integer
+    hidden: false
+    allow_update: false
+    required: false
+    display_label: Create Join Key Secret
+    description: >-
+      Create a Kubernetes Secret holding the Artifactory join key from a
+      DAP general secret. 0 = No (chart's auto-generated default join
+      key is used; insecure example value, NOT recommended for
+      production). 1 = Yes (the K8s Secret 'jfrog-platform-join-key' is
+      created with data key 'join-key' from the supplied DAP secret).
+      Optional at every sizing tier; provide one for any production /
+      HA install since the chart's hardcoded default is documented as
+      an example only.
+    default: 0
+    constraints:
+      - in_range: [0, 1]
+        error_message: Must be 0 (use chart default) or 1 (inject DAP secret).
+    display:
+      group: licensing
+      index: 4
+
+  join_key_secret_ref:
+    type: secret_key
+    hidden: false
+    allow_update: false
+    required: false
+    only_with:
+      create_join_key_secret: 1
+    display_label: Join Key Secret
+    description: >-
+      DAP general secret containing the raw Artifactory join key.
+      Must be EXACTLY 32 hexadecimal characters (matches the chart's
+      values.yaml format for global.joinKey, generated via
+      'openssl rand -hex 16'). Required when create_join_key_secret
+      is 1. The input validator fails early if the value is missing,
+      the wrong length, or contains non-hex characters. Used as the
+      'join-key' field of the Kubernetes Secret referenced by
+      artifactory.joinKeySecretName.
+    constraints:
+      - type: general
+        error_message: Secret must be of type general.
+    display:
+      group: licensing
+      index: 5
+
+  # -- Networking --------------------------------------------------
+  nginx_enabled:
+    type: string
+    hidden: false
+    allow_update: true
+    required: true
+    display_label: Bundled NGINX (LoadBalancer)
+    description: >-
+      Enable the chart's bundled NGINX reverse-proxy with a LoadBalancer service.
+      Set to true for LoadBalancer mode. Set to false to use Kubernetes Ingress instead.
+    default: "true"
+    constraints:
+      - valid_values: ["true", "false"]
+        error_message: Must be true or false.
+    display:
+      group: networking
+      index: 0
+
+  ingress_enabled:
+    type: string
+    hidden: false
+    allow_update: true
+    required: true
+    display_label: Kubernetes Ingress
+    description: >-
+      Enable a Kubernetes Ingress resource for external access.
+      Set to true when Bundled NGINX is false.
+    default: "false"
+    only_with:
+      nginx_enabled: "false"
+    constraints:
+      - valid_values: ["true", "false"]
+        error_message: Must be true or false.
+    display:
+      group: networking
       index: 1
 
   install_ingress_controller:
@@ -485,7 +794,7 @@ inputs:
       nginx_enabled: "false"
       ingress_enabled: "true"
     constraints:
-      - valid_values: [0, 1]
+      - in_range: [0, 1]
         error_message: Must be 0 (skip) or 1 (install).
     display:
       group: networking
@@ -496,7 +805,7 @@ inputs:
     hidden: false
     allow_update: true
     required: false
-    display_label: "Ingress Class Name"
+    display_label: Ingress Class Name
     description: >-
       Name of an existing Kubernetes IngressClass to bind the Artifactory Ingress to.
       Examples: nginx, istio, haproxy.
@@ -516,7 +825,7 @@ inputs:
     hidden: false
     allow_update: true
     required: false
-    display_label: "Ingress Host"
+    display_label: Ingress Host
     description: >-
       DNS hostname for the Ingress resource (e.g., artifactory.example.com).
     default: "artifactory.example.com"

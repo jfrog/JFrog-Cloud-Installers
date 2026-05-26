@@ -1,0 +1,45 @@
+# Copyright (c) 2026 JFrog Ltd. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0.
+# See LICENSE file in the project root for full license information.
+---
+
+tosca_definitions_version: dell_1_1
+
+description: >
+  Ingress NGINX Controller component blueprint. Installs the
+  ingress-nginx controller via the official Helm chart. Deployed
+  conditionally from the top-level orchestrator (skipped when
+  install_ingress_controller=0).
+
+imports:
+  - dell/types/types.yaml
+  - plugin:helm-plugin?version= >=1.4.0.0,<2.0.0.0
+  - inputs/inputs.yaml
+  - inputs/inputs_hidden.yaml
+  - application/ingress_nginx.yaml
+
+labels:
+  csys-obj-type:
+    values:
+      - environment
+  target_environment:
+    values:
+      - ece
+  solution:
+    values:
+      - ingress_nginx_component
+  version:
+    values:
+      - "1.0"
+
+blueprint_labels:
+  env:
+    values:
+      - Dell
+  obj-type:
+    values:
+      - helm
+  csys-obj-type:
+    values:
+      - environment

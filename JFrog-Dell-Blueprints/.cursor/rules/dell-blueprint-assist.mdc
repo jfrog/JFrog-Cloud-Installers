@@ -48,13 +48,16 @@ For **each** key under `inputs`:
 |---|---|
 | Required fields | `type`, `hidden`, `allow_update`, `required`, `display_label`, `description` all present |
 | Name casing | snake_case only (`^[a-z][a-z0-9_]*$`) |
-| Constraint present | At least one of `pattern`, `valid_values`, or `type`-level constraint — **except** `dict` and `list` types which are exempt |
-| error_message | Must accompany every `pattern` or `valid_values` constraint |
+| Constraint present | At least one of `pattern`, `valid_values`, `in_range`, or `type`-level constraint — **except** `dict` and `list` types which are exempt |
+| error_message | Must accompany every `pattern`, `valid_values`, or `in_range` constraint |
+| Integer constraint style (Dell IN-007) | `[WARN]` if `type: integer` uses `valid_values` for a numeric range. Use `in_range: [min, max]` instead |
 | valid_values content | Must contain **raw values only** — never descriptive text (e.g., `- xsmall` not `- xsmall - 1 replica, 1 CPU / 4 Gi`) |
 | Secrets | `type: secret_key` required for DAP credential/kubeconfig inputs |
+| Database credentials secret | DB credentials input should be `type: secret_key` with `type: basic_auth` constraint (single DAP secret with `username` / `password` keys). `[FAIL]` if separate `database_user` + `database_password` `general` secrets are used |
 | License secret | License input should be `type: secret_key` with `type: general` constraint (DAP general secret containing raw license text) |
+| K8s credentials documentation (SaaS DAPO) | `[WARN]` if a `k8s_credentials` input description does not mention the required `configuration.proxy_settings.{disable, auto_resolve}` block |
 | Helm boolean values | `[FAIL]` if `type: boolean` is used for any value that flows into Helm `set_values`. Use `type: string` with `valid_values: ["true", "false"]` |
-| Scalable instances | `[FAIL]` if `type: boolean` is used for `default_instances`. Use `type: integer` with `valid_values: [0, 1]` |
+| Scalable instances | `[FAIL]` if `type: boolean` is used for `default_instances`. Use `type: integer` with `in_range: [0, 1]` (Dell IN-007) |
 | Semver inputs | chart version inputs must use pattern `^\d+\.\d+\.\d+$` |
 | Namespace inputs | must use pattern `^[a-z0-9][a-z0-9\-]{0,62}$` |
 | K8s name inputs | must use pattern `^[a-z0-9][a-z0-9\-]*$` |
@@ -114,15 +117,40 @@ When a blueprint includes multiple `dell.nodes.helm.Release` nodes:
 - `[FAIL]` if a prerequisite release is present but the primary release does not `depends_on` it.
 - `[FAIL]` if `default_instances` references a `type: boolean` input (DAP cannot convert boolean to integer).
 
-### ServiceComponent Composition (k8s_stack)
+### ServiceComponent Composition (top-level orchestrator)
 
-For blueprints using `dell.nodes.ServiceComponent`:
+For blueprints using `dell.nodes.ServiceComponent` (e.g., `jfrog_platform_top_level`):
 
-- Each component must have `blueprint.id`, `external_resource: true`, and `revision_id`.
-- `deployment.display_name` should use `concat` with `get_sys: [deployment, name]`.
-- `depends_on` must correctly chain components (e.g., k8s → cert_manager → gpu_operator).
-- Conditional components use `scalable.default_instances` with integer input.
+- Each component must have `blueprint.id`, `external_resource: true`, and `revision_id` (4-part `MAJOR.MINOR.PATCH.BUILD`).
+- `revision_id` should come from a hidden input (e.g., `input_validator_revision_id`) defaulting to the bundle's manifest revision (e.g., `"1.0.0.0"`), with pattern `^\d+\.\d+\.\d+\.\d+$`.
+- `deployment.display_name` should use `concat` with `get_sys: [deployment, name]` plus a per-component suffix (e.g., `"-input-validator"`).
+- `auto_inc_suffix: true` should be set on `deployment` so re-deployments don't collide.
+- `depends_on` must correctly chain components: input_validator → stack_verifier → ingress_nginx (optional) → jfrog_platform.
+- Conditional components (e.g., `ingress_nginx_component`) must use `capabilities.scalable.default_instances: { get_input: <toggle> }` with an **integer** input, so the entire component (Binary + Repo + Release) is skipped when the toggle is `0`. This is the canonical fix for "Helm repo always created" / air-gapped failures.
 - `[FAIL]` if `external_resource: true` is missing on any `ServiceComponent`.
+- `[FAIL]` if `revision_id` is hardcoded instead of `get_input`.
+
+### Dell-Certified Bundle Structure
+
+A Dell-certified deployment is a bundle of multiple component blueprints orchestrated by a top-level. The canonical structure for JFrog Platform on Dell is:
+
+```
+jfrog_platform_top_level/      # csys-obj-type: environment (orchestrator)
+  └── applications/
+       ├── 00_input_validator.yaml      ← ServiceComponent → jfrog_input_validator
+       ├── 01_stack_verifier.yaml       ← ServiceComponent → jfrog_stack_verifier
+       ├── 02_ingress_nginx.yaml        ← ServiceComponent → ingress_nginx_component (scalable)
+       └── 03_jfrog_platform.yaml       ← ServiceComponent → jfrog_platform_component
+
+jfrog_input_validator/         # csys-obj-type: utility, central agent (Python)
+jfrog_stack_verifier/          # csys-obj-type: utility, K8s Job
+ingress_nginx_component/       # csys-obj-type: environment, helm
+jfrog_platform_component/      # csys-obj-type: environment, helm
+```
+
+- `[FAIL]` if a top-level orchestrator does not include an input validator and a stack verifier as the first two components.
+- `[FAIL]` if Helm releases are placed directly inside the top-level orchestrator (they must live in a child component blueprint).
+- `[WARN]` if the bundle does not produce a `manifest.yaml` listing all components with SHA256 checksums and 4-part revisions.
 
 ### Release Properties
 
@@ -137,6 +165,8 @@ For every `dell.nodes.helm.Release` node:
 | `resource_config.flags` | Should include `atomic`, `wait`, and `timeout` for production blueprints |
 | `resource_config.flags.version` | Must be `get_input` — never a hardcoded version string |
 | `resource_config.flags` | `[FAIL]` if `--values` flag references a file path (DAP cannot resolve it — use `values_file` or build-time merge) |
+| `rollback` (Dell standard) | `[FAIL]` if `rollback: false` is missing on the Release node — automatic rollback hides failure state |
+| Helm repo URL | `[WARN]` if `dell.nodes.helm.Repo.repo_url` is hardcoded. Use `get_input` so air-gapped environments can override (e.g., `jfrog_helm_repo_url`, `ingress_nginx_repo_url`) |
 | Hardcoded values in `set_values` | Flag any `get_input`-eligible value that is hardcoded as `[WARN]` |
 | Dict in `set_values` | `[FAIL]` if any `set_values` entry uses dict-lookup `get_input` pattern (causes `unhashable type: 'dict'` in Helm plugin) |
 | Boolean in `set_values` | `[FAIL]` if any `set_values` value references a `type: boolean` input (DAP passes Python `True`/`False`) |
@@ -170,14 +200,27 @@ For JFrog Platform blueprints:
 For JFrog Platform blueprints with bundled/external database support:
 
 - Database credentials must be stored in a K8s Secret (`jfrog-platform-database-creds`) created via `dell.nodes.kubernetes.resources.Secret`.
-- Two mutually exclusive secret nodes are used: bundled (hardcoded defaults) and external (DAP secrets).
-- Both nodes are controlled by **visible** user-facing integer inputs (`create_bundled_db_secret`, `create_external_db_secret`), each defaulting to `0` and gated by `only_with` on `postgresql_enabled`.
+- The DAP credential is a **single `basic_auth` secret** referenced by one input (`database_credentials`) with `username` and `password` keys. `[FAIL]` if separate `database_user` + `database_password` `general` secrets are introduced — that pattern is deprecated as of v1.0.0.
+- Two mutually exclusive secret nodes are used: bundled (hardcoded defaults) and external (DAP `basic_auth` secret).
+- Both nodes are controlled by **visible** user-facing integer inputs (`create_bundled_db_secret`, `create_external_db_secret`), each `type: integer` with `in_range: [0, 1]` (Dell IN-007), defaulting to `0` and gated by `only_with` on `postgresql_enabled`.
+- The `postgresql_enabled` selector itself defaults to `"false"` (external PostgreSQL). Bundled is opt-in for trial / dev / single-replica deployments; production tiers ship pointed at customer-managed PostgreSQL.
 - Hidden integer toggles with `only_with` are **not reliable** for mutual exclusion (they do not resolve to `0` when the condition is unmet). Visible inputs avoid this problem.
+- The external secret node populates `username` / `password` via `get_secret: [{ get_input: database_credentials }, username]` and `… password]`.
 - Both nodes `depends_on` the namespace node (`create_namespace`).
 - The JDBC URL (`db-url`) must be constructed via `concat` to avoid Helm `--set` int64 port coercion.
 - The Helm chart references credentials via `database.secrets.*.name` and `database.secrets.*.key` in `set_values`.
 - `[FAIL]` if database credentials are passed directly via `set_values` instead of K8s secret references.
 - `[FAIL]` if JDBC URL is passed as a single string input through `--set` (causes `%!g(int64=...)` formatting).
+
+### SaaS DAPO Infrastructure Linkage (`fetch_labels`)
+
+For top-level / component blueprints that target SaaS DAPO:
+
+- A `fetch_labels` node (`type: dell.nodes.Root`) must run before any K8s resource creation when a `target_deployment_id` input is present.
+- The node uses an inline `precreate` script to copy the `target_id` label from the infrastructure deployment onto the current deployment via the DAP REST client.
+- All resource-creating nodes (namespace, secrets, helm release) must `depends_on` this node so the label is in place before resources are created.
+- `[WARN]` if `target_deployment_id` is defined but no `fetch_labels` node exists.
+- `[WARN]` if the `k8s_credentials` description does not mention the SaaS DAPO `proxy_settings` requirement.
 
 ### Service Disablement
 
@@ -260,6 +303,11 @@ These checks catch known DAP/Cloudify platform issues that cause deployment fail
 8. `[FAIL]` — Hidden input used to control a Helm value that depends on a user-visible selector without `only_with` (DAP cannot derive input values).
 9. `[WARN]` — `only_with` referencing a boolean value without quotes when the input is `type: string` (use `"false"` not `false`).
 10. `[WARN]` — Hidden integer inputs with `only_with` used for mutual exclusion. DAP does not reliably resolve hidden integers to `0` when condition is unmet. Use visible user-controlled integer toggles instead.
+11. `[WARN]` — `k8s_credentials` description does not document the required `configuration.proxy_settings.{disable, auto_resolve}` structure. SaaS DAPO deployments fail without it.
+12. `[FAIL]` — Separate `database_user` + `database_password` `general` secret inputs (deprecated). Use a single `database_credentials` `secret_key` input with `type: basic_auth` constraint.
+13. `[WARN]` — Helm release exists without `rollback: false`. Automatic rollback hides failure state and complicates debugging.
+14. `[WARN]` — Helm `Repo.repo_url` hardcoded to a public URL. Use `get_input` so air-gapped customers can override (`jfrog_helm_repo_url`, `ingress_nginx_repo_url`).
+15. `[FAIL]` — Top-level orchestrator imports a Helm plugin or Helm Release nodes directly. Helm logic must live in a child component blueprint that the orchestrator references via `dell.nodes.ServiceComponent`.
 
 ---
 
@@ -322,7 +370,7 @@ constraints:
 type: integer
 default: 0
 constraints:
-  - valid_values: [0, 1]
+  - in_range: [0, 1]
     error_message: Must be 0 (skip) or 1 (install).
 ```
 
@@ -344,6 +392,81 @@ license_secret_ref:
       error_message: Secret must be of type general.
 ```
 
+### Database credentials input (DAP basic_auth — v1.0.0 canonical pattern)
+```yaml
+database_credentials:
+  type: secret_key
+  hidden: false
+  allow_update: true
+  required: true
+  display_label: Database Credentials
+  description: >-
+    DAP basic_auth secret containing the Artifactory PostgreSQL user
+    'username' and 'password'. Replaces the v1 database_user /
+    database_password pair.
+  only_with:
+    postgresql_enabled: "false"
+  constraints:
+    - type: basic_auth
+      error_message: Secret must be of type basic_auth (username + password keys).
+```
+
+### K8s credentials input (with SaaS DAPO proxy_settings doc)
+```yaml
+k8s_credentials:
+  type: secret_key
+  hidden: false
+  allow_update: false
+  required: true
+  display_label: Kubernetes Credentials
+  description: >-
+    DAP secret of type 'k8s' containing the kubeconfig for the target
+    cluster. For SaaS DAPO the secret must also include
+    configuration.proxy_settings.{disable: false, auto_resolve: true}.
+  constraints:
+    - type: k8s
+      error_message: Secret must be of type k8s.
+```
+
+### Parameterized Helm repo URL (air-gapped support)
+```yaml
+jfrog_helm_repo_url:
+  type: string
+  hidden: false
+  allow_update: false
+  required: true
+  default: https://charts.jfrog.io
+  display_label: JFrog Helm Repo URL
+  description: >-
+    Helm repository URL for the JFrog Platform chart. Override with an
+    internal mirror for air-gapped deployments.
+  constraints:
+    - pattern: '^https?://[^\s]+$'
+      error_message: Must be a valid http(s) URL.
+```
+
+### Helm Release with rollback:false (Dell standard)
+```yaml
+jfrog_platform_release:
+  type: dell.nodes.helm.Release
+  properties:
+    client_config: { get_secret: { get_input: k8s_credentials } }
+    rollback: false
+    resource_config:
+      name: { get_input: release_name }
+      chart: jfrog/jfrog-platform
+      flags:
+        - name: namespace
+          value: { get_input: namespace }
+        - name: create-namespace
+        - name: version
+          value: { get_input: chart_version }
+        - name: atomic
+        - name: wait
+        - name: timeout
+          value: "10m0s"
+```
+
 ### Visible integer toggle for DB credentials (user-controlled)
 ```yaml
 # In inputs.yaml — user sets to 1 for bundled DB
@@ -354,7 +477,7 @@ create_bundled_db_secret:
   only_with:
     postgresql_enabled: "true"
   constraints:
-    - valid_values: [0, 1]
+    - in_range: [0, 1]
       error_message: Must be 0 (skip) or 1 (create).
 
 # In inputs.yaml — user sets to 1 for external DB
@@ -365,7 +488,7 @@ create_external_db_secret:
   only_with:
     postgresql_enabled: "false"
   constraints:
-    - valid_values: [0, 1]
+    - in_range: [0, 1]
       error_message: Must be 0 (skip) or 1 (create).
 ```
 
@@ -489,12 +612,134 @@ ingress_nginx_release:
         default_instances: { get_input: install_ingress_controller }
 ```
 
+### fetch_labels node (SaaS DAPO infrastructure linkage)
+```yaml
+fetch_labels:
+  type: dell.nodes.Root
+  interfaces:
+    cloudify.interfaces.lifecycle:
+      precreate:
+        executor: central_deployment_agent
+        max_retries: 1
+        implementation:
+          script: |
+            from dell import manager
+            from dell.state import ctx_parameters as inputs
+            client = manager.get_rest_client()
+            target_id = inputs['target_deployment_id']
+            src = client.deployments.get(target_id)
+            labels = [l for l in src.labels if l['key'] == 'csys-target-id']
+            if labels:
+                client.deployments.set_labels(
+                    deployment_id=ctx.deployment.id,
+                    labels=[{'csys-target-id': labels[0]['value']}],
+                )
+```
+
+### ServiceComponent (top-level orchestrator wiring a child blueprint)
+```yaml
+node_templates:
+  jfrog_platform:
+    type: dell.nodes.ServiceComponent
+    properties:
+      resource_config:
+        blueprint:
+          id: { get_input: [blueprint_ids, jfrog_platform] }
+          external_resource: true
+          revision_id: { get_input: jfrog_platform_revision_id }
+        deployment:
+          display_name:
+            concat:
+              - { get_sys: [deployment, name] }
+              - "-jfrog-platform"
+          auto_inc_suffix: true
+          inputs:
+            namespace: { get_input: namespace }
+            k8s_credentials: { get_input: k8s_credentials }
+            target_deployment_id: { get_input: target_deployment_id }
+            database_credentials: { get_input: database_credentials }
+            license_secret_ref: { get_input: license_secret_ref }
+            chart_version: { get_input: chart_version }
+            jfrog_helm_repo_url: { get_input: jfrog_helm_repo_url }
+    relationships:
+      - target: ingress_nginx
+        type: dell.relationships.depends_on
+```
+
+### Conditional component (entire ServiceComponent scales to 0)
+```yaml
+ingress_nginx:
+  type: dell.nodes.ServiceComponent
+  properties:
+    resource_config:
+      blueprint:
+        id: { get_input: [blueprint_ids, ingress_nginx] }
+        external_resource: true
+        revision_id: { get_input: ingress_nginx_revision_id }
+      deployment:
+        display_name:
+          concat:
+            - { get_sys: [deployment, name] }
+            - "-ingress-nginx"
+        auto_inc_suffix: true
+        inputs:
+          install_ingress_controller: { get_input: install_ingress_controller }
+          ingress_nginx_repo_url: { get_input: ingress_nginx_repo_url }
+          ingress_nginx_version: { get_input: ingress_nginx_version }
+          k8s_credentials: { get_input: k8s_credentials }
+          namespace: { get_input: namespace }
+  capabilities:
+    scalable:
+      properties:
+        default_instances: { get_input: install_ingress_controller }
+  relationships:
+    - target: stack_verifier
+      type: dell.relationships.depends_on
+```
+
+### Database secret node populated from basic_auth DAP secret
+```yaml
+database_credentials_external:
+  type: dell.nodes.kubernetes.resources.Secret
+  properties:
+    client_config: { get_secret: { get_input: k8s_credentials } }
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: jfrog-platform-database-creds
+        namespace: { get_input: namespace }
+      type: Opaque
+      stringData:
+        db-user:
+          get_secret: [{ get_input: database_credentials }, username]
+        db-password:
+          get_secret: [{ get_input: database_credentials }, password]
+        db-url:
+          concat:
+            - "jdbc:postgresql://"
+            - { get_input: database_host }
+            - ":"
+            - { get_input: database_port }
+            - "/artifactory?sslmode="
+            - { get_input: database_ssl_mode }
+    options:
+      namespace: { get_input: namespace }
+  capabilities:
+    scalable:
+      properties:
+        default_instances: { get_input: create_external_db_secret }
+  relationships:
+    - target: create_namespace
+      type: dell.relationships.depends_on
+```
+
 ### CHANGELOG entry
 ```yaml
 dsl_definitions:
   changelog:
-    1.0.1:
-      - ticket: JFROG-XXX
+    1.0.0:
+      - ticket: INST-22974
         developer: <github-username>
         description: >
           <One sentence describing the user-facing change.>

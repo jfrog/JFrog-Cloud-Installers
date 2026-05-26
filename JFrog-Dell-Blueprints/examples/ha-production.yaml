@@ -4,39 +4,26 @@
 #   - External PostgreSQL
 #   - Enterprise HA license (multiple keys for multiple replicas)
 #   - Large sizing template (3 Artifactory replicas)
-#   - Kubernetes Ingress with TLS
+#   - Kubernetes Ingress
 #   - PVC-backed persistence with a specific StorageClass
 #
 # Prerequisites:
 #   1. External PostgreSQL with pre-created "artifactory" database.
-#   2. DAP general secrets for database credentials (3 secrets).
-#   3. DAP general secret with the HA license file containing one
-#      license key per Artifactory replica.
-#   4. An ingress controller on the cluster.
-#   5. DNS + TLS certificate for the ingress hostname.
-#   6. A StorageClass that supports ReadWriteOnce (e.g., gp3, managed-csi).
-#
-# DAP UI steps:
-#   1. Credentials       → select Kubernetes credentials secret
-#   2. Persistence        → select storage_class mode
-#                         → set Storage Class (e.g., gp3)
-#                         → set PVC Size (e.g., 200Gi)
-#   3. Database           → set Bundled PostgreSQL to "false"
-#                         → set Create External Database Secret to 1
-#                         → fill in external DB connection details
-#                         → select DAP secrets for credentials
-#   4. Chart Settings     → set Sizing Template to "large"
-#   5. Licensing          → set Create License Secret to 1
-#                         → select the HA license secret
-#   6. Networking         → set Bundled NGINX to "false"
-#                         → set Kubernetes Ingress to "true"
-#                         → set Ingress Host
-#   7. Click Deploy
+#   2. DAP secrets:
+#      - "prod-pg-admin-password"     → DAP general secret (admin password)
+#      - "prod-pg-artif-credentials"  → DAP basic_auth secret (username/password)
+#      - "prod-artifactory-ha-license" → DAP general secret (HA license file)
+#   3. Existing ingress controller in the cluster (or set
+#      install_ingress_controller=1 to install ingress-nginx).
+#   4. DNS record for the ingress hostname.
+#   5. StorageClass that supports ReadWriteOnce.
+#   6. DAP target infrastructure deployment ID.
 
 inputs:
 
-  # ── Credentials (required) ───────────────────────────────────────
+  # ── Credentials ──────────────────────────────────────────────────
   k8s_credentials: prod-k8s-secret
+  target_deployment_id: prod-cluster-deployment
 
   # ── Infrastructure ───────────────────────────────────────────────
   namespace: jfrog-platform
@@ -49,25 +36,24 @@ inputs:
 
   # ── Database (external) ─────────────────────────────────────────
   postgresql_enabled: "false"
-  create_external_db_secret: 1                # Yes — create K8s secret from DAP secrets
+  create_external_db_secret: 1
   database_host: pg-primary.prod.internal
   database_port: "5432"
   database_ssl_mode: verify-full
   database_admin_password: prod-pg-admin-password
-  database_user: prod-pg-artif-user
-  database_password: prod-pg-artif-password
+  database_credentials: prod-pg-artif-credentials
 
   # ── Chart Settings ──────────────────────────────────────────────
   release_name: jfrog-platform
   sizing_template: large
 
   # ── Licensing ────────────────────────────────────────────────────
-  create_license_secret: 1                # Yes — create K8s Secret with license
+  create_license_secret: 1
   license_secret_ref: prod-artifactory-ha-license
 
   # ── Networking (Ingress) ────────────────────────────────────────
   nginx_enabled: "false"
   ingress_enabled: "true"
-  install_ingress_controller: 0           # No — already have one in prod
+  install_ingress_controller: 0           # Already have one in prod
   ingress_class_name: nginx
   ingress_host: artifactory.prod.example.com

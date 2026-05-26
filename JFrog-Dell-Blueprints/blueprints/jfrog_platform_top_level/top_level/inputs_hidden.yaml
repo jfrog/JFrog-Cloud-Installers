@@ -1,0 +1,136 @@
+# Copyright (c) 2026 JFrog Ltd. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0.
+# See LICENSE file in the project root for full license information.
+---
+
+inputs:
+
+  blueprint_ids:
+    type: dict
+    hidden: true
+    allow_update: false
+    required: true
+    display_label: Blueprint IDs
+    description: >-
+      Mapping from logical component name to catalog blueprint ID.
+      Resolved from manifest.yaml at deployment time.
+    default:
+      input_validator: jfrog_input_validator
+      stack_verifier: jfrog_stack_verifier
+      ingress_nginx: ingress_nginx_component
+      jfrog_platform: jfrog_platform_component
+
+  input_validator_revision_id:
+    type: string
+    hidden: true
+    allow_update: false
+    required: true
+    display_label: Input Validator Revision ID
+    description: Revision of the input validator component blueprint to deploy.
+    default: "1.0.0.0"
+    constraints:
+      - pattern: '^\d+\.\d+\.\d+\.\d+$'
+        error_message: Must be a 4-part revision (MAJOR.MINOR.PATCH.BUILD).
+
+  stack_verifier_revision_id:
+    type: string
+    hidden: true
+    allow_update: false
+    required: true
+    display_label: Stack Verifier Revision ID
+    description: Revision of the stack verifier component blueprint to deploy.
+    default: "1.0.0.0"
+    constraints:
+      - pattern: '^\d+\.\d+\.\d+\.\d+$'
+        error_message: Must be a 4-part revision (MAJOR.MINOR.PATCH.BUILD).
+
+  ingress_nginx_revision_id:
+    type: string
+    hidden: true
+    allow_update: false
+    required: true
+    display_label: Ingress NGINX Revision ID
+    description: Revision of the ingress-nginx component blueprint to deploy.
+    default: "1.0.0.0"
+    constraints:
+      - pattern: '^\d+\.\d+\.\d+\.\d+$'
+        error_message: Must be a 4-part revision (MAJOR.MINOR.PATCH.BUILD).
+
+  jfrog_platform_revision_id:
+    type: string
+    hidden: true
+    allow_update: false
+    required: true
+    display_label: JFrog Platform Revision ID
+    description: Revision of the JFrog Platform component blueprint to deploy.
+    default: "1.0.0.0"
+    constraints:
+      - pattern: '^\d+\.\d+\.\d+\.\d+$'
+        error_message: Must be a 4-part revision (MAJOR.MINOR.PATCH.BUILD).
+
+  blueprint_job_image:
+    type: string
+    hidden: true
+    allow_update: false
+    required: true
+    display_label: Stack Verifier Job Image
+    description: >-
+      Image (path/tag) used by the stack verifier Kubernetes Job. Pulled
+      from container_registry_name.
+    default: "dtzar/helm-kubectl:3.19"
+    constraints:
+      - pattern: '^[a-zA-Z0-9][a-zA-Z0-9\-\._/]*:[a-zA-Z0-9][a-zA-Z0-9\-\._]*$'
+        error_message: Must be in the form image/path:tag.
+
+  k8s_min_version:
+    type: string
+    hidden: true
+    allow_update: false
+    required: true
+    display_label: Minimum Kubernetes Version
+    description: Minimum Kubernetes server version the stack verifier will accept.
+    default: "v1.30"
+    constraints:
+      - pattern: '^v\d+\.\d+(\.\d+)?$'
+        error_message: Must be a Kubernetes version like v1.30 or v1.30.5.
+
+  min_ready_nodes:
+    type: integer
+    hidden: true
+    allow_update: false
+    required: true
+    display_label: Minimum Ready Nodes
+    description: Minimum number of Ready nodes the stack verifier will accept.
+    default: 1
+    constraints:
+      - in_range: [1, 10]
+        error_message: Must be between 1 and 10.
+
+  chart_version:
+    type: string
+    hidden: true
+    allow_update: true
+    required: true
+    display_label: Chart Version
+    description: >-
+      jfrog/jfrog-platform Helm chart version. Injected automatically
+      by the build pipeline from the resolved chart version; not
+      customer-editable.
+    default: 11.5.3
+    constraints:
+      - pattern: '^\d+\.\d+\.\d+$'
+        error_message: Must be a valid semantic version.
+
+  k8s_deployment_constraints:
+    type: dict
+    hidden: true
+    allow_update: false
+    display_label: K8s Deployment Constraints
+    description: >-
+      Internal mapping from target_type to the DAP deployment-id label
+      used to discover the target Kubernetes infrastructure deployment.
+      Build-time pinned; not customer-editable.
+    default:
+      AI: "dellprivatecloudcluster"
+      External: "kubernetes"

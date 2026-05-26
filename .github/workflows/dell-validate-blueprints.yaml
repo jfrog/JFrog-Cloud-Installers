@@ -3,9 +3,14 @@ name: Validate Dell Blueprints
 on:
   pull_request:
     paths:
-      - "JFrog-Dell-Blueprints/**/blueprint.yaml"
-      - "JFrog-Dell-Blueprints/**/CHANGELOG.yaml"
+      - "JFrog-Dell-Blueprints/blueprints/**/blueprint.yaml"
+      - "JFrog-Dell-Blueprints/blueprints/**/CHANGELOG.yaml"
+      - "JFrog-Dell-Blueprints/blueprints/**/inputs/**"
+      - "JFrog-Dell-Blueprints/blueprints/**/top_level/**"
+      - "JFrog-Dell-Blueprints/blueprints/**/application/**"
+      - "JFrog-Dell-Blueprints/blueprints/**/applications/**"
       - "JFrog-Dell-Blueprints/scripts/validate_blueprints.sh"
+      - "JFrog-Dell-Blueprints/scripts/generate_manifest.py"
       - ".github/workflows/dell-validate-blueprints.yaml"
   workflow_dispatch:
 

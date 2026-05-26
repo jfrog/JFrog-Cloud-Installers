@@ -1,0 +1,46 @@
+# Copyright (c) 2026 JFrog Ltd. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0.
+# See LICENSE file in the project root for full license information.
+---
+
+tosca_definitions_version: dell_1_1
+
+description: >
+  Stack Verifier for the JFrog Platform deployment. Runs a Kubernetes
+  Job on the target cluster to validate Kubernetes version, node
+  readiness, storage class availability, ingress class availability,
+  and external database connectivity before the JFrog Platform Helm
+  release runs.
+
+imports:
+  - dell/types/types.yaml
+  - plugin:kubernetes-plugin?version= >=3.3.0.0,<4.0.0.0
+  - inputs/inputs.yaml
+  - inputs/inputs_hidden.yaml
+  - application/definitions.yaml
+
+labels:
+  csys-obj-type:
+    values:
+      - environment
+  target_environment:
+    values:
+      - ece
+  solution:
+    values:
+      - jfrog_platform_stack_verifier
+  version:
+    values:
+      - "1.0"
+
+blueprint_labels:
+  env:
+    values:
+      - Dell
+  obj-type:
+    values:
+      - kubernetes
+  csys-obj-type:
+    values:
+      - utility

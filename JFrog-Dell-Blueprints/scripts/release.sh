@@ -77,10 +77,16 @@ get_latest_chart_version() {
 }
 
 # ── Blueprint catalogue ─────────────────────────────────────────────
-# Each entry is <directory>:<display-name>.
-# Add new blueprints here as they are created.
+# The release builds a Dell-certified bundle containing the top-level
+# orchestrator and its component blueprints (input validator, stack
+# verifier, ingress-nginx, JFrog Platform).  We tag a single version
+# for the bundle as a whole.
 BLUEPRINTS=(
-  "blueprints/jfrog-platform:JFrog Dell Blueprint"
+  "blueprints/jfrog_platform_top_level:JFrog Platform Top-Level Blueprint"
+  "blueprints/jfrog_input_validator:JFrog Platform Input Validator"
+  "blueprints/jfrog_stack_verifier:JFrog Platform Stack Verifier"
+  "blueprints/ingress_nginx_component:Ingress NGINX Controller Component"
+  "blueprints/jfrog_platform_component:JFrog Platform Component"
 )
 
 # ── Show existing releases ───────────────────────────────────────────
@@ -113,17 +119,15 @@ fi
 echo "-------------------------------------"
 echo ""
 
-# ── Select blueprint ─────────────────────────────────────────────────
-if [[ ${#BLUEPRINTS[@]} -eq 1 ]]; then
-  IFS=':' read -r BLUEPRINT_DIR BLUEPRINT_NAME <<< "${BLUEPRINTS[0]}"
-  echo "Using blueprint: ${BLUEPRINT_NAME} (${BLUEPRINT_DIR}/)"
-else
-  echo "Select a blueprint:"
-  select entry in "${BLUEPRINTS[@]}"; do
-    IFS=':' read -r BLUEPRINT_DIR BLUEPRINT_NAME <<< "$entry"
-    break
-  done
-fi
+# ── Bundle is released as a whole ────────────────────────────────────
+BLUEPRINT_NAME="JFrog Dell Blueprint Bundle"
+BLUEPRINT_DIR="blueprints"
+echo "Releasing bundle: ${BLUEPRINT_NAME}"
+echo "Components in this release:"
+for entry in "${BLUEPRINTS[@]}"; do
+  IFS=':' read -r dir name <<< "$entry"
+  echo "  - ${name} (${dir}/)"
+done
 
 # ── Version input ────────────────────────────────────────────────────
 if [[ -z "${NEW_VERSION:-}" ]]; then

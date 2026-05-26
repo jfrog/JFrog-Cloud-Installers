@@ -1,44 +1,52 @@
 # Example: Bundled PostgreSQL + Trial License (Default)
 #
 # Simplest deployment — uses the bundled PostgreSQL subchart and starts
-# Artifactory in trial mode.  Only the k8s credentials secret is required.
+# Artifactory in trial mode.
 #
 # Prerequisites:
 #   1. A DAP Kubernetes credentials secret (type: k8s).
+#      For SaaS DAPO, the secret must include:
+#        configuration:
+#          proxy_settings:
+#            disable: false
+#            auto_resolve: true
+#   2. A target infrastructure deployment in DAP (Kubernetes cluster
+#      target_deployment_id).
 #
 # DAP UI steps:
 #   1. Credentials group  → select your Kubernetes credentials secret
+#                         → select the Target Infrastructure ID
 #   2. Database            → set Create Bundled Database Secret to 1
 #   3. Leave all other groups at their defaults
 #   4. Click Deploy
 #
 # What happens behind the scenes:
+#   - input_validator runs on the central agent and validates inputs/secrets
+#   - stack_verifier runs a Kubernetes Job to verify cluster prerequisites
 #   - postgresql_enabled = "true"  →  bundled PostgreSQL subchart is deployed
-#   - create_bundled_db_secret = 1     →  K8s Secret "jfrog-platform-database-creds"
-#                                      created with bundled defaults
-#                                      (postgres / artifactory / artifactory)
+#   - create_bundled_db_secret = 1     →  K8s Secret created with bundled defaults
 #   - create_license_secret = 0   →  no license K8s Secret, Artifactory
 #                                      starts in trial mode
-#   - Namespace "jfrog-platform" created before Helm install
 
 inputs:
 
   # ── Credentials (required) ───────────────────────────────────────
-  k8s_credentials: my-k8s-secret          # DAP secret name (type: k8s)
+  k8s_credentials: my-k8s-secret             # DAP secret name (type: k8s)
+  target_deployment_id: my-cluster-deployment # DAP infrastructure deployment ID
 
   # ── Infrastructure ───────────────────────────────────────────────
-  namespace: jfrog-platform               # default
+  namespace: jfrog-platform
 
   # ── Database ─────────────────────────────────────────────────────
-  postgresql_enabled: "true"              # default — bundled PostgreSQL
-  create_bundled_db_secret: 1                 # Yes — create K8s secret with bundled defaults
+  postgresql_enabled: "true"
+  create_bundled_db_secret: 1
 
   # ── Licensing ────────────────────────────────────────────────────
-  create_license_secret: 0                # No — trial mode
+  create_license_secret: 0                   # No — trial mode
 
   # ── Chart Settings ──────────────────────────────────────────────
-  release_name: jfrog-platform            # default
-  sizing_template: small                  # default
+  release_name: jfrog-platform
+  sizing_template: small
 
   # ── Networking ──────────────────────────────────────────────────
-  nginx_enabled: "true"                   # default — LoadBalancer
+  nginx_enabled: "true"                      # LoadBalancer mode

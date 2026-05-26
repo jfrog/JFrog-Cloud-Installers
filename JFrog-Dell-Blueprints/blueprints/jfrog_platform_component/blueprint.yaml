@@ -7,29 +7,38 @@
 tosca_definitions_version: dell_1_1
 
 description: >
-  Deploys JFrog Platform (Artifactory only) on a Kubernetes cluster
-  using the official jfrog/jfrog-platform Helm chart.
+  JFrog Platform Component Blueprint. Deploys the JFrog Platform
+  (Artifactory) using the official jfrog/jfrog-platform Helm chart.
+  Includes fetch_labels for SaaS DAPO infrastructure linkage,
+  namespace + secret creation, and the JFrog Platform Helm release
+  with rollback disabled for easier debugging.
 
 imports:
   - dell/types/types.yaml
   - plugin:helm-plugin?version= >=1.4.0.0,<2.0.0.0
   - plugin:kubernetes-plugin?version= >=3.3.0.0,<4.0.0.0
-  - top_level/inputs.yaml
-  - top_level/inputs_hidden.yaml
-  - top_level/outputs.yaml
-  - application/00_namespace_and_secrets.yaml
-  - application/01_ingress_nginx.yaml
-  - application/02_jfrog_platform.yaml
+  - inputs/inputs.yaml
+  - inputs/inputs_hidden.yaml
+  - application/definitions.yaml
 
 labels:
   csys-obj-type:
     values:
       - environment
+  target_environment:
+    values:
+      - ece
   solution:
     values:
-      - jfrog-platform
+      - jfrog_platform_component
+  version:
+    values:
+      - "1.0"
 
 blueprint_labels:
+  env:
+    values:
+      - Dell
   obj-type:
     values:
       - helm

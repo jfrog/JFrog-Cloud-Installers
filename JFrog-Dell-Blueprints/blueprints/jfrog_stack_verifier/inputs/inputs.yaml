@@ -1,0 +1,213 @@
+# Copyright (c) 2026 JFrog Ltd. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0.
+# See LICENSE file in the project root for full license information.
+---
+
+input_groups:
+  k8s_target_cluster:
+    display_label: Target Kubernetes Cluster
+    collapsible: true
+    index: 0
+    inputs:
+      - k8s_credentials
+      - target_deployment_id
+  infrastructure:
+    display_label: Infrastructure
+    collapsible: true
+    index: 1
+    inputs:
+      - namespace
+  storage_configuration:
+    display_label: Storage Configuration
+    collapsible: true
+    index: 2
+    inputs:
+      - storage_class
+  networking_configuration:
+    display_label: Networking Configuration
+    collapsible: true
+    index: 3
+    inputs:
+      - ingress_enabled
+      - install_ingress_controller
+      - ingress_class_name
+  database_configuration:
+    display_label: Database Configuration
+    collapsible: true
+    index: 4
+    inputs:
+      - postgresql_enabled
+      - database_host
+      - database_port
+  container_registries:
+    display_label: Container Registries
+    collapsible: true
+    index: 5
+    inputs:
+      - container_registry_name
+      - create_pull_secret
+      - container_registry_credentials_secret
+
+inputs:
+
+  k8s_credentials:
+    type: string
+    hidden: false
+    allow_update: false
+    required: true
+    display_label: Cluster Access Secret
+    description: |
+      Secret name containing details needed for Kubernetes cluster.
+      Required keys: host, port, verify_ssl, ssl_ca_cert.
+      For verify_ssl='TLS': also requires cert_file, key_file.
+      For verify_ssl='Token': also requires token.
+    display:
+      group: k8s_target_cluster
+      index: 0
+
+  target_deployment_id:
+    type: deployment_id
+    hidden: false
+    allow_update: false
+    required: true
+    display_label: Target Infrastructure ID
+    description: Deployment ID of the target Kubernetes infrastructure.
+    display:
+      group: k8s_target_cluster
+      index: 1
+
+  namespace:
+    type: string
+    hidden: false
+    allow_update: false
+    required: true
+    display_label: Kubernetes Namespace
+    description: Namespace where the verification Job will run.
+    default: jfrog-platform
+    display:
+      group: infrastructure
+      index: 0
+
+  storage_class:
+    type: string
+    hidden: false
+    allow_update: false
+    required: false
+    display_label: Storage Class
+    description: StorageClass name to verify.  Empty = use cluster default.
+    default: ""
+    display:
+      group: storage_configuration
+      index: 0
+
+  ingress_enabled:
+    type: string
+    hidden: false
+    allow_update: true
+    required: true
+    display_label: Kubernetes Ingress
+    description: Whether the JFrog Platform deployment will use Ingress.
+    default: "false"
+    display:
+      group: networking_configuration
+      index: 0
+
+  install_ingress_controller:
+    type: integer
+    hidden: false
+    allow_update: true
+    required: true
+    display_label: Install Ingress Controller
+    description: 1 = the verifier skips IngressClass check (controller is being installed).
+    default: 0
+    display:
+      group: networking_configuration
+      index: 1
+
+  ingress_class_name:
+    type: string
+    hidden: false
+    allow_update: true
+    required: false
+    display_label: Ingress Class Name
+    description: IngressClass to verify when ingress_enabled=true and install_ingress_controller=0.
+    default: nginx
+    display:
+      group: networking_configuration
+      index: 2
+
+  postgresql_enabled:
+    type: string
+    hidden: false
+    allow_update: true
+    required: true
+    display_label: Bundled PostgreSQL
+    description: Whether the JFrog Platform deployment uses bundled PostgreSQL.
+    default: "false"
+    display:
+      group: database_configuration
+      index: 0
+
+  database_host:
+    type: string
+    hidden: false
+    allow_update: false
+    required: true
+    display_label: Database Host
+    description: External PostgreSQL host (only verified when postgresql_enabled=false).
+    default: jfrog-platform-postgresql
+    display:
+      group: database_configuration
+      index: 1
+
+  database_port:
+    type: string
+    hidden: false
+    allow_update: false
+    required: true
+    display_label: Database Port
+    description: External PostgreSQL port.
+    default: "5432"
+    display:
+      group: database_configuration
+      index: 2
+
+  container_registry_name:
+    type: string
+    hidden: false
+    allow_update: false
+    required: true
+    display_label: Container Registry Hostname
+    description: Registry the verifier image is pulled from.
+    default: docker.io
+    display:
+      group: container_registries
+      index: 0
+
+  create_pull_secret:
+    type: integer
+    hidden: false
+    allow_update: false
+    required: true
+    display_label: Pull From Private Registry
+    description: >-
+      1 = the verifier image lives in a private registry; create an
+      image-pull Secret from the supplied credentials and attach it to
+      the Job. 0 = the image lives in a public registry; skip the pull
+      Secret and let the Job pull anonymously.
+    default: 0
+    display:
+      group: container_registries
+      index: 1
+
+  container_registry_credentials_secret:
+    type: string
+    hidden: false
+    allow_update: false
+    required: false
+    display_label: Container Registry Credentials Secret
+    description: Optional DAP basic_auth secret with username/password.
+    display:
+      group: container_registries
+      index: 2

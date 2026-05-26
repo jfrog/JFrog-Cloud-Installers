@@ -1,0 +1,395 @@
+# Copyright (c) 2026 JFrog Ltd. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0.
+# See LICENSE file in the project root for full license information.
+---
+
+dsl_definitions:
+  jfrog_repo_config: &jfrog_repo_config
+    name: jfrog
+    repo_url: { get_input: jfrog_helm_repo_url }
+
+node_templates:
+
+  fetch_labels:
+    type: dell.nodes.Root
+    interfaces:
+      dell.interfaces.lifecycle:
+        start: |
+          from dell import ctx
+          from dell.manager import get_rest_client
+          
+          client = get_rest_client()
+          this_dep = client.deployments.get(ctx.deployment.id)
+          target_dep = client.deployments.get(this_dep.inputs["target_deployment_id"])
+          labels = []
+          ctx.logger.info("current labels: {}".format(this_dep.labels))
+          for label in this_dep.labels:
+            labels.append({label.key: label.value})
+          ctx.logger.info("target_dep labels: {}".format(target_dep.labels))
+          labels.append({"target_id": [label.value for label in target_dep.labels if label.get("key") == "target_id"][0]})
+          
+          ctx.logger.info("updating labels to: {}".format(labels))
+          client.deployments.update_labels(ctx.deployment.id, labels)
+
+  fetch_k8s_config_secret:
+    type: dell.nodes.Root
+    interfaces:
+      dell.interfaces.lifecycle:
+        precreate:
+          implementation: application/scripts/parse_k8s_secret.py
+          executor: central_deployment_agent
+          inputs:
+            k8s_credentials: { get_input: k8s_credentials }
+
+  create_namespace:
+    type: dell.nodes.kubernetes.resources.Namespace
+    properties:
+      client_config: { get_attribute: [fetch_k8s_config_secret, k8s_client_config] }
+      create_if_missing: true
+      use_external_resource: false
+      definition:
+        apiVersion: v1
+        kind: Namespace
+        metadata:
+          name: { get_input: namespace }
+    relationships:
+      - target: fetch_labels
+        type: dell.relationships.depends_on
+      - target: fetch_k8s_config_secret
+        type: dell.relationships.depends_on
+
+  license_secret:
+    type: dell.nodes.kubernetes.resources.Secret
+    properties:
+      client_config: { get_attribute: [fetch_k8s_config_secret, k8s_client_config] }
+      definition:
+        apiVersion: v1
+        kind: Secret
+        metadata:
+          name: { get_input: license_secret_name }
+          namespace: { get_input: namespace }
+        type: Opaque
+        stringData:
+          artifactory.lic:
+            get_secret: { get_input: license_secret_ref }
+      options:
+        namespace: { get_input: namespace }
+    capabilities:
+      scalable:
+        properties:
+          default_instances: { get_input: create_license_secret }
+    relationships:
+      - target: create_namespace
+        type: dell.relationships.depends_on
+
+  master_key_secret:
+    type: dell.nodes.kubernetes.resources.Secret
+    properties:
+      client_config: { get_attribute: [fetch_k8s_config_secret, k8s_client_config] }
+      definition:
+        apiVersion: v1
+        kind: Secret
+        metadata:
+          name: { get_input: master_key_secret_name }
+          namespace: { get_input: namespace }
+        type: Opaque
+        stringData:
+          master-key:
+            get_secret: { get_input: master_key_secret_ref }
+      options:
+        namespace: { get_input: namespace }
+    capabilities:
+      scalable:
+        properties:
+          default_instances: { get_input: create_master_key_secret }
+    relationships:
+      - target: create_namespace
+        type: dell.relationships.depends_on
+
+  join_key_secret:
+    type: dell.nodes.kubernetes.resources.Secret
+    properties:
+      client_config: { get_attribute: [fetch_k8s_config_secret, k8s_client_config] }
+      definition:
+        apiVersion: v1
+        kind: Secret
+        metadata:
+          name: { get_input: join_key_secret_name }
+          namespace: { get_input: namespace }
+        type: Opaque
+        stringData:
+          join-key:
+            get_secret: { get_input: join_key_secret_ref }
+      options:
+        namespace: { get_input: namespace }
+    capabilities:
+      scalable:
+        properties:
+          default_instances: { get_input: create_join_key_secret }
+    relationships:
+      - target: create_namespace
+        type: dell.relationships.depends_on
+
+  compute_key_secret_names:
+    type: dell.nodes.Root
+    interfaces:
+      dell.interfaces.lifecycle:
+        precreate:
+          executor: central_deployment_agent
+          inputs:
+            create_master_key_secret: { get_input: create_master_key_secret }
+            master_key_secret_name: { get_input: master_key_secret_name }
+            create_join_key_secret: { get_input: create_join_key_secret }
+            join_key_secret_name: { get_input: join_key_secret_name }
+          implementation: |
+            #!/usr/bin/env python3
+            from dell import ctx
+            from dell.state import ctx_parameters as inputs
+
+            # The master/join key Secrets are only created when their
+            # toggle is 1. When the toggle is 0 the chart must fall back
+            # to its own auto-generated keys, which it does whenever
+            # masterKeySecretName / joinKeySecretName is empty. DAP cannot
+            # derive these conditionally in the static set_values list, so
+            # resolve them here and expose via runtime properties.
+            create_master = int(inputs.get("create_master_key_secret") or 0)
+            create_join = int(inputs.get("create_join_key_secret") or 0)
+
+            master_name = inputs.get("master_key_secret_name") or ""
+            join_name = inputs.get("join_key_secret_name") or ""
+
+            master_effective = master_name if create_master == 1 else ""
+            join_effective = join_name if create_join == 1 else ""
+
+            ctx.instance.runtime_properties["master_key_secret_name"] = master_effective
+            ctx.instance.runtime_properties["join_key_secret_name"] = join_effective
+
+            ctx.logger.info(
+                "masterKeySecretName -> %r (create_master_key_secret=%s)",
+                master_effective, create_master,
+            )
+            ctx.logger.info(
+                "joinKeySecretName -> %r (create_join_key_secret=%s)",
+                join_effective, create_join,
+            )
+
+  database_credentials_bundled:
+    type: dell.nodes.kubernetes.resources.Secret
+    properties:
+      client_config: { get_attribute: [fetch_k8s_config_secret, k8s_client_config] }
+      definition:
+        apiVersion: v1
+        kind: Secret
+        metadata:
+          name: { get_input: database_secret_name }
+          namespace: { get_input: namespace }
+        type: Opaque
+        stringData:
+          db-admin-password: postgres
+          db-user: artifactory
+          db-password: artifactory
+          db-url:
+            concat:
+              - "jdbc:postgresql://"
+              - { get_input: database_host }
+              - ":"
+              - { get_input: database_port }
+              - "/artifactory?sslmode="
+              - { get_input: database_ssl_mode }
+      options:
+        namespace: { get_input: namespace }
+    capabilities:
+      scalable:
+        properties:
+          default_instances: { get_input: create_bundled_db_secret }
+    relationships:
+      - target: create_namespace
+        type: dell.relationships.depends_on
+
+  database_credentials_external:
+    type: dell.nodes.kubernetes.resources.Secret
+    properties:
+      client_config: { get_attribute: [fetch_k8s_config_secret, k8s_client_config] }
+      definition:
+        apiVersion: v1
+        kind: Secret
+        metadata:
+          name: { get_input: database_secret_name }
+          namespace: { get_input: namespace }
+        type: Opaque
+        stringData:
+          db-admin-password:
+            get_secret: { get_input: database_admin_password }
+          db-user:
+            get_secret: [{ get_input: database_credentials }, username]
+          db-password:
+            get_secret: [{ get_input: database_credentials }, password]
+          db-url:
+            concat:
+              - "jdbc:postgresql://"
+              - { get_input: database_host }
+              - ":"
+              - { get_input: database_port }
+              - "/artifactory?sslmode="
+              - { get_input: database_ssl_mode }
+      options:
+        namespace: { get_input: namespace }
+    capabilities:
+      scalable:
+        properties:
+          default_instances: { get_input: create_external_db_secret }
+    relationships:
+      - target: create_namespace
+        type: dell.relationships.depends_on
+
+  helm_binary:
+    type: dell.nodes.helm.Binary
+
+  jfrog_repo:
+    type: dell.nodes.helm.Repo
+    properties:
+      resource_config: *jfrog_repo_config
+    relationships:
+      - target: helm_binary
+        type: dell.relationships.helm.run_on_host
+
+  jfrog_platform_release:
+    type: dell.nodes.helm.Release
+    properties:
+      client_config: { get_attribute: [fetch_k8s_config_secret, k8s_client_config] }
+      rollback: false
+      resource_config:
+        name: { get_input: release_name }
+        chart: jfrog/jfrog-platform
+        values_file:
+          concat:
+            - "sizing/platform-"
+            - { get_input: sizing_template }
+            - ".yaml"
+        set_values:
+          - name: artifactory.enabled
+            value: "true"
+          - name: artifactory.artifactory.persistence.enabled
+            value: "true"
+          - name: artifactory.artifactory.persistence.type
+            value: { get_input: persistence_type }
+          - name: artifactory.artifactory.persistence.storageClassName
+            value: { get_input: storage_class }
+          - name: artifactory.artifactory.persistence.size
+            value: { get_input: pvc_size }
+          - name: artifactory.artifactory.persistence.accessMode
+            value: { get_input: pvc_access_mode }
+          - name: artifactory.artifactory.persistence.nfs.ip
+            value: { get_input: nfs_ip }
+          - name: artifactory.artifactory.persistence.nfs.capacity
+            value: { get_input: nfs_capacity }
+          - name: artifactory.artifactory.persistence.fileSystem.cache.enabled
+            value: { get_input: filesystem_cache_enabled }
+          - name: artifactory.nginx.enabled
+            value: { get_input: nginx_enabled }
+          - name: artifactory.ingress.enabled
+            value: { get_input: ingress_enabled }
+          - name: artifactory.ingress.className
+            value: { get_input: ingress_class_name }
+          - name: artifactory.ingress.hosts[0]
+            value: { get_input: ingress_host }
+          - name: rabbitmq.enabled
+            value: "false"
+          - name: postgresql.enabled
+            value: { get_input: postgresql_enabled }
+          - name: global.database.initDBCreation
+            value: { get_input: postgresql_enabled }
+          - name: global.database.host
+            value: { get_input: database_host }
+          - name: global.database.port
+            value: { get_input: database_port }
+          - name: global.database.sslMode
+            value: { get_input: database_ssl_mode }
+          - name: global.database.secrets.adminPassword.name
+            value: { get_input: database_secret_name }
+          - name: global.database.secrets.adminPassword.key
+            value: db-admin-password
+          - name: artifactory.database.type
+            value: "postgresql"
+          - name: artifactory.database.driver
+            value: "org.postgresql.Driver"
+          - name: artifactory.database.secrets.user.name
+            value: { get_input: database_secret_name }
+          - name: artifactory.database.secrets.user.key
+            value: db-user
+          - name: artifactory.database.secrets.password.name
+            value: { get_input: database_secret_name }
+          - name: artifactory.database.secrets.password.key
+            value: db-password
+          - name: artifactory.database.secrets.url.name
+            value: { get_input: database_secret_name }
+          - name: artifactory.database.secrets.url.key
+            value: db-url
+          - name: xray.enabled
+            value: "false"
+          - name: distribution.enabled
+            value: "false"
+          - name: artifactory.artifactory.license.secret
+            value: { get_input: license_secret_name }
+          - name: artifactory.artifactory.license.dataKey
+            value: artifactory.lic
+          - name: artifactory.artifactory.masterKeySecretName
+            value: { get_attribute: [compute_key_secret_names, master_key_secret_name] }
+          - name: artifactory.artifactory.joinKeySecretName
+            value: { get_attribute: [compute_key_secret_names, join_key_secret_name] }
+        flags:
+          - name: namespace
+            value: { get_input: namespace }
+          - name: create-namespace
+          - name: version
+            value: { get_input: chart_version }
+          - name: wait
+          - name: timeout
+            value: "10m0s"
+    relationships:
+      - target: helm_binary
+        type: dell.relationships.helm.run_on_host
+      - target: jfrog_repo
+        type: dell.relationships.depends_on
+      - target: license_secret
+        type: dell.relationships.depends_on
+      - target: compute_key_secret_names
+        type: dell.relationships.depends_on
+      - target: master_key_secret
+        type: dell.relationships.depends_on
+      - target: join_key_secret
+        type: dell.relationships.depends_on
+      - target: database_credentials_bundled
+        type: dell.relationships.depends_on
+      - target: database_credentials_external
+        type: dell.relationships.depends_on
+
+capabilities:
+  release_name:
+    description: Name of the deployed Helm release
+    value: { get_input: release_name }
+  namespace:
+    description: Kubernetes namespace of the deployment
+    value: { get_input: namespace }
+  sizing:
+    description: Applied sizing template
+    value: { get_input: sizing_template }
+  platform_url_ingress:
+    description: Artifactory URL when using ingress deployment mode.
+    value:
+      concat:
+        - "http://"
+        - { get_input: ingress_host }
+        - "/artifactory"
+  platform_url_command:
+    description: >-
+      Run this command to get the Artifactory external IP when using
+      nginx/LoadBalancer deployment mode.
+    value:
+      concat:
+        - "kubectl get svc "
+        - { get_input: release_name }
+        - "-artifactory-nginx -n "
+        - { get_input: namespace }
+        - " -o jsonpath='{.status.loadBalancer.ingress[0].ip}'"

@@ -1,0 +1,306 @@
+# Copyright (c) 2026 JFrog Ltd. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0.
+# See LICENSE file in the project root for full license information.
+---
+
+node_templates:
+
+  fetch_labels:
+    type: dell.nodes.Root
+    interfaces:
+      dell.interfaces.lifecycle:
+        start: |
+          from dell import ctx
+          from dell.manager import get_rest_client
+          
+          client = get_rest_client()
+          this_dep = client.deployments.get(ctx.deployment.id)
+          target_dep = client.deployments.get(this_dep.inputs["target_deployment_id"])
+          labels = []
+          ctx.logger.info("current labels: {}".format(this_dep.labels))
+          for label in this_dep.labels:
+            labels.append({label.key: label.value})
+          ctx.logger.info("target_dep labels: {}".format(target_dep.labels))
+          labels.append({"target_id": [label.value for label in target_dep.labels if label.get("key") == "target_id"][0]})
+          
+          ctx.logger.info("updating labels to: {}".format(labels))
+          client.deployments.update_labels(ctx.deployment.id, labels)
+
+  fetch_k8s_config_secret:
+    type: dell.nodes.Root
+    interfaces:
+      dell.interfaces.lifecycle:
+        precreate:
+          implementation: application/scripts/parse_k8s_secret.py
+          executor: central_deployment_agent
+          inputs:
+            k8s_credentials: { get_input: k8s_credentials }
+    relationships:
+      - type: dell.relationships.depends_on
+        target: fetch_labels
+
+  stack_verifier_namespace:
+    type: dell.nodes.kubernetes.resources.Namespace
+    properties:
+      client_config: { get_attribute: [fetch_k8s_config_secret, k8s_client_config] }
+      create_if_missing: true
+      use_external_resource: false
+      definition:
+        apiVersion: v1
+        kind: Namespace
+        metadata:
+          name: { get_input: namespace }
+      options:
+        namespace: { get_input: namespace }
+    relationships:
+      - type: dell.relationships.depends_on
+        target: fetch_k8s_config_secret
+
+  stack_verifier_pull_secret:
+    type: dell.nodes.kubernetes.resources.Secret
+    properties:
+      client_config: { get_attribute: [fetch_k8s_config_secret, k8s_client_config] }
+      create_if_missing: true
+      definition:
+        apiVersion: v1
+        kind: Secret
+        type: kubernetes.io/dockerconfigjson
+        metadata:
+          name: { get_input: pull_secret_name }
+          namespace: { get_input: namespace }
+        data:
+          .dockerconfigjson: { get_attribute: [SELF, registry_secret_data] }
+      options:
+        namespace: { get_input: namespace }
+    capabilities:
+      scalable:
+        properties:
+          default_instances: { get_input: create_pull_secret }
+    interfaces:
+      dell.interfaces.lifecycle:
+        precreate:
+          implementation: application/scripts/prepare_registry_data.py
+          executor: central_deployment_agent
+          inputs:
+            container_registry_name: { get_input: container_registry_name }
+            container_registry_username:
+              get_secret: [{ get_input: container_registry_credentials_secret }, username]
+            container_registry_password:
+              get_secret: [{ get_input: container_registry_credentials_secret }, password]
+    relationships:
+      - type: dell.relationships.depends_on
+        target: stack_verifier_namespace
+
+  stack_verifier_service_account:
+    type: dell.nodes.kubernetes.resources.ServiceAccount
+    properties:
+      client_config: { get_attribute: [fetch_k8s_config_secret, k8s_client_config] }
+      definition:
+        apiVersion: v1
+        kind: ServiceAccount
+        metadata:
+          name: { get_input: service_account_name }
+          namespace: { get_input: namespace }
+      options:
+        namespace: { get_input: namespace }
+    relationships:
+      - type: dell.relationships.depends_on
+        target: stack_verifier_namespace
+
+  stack_verifier_role_binding:
+    type: dell.nodes.kubernetes.resources.RoleBinding
+    properties:
+      client_config: { get_attribute: [fetch_k8s_config_secret, k8s_client_config] }
+      definition:
+        apiVersion: rbac.authorization.k8s.io/v1
+        kind: ClusterRoleBinding
+        metadata:
+          name: { get_input: cluster_role_binding_name }
+        roleRef:
+          apiGroup: rbac.authorization.k8s.io
+          kind: ClusterRole
+          name: cluster-admin
+        subjects:
+          - kind: ServiceAccount
+            name: { get_input: service_account_name }
+            namespace: { get_input: namespace }
+    relationships:
+      - type: dell.relationships.depends_on
+        target: stack_verifier_service_account
+
+  stack_verifier_job_name:
+    type: dell.nodes.Root
+    interfaces:
+      dell.interfaces.lifecycle:
+        precreate:
+          executor: central_deployment_agent
+          inputs:
+            create_pull_secret: { get_input: create_pull_secret }
+            pull_secret_name: { get_input: pull_secret_name }
+            min_ready_nodes: { get_input: min_ready_nodes }
+            install_ingress_controller: { get_input: install_ingress_controller }
+          implementation: |
+            #!/usr/bin/env python3
+            from dell import ctx
+            from dell.state import ctx_parameters as inputs
+            import time
+            import uuid
+            ts = int(time.time())
+            uid = uuid.uuid4().hex[:8]
+            job_name = f"jfrog-stack-verifier-{ts}-{uid}"
+            ctx.instance.runtime_properties["job_name"] = job_name
+            ctx.logger.info("Generated job name: %s", job_name)
+
+            create_pull_secret = int(inputs.get("create_pull_secret") or 0)
+            pull_secret_name = inputs.get("pull_secret_name") or ""
+            if create_pull_secret == 1 and pull_secret_name:
+                image_pull_secrets = [{"name": pull_secret_name}]
+                ctx.logger.info(
+                    "Private registry: Job will use imagePullSecret %r",
+                    pull_secret_name,
+                )
+            else:
+                image_pull_secrets = []
+                ctx.logger.info(
+                    "Public registry: Job will pull anonymously "
+                    "(no imagePullSecrets)"
+                )
+            ctx.instance.runtime_properties["image_pull_secrets"] = image_pull_secrets
+
+            # Kubernetes requires every container env value to be a string;
+            # coerce the integer-typed inputs so the Job spec is accepted.
+            ctx.instance.runtime_properties["min_ready_nodes_str"] = str(
+                inputs.get("min_ready_nodes", 1)
+            )
+            ctx.instance.runtime_properties["install_ingress_controller_str"] = str(
+                inputs.get("install_ingress_controller", 0)
+            )
+
+  stack_verification_job:
+    type: dell.nodes.kubernetes.resources.Job
+    properties:
+      client_config: { get_attribute: [fetch_k8s_config_secret, k8s_client_config] }
+      validate_resource_status: true
+      definition:
+        apiVersion: batch/v1
+        kind: Job
+        metadata:
+          name: { get_attribute: [stack_verifier_job_name, job_name] }
+          namespace: { get_input: namespace }
+        spec:
+          backoffLimit: 1
+          template:
+            spec:
+              restartPolicy: Never
+              serviceAccountName: { get_input: service_account_name }
+              imagePullSecrets: { get_attribute: [stack_verifier_job_name, image_pull_secrets] }
+              containers:
+                - name: verification
+                  image:
+                    concat:
+                      - { get_input: container_registry_name }
+                      - "/"
+                      - { get_input: blueprint_job_image }
+                  command: ["/bin/bash", "-c"]
+                  env:
+                    - name: K8S_MIN_VERSION
+                      value: { get_input: k8s_min_version }
+                    - name: MIN_READY_NODES
+                      value: { get_attribute: [stack_verifier_job_name, min_ready_nodes_str] }
+                    - name: STORAGE_CLASS
+                      value: { get_input: storage_class }
+                    - name: INGRESS_ENABLED
+                      value: { get_input: ingress_enabled }
+                    - name: INSTALL_INGRESS_CONTROLLER
+                      value: { get_attribute: [stack_verifier_job_name, install_ingress_controller_str] }
+                    - name: INGRESS_CLASS_NAME
+                      value: { get_input: ingress_class_name }
+                    - name: POSTGRESQL_ENABLED
+                      value: { get_input: postgresql_enabled }
+                    - name: DATABASE_HOST
+                      value: { get_input: database_host }
+                    - name: DATABASE_PORT
+                      value: { get_input: database_port }
+                  args:
+                    - |
+                      #!/bin/bash
+                      set -euo pipefail
+
+                      echo "=== JFrog Platform Stack Verifier ==="
+
+                      # Step 1: Kubernetes version
+                      KUBERNETES_VERSION=$(kubectl version 2>/dev/null \
+                        | awk '/Server Version/ {print $3}' \
+                        | head -n1 || true)
+                      if [ -z "$KUBERNETES_VERSION" ]; then
+                        echo "ERROR: Failed to retrieve Kubernetes version."
+                        exit 1
+                      fi
+                      LOWEST=$(printf '%s\n%s\n' "$K8S_MIN_VERSION" "$KUBERNETES_VERSION" | sort -V | head -n1)
+                      if [ "$LOWEST" != "$K8S_MIN_VERSION" ]; then
+                        echo "ERROR: Kubernetes version $KUBERNETES_VERSION below required $K8S_MIN_VERSION."
+                        exit 1
+                      fi
+                      echo "SUCCESS: Kubernetes $KUBERNETES_VERSION meets minimum $K8S_MIN_VERSION"
+
+                      # Step 2: Node readiness
+                      READY_NODES=$(kubectl get nodes --no-headers 2>/dev/null \
+                        | awk '$2=="Ready" {c++} END {print c+0}')
+                      if [ "$READY_NODES" -lt "$MIN_READY_NODES" ]; then
+                        echo "ERROR: Only $READY_NODES Ready nodes, require >= $MIN_READY_NODES"
+                        exit 1
+                      fi
+                      echo "SUCCESS: $READY_NODES Ready node(s) (>= $MIN_READY_NODES)"
+
+                      # Step 3: Storage class
+                      if [ -n "$STORAGE_CLASS" ]; then
+                        AVAILABLE=$(kubectl get storageclass -o jsonpath='{.items[*].metadata.name}' 2>/dev/null || echo "")
+                        if ! echo " $AVAILABLE " | grep -q " $STORAGE_CLASS "; then
+                          echo "ERROR: StorageClass '$STORAGE_CLASS' not found. Available: $AVAILABLE"
+                          exit 1
+                        fi
+                        echo "SUCCESS: StorageClass '$STORAGE_CLASS' exists"
+                      else
+                        echo "INFO: No storage_class set; assuming cluster default"
+                      fi
+
+                      # Step 4: Ingress class (only when ingress is in use AND we are not installing the controller)
+                      if [ "$INGRESS_ENABLED" = "true" ] && [ "$INSTALL_INGRESS_CONTROLLER" = "0" ]; then
+                        if [ -n "$INGRESS_CLASS_NAME" ]; then
+                          AVAILABLE_INGRESS=$(kubectl get ingressclass -o jsonpath='{.items[*].metadata.name}' 2>/dev/null || echo "")
+                          if ! echo " $AVAILABLE_INGRESS " | grep -q " $INGRESS_CLASS_NAME "; then
+                            echo "ERROR: IngressClass '$INGRESS_CLASS_NAME' not found. Available: $AVAILABLE_INGRESS"
+                            exit 1
+                          fi
+                          echo "SUCCESS: IngressClass '$INGRESS_CLASS_NAME' exists"
+                        fi
+                      else
+                        echo "INFO: Skipping IngressClass check (ingress_enabled=$INGRESS_ENABLED, install_ingress_controller=$INSTALL_INGRESS_CONTROLLER)"
+                      fi
+
+                      # Step 5: External database connectivity
+                      if [ "$POSTGRESQL_ENABLED" = "false" ]; then
+                        echo "Testing connectivity to $DATABASE_HOST:$DATABASE_PORT..."
+                        if ! timeout 10 bash -c "</dev/tcp/$DATABASE_HOST/$DATABASE_PORT" 2>/dev/null; then
+                          echo "ERROR: Cannot reach $DATABASE_HOST:$DATABASE_PORT"
+                          exit 1
+                        fi
+                        echo "SUCCESS: $DATABASE_HOST:$DATABASE_PORT reachable"
+                      else
+                        echo "INFO: Skipping external DB check (postgresql_enabled=$POSTGRESQL_ENABLED)"
+                      fi
+
+                      echo "=== All stack verification checks passed ==="
+    relationships:
+      - type: dell.relationships.depends_on
+        target: stack_verifier_pull_secret
+      - type: dell.relationships.depends_on
+        target: stack_verifier_role_binding
+      - type: dell.relationships.depends_on
+        target: stack_verifier_job_name
+
+capabilities:
+  stack_verifier_status:
+    description: Stack verification job completion status
+    value: { get_attribute: [stack_verification_job, kubernetes, status, conditions, 0, type] }

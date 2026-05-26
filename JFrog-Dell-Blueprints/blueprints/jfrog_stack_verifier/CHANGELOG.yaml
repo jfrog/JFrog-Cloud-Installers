@@ -6,7 +6,7 @@
 
 tosca_definitions_version: dell_1_1
 
-description: Changelog for jfrog-platform
+description: Changelog for jfrog_stack_verifier
 
 imports:
   - dell/types/types.yaml
@@ -19,16 +19,17 @@ labels:
 blueprint_labels:
   obj-type:
     values:
-      - helm
+      - kubernetes
   csys-obj-type:
     values:
-      - environment
+      - utility
 
 dsl_definitions:
   changelog:
     1.0.0:
-      - ticket: INST-20783
+      - ticket: INST-22974
         developer: srinivasg@jfrog.com
-        description: >
-          Initial JFrog Platform blueprint wrapping the official
-          jfrog/jfrog-platform Helm chart.
+        description: >-
+          Initial release. Runs a pre-flight Kubernetes Job to verify
+          K8s version, ready-node count, storage class, ingress class,
+          and external database TCP reachability.

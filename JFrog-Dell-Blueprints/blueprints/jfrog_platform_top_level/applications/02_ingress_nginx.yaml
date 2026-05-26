@@ -1,0 +1,36 @@
+# Copyright (c) 2026 JFrog Ltd. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0.
+# See LICENSE file in the project root for full license information.
+---
+
+node_templates:
+
+  ingress_nginx_controller:
+    type: dell.nodes.ServiceComponent
+    properties:
+      resource_config:
+        blueprint:
+          id: { get_input: [blueprint_ids, ingress_nginx] }
+          external_resource: true
+          revision_id: { get_input: ingress_nginx_revision_id }
+        deployment:
+          id:
+            concat:
+              - { get_sys: [deployment, id] }
+              - "-ingress-nginx"
+          display_name:
+            concat:
+              - { get_sys: [deployment, name] }
+              - "-ingress-nginx"
+          inputs:
+            k8s_credentials: { get_input: k8s_credentials }
+            ingress_nginx_version: { get_input: ingress_nginx_version }
+            ingress_nginx_repo_url: { get_input: ingress_nginx_repo_url }
+    capabilities:
+      scalable:
+        properties:
+          default_instances: { get_input: install_ingress_controller }
+    relationships:
+      - type: dell.relationships.depends_on
+        target: stack_verifier

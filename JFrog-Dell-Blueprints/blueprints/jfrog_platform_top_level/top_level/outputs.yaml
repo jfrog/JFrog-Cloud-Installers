@@ -5,6 +5,7 @@
 ---
 
 capabilities:
+
   release_name:
     description: Name of the deployed Helm release
     value: { get_input: release_name }
@@ -16,6 +17,10 @@ capabilities:
   sizing:
     description: Applied sizing template
     value: { get_input: sizing_template }
+
+  chart_version:
+    description: jfrog/jfrog-platform Helm chart version pinned by this bundle
+    value: { get_input: chart_version }
 
   platform_url_ingress:
     description: Artifactory URL when using ingress deployment mode.
