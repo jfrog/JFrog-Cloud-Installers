@@ -14,7 +14,7 @@
     group: "{{ distribution_group }}"
     create_home: true
     home: "{{ distribution_home }}"
-    shell: /bin/bash
+    shell: "{{ distribution_user_shell }}"
     state: present
 
 - name: Allow using crontab

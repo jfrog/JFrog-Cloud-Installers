@@ -30,7 +30,7 @@
     group: "{{ artifactory_group }}"
     create_home: true
     home: "{{ artifactory_home }}"
-    shell: /bin/bash
+    shell: "{{ artifactory_user_shell }}"
     state: present
 
 - name: Allow using crontab

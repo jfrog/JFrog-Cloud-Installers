@@ -4,6 +4,7 @@ The artifactory role installs the Artifactory Pro software onto the host. Per th
 ## Role Variables
 * _server_name_: **mandatory** This is the server name. eg. "artifactory.54.175.51.178.xip.io"
 * _artifactory_upgrade_only_: Perform an software upgrade only. Default is false.
+* _artifactory_user_shell_: Shell assigned to the Artifactory service user. Default is `/bin/bash`.
 
 Additional variables can be found in [defaults/main.yml](./defaults/main.yml).
 
