@@ -1,0 +1,47 @@
+# Copyright (c) 2026 JFrog Ltd. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0.
+# See LICENSE file in the project root for full license information.
+---
+
+tosca_definitions_version: dell_1_1
+
+description: >
+  JFrog Platform Top-Level Orchestrator. Composes the input validator,
+  stack verifier, optional ingress-nginx controller, and JFrog Platform
+  component blueprints into a single Dell-certified deployment.
+
+imports:
+  - dell/types/types.yaml
+  - top_level/inputs.yaml
+  - top_level/inputs_hidden.yaml
+  - top_level/outputs.yaml
+  - applications/00_input_validator.yaml
+  - applications/01_stack_verifier.yaml
+  - applications/02_ingress_nginx.yaml
+  - applications/03_jfrog_platform.yaml
+
+labels:
+  csys-obj-type:
+    values:
+      - environment
+  target_environment:
+    values:
+      - ece
+  solution:
+    values:
+      - jfrog_platform_top_level
+  version:
+    values:
+      - "1.0"
+
+blueprint_labels:
+  env:
+    values:
+      - Dell
+  obj-type:
+    values:
+      - environment
+  csys-obj-type:
+    values:
+      - environment

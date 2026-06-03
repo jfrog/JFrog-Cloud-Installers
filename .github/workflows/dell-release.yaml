@@ -21,11 +21,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install build dependencies
+        run: python -m pip install --upgrade pip pyyaml
+
       - name: Extract version from tag
         id: version
         run: echo "version=${GITHUB_REF_NAME#jfrog-dell-blueprints/v}" >> "$GITHUB_OUTPUT"
 
-      - name: Build zip artifact
+      - name: Build Dell-certified bundle
         working-directory: JFrog-Dell-Blueprints
         run: |
           make all \
@@ -37,4 +45,4 @@ jobs:
         with:
           name: "v${{ steps.version.outputs.version }}"
           generate_release_notes: true
-          files: "JFrog-Dell-Blueprints/target/jfrog-dell-${{ steps.version.outputs.version }}.zip"
+          files: "JFrog-Dell-Blueprints/target/jfrog-platform.zip"

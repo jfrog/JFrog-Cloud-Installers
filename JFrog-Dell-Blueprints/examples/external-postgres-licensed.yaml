@@ -1,59 +1,54 @@
 # Example: External PostgreSQL + Licensed
 #
 # Production-style deployment connecting to an external PostgreSQL
-# instance with credentials stored as DAP general secrets.
+# instance.  v2.0+ uses a single basic_auth secret for the
+# Artifactory PostgreSQL user (replaces the previous
+# database_user / database_password pair).
 #
 # Prerequisites:
-#   1. An external PostgreSQL server accessible from the K8s cluster.
-#   2. Create these DAP general secrets:
-#      - "pg-admin-password"   → PostgreSQL superuser password
-#      - "pg-artif-user"       → Artifactory database username (e.g., "artifactory")
-#      - "pg-artif-password"   → Artifactory database password
-#      - "artifactory-license" → raw Artifactory license text
-#   3. Pre-create the "artifactory" database on the external PostgreSQL
-#      server (initDBCreation is automatically set to false when
-#      postgresql_enabled is false).
+#   1. External PostgreSQL server reachable from the cluster.
+#   2. DAP secrets (created by your operator):
+#      - "pg-admin-password"     → DAP general secret with PostgreSQL superuser password
+#      - "pg-artif-credentials"  → DAP basic_auth secret with username / password
+#                                   for the Artifactory database user
+#      - "artifactory-license"   → DAP general secret with raw license text
+#   3. Pre-create the "artifactory" database on the external server.
+#   4. DAP target infrastructure deployment ID.
+#   5. Kubernetes credentials secret with proxy_settings (for SaaS DAPO).
 #
 # DAP UI steps:
-#   1. Credentials       → select your Kubernetes credentials secret
-#   2. Database           → set Bundled PostgreSQL to "false"
-#                         → set Create External Database Secret to 1
-#                         → fill in Database Host, Port, SSL Mode
-#                         → select DAP secrets for Admin Password, User, Password
-#   3. Licensing          → set Create License Secret to 1
-#                         → select the license secret
-#   4. Chart Settings     → pick sizing template for your org size
+#   1. Credentials   → select Kubernetes credentials secret
+#                    → select Target Infrastructure ID
+#   2. Database      → set Bundled PostgreSQL to "false"
+#                    → set Create External Database Secret to 1
+#                    → fill in Database Host, Port, SSL Mode
+#                    → select the basic_auth Database Credentials secret
+#                    → select the Database Admin Password secret
+#   3. Licensing     → set Create License Secret to 1
+#                    → select the license secret
+#   4. Chart Settings → pick sizing template for your org size
 #   5. Click Deploy
-#
-# What happens behind the scenes:
-#   - postgresql_enabled = "false"  →  bundled PostgreSQL disabled
-#   - create_external_db_secret = 1     →  K8s Secret "jfrog-platform-database-creds"
-#                                      created with values from DAP secrets
-#   - JDBC URL constructed via concat:
-#       jdbc:postgresql://pg.example.com:5432/artifactory?sslmode=require
-#   - Helm chart reads credentials from the K8s Secret via
-#       database.secrets.*.name / database.secrets.*.key
 
 inputs:
 
-  # ── Credentials (required) ───────────────────────────────────────
+  # ── Credentials ──────────────────────────────────────────────────
   k8s_credentials: my-k8s-secret
+  target_deployment_id: my-cluster-deployment
 
   # ── Infrastructure ───────────────────────────────────────────────
   namespace: jfrog-platform
 
   # ── Database (external) ─────────────────────────────────────────
   postgresql_enabled: "false"
-  create_external_db_secret: 1                # Yes — create K8s secret from DAP secrets
+  create_external_db_secret: 1
   database_host: pg.example.com
   database_port: "5432"
   database_ssl_mode: require
-  database_admin_password: pg-admin-password    # DAP general secret name
-  database_user: pg-artif-user                  # DAP general secret name
-  database_password: pg-artif-password          # DAP general secret name
+  database_admin_password: pg-admin-password    # DAP general secret
+  database_credentials: pg-artif-credentials    # DAP basic_auth secret (username/password)
 
   # ── Licensing ────────────────────────────────────────────────────
-  create_license_secret: 1                # Yes — create K8s Secret with license
+  create_license_secret: 1
   license_secret_ref: artifactory-license
 
   # ── Chart Settings ──────────────────────────────────────────────

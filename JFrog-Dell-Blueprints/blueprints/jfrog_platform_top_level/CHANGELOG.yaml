@@ -1,0 +1,36 @@
+# Copyright (c) 2026 JFrog Ltd. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0.
+# See LICENSE file in the project root for full license information.
+---
+
+tosca_definitions_version: dell_1_1
+
+description: Changelog for jfrog_platform_top_level
+
+imports:
+  - dell/types/types.yaml
+
+labels:
+  csys-obj-type:
+    values:
+      - environment
+
+blueprint_labels:
+  obj-type:
+    values:
+      - environment
+  csys-obj-type:
+    values:
+      - environment
+
+dsl_definitions:
+  changelog:
+    1.0.0:
+      - ticket: INST-22974
+        developer: srinivasg@jfrog.com
+        description: >-
+          Initial release. Top-level orchestrator that wires the input
+          validator, stack verifier, optional ingress-nginx, and JFrog
+          Platform component blueprints into a single Dell-certified
+          deployment.

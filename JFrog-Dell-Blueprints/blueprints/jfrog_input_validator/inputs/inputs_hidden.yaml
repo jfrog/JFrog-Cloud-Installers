@@ -1,0 +1,30 @@
+# Copyright (c) 2026 JFrog Ltd. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0.
+# See LICENSE file in the project root for full license information.
+---
+
+inputs:
+
+  expected_basic_auth_keys:
+    type: list
+    hidden: true
+    allow_update: false
+    required: true
+    display_label: Expected basic_auth Keys
+    description: Keys that DAP basic_auth secrets must contain.
+    default:
+      - username
+      - password
+
+  chart_version:
+    type: string
+    hidden: true
+    allow_update: true
+    required: true
+    display_label: Chart Version
+    description: >-
+      jfrog/jfrog-platform Helm chart version. Injected automatically
+      by the build pipeline; forwarded from the orchestrator and never
+      customer-editable on this child blueprint.
+    default: 11.5.3

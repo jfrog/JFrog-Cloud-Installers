@@ -1,0 +1,45 @@
+# Copyright (c) 2026 JFrog Ltd. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0.
+# See LICENSE file in the project root for full license information.
+---
+
+node_templates:
+
+  stack_verifier:
+    type: dell.nodes.ServiceComponent
+    properties:
+      resource_config:
+        blueprint:
+          id: { get_input: [blueprint_ids, stack_verifier] }
+          external_resource: true
+          revision_id: { get_input: stack_verifier_revision_id }
+        deployment:
+          id:
+            concat:
+              - { get_sys: [deployment, id] }
+              - "-stack-verifier"
+          display_name:
+            concat:
+              - { get_sys: [deployment, name] }
+              - "-stack-verifier"
+          inputs:
+            k8s_credentials: { get_input: k8s_credentials }
+            target_deployment_id: { get_input: target_deployment_id }
+            namespace: { get_input: namespace }
+            container_registry_name: { get_input: container_registry_name }
+            create_pull_secret: { get_input: create_pull_secret }
+            container_registry_credentials_secret: { get_input: container_registry_credentials_secret }
+            blueprint_job_image: { get_input: blueprint_job_image }
+            k8s_min_version: { get_input: k8s_min_version }
+            min_ready_nodes: { get_input: min_ready_nodes }
+            storage_class: { get_input: storage_class }
+            ingress_class_name: { get_input: ingress_class_name }
+            ingress_enabled: { get_input: ingress_enabled }
+            install_ingress_controller: { get_input: install_ingress_controller }
+            postgresql_enabled: { get_input: postgresql_enabled }
+            database_host: { get_input: database_host }
+            database_port: { get_input: database_port }
+    relationships:
+      - type: dell.relationships.depends_on
+        target: input_validator

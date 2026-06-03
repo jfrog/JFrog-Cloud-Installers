@@ -1,16 +1,35 @@
 SHELL := /bin/bash
 
-# --- Paths ---
-BLUEPRINT_NAME        := jfrog-platform
-BLUEPRINT_DIR         := blueprints/$(BLUEPRINT_NAME)
-ZIP_NAME              := jfrog-dell
+# --- Bundle naming ---
+ZIP_NAME              := jfrog-platform
 VERSION               ?= local
 CHART_VERSION         ?=
 ZIP_OUTPUT_DIR        := target
-ZIP_EXCLUDES          := '*/tests/*' '*.test*'
 
-PACKAGE_ROOT          := $(ZIP_NAME)-$(VERSION)
-STAGING_DIR           := $(ZIP_OUTPUT_DIR)/.$(PACKAGE_ROOT)
+# Dell catalog revisions are 4-part (MAJOR.MINOR.PATCH.BUILD).  When
+# VERSION is "local" or non-semver we fall back to 0.0.0.0 so the
+# manifest validator does not reject the build.
+REVISION              := $(shell \
+    v="$(VERSION)"; v="$${v\#v}"; \
+    if [[ "$$v" =~ ^[0-9]+\.[0-9]+\.[0-9]+$$ ]]; then echo "$$v.0"; \
+    elif [[ "$$v" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$$ ]]; then echo "$$v"; \
+    else echo "0.0.0.0"; fi)
+
+# --- Component blueprint directories ---
+TOP_LEVEL_DIR         := blueprints/jfrog_platform_top_level
+JFROG_COMPONENT_DIR   := blueprints/jfrog_platform_component
+INGRESS_COMPONENT_DIR := blueprints/ingress_nginx_component
+INPUT_VALIDATOR_DIR   := blueprints/jfrog_input_validator
+STACK_VERIFIER_DIR    := blueprints/jfrog_stack_verifier
+
+# --- Bundle staging ---
+BUNDLE_NAME           := $(ZIP_NAME)
+BUNDLE_STAGING_DIR    := $(ZIP_OUTPUT_DIR)/.$(BUNDLE_NAME)
+BLUEPRINTS_DIR        := $(BUNDLE_STAGING_DIR)/blueprints
+PLUGINS_DIR           := $(BUNDLE_STAGING_DIR)/plugins
+MANIFEST_FILE         := $(BUNDLE_STAGING_DIR)/manifest.yaml
+
+ZIP_EXCLUDES          := '*/tests/*' '*.test*'
 
 # --- Sync Artifacts from Helm Chart ---
 sync_sizing:
@@ -42,25 +61,80 @@ endif
 	fi
 	@echo "Chart version: $(RESOLVED_CHART_VERSION)"
 
-# --- Blueprint Zipping ---
-zip_blueprint: sync resolve_chart_version
-	@rm -rf "$(STAGING_DIR)"
-	@mkdir -p "$(STAGING_DIR)/$(PACKAGE_ROOT)"
-	cp "$(BLUEPRINT_DIR)/blueprint.yaml"  "$(STAGING_DIR)/$(PACKAGE_ROOT)/blueprint.yaml"
-	cp "$(BLUEPRINT_DIR)/CHANGELOG.yaml"  "$(STAGING_DIR)/$(PACKAGE_ROOT)/CHANGELOG.yaml"
-	cp -R "$(BLUEPRINT_DIR)/top_level"    "$(STAGING_DIR)/$(PACKAGE_ROOT)/top_level"
-	cp -R "$(BLUEPRINT_DIR)/application"  "$(STAGING_DIR)/$(PACKAGE_ROOT)/application"
-	cp -R target/sizing                   "$(STAGING_DIR)/$(PACKAGE_ROOT)/sizing"
+# --- Helpers ---
+# Stage one component blueprint directory at the given path,
+# copying every file under it except tests.
+define stage_component
+	@rm -rf "$(2)"
+	@mkdir -p "$(2)"
+	cp -R "$(1)/." "$(2)/"
+endef
+
+# --- Per-component zips ---
+# prepare_staging clears the staging directory and creates the bundle
+# layout.  Marked phony but only triggered once per invocation thanks
+# to .NOTPARALLEL ordering below.
+prepare_staging:
+	@rm -rf "$(BUNDLE_STAGING_DIR)"
+	@mkdir -p "$(BLUEPRINTS_DIR)" "$(PLUGINS_DIR)" "$(BUNDLE_STAGING_DIR)/.stage"
+
+zip_top_level: resolve_chart_version
+	$(call stage_component,$(TOP_LEVEL_DIR),$(BUNDLE_STAGING_DIR)/.stage/jfrog_platform_top_level)
 	perl -0pi -e "s/default:\s*0\.0\.0/default: $(RESOLVED_CHART_VERSION)/" \
-		"$(STAGING_DIR)/$(PACKAGE_ROOT)/top_level/inputs_hidden.yaml"
+		"$(BUNDLE_STAGING_DIR)/.stage/jfrog_platform_top_level/top_level/inputs_hidden.yaml"
+	cd "$(BUNDLE_STAGING_DIR)/.stage" && zip -rq "$(CURDIR)/$(BLUEPRINTS_DIR)/jfrog_platform_top_level.zip" \
+		jfrog_platform_top_level -x $(ZIP_EXCLUDES)
+	@rm -rf "$(BUNDLE_STAGING_DIR)/.stage/jfrog_platform_top_level"
+
+zip_jfrog_component: sync resolve_chart_version
+	$(call stage_component,$(JFROG_COMPONENT_DIR),$(BUNDLE_STAGING_DIR)/.stage/jfrog_platform_component)
+	@mkdir -p "$(BUNDLE_STAGING_DIR)/.stage/jfrog_platform_component/sizing"
+	cp -R target/sizing/. "$(BUNDLE_STAGING_DIR)/.stage/jfrog_platform_component/sizing/"
+	perl -0pi -e "s/default:\s*0\.0\.0/default: $(RESOLVED_CHART_VERSION)/" \
+		"$(BUNDLE_STAGING_DIR)/.stage/jfrog_platform_component/inputs/inputs_hidden.yaml"
 	@echo "Merging nginx mainConf into sizing templates..."
 	@python3 scripts/merge_nginx_config.py \
 		build/nginx-main-conf.txt \
-		"$(STAGING_DIR)/$(PACKAGE_ROOT)/sizing"
-	cd "$(STAGING_DIR)" && zip -r "$(CURDIR)/$(ZIP_OUTPUT_DIR)/$(ZIP_NAME)-$(VERSION).zip" \
-		"$(PACKAGE_ROOT)" -x $(ZIP_EXCLUDES)
-	@rm -rf "$(STAGING_DIR)"
-	@echo "Done: $(ZIP_OUTPUT_DIR)/$(ZIP_NAME)-$(VERSION).zip"
+		"$(BUNDLE_STAGING_DIR)/.stage/jfrog_platform_component/sizing"
+	cd "$(BUNDLE_STAGING_DIR)/.stage" && zip -rq "$(CURDIR)/$(BLUEPRINTS_DIR)/jfrog_platform_component.zip" \
+		jfrog_platform_component -x $(ZIP_EXCLUDES)
+	@rm -rf "$(BUNDLE_STAGING_DIR)/.stage/jfrog_platform_component"
+
+zip_ingress_component:
+	$(call stage_component,$(INGRESS_COMPONENT_DIR),$(BUNDLE_STAGING_DIR)/.stage/ingress_nginx_component)
+	cd "$(BUNDLE_STAGING_DIR)/.stage" && zip -rq "$(CURDIR)/$(BLUEPRINTS_DIR)/ingress_nginx_component.zip" \
+		ingress_nginx_component -x $(ZIP_EXCLUDES)
+	@rm -rf "$(BUNDLE_STAGING_DIR)/.stage/ingress_nginx_component"
+
+zip_input_validator: resolve_chart_version
+	$(call stage_component,$(INPUT_VALIDATOR_DIR),$(BUNDLE_STAGING_DIR)/.stage/jfrog_input_validator)
+	perl -0pi -e "s/default:\s*0\.0\.0/default: $(RESOLVED_CHART_VERSION)/" \
+		"$(BUNDLE_STAGING_DIR)/.stage/jfrog_input_validator/inputs/inputs_hidden.yaml"
+	cd "$(BUNDLE_STAGING_DIR)/.stage" && zip -rq "$(CURDIR)/$(BLUEPRINTS_DIR)/jfrog_input_validator.zip" \
+		jfrog_input_validator -x $(ZIP_EXCLUDES)
+	@rm -rf "$(BUNDLE_STAGING_DIR)/.stage/jfrog_input_validator"
+
+zip_stack_verifier:
+	$(call stage_component,$(STACK_VERIFIER_DIR),$(BUNDLE_STAGING_DIR)/.stage/jfrog_stack_verifier)
+	cd "$(BUNDLE_STAGING_DIR)/.stage" && zip -rq "$(CURDIR)/$(BLUEPRINTS_DIR)/jfrog_stack_verifier.zip" \
+		jfrog_stack_verifier -x $(ZIP_EXCLUDES)
+	@rm -rf "$(BUNDLE_STAGING_DIR)/.stage/jfrog_stack_verifier"
+
+zip_components: prepare_staging zip_top_level zip_jfrog_component zip_ingress_component zip_input_validator zip_stack_verifier
+
+# --- Manifest ---
+manifest: zip_components
+	@python3 scripts/generate_manifest.py \
+		--blueprints-dir "$(BLUEPRINTS_DIR)" \
+		--output "$(MANIFEST_FILE)" \
+		--revision "$(REVISION)"
+
+# --- Bundle ---
+bundle: manifest
+	cd "$(BUNDLE_STAGING_DIR)" && zip -rq "$(CURDIR)/$(ZIP_OUTPUT_DIR)/$(BUNDLE_NAME).zip" \
+		blueprints plugins manifest.yaml
+	@rm -rf "$(BUNDLE_STAGING_DIR)"
+	@echo "Done: $(ZIP_OUTPUT_DIR)/$(BUNDLE_NAME).zip"
 
 # --- Validate ---
 validate:
@@ -71,7 +145,9 @@ clean:
 	rm -rf target/ build/
 
 # --- Full Build ---
-all: zip_blueprint
+all: bundle
 
 .PHONY: sync sync_sizing sync_nginx_conf resolve_chart_version \
-        zip_blueprint validate clean all
+        prepare_staging zip_top_level zip_jfrog_component \
+        zip_ingress_component zip_input_validator zip_stack_verifier \
+        zip_components manifest bundle validate clean all
