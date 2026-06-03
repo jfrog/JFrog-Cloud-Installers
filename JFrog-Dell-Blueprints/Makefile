@@ -10,7 +10,7 @@ ZIP_OUTPUT_DIR        := target
 # VERSION is "local" or non-semver we fall back to 0.0.0.0 so the
 # manifest validator does not reject the build.
 REVISION              := $(shell \
-    v="$(VERSION)"; v="$${v\#v}"; \
+    v="$(VERSION)"; v=$$(printf '%s' "$$v" | sed 's/^v//'); \
     if [[ "$$v" =~ ^[0-9]+\.[0-9]+\.[0-9]+$$ ]]; then echo "$$v.0"; \
     elif [[ "$$v" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$$ ]]; then echo "$$v"; \
     else echo "0.0.0.0"; fi)
