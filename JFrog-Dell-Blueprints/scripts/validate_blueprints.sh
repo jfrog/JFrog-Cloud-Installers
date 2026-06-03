@@ -329,6 +329,7 @@ for bp in blueprint_files:
             has_binary = False
             has_repo = False
             has_release = False
+            has_namespace_node = False
             for _, nmeta in node_templates.items():
                 if not isinstance(nmeta, dict):
                     continue
@@ -337,6 +338,8 @@ for bp in blueprint_files:
                     has_binary = True
                 if ntype == 'dell.nodes.helm.Repo':
                     has_repo = True
+                if ntype == 'dell.nodes.kubernetes.resources.Namespace':
+                    has_namespace_node = True
                 if ntype == 'dell.nodes.helm.Release':
                     has_release = True
                     props = nmeta.get('properties', {})
@@ -364,8 +367,18 @@ for bp in blueprint_files:
                     flag_names = [f.get('name') for f in flags if isinstance(f, dict)]
                     if 'namespace' not in flag_names:
                         errors.append(f"{rel(bp)}: helm release flags must include namespace")
-                    if 'create-namespace' not in flag_names:
-                        errors.append(f"{rel(bp)}: helm release flags must include create-namespace")
+                    # The 'create-namespace' helm flag must NOT be used: the
+                    # helm plugin reuses install flags for 'helm uninstall',
+                    # which rejects --create-namespace ("unknown flag") and
+                    # breaks teardown. Create the namespace via a dedicated
+                    # dell.nodes.kubernetes.resources.Namespace node instead.
+                    if 'create-namespace' in flag_names:
+                        errors.append(
+                            f"{rel(bp)}: helm release flags must NOT include "
+                            f"create-namespace (helm uninstall rejects it); "
+                            f"use a dell.nodes.kubernetes.resources.Namespace "
+                            f"node instead"
+                        )
                     if 'version' not in flag_names:
                         errors.append(f"{rel(bp)}: helm release flags must include version")
             if not has_binary:
@@ -374,6 +387,13 @@ for bp in blueprint_files:
                 errors.append(f"{rel(bp)}: missing dell.nodes.helm.Repo node")
             if not has_release:
                 errors.append(f"{rel(bp)}: missing dell.nodes.helm.Release node")
+            if not has_namespace_node:
+                errors.append(
+                    f"{rel(bp)}: missing dell.nodes.kubernetes.resources.Namespace "
+                    f"node (helm blueprints must create the namespace via a "
+                    f"dedicated node so 'helm uninstall' works without the "
+                    f"create-namespace flag)"
+                )
 
         # Top-level orchestrators must have at least one ServiceComponent.
         if kind == 'environment' and 'top_level' in str(bp):
