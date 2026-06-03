@@ -4,6 +4,13 @@
 
 set -euo pipefail
 
+# ── Run from the blueprint root ──────────────────────────────────────
+# This script lives in <blueprint-root>/scripts. Resolve its own
+# location and cd to the parent so all relative paths (e.g. the
+# "blueprints" directory) work regardless of the caller's cwd.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "${SCRIPT_DIR}/.."
+
 # ── Non-interactive mode ─────────────────────────────────────────────
 ASSUME_YES=${ASSUME_YES:-0}
 if [[ "${1:-}" == "-y" ]]; then
