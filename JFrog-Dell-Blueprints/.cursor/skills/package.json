@@ -1,0 +1,6 @@
+{
+  "name": "@blueprint-assist/skills",
+  "version": "0.23.0",
+  "description": "IDE skill definitions for Windsurf Cascade, Cursor, Claude Code",
+  "private": true
+}

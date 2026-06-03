@@ -42,6 +42,21 @@ node_templates:
           inputs:
             k8s_credentials: { get_input: k8s_credentials }
 
+  create_namespace:
+    type: dell.nodes.kubernetes.resources.Namespace
+    properties:
+      client_config: { get_attribute: [fetch_k8s_config_secret, k8s_client_config] }
+      create_if_missing: true
+      use_external_resource: false
+      definition:
+        apiVersion: v1
+        kind: Namespace
+        metadata:
+          name: { get_input: namespace }
+    relationships:
+      - target: fetch_k8s_config_secret
+        type: dell.relationships.depends_on
+
   helm_binary:
     type: dell.nodes.helm.Binary
 
@@ -65,9 +80,12 @@ node_templates:
           - name: controller.config.use-forwarded-headers
             value: "true"
         flags:
+          # NOTE: do not add 'create-namespace' here. The helm plugin
+          # reuses these flags for 'helm uninstall', which rejects
+          # --create-namespace ("unknown flag"). The namespace is
+          # created by the dedicated create_namespace node instead.
           - name: namespace
             value: { get_input: namespace }
-          - name: create-namespace
           - name: version
             value: { get_input: ingress_nginx_version }
           - name: atomic
@@ -80,6 +98,8 @@ node_templates:
       - target: ingress_nginx_repo
         type: dell.relationships.depends_on
       - target: fetch_k8s_config_secret
+        type: dell.relationships.depends_on
+      - target: create_namespace
         type: dell.relationships.depends_on
 
 capabilities:
