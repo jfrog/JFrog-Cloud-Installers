@@ -339,9 +339,12 @@ node_templates:
           - name: artifactory.artifactory.joinKeySecretName
             value: { get_attribute: [compute_key_secret_names, join_key_secret_name] }
         flags:
+          # NOTE: do not add 'create-namespace' here. The helm plugin
+          # reuses these flags for 'helm uninstall', which rejects
+          # --create-namespace ("unknown flag"). The namespace is
+          # created by the dedicated create_namespace node instead.
           - name: namespace
             value: { get_input: namespace }
-          - name: create-namespace
           - name: version
             value: { get_input: chart_version }
           - name: wait
@@ -351,6 +354,8 @@ node_templates:
       - target: helm_binary
         type: dell.relationships.helm.run_on_host
       - target: jfrog_repo
+        type: dell.relationships.depends_on
+      - target: create_namespace
         type: dell.relationships.depends_on
       - target: license_secret
         type: dell.relationships.depends_on

@@ -15,6 +15,7 @@ description: >
 imports:
   - dell/types/types.yaml
   - plugin:helm-plugin?version= >=1.4.0.0,<2.0.0.0
+  - plugin:kubernetes-plugin?version= >=3.3.0.0,<4.0.0.0
   - inputs/inputs.yaml
   - inputs/inputs_hidden.yaml
   - application/ingress_nginx.yaml
