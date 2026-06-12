@@ -24,7 +24,7 @@ inputs:
       jfrog/jfrog-platform Helm chart version. Injected automatically
       by the build pipeline; forwarded from the orchestrator and never
       customer-editable on this child blueprint.
-    default: 11.5.3
+    default: 0.0.0
 
   license_secret_name:
     type: string
@@ -73,3 +73,91 @@ inputs:
       empty so the chart helper falls back to its auto-generated
       <release>-artifactory secret.
     default: jfrog-platform-join-key
+
+  # Conditional-resource gates (0/1) resolved by the orchestrator from its
+  # user-facing true/false toggles and fed to scalable.default_instances.
+  # Never customer-editable on this child blueprint.
+  create_bundled_db_secret:
+    type: integer
+    hidden: true
+    allow_update: false
+    required: true
+    display_label: Create Bundled Database Secret
+    description: >-
+      Gate (0/1) for the bundled-PostgreSQL credentials Secret node.
+      Resolved by the orchestrator from its true/false toggle.
+    default: 0
+  create_external_db_secret:
+    type: integer
+    hidden: true
+    allow_update: false
+    required: true
+    display_label: Create External Database Secret
+    description: >-
+      Gate (0/1) for the external-database credentials Secret node.
+      Resolved by the orchestrator from its true/false toggle.
+    default: 0
+  create_license_secret:
+    type: integer
+    hidden: true
+    allow_update: false
+    required: true
+    display_label: Create License Secret
+    description: >-
+      Gate (0/1) for the license Secret node. Resolved by the orchestrator
+      from the true/false Create License Secret toggle; 1 = create K8s
+      secret from DAP general secret, 0 = trial mode.
+    default: 0
+  create_master_key_secret:
+    type: integer
+    hidden: true
+    allow_update: false
+    required: true
+    display_label: Create Master Key Secret
+    description: >-
+      Gate (0/1) for the master-key Secret node. Resolved by the
+      orchestrator from its true/false toggle. 1 = inject DAP general
+      secret as master-key, 0 = use chart default.
+    default: 0
+  create_join_key_secret:
+    type: integer
+    hidden: true
+    allow_update: false
+    required: true
+    display_label: Create Join Key Secret
+    description: >-
+      Gate (0/1) for the join-key Secret node. Resolved by the
+      orchestrator from its true/false toggle. 1 = inject DAP general
+      secret as join-key, 0 = use chart default.
+    default: 0
+  discover_lb_endpoint:
+    type: integer
+    hidden: true
+    allow_update: false
+    required: false
+    display_label: Discover LoadBalancer Endpoint
+    description: >-
+      Gate (0/1) for the NGINX LoadBalancer service-discovery node.
+      Resolved by the orchestrator from nginx_enabled; 1 in bundled-NGINX
+      LoadBalancer mode, 0 in ingress mode.
+    default: 1
+
+  create_ingress_tls_secret:
+    type: integer
+    hidden: true
+    allow_update: true
+    required: false
+    display_label: Create TLS Secret
+    description: >-
+      Gate (0/1) for the Ingress kubernetes.io/tls Secret node. Resolved by
+      the orchestrator from its ingress_tls_enabled true/false toggle.
+    default: 0
+
+  jfrog_helm_repo_url:
+    type: string
+    hidden: true
+    allow_update: false
+    required: true
+    display_label: JFrog Helm Repository
+    description: Helm repository URL for the JFrog Platform chart.
+    default: https://charts.jfrog.io

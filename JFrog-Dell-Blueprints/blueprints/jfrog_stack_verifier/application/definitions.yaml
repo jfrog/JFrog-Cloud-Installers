@@ -10,22 +10,14 @@ node_templates:
     type: dell.nodes.Root
     interfaces:
       dell.interfaces.lifecycle:
-        start: |
-          from dell import ctx
-          from dell.manager import get_rest_client
-          
-          client = get_rest_client()
-          this_dep = client.deployments.get(ctx.deployment.id)
-          target_dep = client.deployments.get(this_dep.inputs["target_deployment_id"])
-          labels = []
-          ctx.logger.info("current labels: {}".format(this_dep.labels))
-          for label in this_dep.labels:
-            labels.append({label.key: label.value})
-          ctx.logger.info("target_dep labels: {}".format(target_dep.labels))
-          labels.append({"target_id": [label.value for label in target_dep.labels if label.get("key") == "target_id"][0]})
-          
-          ctx.logger.info("updating labels to: {}".format(labels))
-          client.deployments.update_labels(ctx.deployment.id, labels)
+        start:
+          implementation: application/scripts/fetch_labels.py
+          executor: central_deployment_agent
+          inputs:
+            target_deployment_id: { get_input: target_deployment_id }
+        stop:
+          implementation: application/scripts/fetch_labels_stop.py
+          executor: central_deployment_agent
 
   fetch_k8s_config_secret:
     type: dell.nodes.Root
@@ -108,6 +100,32 @@ node_templates:
       - type: dell.relationships.depends_on
         target: stack_verifier_namespace
 
+  stack_verifier_cluster_role:
+    type: dell.nodes.kubernetes.resources.ClusterRole
+    properties:
+      client_config: { get_attribute: [fetch_k8s_config_secret, k8s_client_config] }
+      definition:
+        apiVersion: rbac.authorization.k8s.io/v1
+        kind: ClusterRole
+        metadata:
+          name: { get_input: cluster_role_name }
+        # Least-privilege: the verifier Job only reads cluster-scoped
+        # resources. 'kubectl version' uses the unauthenticated discovery
+        # endpoint and needs no rule. No write/secret access is granted.
+        rules:
+          - apiGroups: [""]
+            resources: ["nodes"]
+            verbs: ["get", "list"]
+          - apiGroups: ["storage.k8s.io"]
+            resources: ["storageclasses"]
+            verbs: ["get", "list"]
+          - apiGroups: ["networking.k8s.io"]
+            resources: ["ingressclasses"]
+            verbs: ["get", "list"]
+    relationships:
+      - type: dell.relationships.depends_on
+        target: stack_verifier_service_account
+
   stack_verifier_role_binding:
     type: dell.nodes.kubernetes.resources.RoleBinding
     properties:
@@ -120,7 +138,7 @@ node_templates:
         roleRef:
           apiGroup: rbac.authorization.k8s.io
           kind: ClusterRole
-          name: cluster-admin
+          name: { get_input: cluster_role_name }
         subjects:
           - kind: ServiceAccount
             name: { get_input: service_account_name }
@@ -128,6 +146,8 @@ node_templates:
     relationships:
       - type: dell.relationships.depends_on
         target: stack_verifier_service_account
+      - type: dell.relationships.depends_on
+        target: stack_verifier_cluster_role
 
   stack_verifier_job_name:
     type: dell.nodes.Root
@@ -139,43 +159,8 @@ node_templates:
             create_pull_secret: { get_input: create_pull_secret }
             pull_secret_name: { get_input: pull_secret_name }
             min_ready_nodes: { get_input: min_ready_nodes }
-            install_ingress_controller: { get_input: install_ingress_controller }
-          implementation: |
-            #!/usr/bin/env python3
-            from dell import ctx
-            from dell.state import ctx_parameters as inputs
-            import time
-            import uuid
-            ts = int(time.time())
-            uid = uuid.uuid4().hex[:8]
-            job_name = f"jfrog-stack-verifier-{ts}-{uid}"
-            ctx.instance.runtime_properties["job_name"] = job_name
-            ctx.logger.info("Generated job name: %s", job_name)
-
-            create_pull_secret = int(inputs.get("create_pull_secret") or 0)
-            pull_secret_name = inputs.get("pull_secret_name") or ""
-            if create_pull_secret == 1 and pull_secret_name:
-                image_pull_secrets = [{"name": pull_secret_name}]
-                ctx.logger.info(
-                    "Private registry: Job will use imagePullSecret %r",
-                    pull_secret_name,
-                )
-            else:
-                image_pull_secrets = []
-                ctx.logger.info(
-                    "Public registry: Job will pull anonymously "
-                    "(no imagePullSecrets)"
-                )
-            ctx.instance.runtime_properties["image_pull_secrets"] = image_pull_secrets
-
-            # Kubernetes requires every container env value to be a string;
-            # coerce the integer-typed inputs so the Job spec is accepted.
-            ctx.instance.runtime_properties["min_ready_nodes_str"] = str(
-                inputs.get("min_ready_nodes", 1)
-            )
-            ctx.instance.runtime_properties["install_ingress_controller_str"] = str(
-                inputs.get("install_ingress_controller", 0)
-            )
+            db_connectivity_timeout_seconds: { get_input: db_connectivity_timeout_seconds }
+          implementation: application/scripts/prepare_job_spec.py
 
   stack_verification_job:
     type: dell.nodes.kubernetes.resources.Job
@@ -203,6 +188,13 @@ node_templates:
                       - "/"
                       - { get_input: blueprint_job_image }
                   command: ["/bin/bash", "-c"]
+                  resources:
+                    requests:
+                      cpu: "100m"
+                      memory: "128Mi"
+                    limits:
+                      cpu: "500m"
+                      memory: "512Mi"
                   env:
                     - name: K8S_MIN_VERSION
                       value: { get_input: k8s_min_version }
@@ -212,8 +204,6 @@ node_templates:
                       value: { get_input: storage_class }
                     - name: INGRESS_ENABLED
                       value: { get_input: ingress_enabled }
-                    - name: INSTALL_INGRESS_CONTROLLER
-                      value: { get_attribute: [stack_verifier_job_name, install_ingress_controller_str] }
                     - name: INGRESS_CLASS_NAME
                       value: { get_input: ingress_class_name }
                     - name: POSTGRESQL_ENABLED
@@ -222,6 +212,8 @@ node_templates:
                       value: { get_input: database_host }
                     - name: DATABASE_PORT
                       value: { get_input: database_port }
+                    - name: DB_CONNECT_TIMEOUT
+                      value: { get_attribute: [stack_verifier_job_name, db_connect_timeout_str] }
                   args:
                     - |
                       #!/bin/bash
@@ -265,24 +257,32 @@ node_templates:
                         echo "INFO: No storage_class set; assuming cluster default"
                       fi
 
-                      # Step 4: Ingress class (only when ingress is in use AND we are not installing the controller)
-                      if [ "$INGRESS_ENABLED" = "true" ] && [ "$INSTALL_INGRESS_CONTROLLER" = "0" ]; then
+                      # Step 4: Ingress class (the ingress controller is a
+                      # cluster prerequisite, so its IngressClass must already
+                      # exist when ingress is in use).
+                      if [ "$INGRESS_ENABLED" = "true" ]; then
                         if [ -n "$INGRESS_CLASS_NAME" ]; then
                           AVAILABLE_INGRESS=$(kubectl get ingressclass -o jsonpath='{.items[*].metadata.name}' 2>/dev/null || echo "")
                           if ! echo " $AVAILABLE_INGRESS " | grep -q " $INGRESS_CLASS_NAME "; then
-                            echo "ERROR: IngressClass '$INGRESS_CLASS_NAME' not found. Available: $AVAILABLE_INGRESS"
+                            echo "ERROR: IngressClass '$INGRESS_CLASS_NAME' not found (install an ingress controller first). Available: $AVAILABLE_INGRESS"
                             exit 1
                           fi
                           echo "SUCCESS: IngressClass '$INGRESS_CLASS_NAME' exists"
                         fi
                       else
-                        echo "INFO: Skipping IngressClass check (ingress_enabled=$INGRESS_ENABLED, install_ingress_controller=$INSTALL_INGRESS_CONTROLLER)"
+                        echo "INFO: Skipping IngressClass check (ingress_enabled=$INGRESS_ENABLED)"
                       fi
 
                       # Step 5: External database connectivity
                       if [ "$POSTGRESQL_ENABLED" = "false" ]; then
                         echo "Testing connectivity to $DATABASE_HOST:$DATABASE_PORT..."
-                        if ! timeout 10 bash -c "</dev/tcp/$DATABASE_HOST/$DATABASE_PORT" 2>/dev/null; then
+                        # Pass host/port as positional args ($0/$1) to a
+                        # single-quoted inner script so they are only ever
+                        # used as the /dev/tcp redirection target and never
+                        # interpolated into the command string. This prevents
+                        # shell command injection even if the values contain
+                        # metacharacters (e.g. $(...), backticks, ';').
+                        if ! timeout "$DB_CONNECT_TIMEOUT" bash -c 'exec 3<>"/dev/tcp/$0/$1"' "$DATABASE_HOST" "$DATABASE_PORT" 2>/dev/null; then
                           echo "ERROR: Cannot reach $DATABASE_HOST:$DATABASE_PORT"
                           exit 1
                         fi

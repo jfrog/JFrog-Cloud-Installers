@@ -37,8 +37,6 @@ input_groups:
     index: 3
     inputs:
       - postgresql_enabled
-      - create_bundled_db_secret
-      - create_external_db_secret
       - database_admin_password
       - database_host
       - database_port
@@ -50,21 +48,17 @@ input_groups:
     index: 4
     inputs:
       - release_name
-      - sizing_template
-      - jfrog_helm_repo_url
+      - master_key_secret_ref
+      - join_key_secret_ref
   licensing:
-    display_label: Licensing
+    display_label: Sizing and Licensing
     collapsible: true
     index: 5
     inputs:
-      - create_license_secret
+      - sizing_template
       - license_secret_ref
-      - create_master_key_secret
-      - master_key_secret_ref
-      - create_join_key_secret
-      - join_key_secret_ref
   networking:
-    display_label: Networking
+    display_label: Ingress
     collapsible: true
     index: 6
     inputs:
@@ -72,6 +66,9 @@ input_groups:
       - ingress_enabled
       - ingress_class_name
       - ingress_host
+      - ingress_tls_enabled
+      - ingress_tls_secret_ref
+      - ingress_annotations
 
 inputs:
 
@@ -119,8 +116,8 @@ inputs:
     allow_update: true
     required: true
     display_label: Persistence
-    description: Persistence mode (storage_type or storage_class).
-    default: storage_class
+    description: Persistence mode (storage-type or storage-class).
+    default: storage-class
     display:
       group: persistence
       index: 0
@@ -131,7 +128,7 @@ inputs:
     allow_update: true
     required: false
     display_label: Persistence Type
-    description: Persistence type when persistence=storage_type.
+    description: Persistence type when persistence=storage-type.
     default: file-system
     display:
       group: persistence
@@ -221,30 +218,6 @@ inputs:
       group: database
       index: 0
 
-  create_bundled_db_secret:
-    type: integer
-    hidden: false
-    allow_update: false
-    required: false
-    display_label: Create Bundled Database Secret
-    description: Create a K8s secret with bundled PostgreSQL defaults (0 or 1).
-    default: 0
-    display:
-      group: database
-      index: 1
-
-  create_external_db_secret:
-    type: integer
-    hidden: false
-    allow_update: false
-    required: false
-    display_label: Create External Database Secret
-    description: Create a K8s secret from the DAP secrets below (0 or 1).
-    default: 0
-    display:
-      group: database
-      index: 2
-
   database_admin_password:
     type: string
     hidden: false
@@ -299,12 +272,11 @@ inputs:
     required: true
     display_label: Database Credentials
     description: >-
-      DAP basic_auth secret with username/password fields for the
-      Artifactory PostgreSQL user.
+      DAP Basic Authentication secret name holding the 'username' and
+      'password' for the Artifactory PostgreSQL user.
     display:
       group: database
       index: 7
-
   release_name:
     type: string
     hidden: false
@@ -323,32 +295,18 @@ inputs:
     allow_update: true
     required: true
     display_label: Sizing Template
-    description: Resource sizing profile for all JFrog Platform components.
+    description: >
+      Resource sizing profile for all JFrog Platform components.
+      xsmall - 1 replica, 1 CPU / 4 Gi (dev/test, minimum).
+      small - 1 replica, 1 CPU / 5 Gi (small teams, up to ~50 users).
+      medium - 2 replicas, 1 CPU / 5 Gi each (HA, up to ~500 users).
+      large - 3 replicas, 2 CPU / 12 Gi each (large orgs, up to ~2000 users).
+      xlarge - 4 replicas, 2 CPU / 16 Gi each (very large orgs, up to ~5000 users).
+      2xlarge - 6 replicas, 4 CPU / 24 Gi each (enterprise-scale, 5000+ users).
+      IMPORTANT: medium / large / xlarge / 2xlarge require an Artifactory
+      Enterprise license (one per replica). xsmall and small can run in
+      trial mode (license optional).
     default: small
-    display:
-      group: chart_settings
-      index: 1
-
-  jfrog_helm_repo_url:
-    type: string
-    hidden: false
-    allow_update: false
-    required: true
-    display_label: JFrog Helm Repository
-    description: Helm repository URL for the JFrog Platform chart.
-    default: https://charts.jfrog.io
-    display:
-      group: chart_settings
-      index: 2
-
-  create_license_secret:
-    type: integer
-    hidden: false
-    allow_update: false
-    required: false
-    display_label: Create License Secret
-    description: 0 = trial mode, 1 = create K8s secret from DAP general secret.
-    default: 0
     display:
       group: licensing
       index: 0
@@ -364,18 +322,6 @@ inputs:
       group: licensing
       index: 1
 
-  create_master_key_secret:
-    type: integer
-    hidden: false
-    allow_update: false
-    required: false
-    display_label: Create Master Key Secret
-    description: 0 = use chart default, 1 = inject DAP general secret as master-key.
-    default: 0
-    display:
-      group: licensing
-      index: 2
-
   master_key_secret_ref:
     type: string
     hidden: false
@@ -386,20 +332,8 @@ inputs:
       DAP general secret with the raw Artifactory master key (exactly
       64 hex chars; openssl rand -hex 32).
     display:
-      group: licensing
+      group: chart_settings
       index: 3
-
-  create_join_key_secret:
-    type: integer
-    hidden: false
-    allow_update: false
-    required: false
-    display_label: Create Join Key Secret
-    description: 0 = use chart default, 1 = inject DAP general secret as join-key.
-    default: 0
-    display:
-      group: licensing
-      index: 4
 
   join_key_secret_ref:
     type: string
@@ -411,7 +345,7 @@ inputs:
       DAP general secret with the raw Artifactory join key (exactly
       32 hex chars; openssl rand -hex 16).
     display:
-      group: licensing
+      group: chart_settings
       index: 5
 
   nginx_enabled:
@@ -461,3 +395,49 @@ inputs:
     display:
       group: networking
       index: 3
+
+  ingress_tls_enabled:
+    type: string
+    hidden: false
+    allow_update: true
+    required: false
+    display_label: Ingress TLS Enabled
+    description: Serve the Ingress over HTTPS using a TLS secret.
+    default: "false"
+    display:
+      group: networking
+      index: 4
+
+  ingress_tls_secret_ref:
+    type: string
+    hidden: false
+    allow_update: true
+    required: false
+    display_label: Ingress TLS Secret
+    description: >-
+      DAP general secret holding the Ingress TLS material in fields
+      'tls.crt' (PEM certificate chain) and 'tls.key' (PEM private key).
+      When TLS is enabled the blueprint creates a kubernetes.io/tls Secret
+      named '<release>-tls' from it and attaches it to the Artifactory
+      Ingress. Ignored when TLS is disabled.
+    display:
+      group: networking
+      index: 5
+
+  ingress_annotations:
+    type: dict
+    hidden: false
+    allow_update: true
+    required: false
+    display_label: Ingress Annotations
+    description: >-
+      Optional annotations applied to artifactory.ingress.annotations, rendered
+      to a Helm values file (so values keep their exact YAML form, including
+      numbers, booleans, and multi-line blocks). Leave empty to apply no custom
+      annotations. NOTE: nginx.org/redirect-to-https is managed by the blueprint
+      based on Ingress TLS (set to "false" when TLS is off, omitted when on) -
+      do not set it here.
+    default: {}
+    display:
+      group: networking
+      index: 6

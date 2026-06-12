@@ -18,7 +18,6 @@ inputs:
     default:
       input_validator: jfrog_input_validator
       stack_verifier: jfrog_stack_verifier
-      ingress_nginx: ingress_nginx_component
       jfrog_platform: jfrog_platform_component
 
   input_validator_revision_id:
@@ -40,18 +39,6 @@ inputs:
     required: true
     display_label: Stack Verifier Revision ID
     description: Revision of the stack verifier component blueprint to deploy.
-    default: "1.0.0.0"
-    constraints:
-      - pattern: '^\d+\.\d+\.\d+\.\d+$'
-        error_message: Must be a 4-part revision (MAJOR.MINOR.PATCH.BUILD).
-
-  ingress_nginx_revision_id:
-    type: string
-    hidden: true
-    allow_update: false
-    required: true
-    display_label: Ingress NGINX Revision ID
-    description: Revision of the ingress-nginx component blueprint to deploy.
     default: "1.0.0.0"
     constraints:
       - pattern: '^\d+\.\d+\.\d+\.\d+$'
@@ -117,7 +104,7 @@ inputs:
       jfrog/jfrog-platform Helm chart version. Injected automatically
       by the build pipeline from the resolved chart version; not
       customer-editable.
-    default: 11.5.3
+    default: 0.0.0
     constraints:
       - pattern: '^\d+\.\d+\.\d+$'
         error_message: Must be a valid semantic version.
@@ -134,3 +121,74 @@ inputs:
     default:
       AI: "dellprivatecloudcluster"
       External: "kubernetes"
+
+  # [air-gapped] Credentials for pulling the verifier image from an
+  # internal / private container registry.
+  container_registry_credentials_secret:
+    type: secret_key
+    hidden: true
+    allow_update: false
+    required: false
+    display_label: Container Registry Credentials Secret
+    description: >-
+      DAP general secret containing a JSON object with 'username' and
+      'password' for pulling the stack verifier container image from a
+      private registry. Leave empty when using a public registry
+      (e.g., docker.io).
+    constraints:
+      - type: general
+        error_message: Secret must be of type general (JSON with username/password).
+
+  # [air-gapped] Override with an internal Helm repo mirror for the
+  # JFrog Platform chart in disconnected environments.
+  jfrog_helm_repo_url:
+    type: string
+    hidden: true
+    allow_update: false
+    required: true
+    display_label: JFrog Helm Repository
+    description: >-
+      Helm repository URL for the JFrog Platform chart. Override with
+      an internal mirror URL for air-gapped deployments.
+    default: https://charts.jfrog.io
+    constraints:
+      - pattern: '^https?://.+'
+        error_message: Must be a valid HTTP/HTTPS URL.
+
+
+  # [air-gapped] Override with an internal container registry hostname
+  # for the stack verifier image in disconnected environments.
+  container_registry_name:
+    type: string
+    hidden: true
+    allow_update: false
+    required: true
+    display_label: Container Registry Hostname
+    description: >-
+      Container registry used to pull the stack verifier image
+      (default: docker.io). Override with an internal registry
+      hostname for air-gapped deployments.
+    default: docker.io
+    constraints:
+      - pattern: '^[a-zA-Z0-9]([a-zA-Z0-9\-\.:]*[a-zA-Z0-9])?$'
+        error_message: Must be a valid registry hostname (optionally with port).
+
+  # [air-gapped] Set to true to pull the verifier image from a private /
+  # internal registry (creates an image-pull Secret).
+  create_pull_secret:
+    type: string
+    hidden: true
+    allow_update: false
+    required: false
+    display_label: Pull Stack Verifier Image From Private Registry
+    description: >-
+      Controls whether the stack verifier creates an image-pull Secret
+      for its container image. true = private registry (create the Secret
+      from container_registry_credentials_secret and attach it to the
+      verification Job). false = public registry (skip the Secret and pull
+      anonymously). Leave false when container_registry_name is a public
+      registry such as docker.io.
+    default: "false"
+    constraints:
+      - valid_values: ["true", "false"]
+        error_message: Must be true (private registry) or false (public registry).

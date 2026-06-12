@@ -1,0 +1,15 @@
+{
+  "name": "@blueprint-assist/skills",
+  "version": "0.25.0",
+  "description": "IDE skill definitions for Windsurf Cascade, Cursor, Claude Code",
+  "private": true,
+  "files": [
+    "dap/"
+  ],
+  "exports": {
+    "./skills/dap/cli": "./dap/SKILL.md",
+    "./skills/dap/agent": "./dap/SKILL.functions.md",
+    "./skills/dap/functions-reference": "./dap/references/functions-reference.md",
+    "./skills/dap/cli-reference": "./dap/references/cli-commands.md"
+  }
+}

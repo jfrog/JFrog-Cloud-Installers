@@ -8,8 +8,9 @@ tosca_definitions_version: dell_1_1
 
 description: >
   JFrog Platform Top-Level Orchestrator. Composes the input validator,
-  stack verifier, optional ingress-nginx controller, and JFrog Platform
-  component blueprints into a single Dell-certified deployment.
+  stack verifier, and JFrog Platform component blueprints into a single
+  Dell-certified deployment. An ingress controller is a cluster
+  prerequisite and is not installed by this bundle.
 
 imports:
   - dell/types/types.yaml
@@ -18,7 +19,6 @@ imports:
   - top_level/outputs.yaml
   - applications/00_input_validator.yaml
   - applications/01_stack_verifier.yaml
-  - applications/02_ingress_nginx.yaml
   - applications/03_jfrog_platform.yaml
 
 labels:

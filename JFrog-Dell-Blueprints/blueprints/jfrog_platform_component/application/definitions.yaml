@@ -15,22 +15,14 @@ node_templates:
     type: dell.nodes.Root
     interfaces:
       dell.interfaces.lifecycle:
-        start: |
-          from dell import ctx
-          from dell.manager import get_rest_client
-          
-          client = get_rest_client()
-          this_dep = client.deployments.get(ctx.deployment.id)
-          target_dep = client.deployments.get(this_dep.inputs["target_deployment_id"])
-          labels = []
-          ctx.logger.info("current labels: {}".format(this_dep.labels))
-          for label in this_dep.labels:
-            labels.append({label.key: label.value})
-          ctx.logger.info("target_dep labels: {}".format(target_dep.labels))
-          labels.append({"target_id": [label.value for label in target_dep.labels if label.get("key") == "target_id"][0]})
-          
-          ctx.logger.info("updating labels to: {}".format(labels))
-          client.deployments.update_labels(ctx.deployment.id, labels)
+        start:
+          implementation: application/scripts/fetch_labels.py
+          executor: central_deployment_agent
+          inputs:
+            target_deployment_id: { get_input: target_deployment_id }
+        stop:
+          implementation: application/scripts/fetch_labels_stop.py
+          executor: central_deployment_agent
 
   fetch_k8s_config_secret:
     type: dell.nodes.Root
@@ -142,37 +134,51 @@ node_templates:
             master_key_secret_name: { get_input: master_key_secret_name }
             create_join_key_secret: { get_input: create_join_key_secret }
             join_key_secret_name: { get_input: join_key_secret_name }
-          implementation: |
-            #!/usr/bin/env python3
-            from dell import ctx
-            from dell.state import ctx_parameters as inputs
+          implementation: application/scripts/compute_key_secret_names.py
 
-            # The master/join key Secrets are only created when their
-            # toggle is 1. When the toggle is 0 the chart must fall back
-            # to its own auto-generated keys, which it does whenever
-            # masterKeySecretName / joinKeySecretName is empty. DAP cannot
-            # derive these conditionally in the static set_values list, so
-            # resolve them here and expose via runtime properties.
-            create_master = int(inputs.get("create_master_key_secret") or 0)
-            create_join = int(inputs.get("create_join_key_secret") or 0)
+  compute_ingress_tls:
+    type: dell.nodes.Root
+    interfaces:
+      dell.interfaces.lifecycle:
+        precreate:
+          executor: central_deployment_agent
+          inputs:
+            ingress_tls_enabled: { get_input: ingress_tls_enabled }
+            ingress_enabled: { get_input: ingress_enabled }
+            release_name: { get_input: release_name }
+            ingress_host: { get_input: ingress_host }
+          implementation: application/scripts/compute_ingress_tls.py
 
-            master_name = inputs.get("master_key_secret_name") or ""
-            join_name = inputs.get("join_key_secret_name") or ""
-
-            master_effective = master_name if create_master == 1 else ""
-            join_effective = join_name if create_join == 1 else ""
-
-            ctx.instance.runtime_properties["master_key_secret_name"] = master_effective
-            ctx.instance.runtime_properties["join_key_secret_name"] = join_effective
-
-            ctx.logger.info(
-                "masterKeySecretName -> %r (create_master_key_secret=%s)",
-                master_effective, create_master,
-            )
-            ctx.logger.info(
-                "joinKeySecretName -> %r (create_join_key_secret=%s)",
-                join_effective, create_join,
-            )
+  # Create the kubernetes.io/tls Secret from the supplied DAP secret
+  # (tls.crt / tls.key). Only created when TLS is enabled; the chart's
+  # artifactory.ingress.tls[0].secretName points at this Secret.
+  ingress_tls_secret:
+    type: dell.nodes.kubernetes.resources.Secret
+    properties:
+      client_config: { get_attribute: [fetch_k8s_config_secret, k8s_client_config] }
+      definition:
+        apiVersion: v1
+        kind: Secret
+        metadata:
+          name: { get_attribute: [compute_ingress_tls, tls_secret_name_effective] }
+          namespace: { get_input: namespace }
+        type: kubernetes.io/tls
+        stringData:
+          tls.crt:
+            get_secret: [{ get_input: ingress_tls_secret_ref }, tls.crt]
+          tls.key:
+            get_secret: [{ get_input: ingress_tls_secret_ref }, tls.key]
+      options:
+        namespace: { get_input: namespace }
+    capabilities:
+      scalable:
+        properties:
+          default_instances: { get_input: create_ingress_tls_secret }
+    relationships:
+      - target: create_namespace
+        type: dell.relationships.depends_on
+      - target: compute_ingress_tls
+        type: dell.relationships.depends_on
 
   database_credentials_bundled:
     type: dell.nodes.kubernetes.resources.Secret
@@ -350,6 +356,40 @@ node_templates:
           - name: wait
           - name: timeout
             value: "10m0s"
+    interfaces:
+      dell.interfaces.lifecycle:
+        # Render the deployer-supplied ingress annotations to a values file
+        # before install and before upgrade (re-rendered so updates pick up
+        # changes), then load it via a `--values` flag scoped to install/upgrade
+        # only (NOT delete/uninstall, which would reject --values).
+        precreate:
+          executor: central_deployment_agent
+          implementation: application/scripts/render_ingress_values.py
+          inputs:
+            ingress_annotations: { get_input: ingress_annotations }
+            ingress_tls_enabled: { get_input: ingress_tls_enabled }
+            ingress_host: { get_input: ingress_host }
+            namespace: { get_input: namespace }
+            release_name: { get_input: release_name }
+        preupdate:
+          executor: central_deployment_agent
+          implementation: application/scripts/render_ingress_values.py
+          inputs:
+            ingress_annotations: { get_input: ingress_annotations }
+            ingress_tls_enabled: { get_input: ingress_tls_enabled }
+            ingress_host: { get_input: ingress_host }
+            namespace: { get_input: namespace }
+            release_name: { get_input: release_name }
+        start:
+          inputs:
+            flags:
+              - name: values
+                value: { get_attribute: [jfrog_platform_release, values_file_path] }
+        update:
+          inputs:
+            flags:
+              - name: values
+                value: { get_attribute: [jfrog_platform_release, values_file_path] }
     relationships:
       - target: helm_binary
         type: dell.relationships.helm.run_on_host
@@ -369,6 +409,63 @@ node_templates:
         type: dell.relationships.depends_on
       - target: database_credentials_external
         type: dell.relationships.depends_on
+      - target: compute_ingress_tls
+        type: dell.relationships.depends_on
+      - target: ingress_tls_secret
+        type: dell.relationships.depends_on
+
+  # Service endpoint discovery: read the bundled NGINX LoadBalancer Service
+  # to expose its real external IP:port. Gated to NGINX/LoadBalancer mode via
+  # scalable.default_instances (0 in ingress mode so we never read a Service
+  # that does not exist).
+  check_nginx_service_endpoint:
+    type: dell.nodes.kubernetes.resources.CustomObject
+    properties:
+      client_config: { get_attribute: [fetch_k8s_config_secret, k8s_client_config] }
+      use_external_resource: true
+      options:
+        namespace: { get_input: namespace }
+        group: core
+        plural: services
+        version: v1
+      definition:
+        apiVersion: v1
+        kind: Service
+        metadata:
+          name:
+            concat:
+              - { get_input: release_name }
+              - "-artifactory-nginx"
+          namespace: { get_input: namespace }
+    capabilities:
+      scalable:
+        properties:
+          default_instances: { get_input: discover_lb_endpoint }
+    relationships:
+      - target: fetch_k8s_config_secret
+        type: dell.relationships.depends_on
+      - target: jfrog_platform_release
+        type: dell.relationships.depends_on
+
+  # Always runs (default 1 instance) and turns the LoadBalancer IP into a clean
+  # string so the platform_url_loadbalancer capability never renders the raw
+  # unresolved get_attribute JSON in ingress mode. Reads the IP from
+  # check_nginx_service_endpoint, which only exists in LoadBalancer mode; the
+  # script treats a missing/unresolved value as "no LoadBalancer" (empty URL).
+  resolve_lb_endpoint:
+    type: dell.nodes.Root
+    interfaces:
+      dell.interfaces.lifecycle:
+        start:
+          executor: central_deployment_agent
+          implementation: application/scripts/resolve_lb_endpoint.py
+          inputs:
+            lb_ip: { get_attribute: [check_nginx_service_endpoint, kubernetes, status, load_balancer, ingress, 0, ip] }
+    relationships:
+      - target: jfrog_platform_release
+        type: dell.relationships.depends_on
+      - target: check_nginx_service_endpoint
+        type: dell.relationships.depends_on
 
 capabilities:
   release_name:
@@ -381,20 +478,13 @@ capabilities:
     description: Applied sizing template
     value: { get_input: sizing_template }
   platform_url_ingress:
-    description: Artifactory URL when using ingress deployment mode.
-    value:
-      concat:
-        - "http://"
-        - { get_input: ingress_host }
-        - "/artifactory"
-  platform_url_command:
     description: >-
-      Run this command to get the Artifactory external IP when using
-      nginx/LoadBalancer deployment mode.
-    value:
-      concat:
-        - "kubectl get svc "
-        - { get_input: release_name }
-        - "-artifactory-nginx -n "
-        - { get_input: namespace }
-        - " -o jsonpath='{.status.loadBalancer.ingress[0].ip}'"
+      Artifactory URL when using Kubernetes Ingress mode. Populated only when
+      ingress_enabled is true; empty in bundled NGINX (LoadBalancer) mode.
+    value: { get_attribute: [compute_ingress_tls, platform_url_ingress] }
+  platform_url_loadbalancer:
+    description: >-
+      Artifactory URL when using bundled NGINX (LoadBalancer) mode. Resolved
+      from the external IP of the <release_name>-artifactory-nginx Service.
+      Empty in ingress mode.
+    value: { get_attribute: [resolve_lb_endpoint, platform_url_loadbalancer] }

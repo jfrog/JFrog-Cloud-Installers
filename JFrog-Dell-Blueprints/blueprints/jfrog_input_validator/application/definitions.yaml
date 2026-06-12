@@ -26,6 +26,7 @@ node_templates:
             nfs_ip: { get_input: nfs_ip }
             nfs_capacity: { get_input: nfs_capacity }
             postgresql_enabled: { get_input: postgresql_enabled }
+            create_bundled_db_secret: { get_input: create_bundled_db_secret }
             create_external_db_secret: { get_input: create_external_db_secret }
             database_admin_password: { get_input: database_admin_password }
             database_credentials: { get_input: database_credentials }
@@ -35,8 +36,6 @@ node_templates:
             release_name: { get_input: release_name }
             chart_version: { get_input: chart_version }
             sizing_template: { get_input: sizing_template }
-            ingress_nginx_version: { get_input: ingress_nginx_version }
-            ingress_nginx_repo_url: { get_input: ingress_nginx_repo_url }
             jfrog_helm_repo_url: { get_input: jfrog_helm_repo_url }
             container_registry_name: { get_input: container_registry_name }
             create_license_secret: { get_input: create_license_secret }
@@ -45,9 +44,41 @@ node_templates:
             master_key_secret_ref: { get_input: master_key_secret_ref }
             create_join_key_secret: { get_input: create_join_key_secret }
             join_key_secret_ref: { get_input: join_key_secret_ref }
+            create_pull_secret: { get_input: create_pull_secret }
             nginx_enabled: { get_input: nginx_enabled }
             ingress_enabled: { get_input: ingress_enabled }
-            install_ingress_controller: { get_input: install_ingress_controller }
+            ingress_tls_enabled: { get_input: ingress_tls_enabled }
             ingress_class_name: { get_input: ingress_class_name }
             ingress_host: { get_input: ingress_host }
             expected_basic_auth_keys: { get_input: expected_basic_auth_keys }
+
+capabilities:
+
+  # Derived 0/1 integers exposed for the orchestrator to forward into the
+  # downstream ServiceComponents, whose scalable.default_instances need an
+  # integer resolvable at plan time. The validator node computes these from
+  # the true/false toggles during its precreate lifecycle.
+  create_bundled_db_secret_int:
+    description: 1 if the bundled PostgreSQL secret should be created, else 0.
+    value: { get_attribute: [input_validator, create_bundled_db_secret_int] }
+  create_external_db_secret_int:
+    description: 1 if the external DB secret should be created, else 0.
+    value: { get_attribute: [input_validator, create_external_db_secret_int] }
+  create_license_secret_int:
+    description: 1 if the license K8s secret should be created, else 0.
+    value: { get_attribute: [input_validator, create_license_secret_int] }
+  create_master_key_secret_int:
+    description: 1 if the master-key secret should be injected, else 0.
+    value: { get_attribute: [input_validator, create_master_key_secret_int] }
+  create_join_key_secret_int:
+    description: 1 if the join-key secret should be injected, else 0.
+    value: { get_attribute: [input_validator, create_join_key_secret_int] }
+  create_pull_secret_int:
+    description: 1 if the image pull secret should be created, else 0.
+    value: { get_attribute: [input_validator, create_pull_secret_int] }
+  ingress_tls_enabled_int:
+    description: 1 if Ingress TLS is enabled, else 0.
+    value: { get_attribute: [input_validator, ingress_tls_enabled_int] }
+  discover_lb_endpoint:
+    description: 1 if the LoadBalancer endpoint should be discovered (bundled NGINX), else 0.
+    value: { get_attribute: [input_validator, discover_lb_endpoint] }

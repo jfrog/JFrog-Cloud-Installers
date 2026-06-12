@@ -25,12 +25,11 @@ input_groups:
     inputs:
       - storage_class
   networking_configuration:
-    display_label: Networking Configuration
+    display_label: Ingress Configuration
     collapsible: true
     index: 3
     inputs:
       - ingress_enabled
-      - install_ingress_controller
       - ingress_class_name
   database_configuration:
     display_label: Database Configuration
@@ -46,7 +45,6 @@ input_groups:
     index: 5
     inputs:
       - container_registry_name
-      - create_pull_secret
       - container_registry_credentials_secret
 
 inputs:
@@ -113,25 +111,13 @@ inputs:
       group: networking_configuration
       index: 0
 
-  install_ingress_controller:
-    type: integer
-    hidden: false
-    allow_update: true
-    required: true
-    display_label: Install Ingress Controller
-    description: 1 = the verifier skips IngressClass check (controller is being installed).
-    default: 0
-    display:
-      group: networking_configuration
-      index: 1
-
   ingress_class_name:
     type: string
     hidden: false
     allow_update: true
     required: false
     display_label: Ingress Class Name
-    description: IngressClass to verify when ingress_enabled=true and install_ingress_controller=0.
+    description: IngressClass to verify when ingress_enabled=true (controller is a cluster prerequisite).
     default: nginx
     display:
       group: networking_configuration
@@ -171,43 +157,4 @@ inputs:
     default: "5432"
     display:
       group: database_configuration
-      index: 2
-
-  container_registry_name:
-    type: string
-    hidden: false
-    allow_update: false
-    required: true
-    display_label: Container Registry Hostname
-    description: Registry the verifier image is pulled from.
-    default: docker.io
-    display:
-      group: container_registries
-      index: 0
-
-  create_pull_secret:
-    type: integer
-    hidden: false
-    allow_update: false
-    required: true
-    display_label: Pull From Private Registry
-    description: >-
-      1 = the verifier image lives in a private registry; create an
-      image-pull Secret from the supplied credentials and attach it to
-      the Job. 0 = the image lives in a public registry; skip the pull
-      Secret and let the Job pull anonymously.
-    default: 0
-    display:
-      group: container_registries
-      index: 1
-
-  container_registry_credentials_secret:
-    type: string
-    hidden: false
-    allow_update: false
-    required: false
-    display_label: Container Registry Credentials Secret
-    description: Optional DAP basic_auth secret with username/password.
-    display:
-      group: container_registries
       index: 2

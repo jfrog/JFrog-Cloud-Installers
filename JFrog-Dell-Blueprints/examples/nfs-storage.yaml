@@ -1,0 +1,52 @@
+# Example: NFS-Backed Persistence
+#
+# Uses the file-system / NFS persistence mode instead of a PVC-backed
+# StorageClass. Artifactory mounts an external NFS export for its data.
+#
+# Prerequisites:
+#   1. DAP Kubernetes credentials secret (with proxy_settings for SaaS DAPO).
+#   2. DAP target infrastructure deployment.
+#   3. A reachable NFS server and exported path with enough capacity.
+#
+# DAP UI steps:
+#   1. k8s_target_cluster    → select target type, credentials, deployment
+#   2. Persistence           → Persistence "storage-type",
+#                              Persistence Type "nfs",
+#                              set NFS Server IP and NFS Capacity
+#   3. Database Configuration → Bundled PostgreSQL "true" + Create Bundled
+#                              Database Secret "true"
+#   4. Click Deploy
+#
+# Access URL output:
+#   - platform_url_loadbalancer -> http://<lb-ip> (active, bundled NGINX mode)
+#   - platform_url_ingress      -> empty (LoadBalancer mode)
+
+inputs:
+
+  # -- k8s target cluster ------------------------------------------
+  target_type: External
+  k8s_credentials: my-k8s-secret
+  target_deployment_id: my-cluster-deployment
+
+  # -- Infrastructure ----------------------------------------------
+  namespace: jfrog-platform
+
+  # -- Persistence (NFS) -------------------------------------------
+  persistence: storage-type
+  persistence_type: nfs
+  nfs_ip: 10.0.0.10
+  nfs_capacity: "200Gi"
+
+  # -- Database (bundled) ------------------------------------------
+  postgresql_enabled: "true"
+  create_bundled_db_secret: "true"
+
+  # -- Sizing and Licensing ----------------------------------------
+  sizing_template: small
+  create_license_secret: "false"               # trial mode
+
+  # -- Chart Settings ----------------------------------------------
+  release_name: jfrog-platform
+
+  # -- Ingress -----------------------------------------------------
+  nginx_enabled: "true"

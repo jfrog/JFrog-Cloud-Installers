@@ -31,6 +31,5 @@ dsl_definitions:
         developer: srinivasg@jfrog.com
         description: >-
           Initial release. Top-level orchestrator that wires the input
-          validator, stack verifier, optional ingress-nginx, and JFrog
-          Platform component blueprints into a single Dell-certified
-          deployment.
+          validator, stack verifier, and JFrog Platform component
+          blueprints into a single Dell-certified deployment.
