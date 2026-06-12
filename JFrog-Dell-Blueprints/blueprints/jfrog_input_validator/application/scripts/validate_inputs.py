@@ -53,6 +53,26 @@ ENTERPRISE_TIERS = ("medium", "large", "xlarge", "2xlarge")
 ALL_SIZING_TIERS = ("xsmall", "small") + ENTERPRISE_TIERS
 
 
+# Toggles forwarded as user-facing true/false strings.  The orchestrator no
+# longer pre-converts them (its environment deployment cannot run a local
+# script); instead this validator derives the 0/1 integers and re-exposes
+# them as blueprint capabilities for the downstream ServiceComponents.
+TOGGLE_INPUTS = (
+    "create_bundled_db_secret",
+    "create_external_db_secret",
+    "create_license_secret",
+    "create_master_key_secret",
+    "create_join_key_secret",
+    "create_pull_secret",
+    "ingress_tls_enabled",
+)
+
+
+def _toggle_int(name):
+    """Return 1 if the named true/false toggle input is truthy, else 0."""
+    return 1 if str(inputs.get(name) or "false").lower() == "true" else 0
+
+
 # -- Primitive validators --------------------------------------------
 def _require_non_empty_string(value, field_name):
     if not value or not isinstance(value, str):
@@ -88,13 +108,6 @@ def _validate_optional_quantity(value, field_name):
         raise ValueError(
             f"{field_name}: invalid Kubernetes quantity "
             f"(expected e.g. 20Gi, 1Ti, 500Mi); got: {value!r}"
-        )
-
-
-def _validate_int_in(value, field_name, allowed):
-    if value not in allowed:
-        raise ValueError(
-            f"{field_name}: must be one of {allowed}, got: {value!r}"
         )
 
 
@@ -229,9 +242,8 @@ def _validate_k8s_credentials_secret(client, secret_name):
 
 
 # -- Phase 1: format checks ------------------------------------------
-def _validate_formats():
-    ctx.logger.info("Phase 1: validating input formats")
-
+def _validate_basic_fields():
+    """Validate the always-required scalar inputs (names, versions, URLs)."""
     namespace = inputs.get("namespace") or ""
     _require_non_empty_string(namespace, "namespace")
     _validate_pattern(
@@ -258,21 +270,12 @@ def _validate_formats():
         "must be a valid semantic version",
     )
 
-    ingress_nginx_version = inputs.get("ingress_nginx_version") or ""
+    jfrog_helm_repo_url = inputs.get("jfrog_helm_repo_url") or ""
+    _require_non_empty_string(jfrog_helm_repo_url, "jfrog_helm_repo_url")
     _validate_pattern(
-        ingress_nginx_version,
-        "ingress_nginx_version",
-        SEMVER_PATTERN,
-        "must be a valid semantic version",
+        jfrog_helm_repo_url, "jfrog_helm_repo_url", HTTP_URL_PATTERN,
+        "must be a valid HTTP/HTTPS URL",
     )
-
-    for url_field in ("ingress_nginx_repo_url", "jfrog_helm_repo_url"):
-        url_value = inputs.get(url_field) or ""
-        _require_non_empty_string(url_value, url_field)
-        _validate_pattern(
-            url_value, url_field, HTTP_URL_PATTERN,
-            "must be a valid HTTP/HTTPS URL",
-        )
 
     registry = inputs.get("container_registry_name") or ""
     _require_non_empty_string(registry, "container_registry_name")
@@ -281,18 +284,21 @@ def _validate_formats():
         "must be a valid registry hostname",
     )
 
+
+def _validate_persistence():
+    """Validate the persistence mode and its mode-specific sub-fields."""
     _validate_enum(
         inputs.get("persistence"), "persistence",
-        ["storage_type", "storage_class"],
+        ["storage-type", "storage-class"],
     )
-    if inputs.get("persistence") == "storage_class":
+    if inputs.get("persistence") == "storage-class":
         _validate_optional_pattern(
             inputs.get("storage_class"), "storage_class",
             r'^$|^[a-z0-9][a-z0-9\-]*$',
             "must be a valid StorageClass name",
         )
         _validate_optional_quantity(inputs.get("pvc_size"), "pvc_size")
-    elif inputs.get("persistence") == "storage_type":
+    elif inputs.get("persistence") == "storage-type":
         _validate_enum(
             inputs.get("persistence_type"), "persistence_type",
             ["file-system", "nfs"],
@@ -306,6 +312,10 @@ def _validate_formats():
                 inputs.get("nfs_capacity"), "nfs_capacity"
             )
 
+
+def _validate_database():
+    """Validate external database connection inputs when the bundled
+    PostgreSQL is disabled."""
     _validate_enum(
         inputs.get("postgresql_enabled"), "postgresql_enabled",
         ["true", "false"],
@@ -324,80 +334,83 @@ def _validate_formats():
             inputs.get("database_ssl_mode"), "database_ssl_mode",
             ["disable", "require", "verify-ca", "verify-full"],
         )
-        _validate_int_in(
-            int(inputs.get("create_external_db_secret") or 0),
-            "create_external_db_secret", [0, 1],
-        )
 
+
+def _validate_ingress():
+    """Validate ingress inputs when the bundled NGINX is disabled."""
     _validate_enum(
         inputs.get("nginx_enabled"), "nginx_enabled", ["true", "false"]
     )
-    if inputs.get("nginx_enabled") == "false":
-        _validate_enum(
-            inputs.get("ingress_enabled"), "ingress_enabled",
-            ["true", "false"],
+    if inputs.get("nginx_enabled") != "false":
+        return
+    _validate_enum(
+        inputs.get("ingress_enabled"), "ingress_enabled",
+        ["true", "false"],
+    )
+    if inputs.get("ingress_enabled") != "true":
+        return
+    ingress_class = inputs.get("ingress_class_name") or ""
+    _validate_pattern(
+        ingress_class, "ingress_class_name",
+        r'^[a-z0-9][a-z0-9\-\.]*$',
+        "must be a valid ingress class name",
+    )
+    ingress_host = inputs.get("ingress_host") or ""
+    if ingress_host:
+        _validate_pattern(
+            ingress_host, "ingress_host", DOMAIN_PATTERN,
+            "must be a valid DNS hostname",
         )
-        if inputs.get("ingress_enabled") == "true":
-            _validate_int_in(
-                int(inputs.get("install_ingress_controller") or 0),
-                "install_ingress_controller", [0, 1],
-            )
-            ingress_class = inputs.get("ingress_class_name") or ""
-            _validate_pattern(
-                ingress_class, "ingress_class_name",
-                r'^[a-z0-9][a-z0-9\-\.]*$',
-                "must be a valid ingress class name",
-            )
-            ingress_host = inputs.get("ingress_host") or ""
-            if ingress_host:
-                _validate_pattern(
-                    ingress_host, "ingress_host", DOMAIN_PATTERN,
-                    "must be a valid DNS hostname",
-                )
 
-    _validate_int_in(
-        int(inputs.get("create_license_secret") or 0),
-        "create_license_secret", [0, 1],
-    )
-    _validate_int_in(
-        int(inputs.get("create_master_key_secret") or 0),
-        "create_master_key_secret", [0, 1],
-    )
-    _validate_int_in(
-        int(inputs.get("create_join_key_secret") or 0),
-        "create_join_key_secret", [0, 1],
-    )
 
-    if int(inputs.get("create_master_key_secret") or 0) == 1 and \
+def _validate_key_secret_refs():
+    """Require the master/join key secret refs when their create toggles
+    are enabled."""
+    if _toggle_int("create_master_key_secret") == 1 and \
             not inputs.get("master_key_secret_ref"):
         raise ValueError(
             "master_key_secret_ref: must be set when "
-            "create_master_key_secret == 1 (provide a DAP general secret "
-            "containing the raw Artifactory master key)"
+            "create_master_key_secret is 'true' (provide a DAP general "
+            "secret containing the raw Artifactory master key)"
         )
-    if int(inputs.get("create_join_key_secret") or 0) == 1 and \
+    if _toggle_int("create_join_key_secret") == 1 and \
             not inputs.get("join_key_secret_ref"):
         raise ValueError(
             "join_key_secret_ref: must be set when "
-            "create_join_key_secret == 1 (provide a DAP general secret "
-            "containing the raw Artifactory join key)"
+            "create_join_key_secret is 'true' (provide a DAP general "
+            "secret containing the raw Artifactory join key)"
         )
 
+
+def _validate_sizing():
+    """Validate the sizing tier and enforce the Enterprise-license
+    requirement for medium-and-above tiers."""
     sizing = inputs.get("sizing_template") or "small"
     _validate_enum(sizing, "sizing_template", list(ALL_SIZING_TIERS))
-    if sizing in ENTERPRISE_TIERS:
-        if int(inputs.get("create_license_secret") or 0) != 1:
-            raise ValueError(
-                f"create_license_secret: must be 1 when sizing_template "
-                f"is '{sizing}' (Enterprise license required for medium "
-                f"and above; one Enterprise license per replica)"
-            )
-        if not inputs.get("license_secret_ref"):
-            raise ValueError(
-                f"license_secret_ref: must be set when sizing_template "
-                f"is '{sizing}' (provide a DAP general secret containing "
-                f"the raw Artifactory license text)"
-            )
+    if sizing not in ENTERPRISE_TIERS:
+        return
+    if _toggle_int("create_license_secret") != 1:
+        raise ValueError(
+            f"create_license_secret: must be 'true' when sizing_template "
+            f"is '{sizing}' (Enterprise license required for medium "
+            f"and above; one Enterprise license per replica)"
+        )
+    if not inputs.get("license_secret_ref"):
+        raise ValueError(
+            f"license_secret_ref: must be set when sizing_template "
+            f"is '{sizing}' (provide a DAP general secret containing "
+            f"the raw Artifactory license text)"
+        )
+
+
+def _validate_formats():
+    ctx.logger.info("Phase 1: validating input formats")
+    _validate_basic_fields()
+    _validate_persistence()
+    _validate_database()
+    _validate_ingress()
+    _validate_key_secret_refs()
+    _validate_sizing()
 
 
 # -- Phase 2: secret store checks -----------------------------------
@@ -440,33 +453,33 @@ def _validate_secrets():
             expected_basic_auth_keys,
         )
 
-    if int(inputs.get("create_license_secret") or 0) == 1:
+    if _toggle_int("create_license_secret") == 1:
         license_ref = inputs.get("license_secret_ref")
         if not license_ref:
             raise ValueError(
                 "license_secret_ref: required when "
-                "create_license_secret == 1"
+                "create_license_secret is 'true'"
             )
         _validate_secret_exists(client, license_ref)
 
-    if int(inputs.get("create_master_key_secret") or 0) == 1:
+    if _toggle_int("create_master_key_secret") == 1:
         master_key_ref = inputs.get("master_key_secret_ref")
         if not master_key_ref:
             raise ValueError(
                 "master_key_secret_ref: required when "
-                "create_master_key_secret == 1"
+                "create_master_key_secret is 'true'"
             )
         _validate_secret_hex_length(
             client, master_key_ref, MASTER_KEY_HEX_LENGTH,
             "master_key_secret_ref",
         )
 
-    if int(inputs.get("create_join_key_secret") or 0) == 1:
+    if _toggle_int("create_join_key_secret") == 1:
         join_key_ref = inputs.get("join_key_secret_ref")
         if not join_key_ref:
             raise ValueError(
                 "join_key_secret_ref: required when "
-                "create_join_key_secret == 1"
+                "create_join_key_secret is 'true'"
             )
         _validate_secret_hex_length(
             client, join_key_ref, JOIN_KEY_HEX_LENGTH,
@@ -474,10 +487,31 @@ def _validate_secrets():
         )
 
 
+def _export_toggle_integers():
+    """Expose the derived 0/1 integers as node runtime properties so the
+    blueprint capabilities can forward them to the downstream
+    ServiceComponents (whose scalable.default_instances need a plan-time
+    integer)."""
+    for name in TOGGLE_INPUTS:
+        value = _toggle_int(name)
+        ctx.instance.runtime_properties[name + "_int"] = value
+        ctx.logger.info("%s_int=%s (%s)", name, value, inputs.get(name))
+
+    # LoadBalancer endpoint discovery is enabled only in bundled-NGINX mode.
+    discover = 1 if str(inputs.get("nginx_enabled") or "false").lower() == \
+        "true" else 0
+    ctx.instance.runtime_properties["discover_lb_endpoint"] = discover
+    ctx.logger.info(
+        "discover_lb_endpoint=%s (nginx_enabled=%s)",
+        discover, inputs.get("nginx_enabled"),
+    )
+
+
 def main():
     ctx.logger.info("Starting JFrog Platform input validation")
     _validate_formats()
     _validate_secrets()
+    _export_toggle_integers()
     ctx.logger.info("All input validations passed successfully")
 
 

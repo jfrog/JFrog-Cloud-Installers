@@ -1,59 +1,65 @@
-# Example: External PostgreSQL + Licensed
+# Example: External PostgreSQL + Licensed (Default mode)
 #
 # Production-style deployment connecting to an external PostgreSQL
-# instance.  v2.0+ uses a single basic_auth secret for the
+# instance. Uses a single Basic Authentication secret for the
 # Artifactory PostgreSQL user (replaces the previous
 # database_user / database_password pair).
 #
 # Prerequisites:
 #   1. External PostgreSQL server reachable from the cluster.
 #   2. DAP secrets (created by your operator):
-#      - "pg-admin-password"     → DAP general secret with PostgreSQL superuser password
-#      - "pg-artif-credentials"  → DAP basic_auth secret with username / password
-#                                   for the Artifactory database user
-#      - "artifactory-license"   → DAP general secret with raw license text
+#      - "pg-admin-password"     -> DAP general secret with PostgreSQL superuser password
+#      - "pg-artif-credentials"  -> DAP Basic Authentication secret holding the
+#                                   username / password for the Artifactory
+#                                   database user
+#      - "artifactory-license"   -> DAP general secret with raw license text
 #   3. Pre-create the "artifactory" database on the external server.
 #   4. DAP target infrastructure deployment ID.
 #   5. Kubernetes credentials secret with proxy_settings (for SaaS DAPO).
 #
 # DAP UI steps:
-#   1. Credentials   → select Kubernetes credentials secret
-#                    → select Target Infrastructure ID
-#   2. Database      → set Bundled PostgreSQL to "false"
-#                    → set Create External Database Secret to 1
-#                    → fill in Database Host, Port, SSL Mode
-#                    → select the basic_auth Database Credentials secret
-#                    → select the Database Admin Password secret
-#   3. Licensing     → set Create License Secret to 1
-#                    → select the license secret
-#   4. Chart Settings → pick sizing template for your org size
-#   5. Click Deploy
+#   1. k8s_target_cluster    → select Target Kubernetes Type
+#                            → select Kubernetes credentials secret
+#                            → select the Target Kubernetes Deployment
+#   2. Database Configuration → keep Bundled PostgreSQL "false"
+#                            → set Create External Database Secret to "true"
+#                            → fill in Database Host, Port, SSL Mode
+#                            → select the Database Admin Password secret
+#                            → select the Basic Authentication Database Credentials secret
+#   3. Sizing and Licensing  → set Create License Secret to "true"
+#                            → select the license secret
+#   4. Click Deploy
+#
+# Access URL output:
+#   - platform_url_loadbalancer -> http://<lb-ip> (active, bundled NGINX mode)
+#   - platform_url_ingress      -> empty (LoadBalancer mode)
 
 inputs:
 
-  # ── Credentials ──────────────────────────────────────────────────
+  # -- k8s target cluster ------------------------------------------
+  target_type: External
   k8s_credentials: my-k8s-secret
   target_deployment_id: my-cluster-deployment
 
-  # ── Infrastructure ───────────────────────────────────────────────
+  # -- Infrastructure ----------------------------------------------
   namespace: jfrog-platform
 
-  # ── Database (external) ─────────────────────────────────────────
+  # -- Database (external) -----------------------------------------
   postgresql_enabled: "false"
-  create_external_db_secret: 1
+  create_external_db_secret: "true"
   database_host: pg.example.com
   database_port: "5432"
   database_ssl_mode: require
   database_admin_password: pg-admin-password    # DAP general secret
   database_credentials: pg-artif-credentials    # DAP basic_auth secret (username/password)
 
-  # ── Licensing ────────────────────────────────────────────────────
-  create_license_secret: 1
+  # -- Sizing and Licensing ----------------------------------------
+  sizing_template: medium                       # HA tier -> license required
+  create_license_secret: "true"
   license_secret_ref: artifactory-license
 
-  # ── Chart Settings ──────────────────────────────────────────────
+  # -- Chart Settings ----------------------------------------------
   release_name: jfrog-platform
-  sizing_template: medium
 
-  # ── Networking ──────────────────────────────────────────────────
+  # -- Ingress -----------------------------------------------------
   nginx_enabled: "true"

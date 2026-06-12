@@ -1,59 +1,75 @@
 # Example: HA Production Deployment
 #
 # Full production setup with:
-#   - External PostgreSQL
-#   - Enterprise HA license (multiple keys for multiple replicas)
+#   - External PostgreSQL (single basic_auth credentials secret)
+#   - Enterprise HA license (one per replica)
 #   - Large sizing template (3 Artifactory replicas)
-#   - Kubernetes Ingress
+#   - Injected master / join key secrets (instead of the chart defaults)
+#   - Kubernetes Ingress terminating HTTPS
 #   - PVC-backed persistence with a specific StorageClass
 #
 # Prerequisites:
-#   1. External PostgreSQL with pre-created "artifactory" database.
+#   1. External PostgreSQL with a pre-created "artifactory" database.
 #   2. DAP secrets:
-#      - "prod-pg-admin-password"     → DAP general secret (admin password)
-#      - "prod-pg-artif-credentials"  → DAP basic_auth secret (username/password)
-#      - "prod-artifactory-ha-license" → DAP general secret (HA license file)
-#   3. Existing ingress controller in the cluster (or set
-#      install_ingress_controller=1 to install ingress-nginx).
+#      - "prod-pg-admin-password"      -> DAP general secret (admin password)
+#      - "prod-pg-artif-credentials"   -> DAP basic_auth secret (username/password)
+#      - "prod-artifactory-ha-license" -> DAP general secret (HA license file)
+#      - "prod-master-key"             -> DAP general secret, 64 hex chars
+#                                         (openssl rand -hex 32)
+#      - "prod-join-key"               -> DAP general secret, 32 hex chars
+#                                         (openssl rand -hex 16)
+#      - "prod-artifactory-tls"        -> DAP general secret with tls.crt / tls.key
+#   3. Existing ingress controller in the cluster (it is a prerequisite),
+#      exposing the IngressClass named in ingress_class_name.
 #   4. DNS record for the ingress hostname.
 #   5. StorageClass that supports ReadWriteOnce.
 #   6. DAP target infrastructure deployment ID.
+#
+# Access URL output:
+#   - platform_url_ingress     -> https://<ingress_host>/artifactory (active)
+#   - platform_url_loadbalancer -> empty (Ingress mode)
 
 inputs:
 
-  # ── Credentials ──────────────────────────────────────────────────
+  # -- k8s target cluster ------------------------------------------
+  target_type: External
   k8s_credentials: prod-k8s-secret
   target_deployment_id: prod-cluster-deployment
 
-  # ── Infrastructure ───────────────────────────────────────────────
+  # -- Infrastructure ----------------------------------------------
   namespace: jfrog-platform
 
-  # ── Persistence (PVC) ──────────────────────────────────────────
-  persistence: storage_class
+  # -- Persistence (PVC) -------------------------------------------
+  persistence: storage-class
   storage_class: gp3
   pvc_access_mode: ReadWriteOnce
   pvc_size: "200Gi"
 
-  # ── Database (external) ─────────────────────────────────────────
+  # -- Database (external) -----------------------------------------
   postgresql_enabled: "false"
-  create_external_db_secret: 1
+  create_external_db_secret: "true"
   database_host: pg-primary.prod.internal
   database_port: "5432"
   database_ssl_mode: verify-full
   database_admin_password: prod-pg-admin-password
-  database_credentials: prod-pg-artif-credentials
+  database_credentials: prod-pg-artif-credentials   # DAP basic_auth secret (username/password)
 
-  # ── Chart Settings ──────────────────────────────────────────────
-  release_name: jfrog-platform
-  sizing_template: large
-
-  # ── Licensing ────────────────────────────────────────────────────
-  create_license_secret: 1
+  # -- Sizing and Licensing ----------------------------------------
+  sizing_template: large                            # 3 replicas -> license required
+  create_license_secret: "true"
   license_secret_ref: prod-artifactory-ha-license
 
-  # ── Networking (Ingress) ────────────────────────────────────────
+  # -- Chart Settings ----------------------------------------------
+  release_name: jfrog-platform
+  create_master_key_secret: "true"                  # inject a real master key
+  master_key_secret_ref: prod-master-key
+  create_join_key_secret: "true"                    # inject a real join key
+  join_key_secret_ref: prod-join-key
+
+  # -- Ingress (HTTPS) ---------------------------------------------
   nginx_enabled: "false"
   ingress_enabled: "true"
-  install_ingress_controller: 0           # Already have one in prod
-  ingress_class_name: nginx
+  ingress_class_name: nginx                         # IngressClass of the pre-installed controller
   ingress_host: artifactory.prod.example.com
+  ingress_tls_enabled: "true"
+  ingress_tls_secret_ref: prod-artifactory-tls

@@ -12,7 +12,6 @@ input_groups:
     inputs:
       - k8s_credentials
       - target_deployment_id
-      - container_registry_credentials_secret
   infrastructure:
     display_label: Infrastructure
     collapsible: true
@@ -36,7 +35,6 @@ input_groups:
     index: 3
     inputs:
       - postgresql_enabled
-      - create_external_db_secret
       - database_admin_password
       - database_credentials
       - database_host
@@ -48,30 +46,22 @@ input_groups:
     index: 4
     inputs:
       - release_name
-      - sizing_template
-      - ingress_nginx_version
-      - ingress_nginx_repo_url
-      - jfrog_helm_repo_url
-      - container_registry_name
+      - master_key_secret_ref
+      - join_key_secret_ref
   licensing:
-    display_label: Licensing
+    display_label: Sizing and Licensing
     collapsible: true
     index: 5
     inputs:
-      - create_license_secret
+      - sizing_template
       - license_secret_ref
-      - create_master_key_secret
-      - master_key_secret_ref
-      - create_join_key_secret
-      - join_key_secret_ref
   networking:
-    display_label: Networking
+    display_label: Ingress
     collapsible: true
     index: 6
     inputs:
       - nginx_enabled
       - ingress_enabled
-      - install_ingress_controller
       - ingress_class_name
       - ingress_host
 
@@ -103,17 +93,6 @@ inputs:
       group: k8s_target_cluster
       index: 1
 
-  container_registry_credentials_secret:
-    type: string
-    hidden: false
-    allow_update: false
-    required: false
-    display_label: Container Registry Credentials Secret
-    description: Optional DAP basic_auth secret for private registry access.
-    display:
-      group: k8s_target_cluster
-      index: 2
-
   namespace:
     type: string
     hidden: false
@@ -132,8 +111,10 @@ inputs:
     allow_update: true
     required: true
     display_label: Persistence
-    description: Persistence mode (storage_type or storage_class).
-    default: storage_class
+    description: >-
+      storage-type: Select a persistence type (file-system or nfs).
+      storage-class: PVC-backed storage using a Kubernetes StorageClass.
+    default: storage-class
     display:
       group: persistence
       index: 0
@@ -144,7 +125,9 @@ inputs:
     allow_update: true
     required: false
     display_label: Persistence Type
-    description: Persistence type when persistence=storage_type.
+    description: >-
+      file-system: local or PVC-backed file storage.
+      nfs: external NFS server mount.
     default: file-system
     display:
       group: persistence
@@ -210,18 +193,6 @@ inputs:
       group: database
       index: 0
 
-  create_external_db_secret:
-    type: integer
-    hidden: false
-    allow_update: false
-    required: false
-    display_label: Create External Database Secret
-    description: 0 or 1 -- whether to create the external DB secret.
-    default: 0
-    display:
-      group: database
-      index: 1
-
   database_admin_password:
     type: string
     hidden: false
@@ -239,11 +210,12 @@ inputs:
     allow_update: false
     required: true
     display_label: Database Credentials
-    description: DAP basic_auth secret with username/password fields.
+    description: >-
+      DAP Basic Authentication secret name holding the 'username' and
+      'password' for the PostgreSQL user.
     display:
       group: database
       index: 3
-
   database_host:
     type: string
     hidden: false
@@ -254,7 +226,7 @@ inputs:
     default: jfrog-platform-postgresql
     display:
       group: database
-      index: 4
+      index: 5
 
   database_port:
     type: string
@@ -266,7 +238,7 @@ inputs:
     default: "5432"
     display:
       group: database
-      index: 5
+      index: 6
 
   database_ssl_mode:
     type: string
@@ -278,19 +250,7 @@ inputs:
     default: disable
     display:
       group: database
-      index: 6
-
-  release_name:
-    type: string
-    hidden: false
-    allow_update: false
-    required: true
-    display_label: Helm Release Name
-    description: Name of the Helm release.
-    default: jfrog-platform
-    display:
-      group: chart_settings
-      index: 0
+      index: 7
 
   sizing_template:
     type: string
@@ -305,68 +265,17 @@ inputs:
       tiers.
     default: small
     display:
-      group: chart_settings
-      index: 1
-
-  ingress_nginx_version:
-    type: string
-    hidden: false
-    allow_update: true
-    required: true
-    display_label: Ingress NGINX Chart Version
-    description: ingress-nginx Helm chart version.
-    default: 4.12.1
-    display:
-      group: chart_settings
-      index: 2
-
-  ingress_nginx_repo_url:
-    type: string
-    hidden: false
-    allow_update: false
-    required: true
-    display_label: Ingress NGINX Helm Repository
-    description: Helm repository URL for ingress-nginx.
-    default: https://kubernetes.github.io/ingress-nginx
-    display:
-      group: chart_settings
-      index: 3
-
-  jfrog_helm_repo_url:
-    type: string
-    hidden: false
-    allow_update: false
-    required: true
-    display_label: JFrog Helm Repository
-    description: Helm repository URL for the JFrog Platform chart.
-    default: https://charts.jfrog.io
-    display:
-      group: chart_settings
-      index: 4
-
-  container_registry_name:
-    type: string
-    hidden: false
-    allow_update: false
-    required: true
-    display_label: Container Registry Hostname
-    description: Container registry used to pull verifier images.
-    default: docker.io
-    display:
-      group: chart_settings
-      index: 5
-
-  create_license_secret:
-    type: integer
-    hidden: false
-    allow_update: false
-    required: false
-    display_label: Create License Secret
-    description: 0 = trial mode, 1 = create K8s secret from DAP general secret.
-    default: 0
-    display:
       group: licensing
       index: 0
+
+  release_name:
+    type: string
+    hidden: true
+    allow_update: false
+    required: true
+    display_label: Helm Release Name
+    description: Name of the Helm release.
+    default: jfrog-platform
 
   license_secret_ref:
     type: string
@@ -379,18 +288,6 @@ inputs:
       group: licensing
       index: 1
 
-  create_master_key_secret:
-    type: integer
-    hidden: false
-    allow_update: false
-    required: false
-    display_label: Create Master Key Secret
-    description: 0 = use chart default, 1 = inject DAP general secret as master-key.
-    default: 0
-    display:
-      group: licensing
-      index: 2
-
   master_key_secret_ref:
     type: string
     hidden: false
@@ -402,20 +299,8 @@ inputs:
       64 hex chars; openssl rand -hex 32). Validator enforces length
       and hex format.
     display:
-      group: licensing
+      group: chart_settings
       index: 3
-
-  create_join_key_secret:
-    type: integer
-    hidden: false
-    allow_update: false
-    required: false
-    display_label: Create Join Key Secret
-    description: 0 = use chart default, 1 = inject DAP general secret as join-key.
-    default: 0
-    display:
-      group: licensing
-      index: 4
 
   join_key_secret_ref:
     type: string
@@ -428,7 +313,7 @@ inputs:
       32 hex chars; openssl rand -hex 16). Validator enforces length
       and hex format.
     display:
-      group: licensing
+      group: chart_settings
       index: 5
 
   nginx_enabled:
@@ -454,18 +339,6 @@ inputs:
     display:
       group: networking
       index: 1
-
-  install_ingress_controller:
-    type: integer
-    hidden: false
-    allow_update: true
-    required: false
-    display_label: Install Ingress Controller
-    description: Whether to install ingress-nginx controller (0 or 1).
-    default: 0
-    display:
-      group: networking
-      index: 2
 
   ingress_class_name:
     type: string

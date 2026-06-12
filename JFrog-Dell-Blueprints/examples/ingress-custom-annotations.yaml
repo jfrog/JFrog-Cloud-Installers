@@ -1,0 +1,69 @@
+# Example: Kubernetes Ingress Mode with Custom Annotations
+#
+# Extends ingress-mode.yaml by supplying ingress_annotations. By default the
+# field is empty ({}) - no annotations are applied. Provide a map here to add
+# controller-specific annotations. Values keep their exact YAML form (numbers,
+# booleans, multi-line blocks) because they are rendered to a Helm values file.
+#
+# Notes:
+#   - ingress_annotations default is {} - omit the key entirely to apply no
+#     custom annotations.
+#   - nginx.org/redirect-to-https is managed by the blueprint from ingress_tls_enabled
+#     (set to "false" when TLS is off, omitted when on) - do not set it here.
+#   - The example below targets the NGINX (nginx.org / F5) controller; swap in
+#     nginx.ingress.kubernetes.io/* keys for the community ingress-nginx
+#     controller, or any controller-specific annotations you need.
+#
+# Prerequisites:
+#   1. DAP Kubernetes credentials secret (with proxy_settings for SaaS DAPO).
+#   2. DAP target infrastructure deployment.
+#   3. An ingress controller already installed in the cluster, exposing the
+#      IngressClass named in ingress_class_name.
+#   4. DNS record pointing ingress_host at the ingress controller's external IP.
+#
+# Access URL output:
+#   - platform_url_ingress     -> http(s)://<ingress_host>/artifactory (active)
+#   - platform_url_loadbalancer -> empty (Ingress mode)
+
+inputs:
+
+  # -- k8s target cluster ------------------------------------------
+  target_type: External
+  k8s_credentials: my-k8s-secret
+  target_deployment_id: my-cluster-deployment
+
+  # -- Infrastructure ----------------------------------------------
+  namespace: jfrog-platform
+
+  # -- Database (bundled) ------------------------------------------
+  postgresql_enabled: "true"
+  create_bundled_db_secret: "true"
+
+  # -- Sizing and Licensing ----------------------------------------
+  sizing_template: small
+  create_license_secret: "false"               # trial mode
+
+  # -- Chart Settings ----------------------------------------------
+  release_name: jfrog-platform
+
+  # -- Ingress -----------------------------------------------------
+  nginx_enabled: "false"
+  ingress_enabled: "true"
+  ingress_class_name: nginx                     # IngressClass of the pre-installed controller
+  ingress_host: artifactory.example.com
+
+  # -- Custom Ingress annotations (optional, default is {}) ----------
+  # Provide any annotations your ingress controller needs.
+  # Example for NGINX (nginx.org / F5) controller:
+  ingress_annotations:
+    nginx.org/client-max-body-size: "0"
+    nginx.org/proxy-read-timeout: "600"
+    nginx.org/proxy-send-timeout: "600"
+    nginx.org/location-snippets: |
+      rewrite ^/(v2)/token /artifactory/api/docker/null/v2/token;
+      rewrite ^/(v2)/([^\/]*)(/.*) /artifactory/api/docker/$2/$1$3;
+  # Example for community ingress-nginx controller:
+  # ingress_annotations:
+  #   nginx.ingress.kubernetes.io/proxy-body-size: "0"
+  #   nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+  #   nginx.ingress.kubernetes.io/proxy-send-timeout: "600"

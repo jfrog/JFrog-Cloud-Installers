@@ -1,0 +1,56 @@
+# Example: Kubernetes Ingress with HTTPS (TLS)
+#
+# Exposes Artifactory over HTTPS via a Kubernetes Ingress. The blueprint
+# creates a kubernetes.io/tls Secret named "<release_name>-tls" from a DAP
+# general secret holding tls.crt / tls.key, so you do NOT pre-create a
+# Kubernetes TLS secret yourself.
+#
+# Prerequisites:
+#   1. DAP Kubernetes credentials secret (with proxy_settings for SaaS DAPO).
+#   2. DAP target infrastructure deployment.
+#   3. An ingress controller already installed in the cluster (it is a
+#      prerequisite), exposing the IngressClass named in ingress_class_name.
+#   4. DNS record pointing ingress_host at the ingress controller.
+#   5. DAP general secret (e.g., "artifactory-tls") containing:
+#        tls.crt -> PEM certificate chain
+#        tls.key -> PEM private key
+#
+# DAP UI steps:
+#   1. k8s_target_cluster    → select target type, credentials, deployment
+#   2. Ingress               → Bundled NGINX "false", Kubernetes Ingress "true",
+#                              set host/class, Ingress TLS Enabled "true",
+#                              select the Ingress TLS Secret
+#   3. Click Deploy
+#
+# Access URL output:
+#   - platform_url_ingress     -> https://<ingress_host>/artifactory (active)
+#   - platform_url_loadbalancer -> empty (Ingress mode)
+
+inputs:
+
+  # -- k8s target cluster ------------------------------------------
+  target_type: External
+  k8s_credentials: my-k8s-secret
+  target_deployment_id: my-cluster-deployment
+
+  # -- Infrastructure ----------------------------------------------
+  namespace: jfrog-platform
+
+  # -- Database (bundled) ------------------------------------------
+  postgresql_enabled: "true"
+  create_bundled_db_secret: "true"
+
+  # -- Sizing and Licensing ----------------------------------------
+  sizing_template: small
+  create_license_secret: "false"               # trial mode
+
+  # -- Chart Settings ----------------------------------------------
+  release_name: jfrog-platform
+
+  # -- Ingress (HTTPS) ---------------------------------------------
+  nginx_enabled: "false"
+  ingress_enabled: "true"
+  ingress_class_name: nginx                    # IngressClass of the pre-installed controller
+  ingress_host: artifactory.example.com
+  ingress_tls_enabled: "true"
+  ingress_tls_secret_ref: artifactory-tls              # DAP general secret (tls.crt / tls.key)

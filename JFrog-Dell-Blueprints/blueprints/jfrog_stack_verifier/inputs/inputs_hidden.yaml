@@ -6,6 +6,8 @@
 
 inputs:
 
+  # [air-gapped] Verifier image path/tag; hosted under container_registry_name,
+  # so it resolves to an internal registry in disconnected environments.
   blueprint_job_image:
     type: string
     hidden: true
@@ -32,7 +34,16 @@ inputs:
     display_label: Minimum Ready Nodes
     description: Minimum number of Ready nodes required.
     default: 1
-
+  db_connectivity_timeout_seconds:
+    type: integer
+    hidden: true
+    allow_update: false
+    required: true
+    display_label: Database Connectivity Timeout (seconds)
+    description: >-
+      Timeout, in seconds, for the external PostgreSQL TCP reachability
+      check performed by the stack verifier Job.
+    default: 10
   service_account_name:
     type: string
     hidden: true
@@ -41,6 +52,17 @@ inputs:
     display_label: Service Account Name
     description: ServiceAccount used by the verification Job.
     default: jfrog-stack-verifier-sa
+
+  cluster_role_name:
+    type: string
+    hidden: true
+    allow_update: false
+    required: true
+    display_label: ClusterRole Name
+    description: >-
+      Least-privilege ClusterRole granting the verifier Job read-only
+      access to nodes, storageclasses, and ingressclasses.
+    default: jfrog-stack-verifier-role
 
   cluster_role_binding_name:
     type: string
@@ -59,3 +81,36 @@ inputs:
     display_label: Image Pull Secret Name
     description: Secret name created in the target namespace for pulling the verifier image.
     default: jfrog-stack-verifier-pull-secret
+
+  # [air-gapped] Gate (0/1) for the image-pull Secret node. Resolved by the
+  # orchestrator from its true/false toggle; feeds scalable.default_instances.
+  create_pull_secret:
+    type: integer
+    hidden: true
+    allow_update: false
+    required: true
+    display_label: Pull From Private Registry
+    description: >-
+      Gate (0/1) for the image-pull Secret node. Resolved by the
+      orchestrator from its true/false toggle. 1 = the verifier image
+      lives in a private registry; create an image-pull Secret from the
+      supplied credentials and attach it to the Job. 0 = public registry;
+      skip the pull Secret and let the Job pull anonymously.
+    default: 0
+  container_registry_name:
+    type: string
+    hidden: true
+    allow_update: false
+    required: true
+    display_label: Container Registry Hostname
+    description: Registry the verifier image is pulled from.
+    default: docker.io
+
+  # [air-gapped] Credentials for an internal / private container registry.
+  container_registry_credentials_secret:
+    type: string
+    hidden: true
+    allow_update: false
+    required: false
+    display_label: Container Registry Credentials Secret
+    description: Optional DAP basic_auth secret with username/password.

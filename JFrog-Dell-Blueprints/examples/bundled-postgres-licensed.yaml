@@ -1,8 +1,8 @@
 # Example: Bundled PostgreSQL + Licensed
 #
-# Same as the default but with a license applied at deploy time.
+# Same as the trial example but with a license applied at deploy time.
 # The license is stored in a DAP general secret and written to a
-# Kubernetes Secret before Helm install.
+# Kubernetes Secret before the Helm install.
 #
 # Prerequisites:
 #   1. DAP Kubernetes credentials secret (type: k8s) with proxy_settings
@@ -12,33 +12,40 @@
 #      raw Artifactory license text.
 #
 # DAP UI steps:
-#   1. Credentials       → select Kubernetes credentials secret
-#                         → select Target Infrastructure ID
-#   2. Database           → set Create Bundled Database Secret to 1
-#   3. Licensing          → set Create License Secret to 1
-#                         → select the license secret
+#   1. k8s_target_cluster    → select Target Kubernetes Type
+#                            → select Kubernetes credentials secret
+#                            → select the Target Kubernetes Deployment
+#   2. Database Configuration → set Bundled PostgreSQL to "true"
+#                            → set Create Bundled Database Secret to "true"
+#   3. Sizing and Licensing  → set Create License Secret to "true"
+#                            → select the license secret
 #   4. Click Deploy
+#
+# Access URL output:
+#   - platform_url_loadbalancer -> http://<lb-ip> (active, bundled NGINX mode)
+#   - platform_url_ingress      -> empty (LoadBalancer mode)
 
 inputs:
 
-  # ── Credentials ──────────────────────────────────────────────────
+  # -- k8s target cluster ------------------------------------------
+  target_type: External
   k8s_credentials: my-k8s-secret
   target_deployment_id: my-cluster-deployment
 
-  # ── Infrastructure ───────────────────────────────────────────────
+  # -- Infrastructure ----------------------------------------------
   namespace: jfrog-platform
 
-  # ── Database ─────────────────────────────────────────────────────
+  # -- Database (bundled) ------------------------------------------
   postgresql_enabled: "true"
-  create_bundled_db_secret: 1
+  create_bundled_db_secret: "true"
 
-  # ── Licensing ────────────────────────────────────────────────────
-  create_license_secret: 1
+  # -- Sizing and Licensing ----------------------------------------
+  sizing_template: small
+  create_license_secret: "true"
   license_secret_ref: artifactory-license
 
-  # ── Chart Settings ──────────────────────────────────────────────
+  # -- Chart Settings ----------------------------------------------
   release_name: jfrog-platform
-  sizing_template: small
 
-  # ── Networking ──────────────────────────────────────────────────
+  # -- Ingress -----------------------------------------------------
   nginx_enabled: "true"

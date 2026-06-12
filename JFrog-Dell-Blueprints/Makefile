@@ -18,7 +18,6 @@ REVISION              := $(shell \
 # --- Component blueprint directories ---
 TOP_LEVEL_DIR         := blueprints/jfrog_platform_top_level
 JFROG_COMPONENT_DIR   := blueprints/jfrog_platform_component
-INGRESS_COMPONENT_DIR := blueprints/ingress_nginx_component
 INPUT_VALIDATOR_DIR   := blueprints/jfrog_input_validator
 STACK_VERIFIER_DIR    := blueprints/jfrog_stack_verifier
 
@@ -38,6 +37,8 @@ ifneq ($(strip $(CHART_VERSION)),)
 else
 	./scripts/sync_sizing_templates.sh
 endif
+	@mkdir -p "$(JFROG_COMPONENT_DIR)/sizing"
+	@cp -R target/sizing/. "$(JFROG_COMPONENT_DIR)/sizing/"
 
 sync_nginx_conf:
 ifneq ($(strip $(CHART_VERSION)),)
@@ -82,6 +83,11 @@ zip_top_level: resolve_chart_version
 	$(call stage_component,$(TOP_LEVEL_DIR),$(BUNDLE_STAGING_DIR)/.stage/jfrog_platform_top_level)
 	perl -0pi -e "s/default:\s*0\.0\.0/default: $(RESOLVED_CHART_VERSION)/" \
 		"$(BUNDLE_STAGING_DIR)/.stage/jfrog_platform_top_level/top_level/inputs_hidden.yaml"
+	# Pin the child component revision_id defaults to this build's revision so
+	# the top-level wires every ServiceComponent to blueprints registered from
+	# the same bundle (otherwise a version bump leaves children stale at 1.0.0.0).
+	perl -0pi -e 's/default:\s*"1\.0\.0\.0"/default: "$(REVISION)"/g' \
+		"$(BUNDLE_STAGING_DIR)/.stage/jfrog_platform_top_level/top_level/inputs_hidden.yaml"
 	cd "$(BUNDLE_STAGING_DIR)/.stage" && zip -rq "$(CURDIR)/$(BLUEPRINTS_DIR)/jfrog_platform_top_level.zip" \
 		jfrog_platform_top_level -x $(ZIP_EXCLUDES)
 	@rm -rf "$(BUNDLE_STAGING_DIR)/.stage/jfrog_platform_top_level"
@@ -100,12 +106,6 @@ zip_jfrog_component: sync resolve_chart_version
 		jfrog_platform_component -x $(ZIP_EXCLUDES)
 	@rm -rf "$(BUNDLE_STAGING_DIR)/.stage/jfrog_platform_component"
 
-zip_ingress_component:
-	$(call stage_component,$(INGRESS_COMPONENT_DIR),$(BUNDLE_STAGING_DIR)/.stage/ingress_nginx_component)
-	cd "$(BUNDLE_STAGING_DIR)/.stage" && zip -rq "$(CURDIR)/$(BLUEPRINTS_DIR)/ingress_nginx_component.zip" \
-		ingress_nginx_component -x $(ZIP_EXCLUDES)
-	@rm -rf "$(BUNDLE_STAGING_DIR)/.stage/ingress_nginx_component"
-
 zip_input_validator: resolve_chart_version
 	$(call stage_component,$(INPUT_VALIDATOR_DIR),$(BUNDLE_STAGING_DIR)/.stage/jfrog_input_validator)
 	perl -0pi -e "s/default:\s*0\.0\.0/default: $(RESOLVED_CHART_VERSION)/" \
@@ -120,7 +120,7 @@ zip_stack_verifier:
 		jfrog_stack_verifier -x $(ZIP_EXCLUDES)
 	@rm -rf "$(BUNDLE_STAGING_DIR)/.stage/jfrog_stack_verifier"
 
-zip_components: prepare_staging zip_top_level zip_jfrog_component zip_ingress_component zip_input_validator zip_stack_verifier
+zip_components: prepare_staging zip_top_level zip_jfrog_component zip_input_validator zip_stack_verifier
 
 # --- Manifest ---
 manifest: zip_components
@@ -149,5 +149,5 @@ all: bundle
 
 .PHONY: sync sync_sizing sync_nginx_conf resolve_chart_version \
         prepare_staging zip_top_level zip_jfrog_component \
-        zip_ingress_component zip_input_validator zip_stack_verifier \
+        zip_input_validator zip_stack_verifier \
         zip_components manifest bundle validate clean all

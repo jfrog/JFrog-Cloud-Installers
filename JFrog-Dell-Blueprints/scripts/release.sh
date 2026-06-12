@@ -86,13 +86,12 @@ get_latest_chart_version() {
 # ── Blueprint catalogue ─────────────────────────────────────────────
 # The release builds a Dell-certified bundle containing the top-level
 # orchestrator and its component blueprints (input validator, stack
-# verifier, ingress-nginx, JFrog Platform).  We tag a single version
-# for the bundle as a whole.
+# verifier, JFrog Platform).  We tag a single version for the bundle as
+# a whole.
 BLUEPRINTS=(
   "blueprints/jfrog_platform_top_level:JFrog Platform Top-Level Blueprint"
   "blueprints/jfrog_input_validator:JFrog Platform Input Validator"
   "blueprints/jfrog_stack_verifier:JFrog Platform Stack Verifier"
-  "blueprints/ingress_nginx_component:Ingress NGINX Controller Component"
   "blueprints/jfrog_platform_component:JFrog Platform Component"
 )
 

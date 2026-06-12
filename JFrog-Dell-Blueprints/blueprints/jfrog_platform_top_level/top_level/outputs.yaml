@@ -23,21 +23,13 @@ capabilities:
     value: { get_input: chart_version }
 
   platform_url_ingress:
-    description: Artifactory URL when using ingress deployment mode.
-    value:
-      concat:
-        - "http://"
-        - { get_input: ingress_host }
-        - "/artifactory"
-
-  platform_url_command:
     description: >-
-      Run this command to get the Artifactory external IP when using
-      nginx/LoadBalancer deployment mode.
-    value:
-      concat:
-        - "kubectl get svc "
-        - { get_input: release_name }
-        - "-artifactory-nginx -n "
-        - { get_input: namespace }
-        - " -o jsonpath='{.status.loadBalancer.ingress[0].ip}'"
+      Artifactory URL when using Kubernetes Ingress mode. Populated only when
+      ingress_enabled is true; empty in bundled NGINX (LoadBalancer) mode.
+    value: { get_attribute: [jfrog_platform, capabilities, platform_url_ingress] }
+
+  platform_url_loadbalancer:
+    description: >-
+      Artifactory URL when using bundled NGINX (LoadBalancer) mode
+      (external IP:port of the artifactory-nginx Service). Empty in Ingress mode.
+    value: { get_attribute: [jfrog_platform, capabilities, platform_url_loadbalancer] }

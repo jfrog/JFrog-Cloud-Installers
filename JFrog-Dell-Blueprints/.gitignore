@@ -1,2 +1,10 @@
 target/
 build/
+
+# Python bytecode caches (generated when scripts are imported/compiled locally)
+__pycache__/
+*.py[cod]
+
+# Sizing templates are generated from the jfrog-platform Helm chart
+# (make sync_sizing) and bundled at build time; never hand-edited.
+blueprints/jfrog_platform_component/sizing

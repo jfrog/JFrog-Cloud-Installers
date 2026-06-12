@@ -1,40 +1,53 @@
 # Example: Kubernetes Ingress Mode (no bundled NGINX)
 #
 # Exposes Artifactory via a Kubernetes Ingress resource instead of the
-# bundled NGINX LoadBalancer.  Optionally installs the ingress-nginx
-# controller (the controller is now a separate component blueprint
-# that is deployed only when install_ingress_controller=1).
+# bundled NGINX LoadBalancer. An ingress controller must already be
+# installed in the cluster (it is a prerequisite); this bundle binds the
+# Artifactory Ingress to its IngressClass.
 #
 # Prerequisites:
 #   1. DAP Kubernetes credentials secret (with proxy_settings for SaaS DAPO).
 #   2. DAP target infrastructure deployment.
-#   3. DNS record pointing ingress_host to the ingress controller's
-#      external IP/LB (after the deployment if you install the
-#      controller as part of this blueprint).
+#   3. An ingress controller already installed in the cluster, exposing the
+#      IngressClass named in ingress_class_name.
+#   4. DNS record pointing ingress_host at the ingress controller's
+#      external IP / LB.
+#
+# DAP UI steps:
+#   1. k8s_target_cluster    → select target type, credentials, deployment
+#   2. Database Configuration → Bundled PostgreSQL "true" + Create Bundled
+#                              Database Secret "true"
+#   3. Ingress               → Bundled NGINX "false", Kubernetes Ingress "true",
+#                              set host/class
+#   4. Click Deploy
+#
+# Access URL output:
+#   - platform_url_ingress     -> http://<ingress_host>/artifactory (active)
+#   - platform_url_loadbalancer -> empty (Ingress mode)
 
 inputs:
 
-  # ── Credentials ──────────────────────────────────────────────────
+  # -- k8s target cluster ------------------------------------------
+  target_type: External
   k8s_credentials: my-k8s-secret
   target_deployment_id: my-cluster-deployment
 
-  # ── Infrastructure ───────────────────────────────────────────────
+  # -- Infrastructure ----------------------------------------------
   namespace: jfrog-platform
 
-  # ── Database ─────────────────────────────────────────────────────
+  # -- Database (bundled) ------------------------------------------
   postgresql_enabled: "true"
-  create_bundled_db_secret: 1
+  create_bundled_db_secret: "true"
 
-  # ── Licensing ────────────────────────────────────────────────────
-  create_license_secret: 0                # Trial mode
-
-  # ── Chart Settings ──────────────────────────────────────────────
-  release_name: jfrog-platform
+  # -- Sizing and Licensing ----------------------------------------
   sizing_template: small
+  create_license_secret: "false"               # trial mode
 
-  # ── Networking (Ingress mode) ───────────────────────────────────
+  # -- Chart Settings ----------------------------------------------
+  release_name: jfrog-platform
+
+  # -- Ingress -----------------------------------------------------
   nginx_enabled: "false"
   ingress_enabled: "true"
-  install_ingress_controller: 1           # Yes — deploy ingress-nginx component
-  ingress_class_name: nginx
+  ingress_class_name: nginx                    # IngressClass of the pre-installed controller
   ingress_host: artifactory.example.com

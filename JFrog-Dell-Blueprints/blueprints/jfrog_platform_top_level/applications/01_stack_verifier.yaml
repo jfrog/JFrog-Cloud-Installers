@@ -28,7 +28,7 @@ node_templates:
             target_deployment_id: { get_input: target_deployment_id }
             namespace: { get_input: namespace }
             container_registry_name: { get_input: container_registry_name }
-            create_pull_secret: { get_input: create_pull_secret }
+            create_pull_secret: { get_attribute: [input_validator, capabilities, create_pull_secret_int] }
             container_registry_credentials_secret: { get_input: container_registry_credentials_secret }
             blueprint_job_image: { get_input: blueprint_job_image }
             k8s_min_version: { get_input: k8s_min_version }
@@ -36,7 +36,6 @@ node_templates:
             storage_class: { get_input: storage_class }
             ingress_class_name: { get_input: ingress_class_name }
             ingress_enabled: { get_input: ingress_enabled }
-            install_ingress_controller: { get_input: install_ingress_controller }
             postgresql_enabled: { get_input: postgresql_enabled }
             database_host: { get_input: database_host }
             database_port: { get_input: database_port }

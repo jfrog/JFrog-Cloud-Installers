@@ -8,6 +8,7 @@ inputs:
 
   expected_basic_auth_keys:
     type: list
+    item_type: string
     hidden: true
     allow_update: false
     required: true
@@ -27,4 +28,100 @@ inputs:
       jfrog/jfrog-platform Helm chart version. Injected automatically
       by the build pipeline; forwarded from the orchestrator and never
       customer-editable on this child blueprint.
-    default: 11.5.3
+    default: 0.0.0
+
+  # User-facing true/false toggles forwarded verbatim by the orchestrator.
+  # This validator parses them, runs validation, and re-exposes the derived
+  # 0/1 integers as blueprint capabilities (<name>_int) so the downstream
+  # ServiceComponents can gate scalable.default_instances at plan time. They
+  # are never shown on this child blueprint's form.
+  create_bundled_db_secret:
+    type: string
+    hidden: true
+    allow_update: false
+    required: true
+    display_label: Create Bundled Database Secret
+    description: true/false -- whether to create the bundled PostgreSQL secret.
+    default: "false"
+
+  create_external_db_secret:
+    type: string
+    hidden: true
+    allow_update: false
+    required: true
+    display_label: Create External Database Secret
+    description: true/false -- whether to create the external DB secret.
+    default: "false"
+
+  create_license_secret:
+    type: string
+    hidden: true
+    allow_update: false
+    required: true
+    display_label: Create License Secret
+    description: false = trial mode, true = create K8s secret from DAP general secret.
+    default: "false"
+
+  create_master_key_secret:
+    type: string
+    hidden: true
+    allow_update: false
+    required: true
+    display_label: Create Master Key Secret
+    description: false = chart default, true = inject DAP general secret as master-key.
+    default: "false"
+
+  create_join_key_secret:
+    type: string
+    hidden: true
+    allow_update: false
+    required: true
+    display_label: Create Join Key Secret
+    description: false = chart default, true = inject DAP general secret as join-key.
+    default: "false"
+
+  create_pull_secret:
+    type: string
+    hidden: true
+    allow_update: false
+    required: false
+    display_label: Create Image Pull Secret
+    description: true/false -- whether to create the registry image pull secret.
+    default: "false"
+
+  ingress_tls_enabled:
+    type: string
+    hidden: true
+    allow_update: true
+    required: false
+    display_label: TLS Enabled
+    description: true/false -- whether Ingress TLS is enabled.
+    default: "false"
+
+  # [air-gapped] Override with an internal container registry hostname.
+  container_registry_name:
+    type: string
+    hidden: true
+    allow_update: false
+    required: true
+    display_label: Container Registry Hostname
+    description: Container registry used to pull verifier images.
+    default: docker.io
+
+    # [air-gapped] Credentials for an internal / private container registry.
+  container_registry_credentials_secret:
+    type: string
+    hidden: true
+    allow_update: false
+    required: false
+    display_label: Container Registry Credentials Secret
+    description: Optional DAP basic_auth secret for private registry access.
+
+  jfrog_helm_repo_url:
+    type: string
+    hidden: true
+    allow_update: false
+    required: true
+    display_label: JFrog Helm Repository
+    description: Helm repository URL for the JFrog Platform chart.
+    default: https://charts.jfrog.io

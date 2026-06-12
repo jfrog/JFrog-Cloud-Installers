@@ -43,12 +43,6 @@ COMPONENTS = [
         "application_file_name": "blueprint.yaml",
     },
     {
-        "id": "ingress_nginx_component",
-        "title": "Ingress NGINX Controller Component",
-        "archive": "blueprints/ingress_nginx_component.zip",
-        "application_file_name": "blueprint.yaml",
-    },
-    {
         "id": "jfrog_platform_component",
         "title": "JFrog Platform Component",
         "archive": "blueprints/jfrog_platform_component.zip",

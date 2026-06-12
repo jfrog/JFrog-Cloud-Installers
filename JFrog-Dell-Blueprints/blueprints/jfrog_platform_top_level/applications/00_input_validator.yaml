@@ -6,6 +6,13 @@
 
 node_templates:
 
+  # The input validator runs first on each install. Besides validating every
+  # user input, it derives the 0/1 integers from the user-facing true/false
+  # toggles and re-exposes them as blueprint capabilities. The other
+  # ServiceComponents read those capabilities (see 01/02/03) so that their
+  # scalable.default_instances gates resolve to a plan-time integer. This
+  # keeps all script execution inside component deployments; the top-level
+  # orchestrator deployment runs no local scripts.
   input_validator:
     type: dell.nodes.ServiceComponent
     properties:
@@ -30,8 +37,6 @@ node_templates:
             release_name: { get_input: release_name }
             chart_version: { get_input: chart_version }
             sizing_template: { get_input: sizing_template }
-            ingress_nginx_version: { get_input: ingress_nginx_version }
-            ingress_nginx_repo_url: { get_input: ingress_nginx_repo_url }
             jfrog_helm_repo_url: { get_input: jfrog_helm_repo_url }
             container_registry_name: { get_input: container_registry_name }
             container_registry_credentials_secret: { get_input: container_registry_credentials_secret }
@@ -42,6 +47,7 @@ node_templates:
             nfs_ip: { get_input: nfs_ip }
             nfs_capacity: { get_input: nfs_capacity }
             postgresql_enabled: { get_input: postgresql_enabled }
+            create_bundled_db_secret: { get_input: create_bundled_db_secret }
             create_external_db_secret: { get_input: create_external_db_secret }
             database_admin_password: { get_input: database_admin_password }
             database_credentials: { get_input: database_credentials }
@@ -54,8 +60,9 @@ node_templates:
             master_key_secret_ref: { get_input: master_key_secret_ref }
             create_join_key_secret: { get_input: create_join_key_secret }
             join_key_secret_ref: { get_input: join_key_secret_ref }
+            create_pull_secret: { get_input: create_pull_secret }
+            ingress_tls_enabled: { get_input: ingress_tls_enabled }
             nginx_enabled: { get_input: nginx_enabled }
             ingress_enabled: { get_input: ingress_enabled }
-            install_ingress_controller: { get_input: install_ingress_controller }
             ingress_class_name: { get_input: ingress_class_name }
             ingress_host: { get_input: ingress_host }
