@@ -30,6 +30,7 @@ distribution_service_file: /lib/systemd/system/distribution.service
 # distribution users and groups
 distribution_user: distribution
 distribution_group: distribution
+distribution_user_shell: /bin/bash
 
 distribution_uid: 1040
 distribution_gid: 1040

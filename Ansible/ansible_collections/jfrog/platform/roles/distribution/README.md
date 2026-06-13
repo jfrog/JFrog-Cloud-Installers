@@ -3,6 +3,7 @@ The Distribution role will install distribution software onto the host. An Artif
 
 ### Role Variables
 * _distribution_upgrade_only_: Perform an software upgrade only. Default is false.
+* _distribution_user_shell_: Shell assigned to the Distribution service user. Default is `/bin/bash`.
 
 Additional variables can be found in [defaults/main.yml](./defaults/main.yml).
 ## Example Playbook

@@ -4,6 +4,7 @@ All changes to this collection will be documented in this file.
 ## [11.5.3] - May 19, 2026
 * Update dependency artifactory version to 7.146.12
 * Update dependency xray version to 3.143.16
+* Add configurable service user shell variables for Artifactory, Xray, and Distribution roles.
 
 ## [11.5.2] - May 13, 2026
 * Update dependency artifactory version to 7.146.10

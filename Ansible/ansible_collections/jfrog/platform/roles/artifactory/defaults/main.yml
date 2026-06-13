@@ -42,6 +42,7 @@ postgres_driver_version: 42.6.0
 postgres_driver_download_url: "https://repo1.maven.org/maven2/org/postgresql/postgresql/{{ postgres_driver_version }}/postgresql-{{ postgres_driver_version }}.jar"
 artifactory_user: artifactory
 artifactory_group: artifactory
+artifactory_user_shell: /bin/bash
 artifactory_daemon: artifactory
 artifactory_uid: 1030
 artifactory_gid: 1030

@@ -3,6 +3,7 @@ The xray role will install Xray software onto the host. An Artifactory server an
 
 ### Role Variables
 * _xray_upgrade_only_: Perform an software upgrade only. Default is false.
+* _xray_user_shell_: Shell assigned to the Xray service user. Default is `/bin/bash`.
 
 Additional variables can be found in [defaults/main.yml](./defaults/main.yml).
 ## Example Playbook

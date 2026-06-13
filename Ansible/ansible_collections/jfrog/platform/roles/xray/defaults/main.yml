@@ -22,6 +22,7 @@ xray_service_file: /lib/systemd/system/xray.service
 # Xray users and groups
 xray_user: xray
 xray_group: xray
+xray_user_shell: /bin/bash
 xray_uid: 1035
 xray_gid: 1035
 xray_daemon: xray

@@ -14,7 +14,7 @@
     group: "{{ xray_group }}"
     create_home: true
     home: "{{ xray_home }}"
-    shell: /bin/bash
+    shell: "{{ xray_user_shell }}"
     state: present
 
 - name: Allow using crontab
