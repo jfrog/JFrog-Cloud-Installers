@@ -14,8 +14,8 @@ resolve them here and expose them via runtime properties.
 from dell import ctx
 from dell.state import ctx_parameters as inputs
 
-create_master = int(inputs.get("create_master_key_secret") or 0)
-create_join = int(inputs.get("create_join_key_secret") or 0)
+create_master = int(inputs.get("apply_master_key_secret") or 0)
+create_join = int(inputs.get("apply_join_key_secret") or 0)
 
 master_name = inputs.get("master_key_secret_name") or ""
 join_name = inputs.get("join_key_secret_name") or ""
@@ -27,10 +27,10 @@ ctx.instance.runtime_properties["master_key_secret_name"] = master_effective
 ctx.instance.runtime_properties["join_key_secret_name"] = join_effective
 
 ctx.logger.info(
-    "masterKeySecretName -> %r (create_master_key_secret=%s)",
+    "masterKeySecretName -> %r (apply_master_key_secret=%s)",
     master_effective, create_master,
 )
 ctx.logger.info(
-    "joinKeySecretName -> %r (create_join_key_secret=%s)",
+    "joinKeySecretName -> %r (apply_join_key_secret=%s)",
     join_effective, create_join,
 )

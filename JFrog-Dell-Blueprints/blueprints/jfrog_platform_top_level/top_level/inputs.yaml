@@ -38,8 +38,8 @@ input_groups:
     index: 3
     inputs:
       - postgresql_enabled
-      - create_bundled_db_secret
-      - create_external_db_secret
+      - apply_bundled_db_secret
+      - apply_external_db_secret
       - database_admin_password
       - database_host
       - database_port
@@ -51,9 +51,9 @@ input_groups:
     index: 4
     inputs:
       - release_name
-      - create_master_key_secret
+      - apply_master_key_secret
       - master_key_secret_ref
-      - create_join_key_secret
+      - apply_join_key_secret
       - join_key_secret_ref
   licensing:
     display_label: Sizing and Licensing
@@ -61,7 +61,7 @@ input_groups:
     index: 5
     inputs:
       - sizing_template
-      - create_license_secret
+      - apply_license_secret
       - license_secret_ref
   networking:
     display_label: Ingress
@@ -317,12 +317,12 @@ inputs:
       group: database
       index: 0
 
-  create_bundled_db_secret:
+  apply_bundled_db_secret:
     type: string
     hidden: false
     allow_update: false
     required: true
-    display_label: Create Bundled Database Secret
+    display_label: Apply Bundled Database Secret
     description: >-
       Create a K8s secret with default bundled PostgreSQL credentials
       (postgres / artifactory / artifactory). true = create, false = skip.
@@ -339,12 +339,12 @@ inputs:
       group: database
       index: 1
 
-  create_external_db_secret:
+  apply_external_db_secret:
     type: string
     hidden: false
     allow_update: false
     required: true
-    display_label: Create External Database Secret
+    display_label: Apply External Database Secret
     description: >-
       Create a K8s secret with credentials from DAP secrets below.
       true = create, false = skip.
@@ -486,7 +486,7 @@ inputs:
       IMPORTANT: licensing depends on the tier you pick here. medium, large,
       xlarge and 2xlarge are HA/multi-replica and REQUIRE an Artifactory
       Enterprise license (one per replica): for these tiers you MUST set
-      "Create License Secret" to true AND select a "License Secret" in the
+      "Apply License Secret" to true AND select a "License Secret" in the
       Sizing and Licensing group, otherwise the install aborts during input
       validation. xsmall and small are single-replica and run in trial mode,
       so a license is optional for them.
@@ -505,12 +505,12 @@ inputs:
       index: 0
 
   # -- Licensing ---------------------------------------------------
-  create_license_secret:
+  apply_license_secret:
     type: string
     hidden: false
     allow_update: false
     required: true
-    display_label: Create License Secret (must be true for medium and above)
+    display_label: Apply License Secret (must be true for medium and above)
     description: >-
       RULE: this depends on the Sizing Template. For medium, large, xlarge
       and 2xlarge you MUST set this to true - these tiers are multi-replica
@@ -531,12 +531,14 @@ inputs:
     type: secret_key
     hidden: false
     allow_update: true
-    required: false
+    required: true
+    only_with:
+      apply_license_secret: "true"
     display_label: License Secret (required for medium and above)
     description: >-
       DAP general secret containing the raw Artifactory license text.
       RULE: MANDATORY when the Sizing Template is medium and above (medium /
-      large / xlarge / 2xlarge) with "Create License Secret" = true - the
+      large / xlarge / 2xlarge) with "Apply License Secret" = true - the
       input validator aborts the install if it is empty for those tiers.
       Optional and ignored for xsmall / small (trial mode).
     constraints:
@@ -546,12 +548,12 @@ inputs:
       group: licensing
       index: 2
 
-  create_master_key_secret:
+  apply_master_key_secret:
     type: string
     hidden: false
     allow_update: false
     required: true
-    display_label: Create Master Key Secret
+    display_label: Apply Master Key Secret
     description: >-
       Create a Kubernetes Secret holding the Artifactory master key from
       a DAP general secret. false = chart's auto-generated default master
@@ -573,15 +575,15 @@ inputs:
     type: secret_key
     hidden: false
     allow_update: false
-    required: false
+    required: true
     only_with:
-      create_master_key_secret: "true"
+      apply_master_key_secret: "true"
     display_label: Master Key Secret
     description: >-
       DAP general secret containing the raw Artifactory master key.
       Must be EXACTLY 64 hexadecimal characters (matches the chart's
       values.yaml format for global.masterKey, generated via
-      'openssl rand -hex 32'). Required when create_master_key_secret
+      'openssl rand -hex 32'). Required when apply_master_key_secret
       is true. The input validator fails early if the value is missing,
       the wrong length, or contains non-hex characters. Used as the
       'master-key' field of the Kubernetes Secret referenced by
@@ -593,12 +595,12 @@ inputs:
       group: chart_settings
       index: 3
 
-  create_join_key_secret:
+  apply_join_key_secret:
     type: string
     hidden: false
     allow_update: false
     required: true
-    display_label: Create Join Key Secret
+    display_label: Apply Join Key Secret
     description: >-
       Create a Kubernetes Secret holding the Artifactory join key from a
       DAP general secret. false = chart's auto-generated default join
@@ -620,15 +622,15 @@ inputs:
     type: secret_key
     hidden: false
     allow_update: false
-    required: false
+    required: true
     only_with:
-      create_join_key_secret: "true"
+      apply_join_key_secret: "true"
     display_label: Join Key Secret
     description: >-
       DAP general secret containing the raw Artifactory join key.
       Must be EXACTLY 32 hexadecimal characters (matches the chart's
       values.yaml format for global.joinKey, generated via
-      'openssl rand -hex 16'). Required when create_join_key_secret
+      'openssl rand -hex 16'). Required when apply_join_key_secret
       is true. The input validator fails early if the value is missing,
       the wrong length, or contains non-hex characters. Used as the
       'join-key' field of the Kubernetes Secret referenced by
@@ -681,11 +683,13 @@ inputs:
     type: string
     hidden: false
     allow_update: true
-    required: false
+    required: true
     display_label: Ingress Class Name
     description: >-
       Name of an existing Kubernetes IngressClass to bind the Artifactory Ingress to.
-      The ingress controller is a cluster prerequisite. Examples: nginx
+      The ingress controller is a cluster prerequisite. Only the NGINX Ingress
+      Controller (NGINX Inc. / F5, using nginx.org/* annotations) is certified
+      for this blueprint. Example: nginx
     default: nginx
     only_with:
       nginx_enabled: "false"
@@ -701,7 +705,7 @@ inputs:
     type: string
     hidden: false
     allow_update: true
-    required: false
+    required: true
     display_label: Ingress Host
     description: >-
       DNS hostname for the Ingress resource (e.g., artifactory.example.com).

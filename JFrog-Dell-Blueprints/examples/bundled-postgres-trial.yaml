@@ -18,7 +18,7 @@
 #                         → select your Kubernetes credentials secret
 #                         → select the Target Kubernetes Deployment
 #   2. Database Configuration → set Bundled PostgreSQL to "true"
-#                            → set Create Bundled Database Secret to "true"
+#                            → set Apply Bundled Database Secret to "true"
 #   3. Leave all other groups at their defaults
 #   4. Click Deploy
 #
@@ -43,11 +43,11 @@ inputs:
 
   # -- Database (bundled) ------------------------------------------
   postgresql_enabled: "true"
-  create_bundled_db_secret: "true"
+  apply_bundled_db_secret: "true"
 
   # -- Sizing and Licensing ----------------------------------------
   sizing_template: small                      # single replica, trial-capable
-  create_license_secret: "false"              # trial mode
+  apply_license_secret: "false"              # trial mode
 
   # -- Chart Settings ----------------------------------------------
   release_name: jfrog-platform

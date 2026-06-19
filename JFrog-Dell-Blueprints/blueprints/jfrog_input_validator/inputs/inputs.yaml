@@ -261,7 +261,7 @@ inputs:
     description: >-
       Resource sizing profile. Tiers medium/large/xlarge/2xlarge require
       an Enterprise license; the validator enforces that
-      create_license_secret=1 and license_secret_ref is set for those
+      apply_license_secret=1 and license_secret_ref is set for those
       tiers.
     default: small
     display:

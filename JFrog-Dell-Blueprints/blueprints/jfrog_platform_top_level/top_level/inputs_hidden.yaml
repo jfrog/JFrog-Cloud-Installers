@@ -63,12 +63,15 @@ inputs:
     required: true
     display_label: Stack Verifier Job Image
     description: >-
-      Image (path/tag) used by the stack verifier Kubernetes Job. Pulled
-      from container_registry_name.
-    default: "dtzar/helm-kubectl:3.19"
+      Image used by the stack verifier Kubernetes Job, given as
+      image/path:tag, image/path@sha256:<digest>, or
+      image/path:tag@sha256:<digest>. Digest pinning is recommended for
+      supply-chain integrity (the tag stays human-readable while the digest
+      is authoritative). Pulled from container_registry_name.
+    default: "dtzar/helm-kubectl@sha256:d02d8d02a24d67e4851503cc443e7eb2358383c9c052f699c262409cd05dae55"
     constraints:
-      - pattern: '^[a-zA-Z0-9][a-zA-Z0-9\-\._/]*:[a-zA-Z0-9][a-zA-Z0-9\-\._]*$'
-        error_message: Must be in the form image/path:tag.
+      - pattern: '^[a-zA-Z0-9][a-zA-Z0-9\-\._/]*(:[a-zA-Z0-9][a-zA-Z0-9\-\._]*(@sha256:[a-f0-9]{64})?|@sha256:[a-f0-9]{64})$'
+        error_message: Must be image/path:tag, image/path@sha256:<digest>, or image/path:tag@sha256:<digest>.
 
   k8s_min_version:
     type: string

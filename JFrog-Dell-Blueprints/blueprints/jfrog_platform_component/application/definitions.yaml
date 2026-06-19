@@ -70,7 +70,7 @@ node_templates:
     capabilities:
       scalable:
         properties:
-          default_instances: { get_input: create_license_secret }
+          default_instances: { get_input: apply_license_secret }
     relationships:
       - target: create_namespace
         type: dell.relationships.depends_on
@@ -94,7 +94,7 @@ node_templates:
     capabilities:
       scalable:
         properties:
-          default_instances: { get_input: create_master_key_secret }
+          default_instances: { get_input: apply_master_key_secret }
     relationships:
       - target: create_namespace
         type: dell.relationships.depends_on
@@ -118,7 +118,7 @@ node_templates:
     capabilities:
       scalable:
         properties:
-          default_instances: { get_input: create_join_key_secret }
+          default_instances: { get_input: apply_join_key_secret }
     relationships:
       - target: create_namespace
         type: dell.relationships.depends_on
@@ -130,9 +130,9 @@ node_templates:
         precreate:
           executor: central_deployment_agent
           inputs:
-            create_master_key_secret: { get_input: create_master_key_secret }
+            apply_master_key_secret: { get_input: apply_master_key_secret }
             master_key_secret_name: { get_input: master_key_secret_name }
-            create_join_key_secret: { get_input: create_join_key_secret }
+            apply_join_key_secret: { get_input: apply_join_key_secret }
             join_key_secret_name: { get_input: join_key_secret_name }
           implementation: application/scripts/compute_key_secret_names.py
 
@@ -208,7 +208,7 @@ node_templates:
     capabilities:
       scalable:
         properties:
-          default_instances: { get_input: create_bundled_db_secret }
+          default_instances: { get_input: apply_bundled_db_secret }
     relationships:
       - target: create_namespace
         type: dell.relationships.depends_on
@@ -244,7 +244,7 @@ node_templates:
     capabilities:
       scalable:
         properties:
-          default_instances: { get_input: create_external_db_secret }
+          default_instances: { get_input: apply_external_db_secret }
     relationships:
       - target: create_namespace
         type: dell.relationships.depends_on
@@ -418,6 +418,11 @@ node_templates:
   # to expose its real external IP:port. Gated to NGINX/LoadBalancer mode via
   # scalable.default_instances (0 in ingress mode so we never read a Service
   # that does not exist).
+  # NOTE: the Service name suffix '-artifactory-nginx' is specific to the
+  # jfrog/jfrog-platform chart's bundled NGINX subchart. If the chart ever
+  # changes this naming convention, update the concat below accordingly. This
+  # coupling only applies to LoadBalancer mode; in Ingress mode the node is
+  # gated off and the access URL comes from compute_ingress_tls instead.
   check_nginx_service_endpoint:
     type: dell.nodes.kubernetes.resources.CustomObject
     properties:
