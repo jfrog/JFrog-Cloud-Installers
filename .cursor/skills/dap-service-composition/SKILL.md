@@ -313,3 +313,17 @@ inputs:
 ```
 
 `only_with` hides the input in the DAP orchestrator UI when the referenced boolean is false.
+
+**Map form (match a specific value):** `only_with` also accepts a map so you can gate on a specific value, not just a boolean `true`:
+
+```yaml
+inputs:
+  ingress_host:
+    type: string
+    display_label: Ingress Host
+    required: true        # mandatory ONLY while the gate is satisfied
+    only_with:
+      ingress_enabled: "true"
+```
+
+**Conditionally-required pattern:** combine `required: true` with `only_with` so a field is shown *and* mandatory only when its feature/toggle is on (and is skipped entirely otherwise). This surfaces the requirement in the form up front instead of failing later at validation time. Used in the JFrog Platform blueprint for `license_secret_ref` / `master_key_secret_ref` / `join_key_secret_ref` (gated on their `Apply ... Secret` toggle) and `ingress_class_name` / `ingress_host` (gated on Kubernetes Ingress mode).

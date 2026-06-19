@@ -22,11 +22,11 @@
 #                            → select Kubernetes credentials secret
 #                            → select the Target Kubernetes Deployment
 #   2. Database Configuration → keep Bundled PostgreSQL "false"
-#                            → set Create External Database Secret to "true"
+#                            → set Apply External Database Secret to "true"
 #                            → fill in Database Host, Port, SSL Mode
 #                            → select the Database Admin Password secret
 #                            → select the Basic Authentication Database Credentials secret
-#   3. Sizing and Licensing  → set Create License Secret to "true"
+#   3. Sizing and Licensing  → set Apply License Secret to "true"
 #                            → select the license secret
 #   4. Click Deploy
 #
@@ -46,7 +46,7 @@ inputs:
 
   # -- Database (external) -----------------------------------------
   postgresql_enabled: "false"
-  create_external_db_secret: "true"
+  apply_external_db_secret: "true"
   database_host: pg.example.com
   database_port: "5432"
   database_ssl_mode: require
@@ -55,7 +55,7 @@ inputs:
 
   # -- Sizing and Licensing ----------------------------------------
   sizing_template: medium                       # HA tier -> license required
-  create_license_secret: "true"
+  apply_license_secret: "true"
   license_secret_ref: artifactory-license
 
   # -- Chart Settings ----------------------------------------------

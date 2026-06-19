@@ -54,7 +54,7 @@ inputs:
       Name of the Kubernetes Secret created with the Artifactory master
       key (data field 'master-key').  The compute_key_secret_names node
       resolves masterKeySecretName to this value only when
-      create_master_key_secret == 1; otherwise it is passed to the chart
+      apply_master_key_secret == 1; otherwise it is passed to the chart
       empty so the chart helper falls back to its auto-generated
       <release>-artifactory secret.
     default: jfrog-platform-master-key
@@ -69,7 +69,7 @@ inputs:
       Name of the Kubernetes Secret created with the Artifactory join
       key (data field 'join-key').  The compute_key_secret_names node
       resolves joinKeySecretName to this value only when
-      create_join_key_secret == 1; otherwise it is passed to the chart
+      apply_join_key_secret == 1; otherwise it is passed to the chart
       empty so the chart helper falls back to its auto-generated
       <release>-artifactory secret.
     default: jfrog-platform-join-key
@@ -77,54 +77,54 @@ inputs:
   # Conditional-resource gates (0/1) resolved by the orchestrator from its
   # user-facing true/false toggles and fed to scalable.default_instances.
   # Never customer-editable on this child blueprint.
-  create_bundled_db_secret:
+  apply_bundled_db_secret:
     type: integer
     hidden: true
     allow_update: false
     required: true
-    display_label: Create Bundled Database Secret
+    display_label: Apply Bundled Database Secret
     description: >-
       Gate (0/1) for the bundled-PostgreSQL credentials Secret node.
       Resolved by the orchestrator from its true/false toggle.
     default: 0
-  create_external_db_secret:
+  apply_external_db_secret:
     type: integer
     hidden: true
     allow_update: false
     required: true
-    display_label: Create External Database Secret
+    display_label: Apply External Database Secret
     description: >-
       Gate (0/1) for the external-database credentials Secret node.
       Resolved by the orchestrator from its true/false toggle.
     default: 0
-  create_license_secret:
+  apply_license_secret:
     type: integer
     hidden: true
     allow_update: false
     required: true
-    display_label: Create License Secret
+    display_label: Apply License Secret
     description: >-
       Gate (0/1) for the license Secret node. Resolved by the orchestrator
-      from the true/false Create License Secret toggle; 1 = create K8s
+      from the true/false Apply License Secret toggle; 1 = create K8s
       secret from DAP general secret, 0 = trial mode.
     default: 0
-  create_master_key_secret:
+  apply_master_key_secret:
     type: integer
     hidden: true
     allow_update: false
     required: true
-    display_label: Create Master Key Secret
+    display_label: Apply Master Key Secret
     description: >-
       Gate (0/1) for the master-key Secret node. Resolved by the
       orchestrator from its true/false toggle. 1 = inject DAP general
       secret as master-key, 0 = use chart default.
     default: 0
-  create_join_key_secret:
+  apply_join_key_secret:
     type: integer
     hidden: true
     allow_update: false
     required: true
-    display_label: Create Join Key Secret
+    display_label: Apply Join Key Secret
     description: >-
       Gate (0/1) for the join-key Secret node. Resolved by the
       orchestrator from its true/false toggle. 1 = inject DAP general

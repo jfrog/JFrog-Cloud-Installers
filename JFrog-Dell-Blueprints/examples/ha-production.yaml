@@ -47,7 +47,7 @@ inputs:
 
   # -- Database (external) -----------------------------------------
   postgresql_enabled: "false"
-  create_external_db_secret: "true"
+  apply_external_db_secret: "true"
   database_host: pg-primary.prod.internal
   database_port: "5432"
   database_ssl_mode: verify-full
@@ -56,14 +56,14 @@ inputs:
 
   # -- Sizing and Licensing ----------------------------------------
   sizing_template: large                            # 3 replicas -> license required
-  create_license_secret: "true"
+  apply_license_secret: "true"
   license_secret_ref: prod-artifactory-ha-license
 
   # -- Chart Settings ----------------------------------------------
   release_name: jfrog-platform
-  create_master_key_secret: "true"                  # inject a real master key
+  apply_master_key_secret: "true"                  # inject a real master key
   master_key_secret_ref: prod-master-key
-  create_join_key_secret: "true"                    # inject a real join key
+  apply_join_key_secret: "true"                    # inject a real join key
   join_key_secret_ref: prod-join-key
 
   # -- Ingress (HTTPS) ---------------------------------------------

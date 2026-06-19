@@ -48,7 +48,7 @@ JOIN_KEY_HEX_LENGTH = 32
 
 # Sizing tiers that mandate an Artifactory Enterprise license (one per
 # replica).  When sizing_template is in this set the validator requires
-# create_license_secret == 1 and a non-empty license_secret_ref.
+# apply_license_secret == 1 and a non-empty license_secret_ref.
 ENTERPRISE_TIERS = ("medium", "large", "xlarge", "2xlarge")
 ALL_SIZING_TIERS = ("xsmall", "small") + ENTERPRISE_TIERS
 
@@ -58,11 +58,11 @@ ALL_SIZING_TIERS = ("xsmall", "small") + ENTERPRISE_TIERS
 # script); instead this validator derives the 0/1 integers and re-exposes
 # them as blueprint capabilities for the downstream ServiceComponents.
 TOGGLE_INPUTS = (
-    "create_bundled_db_secret",
-    "create_external_db_secret",
-    "create_license_secret",
-    "create_master_key_secret",
-    "create_join_key_secret",
+    "apply_bundled_db_secret",
+    "apply_external_db_secret",
+    "apply_license_secret",
+    "apply_master_key_secret",
+    "apply_join_key_secret",
     "create_pull_secret",
     "ingress_tls_enabled",
 )
@@ -361,23 +361,28 @@ def _validate_ingress():
             ingress_host, "ingress_host", DOMAIN_PATTERN,
             "must be a valid DNS hostname",
         )
+    if ingress_host == "artifactory.example.com":
+        raise ValueError(
+            "ingress_host: must be set to a real DNS hostname when ingress is "
+            "enabled (current value is the placeholder 'artifactory.example.com')"
+        )
 
 
 def _validate_key_secret_refs():
     """Require the master/join key secret refs when their create toggles
     are enabled."""
-    if _toggle_int("create_master_key_secret") == 1 and \
+    if _toggle_int("apply_master_key_secret") == 1 and \
             not inputs.get("master_key_secret_ref"):
         raise ValueError(
             "master_key_secret_ref: must be set when "
-            "create_master_key_secret is 'true' (provide a DAP general "
+            "apply_master_key_secret is 'true' (provide a DAP general "
             "secret containing the raw Artifactory master key)"
         )
-    if _toggle_int("create_join_key_secret") == 1 and \
+    if _toggle_int("apply_join_key_secret") == 1 and \
             not inputs.get("join_key_secret_ref"):
         raise ValueError(
             "join_key_secret_ref: must be set when "
-            "create_join_key_secret is 'true' (provide a DAP general "
+            "apply_join_key_secret is 'true' (provide a DAP general "
             "secret containing the raw Artifactory join key)"
         )
 
@@ -389,9 +394,9 @@ def _validate_sizing():
     _validate_enum(sizing, "sizing_template", list(ALL_SIZING_TIERS))
     if sizing not in ENTERPRISE_TIERS:
         return
-    if _toggle_int("create_license_secret") != 1:
+    if _toggle_int("apply_license_secret") != 1:
         raise ValueError(
-            f"create_license_secret: must be 'true' when sizing_template "
+            f"apply_license_secret: must be 'true' when sizing_template "
             f"is '{sizing}' (Enterprise license required for medium "
             f"and above; one Enterprise license per replica)"
         )
@@ -453,33 +458,33 @@ def _validate_secrets():
             expected_basic_auth_keys,
         )
 
-    if _toggle_int("create_license_secret") == 1:
+    if _toggle_int("apply_license_secret") == 1:
         license_ref = inputs.get("license_secret_ref")
         if not license_ref:
             raise ValueError(
                 "license_secret_ref: required when "
-                "create_license_secret is 'true'"
+                "apply_license_secret is 'true'"
             )
         _validate_secret_exists(client, license_ref)
 
-    if _toggle_int("create_master_key_secret") == 1:
+    if _toggle_int("apply_master_key_secret") == 1:
         master_key_ref = inputs.get("master_key_secret_ref")
         if not master_key_ref:
             raise ValueError(
                 "master_key_secret_ref: required when "
-                "create_master_key_secret is 'true'"
+                "apply_master_key_secret is 'true'"
             )
         _validate_secret_hex_length(
             client, master_key_ref, MASTER_KEY_HEX_LENGTH,
             "master_key_secret_ref",
         )
 
-    if _toggle_int("create_join_key_secret") == 1:
+    if _toggle_int("apply_join_key_secret") == 1:
         join_key_ref = inputs.get("join_key_secret_ref")
         if not join_key_ref:
             raise ValueError(
                 "join_key_secret_ref: required when "
-                "create_join_key_secret is 'true'"
+                "apply_join_key_secret is 'true'"
             )
         _validate_secret_hex_length(
             client, join_key_ref, JOIN_KEY_HEX_LENGTH,

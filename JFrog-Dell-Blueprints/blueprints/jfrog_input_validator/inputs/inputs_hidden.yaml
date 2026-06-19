@@ -35,48 +35,48 @@ inputs:
   # 0/1 integers as blueprint capabilities (<name>_int) so the downstream
   # ServiceComponents can gate scalable.default_instances at plan time. They
   # are never shown on this child blueprint's form.
-  create_bundled_db_secret:
+  apply_bundled_db_secret:
     type: string
     hidden: true
     allow_update: false
     required: true
-    display_label: Create Bundled Database Secret
+    display_label: Apply Bundled Database Secret
     description: true/false -- whether to create the bundled PostgreSQL secret.
     default: "false"
 
-  create_external_db_secret:
+  apply_external_db_secret:
     type: string
     hidden: true
     allow_update: false
     required: true
-    display_label: Create External Database Secret
+    display_label: Apply External Database Secret
     description: true/false -- whether to create the external DB secret.
     default: "false"
 
-  create_license_secret:
+  apply_license_secret:
     type: string
     hidden: true
     allow_update: false
     required: true
-    display_label: Create License Secret
+    display_label: Apply License Secret
     description: false = trial mode, true = create K8s secret from DAP general secret.
     default: "false"
 
-  create_master_key_secret:
+  apply_master_key_secret:
     type: string
     hidden: true
     allow_update: false
     required: true
-    display_label: Create Master Key Secret
+    display_label: Apply Master Key Secret
     description: false = chart default, true = inject DAP general secret as master-key.
     default: "false"
 
-  create_join_key_secret:
+  apply_join_key_secret:
     type: string
     hidden: true
     allow_update: false
     required: true
-    display_label: Create Join Key Secret
+    display_label: Apply Join Key Secret
     description: false = chart default, true = inject DAP general secret as join-key.
     default: "false"
 

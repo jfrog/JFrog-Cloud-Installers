@@ -37,11 +37,11 @@ inputs:
 
   # -- Database (bundled) ------------------------------------------
   postgresql_enabled: "true"
-  create_bundled_db_secret: "true"
+  apply_bundled_db_secret: "true"
 
   # -- Sizing and Licensing ----------------------------------------
   sizing_template: small
-  create_license_secret: "false"               # trial mode
+  apply_license_secret: "false"               # trial mode
 
   # -- Chart Settings ----------------------------------------------
   release_name: jfrog-platform

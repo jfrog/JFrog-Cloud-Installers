@@ -72,6 +72,12 @@ input_groups:
 
 inputs:
 
+  # NOTE: type is 'string' (not 'secret_key') and carries no constraints by
+  # design. This is a child blueprint that receives k8s_credentials via
+  # get_input from the top-level orchestrator, where the secret_key type and
+  # 'k8s' constraint ARE enforced. DAP rejects get_input values against the
+  # secret_key type at create_deployment_environment time and forbids
+  # constraints on intrinsic-function values, so they must stay off here.
   k8s_credentials:
     type: string
     hidden: false
@@ -265,6 +271,13 @@ inputs:
       group: database
       index: 6
 
+  # NOTE: type is 'string' (not 'secret_key') and carries no constraints by
+  # design. This is a child blueprint that receives database_credentials via
+  # get_input from the top-level orchestrator, where the secret_key type and
+  # 'basic_auth_credentials' constraint ARE enforced. DAP rejects get_input
+  # values against the secret_key type at create_deployment_environment time
+  # and forbids constraints on intrinsic-function values, so they must stay
+  # off here.
   database_credentials:
     type: string
     hidden: false

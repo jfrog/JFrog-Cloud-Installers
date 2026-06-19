@@ -13,7 +13,7 @@
 #   2. Persistence           → Persistence "storage-type",
 #                              Persistence Type "nfs",
 #                              set NFS Server IP and NFS Capacity
-#   3. Database Configuration → Bundled PostgreSQL "true" + Create Bundled
+#   3. Database Configuration → Bundled PostgreSQL "true" + Apply Bundled
 #                              Database Secret "true"
 #   4. Click Deploy
 #
@@ -39,11 +39,11 @@ inputs:
 
   # -- Database (bundled) ------------------------------------------
   postgresql_enabled: "true"
-  create_bundled_db_secret: "true"
+  apply_bundled_db_secret: "true"
 
   # -- Sizing and Licensing ----------------------------------------
   sizing_template: small
-  create_license_secret: "false"               # trial mode
+  apply_license_secret: "false"               # trial mode
 
   # -- Chart Settings ----------------------------------------------
   release_name: jfrog-platform

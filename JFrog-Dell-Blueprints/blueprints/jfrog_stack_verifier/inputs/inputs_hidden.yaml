@@ -14,8 +14,11 @@ inputs:
     allow_update: false
     required: true
     display_label: Stack Verifier Job Image
-    description: Image (path/tag) used by the verification Kubernetes Job.
-    default: "dtzar/helm-kubectl:3.19"
+    description: >-
+      Image used by the verification Kubernetes Job, as image/path:tag,
+      image/path@sha256:<digest>, or image/path:tag@sha256:<digest>
+      (digest pinning recommended for supply-chain integrity).
+    default: "dtzar/helm-kubectl@sha256:d02d8d02a24d67e4851503cc443e7eb2358383c9c052f699c262409cd05dae55"
 
   k8s_min_version:
     type: string
