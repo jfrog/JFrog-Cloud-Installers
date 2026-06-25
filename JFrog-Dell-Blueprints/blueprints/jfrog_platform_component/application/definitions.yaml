@@ -355,7 +355,7 @@ node_templates:
             value: { get_input: chart_version }
           - name: wait
           - name: timeout
-            value: "10m0s"
+            value: "30m0s"
     interfaces:
       dell.interfaces.lifecycle:
         # Render the deployer-supplied ingress annotations to a values file
