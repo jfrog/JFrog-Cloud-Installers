@@ -23,7 +23,7 @@ This chart will do the following:
   - Default StorageClass set to allow services using the default StorageClass for persistent storage
 - A running Artifactory 7.7.x with Enterprise+ License
   - Precreated repository `jfrogpipelines` in Artifactory type `Generic` with layout `maven-2-default`
-- [Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) installed and setup to use the cluster
+- [Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) installed and set up to use the cluster
 - [Helm](https://helm.sh/) v2 or v3 installed
 
 
@@ -40,7 +40,7 @@ helm repo update
 
 ### Artifactory Connection Details
 
-In order to connect Pipelines to your Artifactory installation, you have to use a Join Key, hence it is *MANDATORY* to provide a Join Key and Jfrog Url to your Pipelines installation. Here's how you do that:
+In order to connect Pipelines to your Artifactory installation, you have to use a Join Key, hence it is *MANDATORY* to provide a Join Key and JFrog URL to your Pipelines installation. Here's how you do that:
 
 Retrieve the connection details of your Artifactory installation, from the UI - https://www.jfrog.com/confluence/display/JFROG/General+Security+Settings#GeneralSecuritySettings-ViewingtheJoinKey.
 
@@ -51,9 +51,9 @@ Retrieve the connection details of your Artifactory installation, from the UI - 
 Before deploying Pipelines you need to have the following
 - A running Kubernetes cluster
 - An [Artifactory ](https://hub.helm.sh/charts/jfrog/artifactory) or [Artifactory HA](https://hub.helm.sh/charts/jfrog/artifactory-ha) with Enterprise+ License
-  - Precreated repository `jfrogpipelines` in Artifactiry type `Generic` with layout `maven-2-default`
+  - Precreated repository `jfrogpipelines` in Artifactory type `Generic` with layout `maven-2-default`
 - Deployed [Nginx-ingress controller](https://hub.helm.sh/charts/stable/nginx-ingress)
-- [Optional] Deployed [Cert-manager](https://hub.helm.sh/charts/jetstack/cert-manager) for automatic management of TLS certificates with [Lets Encrypt](https://letsencrypt.org/)
+- [Optional] Deployed [Cert-manager](https://hub.helm.sh/charts/jetstack/cert-manager) for automatic management of TLS certificates with [Let's Encrypt](https://letsencrypt.org/)
 - [Optional] TLS secret needed for https access
 
 #### Prepare configurations
@@ -158,7 +158,7 @@ helm upgrade --install pipelines --namespace pipelines center/jfrog/pipelines -f
 ```
 
 ### Using Vault in Production environments
-To use vault securely you must set the disablemlock setting in the values.yaml to false as per the Hashicorp Vault recommendations here:
+To use vault securely you must set the disablemlock setting in the values.yaml to false as per the HashiCorp Vault recommendations here:
 
 https://www.vaultproject.io/docs/configuration#disable_mlock
 
@@ -199,7 +199,7 @@ helm status pipelines --namespace pipelines
 ```
 
 ### Pipelines Version
-- By default, the pipelines images will use the value `appVersion` in the Chart.yml. This can be over-ridden by adding `version` to the pipelines section of the values.yml
+- By default, the pipelines images will use the value `appVersion` in the Chart.yml. This can be overridden by adding `version` to the pipelines section of the values.yml
 
 ### Build Plane
 
