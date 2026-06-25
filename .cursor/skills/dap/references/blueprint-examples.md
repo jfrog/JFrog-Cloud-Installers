@@ -155,12 +155,15 @@ capabilities:
 labels:
   csys-obj-type:
     values:
-      - service
+      - environment
 
 blueprint_labels:
-  csys-obj-type:
+  env:
     values:
-      - blueprint
+      - Dell
+  csys-blueprint-type:
+    values:
+      - utility
 ```
 
 The following `CHANGELOG.yaml` must be created alongside `blueprint.yaml` (BS-009):
