@@ -17,19 +17,14 @@ labels:
       - environment
 
 blueprint_labels:
-  obj-type:
-    values:
-      - environment
-  csys-obj-type:
+  csys-blueprint-type:
     values:
       - utility
 
 dsl_definitions:
   changelog:
     1.0.0:
-      - ticket: INST-22974
-        developer: srinivasg@jfrog.com
-        description: >-
+      - description: >-
           Initial release. Central-agent Python validator that checks
           input formats and DAP secret existence/structure (k8s,
           basic_auth, license, master/join keys) before any cluster

@@ -290,6 +290,7 @@ inputs:
     display:
       group: database
       index: 7
+
   release_name:
     type: string
     hidden: false

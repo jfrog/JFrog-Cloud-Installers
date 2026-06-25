@@ -338,20 +338,26 @@ Both `labels` and `blueprint_labels` are required:
 
 ```yaml
 labels:
-  csm_workflow:
+  # csys-obj-type classifies the deployed object for the DAP catalog
+  csys-obj-type:
     values:
-      - deploy
+      - environment
   environment:
     values:
       - production
 
 blueprint_labels:
-  author:
+  # env tags the blueprint; non-orchestrator (utility/helm) blueprints also
+  # set csys-blueprint-type, while the top-level orchestrator sets env only
+  env:
     values:
-      - my_team
+      - Dell
+  csys-blueprint-type:
+    values:
+      - utility
 ```
 
-Each label key maps to an object with a single key `values`, which must be a list containing exactly one string.
+Each label key maps to an object with a single key `values`, which must be a list containing exactly one string. The repo validator (`scripts/validate_blueprints.sh`) enforces `csys-obj-type` under `labels`, `env` under `blueprint_labels`, and `csys-blueprint-type` on every non-orchestrator blueprint.
 
 ### Workflows
 

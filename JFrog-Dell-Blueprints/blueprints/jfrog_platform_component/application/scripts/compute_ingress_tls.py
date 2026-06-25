@@ -29,13 +29,13 @@ tls_on = str(inputs.get("ingress_tls_enabled") or "false").lower() == "true"
 ingress_on = str(inputs.get("ingress_enabled") or "false").lower() == "true"
 release = inputs.get("release_name") or "jfrog-platform"
 host = inputs.get("ingress_host") or ""
-secret_name = "{}-tls".format(release)
+secret_name = f"{release}-tls"
 scheme = "https" if tls_on else "http"
 ctx.instance.runtime_properties["tls_secret_name_effective"] = secret_name if tls_on else ""
 ctx.instance.runtime_properties["url_scheme"] = scheme
 # Conditional: only populated in Ingress mode; empty in LoadBalancer mode so the
 # two URL capabilities are mutually exclusive.
-ingress_url = "{}://{}".format(scheme, host) if (ingress_on and host) else ""
+ingress_url = f"{scheme}://{host}" if (ingress_on and host) else ""
 ctx.instance.runtime_properties["platform_url_ingress"] = ingress_url
 ctx.logger.info(
     "ingress TLS enabled=%s ingress_enabled=%s host=%r secretName=%r url=%r",

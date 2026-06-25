@@ -36,19 +36,18 @@ def retrieve_k8s_secret(secret_name):
         # Check if secret is already a dictionary (new DSPO)
         if isinstance(secret_str, dict):
             return secret_str
-        else:
-            # Attempt to load secret as JSON to support older DSPO
-            secret_value = json.loads(secret_str)
-            return secret_value
+        # Attempt to load secret as JSON to support older DSPO
+        secret_value = json.loads(secret_str)
+        return secret_value
 
     except json.JSONDecodeError as e:
         ctx.logger.error(f"Failed to parse secret as JSON: {e}")
-        raise NonRecoverableError(f"Secret parsing error: {str(e)}")
+        raise NonRecoverableError(f"Secret parsing error: {e!s}") from e
     except NonRecoverableError:
         raise
     except Exception as e:
-        ctx.logger.error(f"Failed to retrieve Kubernetes secret: {secret_name}. Error: {str(e)}")
-        raise NonRecoverableError(f"Failed to retrieve Kubernetes secret: {secret_name}. Error: {str(e)}")
+        ctx.logger.error(f"Failed to retrieve Kubernetes secret: {secret_name}. Error: {e!s}")
+        raise NonRecoverableError(f"Failed to retrieve Kubernetes secret: {secret_name}. Error: {e!s}") from e
 
 
 def _prepare_token_config(client_config, secret_response):
@@ -168,8 +167,8 @@ def main():
     except NonRecoverableError:
         raise
     except Exception as e:
-        ctx.logger.error(f"Unexpected error occurred: {str(e)}")
-        raise NonRecoverableError(f"Unexpected error occurred: {str(e)}")
+        ctx.logger.error(f"Unexpected error occurred: {e!s}")
+        raise NonRecoverableError(f"Unexpected error occurred: {e!s}") from e
 
 
 if __name__ == "__main__":

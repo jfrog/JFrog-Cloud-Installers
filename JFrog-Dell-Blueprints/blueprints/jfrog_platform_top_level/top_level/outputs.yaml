@@ -31,5 +31,5 @@ capabilities:
   platform_url_loadbalancer:
     description: >-
       Artifactory URL when using bundled NGINX (LoadBalancer) mode
-      (external IP:port of the artifactory-nginx Service). Empty in Ingress mode.
+      (external IP of the artifactory-nginx Service). Empty in Ingress mode.
     value: { get_attribute: [jfrog_platform, capabilities, platform_url_loadbalancer] }

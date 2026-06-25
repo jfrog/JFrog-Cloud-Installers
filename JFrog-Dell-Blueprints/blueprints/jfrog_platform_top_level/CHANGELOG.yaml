@@ -27,9 +27,7 @@ blueprint_labels:
 dsl_definitions:
   changelog:
     1.0.0:
-      - ticket: INST-22974
-        developer: srinivasg@jfrog.com
-        description: >-
+      - description: >-
           Initial release. Top-level orchestrator that wires the input
           validator, stack verifier, and JFrog Platform component
           blueprints into a single Dell-certified deployment.

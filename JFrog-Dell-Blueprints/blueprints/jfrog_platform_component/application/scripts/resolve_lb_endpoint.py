@@ -23,6 +23,6 @@ lb_ip = inputs.get("lb_ip")
 if not isinstance(lb_ip, str) or not lb_ip or lb_ip.startswith("{"):
     lb_ip = ""
 
-url = "http://{}".format(lb_ip) if lb_ip else ""
+url = f"http://{lb_ip}" if lb_ip else ""
 ctx.instance.runtime_properties["platform_url_loadbalancer"] = url
 ctx.logger.info("platform_url_loadbalancer=%r (lb_ip=%r)", url, lb_ip)

@@ -103,6 +103,7 @@ if __name__ == "__main__":
 | `ctx.logger.info/debug/warning/error(msg)` | Write to DAPO event log |
 | `ctx.download_resource('path/file')` | Download a blueprint resource file to the agent's working directory |
 | `ctx.download_resource_and_render('file.j2', template_variables={...})` | Download and Jinja2-render a template |
+| `ctx.local_deployment_workdir()` | Per-deployment working directory on the agent. Use this (not `/tmp`) when a script must write files (rendered values, temp artifacts) — it is deployment-scoped and cleaned up with the deployment |
 
 ---
 
@@ -214,6 +215,7 @@ Keep all scripts in a `scripts/` directory (or subdirectory). Do not inline Pyth
 | `from nativeedge import ctx` | Legacy NativeEdge — not supported in DAP | `from dell import ctx` |
 | `json.load(sys.stdin)` | Old Cloudify input mechanism | `inputs.get('key')` |
 | `executor: central_deployment_agent` | Cloudify/NativeEdge artefact — invalid in DAP | Omit `executor` (uses manager agent) or use `executor: { get_environment_capability: oxy_agent }` for Oxy offload |
+| Writing files under `/tmp` | Shared, not deployment-scoped, can leak/collide across deployments and is not cleaned up with the deployment | `os.path.join(ctx.local_deployment_workdir(), '<subdir>')` (create it, clearing any stale copy first) |
 
 ---
 

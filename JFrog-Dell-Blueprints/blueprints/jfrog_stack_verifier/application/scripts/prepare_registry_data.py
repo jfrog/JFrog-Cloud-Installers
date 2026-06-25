@@ -24,7 +24,7 @@ def main():
     auths = {}
     if username and password:
         token = base64.b64encode(
-            f"{username}:{password}".encode("utf-8")
+            f"{username}:{password}".encode()
         ).decode("utf-8")
         auths[registry] = {
             "username": username,
