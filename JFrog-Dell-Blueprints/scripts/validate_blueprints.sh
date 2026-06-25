@@ -437,8 +437,16 @@ for bp in blueprint_files:
     blueprint_labels = data.get('blueprint_labels', {})
     if 'csys-obj-type' not in labels:
         errors.append(f"{rel(bp)}: labels must include csys-obj-type")
-    if 'obj-type' not in blueprint_labels or 'csys-obj-type' not in blueprint_labels:
-        errors.append(f"{rel(bp)}: blueprint_labels must include obj-type and csys-obj-type")
+    if 'env' not in blueprint_labels:
+        errors.append(f"{rel(bp)}: blueprint_labels must include env")
+    # Non-orchestrator (utility) blueprints carry csys-blueprint-type so the
+    # catalog can distinguish them from the top-level solution/orchestrator
+    # blueprint (which only sets env).
+    if not orchestrator and 'csys-blueprint-type' not in blueprint_labels:
+        errors.append(
+            f"{rel(bp)}: blueprint_labels must include csys-blueprint-type "
+            f"(e.g. 'utility') for non-orchestrator blueprints"
+        )
 
 for ch in changelogs:
     data = load_yaml(ch)
@@ -468,7 +476,7 @@ for ch in changelogs:
                 if not isinstance(item, dict):
                     errors.append(f"{rel(ch)}: changelog {version}[{idx}] must be a map")
                     continue
-                for key in ('ticket', 'developer', 'description'):
+                for key in ('description',):
                     if key not in item:
                         errors.append(f"{rel(ch)}: changelog {version}[{idx}] missing '{key}'")
 

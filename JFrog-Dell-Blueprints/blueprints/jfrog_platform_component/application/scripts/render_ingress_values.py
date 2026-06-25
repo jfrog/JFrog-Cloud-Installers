@@ -43,6 +43,7 @@ When TLS is disabled the tls key is omitted entirely, so the chart default
 """
 import json
 import os
+import shutil
 
 from dell import ctx
 from dell.state import ctx_parameters as inputs
@@ -70,7 +71,7 @@ if annotations:
     lines.append("    annotations:")
     for key, value in annotations.items():
         rendered = "" if value is None else str(value)
-        lines.append("      {}: {}".format(json.dumps(str(key)), json.dumps(rendered)))
+        lines.append(f"      {json.dumps(str(key))}: {json.dumps(rendered)}")
 else:
     lines.append("    annotations: {}")
 
@@ -78,12 +79,22 @@ else:
 # chart default applies and no tls block is rendered on the Ingress.
 if tls_on:
     lines.append("    tls:")
-    lines.append("      - secretName: {}".format(json.dumps("{}-tls".format(release))))
+    lines.append("      - secretName: {}".format(json.dumps(f"{release}-tls")))
     lines.append("        hosts:")
-    lines.append("          - {}".format(json.dumps(host)))
+    lines.append(f"          - {json.dumps(host)}")
+
+# Write under the deployment's local workdir (not /tmp) so the values file is
+# scoped to this deployment and cleaned up with it. Recreate the jFrog dir each
+# run so stale renders never linger.
+deployment_dir = ctx.local_deployment_workdir()
+jfrog_dir = os.path.join(deployment_dir, "jFrog")
+if os.path.exists(jfrog_dir):
+    ctx.logger.info("Removing existing directory: %s", jfrog_dir)
+    shutil.rmtree(jfrog_dir)
+os.makedirs(jfrog_dir, exist_ok=True)
 
 path = os.path.join(
-    "/tmp", "jfrog-ingress-values-{}-{}.yaml".format(namespace, release)
+    jfrog_dir, f"jfrog-ingress-values-{namespace}-{release}.yaml"
 )
 with open(path, "w") as handle:
     handle.write("\n".join(lines) + "\n")

@@ -17,19 +17,14 @@ labels:
       - environment
 
 blueprint_labels:
-  obj-type:
+  csys-blueprint-type:
     values:
-      - helm
-  csys-obj-type:
-    values:
-      - environment
+      - utility
 
 dsl_definitions:
   changelog:
     1.0.0:
-      - ticket: INST-22974
-        developer: srinivasg@jfrog.com
-        description: >-
+      - description: >-
           Initial release. Deploys the JFrog Platform Helm chart with
           fetch_labels for SaaS DAPO infrastructure linkage, namespace
           and DAP-derived K8s secrets (license, database credentials,

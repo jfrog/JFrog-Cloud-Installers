@@ -17,11 +17,11 @@ client = get_rest_client()
 this_dep = client.deployments.get(ctx.deployment.id)
 target_dep = client.deployments.get(this_dep.inputs["target_deployment_id"])
 labels = []
-ctx.logger.info("current labels: {}".format(this_dep.labels))
+ctx.logger.info(f"current labels: {this_dep.labels}")
 for label in this_dep.labels:
     labels.append({label.key: label.value})
-ctx.logger.info("target_dep labels: {}".format(target_dep.labels))
+ctx.logger.info(f"target_dep labels: {target_dep.labels}")
 labels.append({"target_id": [label.value for label in target_dep.labels if label.get("key") == "target_id"][0]})
 
-ctx.logger.info("updating labels to: {}".format(labels))
+ctx.logger.info(f"updating labels to: {labels}")
 client.deployments.update_labels(ctx.deployment.id, labels)

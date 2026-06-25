@@ -210,14 +210,14 @@ def _validate_k8s_credentials_secret(client, secret_name):
             f"Secret '{secret_name}': k8s credentials must be a JSON "
             f"object with host/port/verify_ssl fields"
         )
-    
+
     # Required fields for all authentication types
     for key in ("host", "port", "verify_ssl"):
         if key not in parsed:
             raise ValueError(
                 f"Secret '{secret_name}': missing required key '{key}'"
             )
-    
+
     verify_ssl = parsed.get("verify_ssl")
     if verify_ssl == "TLS":
         # TLS authentication requires ssl_ca_cert, cert_file, and key_file

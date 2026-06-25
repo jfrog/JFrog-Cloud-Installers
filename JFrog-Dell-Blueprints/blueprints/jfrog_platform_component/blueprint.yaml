@@ -39,9 +39,6 @@ blueprint_labels:
   env:
     values:
       - Dell
-  obj-type:
+  csys-blueprint-type:
     values:
-      - helm
-  csys-obj-type:
-    values:
-      - environment
+      - utility
