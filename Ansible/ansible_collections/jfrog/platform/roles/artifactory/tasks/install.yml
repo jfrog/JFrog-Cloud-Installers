@@ -119,6 +119,7 @@
     src: "{{ artifactory_system_yaml_template }}"
     dest: "{{ artifactory_home }}/var/etc/system.yaml"
     mode: 0644
+  no_log: true
   when:
     - artifactory_systemyaml is defined
     - artifactory_systemyaml | length > 0
@@ -136,6 +137,7 @@
     owner: "{{ artifactory_user }}"
     group: "{{ artifactory_group }}"
     mode: 0640
+  no_log: true
 
 - name: Configure installer info
   become: true
@@ -159,6 +161,7 @@
     src: artifactory.cluster.license.j2
     dest: "{{ artifactory_home }}/var/etc/artifactory/artifactory.cluster.license"
     mode: 0644
+  no_log: true
   when:
     - artifactory_licenses is defined
     - artifactory_licenses | length > 0
@@ -172,6 +175,7 @@
     owner: "{{ artifactory_user }}"
     group: "{{ artifactory_group }}"
     mode: 0600
+  no_log: true
   when:
     - artifactory_admin_username is defined
     - artifactory_admin_password is defined

@@ -53,6 +53,7 @@
     src: "{{ distribution_system_yaml_template }}"
     dest: "{{ distribution_home }}/var/etc/system.yaml"
     mode: 0644
+  no_log: true
   when:
     - distribution_systemyaml is defined
     - distribution_systemyaml | length > 0

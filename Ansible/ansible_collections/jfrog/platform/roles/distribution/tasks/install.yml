@@ -97,6 +97,7 @@
     owner: "{{ distribution_user }}"
     group: "{{ distribution_group }}"
     mode: 0640
+  no_log: true
 
 - name: Check if install.sh wrapper script exist
   become: true
@@ -132,6 +133,7 @@
     src: "{{ distribution_system_yaml_template }}"
     dest: "{{ distribution_home }}/var/etc/system.yaml"
     mode: 0644
+  no_log: true
   when:
     - distribution_systemyaml is defined
     - distribution_systemyaml | length > 0
