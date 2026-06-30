@@ -94,7 +94,7 @@
         dest: "{{ ssl_certificate_path }}/{{ ssl_certificate_name }}"
         mode: '0644'
       notify: Restart nginx
-      no_log: false
+      no_log: true
 
     - name: Configure key
       become: true
@@ -103,7 +103,7 @@
         dest: "{{ ssl_certificate_key_path }}/{{ ssl_certificate_key_name }}"
         mode: '0600'
       notify: Restart nginx
-      no_log: false
+      no_log: true
 
 - name: Ensure mtls_ca_certificate_key_path exists
   become: true

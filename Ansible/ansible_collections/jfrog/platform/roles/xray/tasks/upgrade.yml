@@ -100,6 +100,7 @@
     src: "{{ xray_system_yaml_template }}"
     dest: "{{ xray_home }}/var/etc/system.yaml"
     mode: 0644
+  no_log: true
   when:
     - xray_systemyaml is defined
     - xray_systemyaml | length > 0

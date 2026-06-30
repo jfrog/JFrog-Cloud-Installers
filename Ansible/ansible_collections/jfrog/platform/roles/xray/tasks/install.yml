@@ -97,6 +97,7 @@
     owner: "{{ xray_user }}"
     group: "{{ xray_group }}"
     mode: 0640
+  no_log: true
 
 - name: Setup rabbitmq
   ansible.builtin.import_tasks: rabbitmq/setup/RedHat.yml
@@ -156,6 +157,7 @@
     src: "{{ xray_system_yaml_template }}"
     dest: "{{ xray_home }}/var/etc/system.yaml"
     mode: 0644
+  no_log: true
   when:
     - xray_systemyaml is defined
     - xray_systemyaml | length > 0

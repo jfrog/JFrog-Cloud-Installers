@@ -87,6 +87,7 @@
     src: artifactory.cluster.license.j2
     dest: "{{ artifactory_home }}/var/etc/artifactory/artifactory.cluster.license"
     mode: 0644
+  no_log: true
   when:
     - artifactory_licenses is defined
     - artifactory_licenses | length > 0
@@ -149,6 +150,7 @@
     src: "{{ artifactory_system_yaml_template }}"
     dest: "{{ artifactory_home }}/var/etc/system.yaml"
     mode: 0644
+  no_log: true
   when:
     - artifactory_systemyaml is defined
     - artifactory_systemyaml | length > 0

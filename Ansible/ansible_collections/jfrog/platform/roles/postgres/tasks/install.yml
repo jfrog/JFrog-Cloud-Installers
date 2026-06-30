@@ -7,7 +7,7 @@
   loop_control:
     loop_var: curr_user
   when: curr_user.enabled | bool
-  no_log: true  # secret passwords
+  no_log: true
 
 - name: Define OS-specific variables
   ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
@@ -103,7 +103,7 @@
   loop_control:
     loop_var: curr_user
   when: curr_user.enabled | bool
-  no_log: true  # secret passwords
+  no_log: true
 
 - name: Create database
   become: true
@@ -119,7 +119,7 @@
   loop_control:
     loop_var: curr_db
   when: curr_db.enabled | bool
-  no_log: true  # secret passwords
+  no_log: true
 
 - name: Grant privs on db
   become: true
@@ -134,4 +134,4 @@
   loop_control:
     loop_var: curr_db
   when: curr_db.enabled | bool
-  no_log: true  # secret passwords
+  no_log: true

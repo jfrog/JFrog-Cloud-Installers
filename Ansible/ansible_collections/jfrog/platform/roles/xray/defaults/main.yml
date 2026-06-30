@@ -65,6 +65,8 @@ yum_python_interpreter: >-
 
 
 
+
+
       /usr/bin/python3
   {%- elif linux_distro in ['centos7', 'redhat7'] -%}
 
@@ -75,8 +77,12 @@ yum_python_interpreter: >-
 
 
 
+
+
       /usr/bin/python
   {%- else -%}
+
+
 
 
 

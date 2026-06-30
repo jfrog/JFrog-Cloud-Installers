@@ -6,6 +6,7 @@
     owner: "{{ artifactory_user }}"
     group: "{{ artifactory_group }}"
     mode: 0644
+  no_log: true
   notify: Restart artifactory
   when:
     - artifactory_access_config_patch is defined
