@@ -184,15 +184,28 @@ jobs:
                             
               This is an automated update by the JFrog Ansible Collection update workflow."
 
-              gh pr create \
+              PR_URL=$(gh pr create \
                 --title "$TITLE" \
                 --body "$BODY" \
                 --base "${{ github.event.repository.default_branch }}" \
                 --head "$BRANCH" \
                 --label "automated" \
-                --label "ansible"
+                --label "ansible")
 
-              echo "Successfully created PR for Ansible Collection update"
+              echo "Successfully created PR for Ansible Collection update: $PR_URL"
+
+              # Auto-merge only when the changelog has no GitHub references
+              # (e.g. "GH-2177"). Those usually point at issues/PRs a human
+              # should review, so leave such PRs open. Only the changelog
+              # entries added by this update are inspected.
+              CHANGELOG_FILE="$COLLECTION_DIR/CHANGELOG.md"
+              if git show HEAD -- "$CHANGELOG_FILE" | grep -E '^\+' | grep -qE 'GH-[0-9]+'; then
+                echo "::notice::Changelog contains GitHub references (GH-...); leaving PR open for manual review"
+              else
+                echo "No GitHub references in changelog; auto-merging PR"
+                gh pr merge "$PR_URL" --squash --delete-branch \
+                  || echo "::warning::auto-merge failed (checks/permissions?); PR left open"
+              fi
           else
               echo "No meaningful changes detected for Ansible Collection"
               # Clean up the branch if no changes
