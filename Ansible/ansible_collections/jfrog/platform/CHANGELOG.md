@@ -1,6 +1,9 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [11.5.7] - July 06, 2026
+* Update dependency xray version to 3.143.30
+
 ## [11.5.6] - June 29, 2026
 * Update dependency artifactory version to 7.146.22
 * Fixed sensitive data exposure in Ansible roles - added `no_log: true` to tasks handling secrets
