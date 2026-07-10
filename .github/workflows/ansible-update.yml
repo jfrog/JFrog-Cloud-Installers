@@ -10,11 +10,6 @@ on:
         required: false
         default: false
         type: boolean
-      create_release:
-        description: 'Create GitHub release for updated ansible collection (optional)'
-        required: false
-        default: false
-        type: boolean
 
 jobs:
   check-ansible-update:
@@ -57,7 +52,12 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Update and Create PR for collection 
+      - name: Install yq
+        run: |
+          sudo curl -sL https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -o /usr/bin/yq
+          sudo chmod +x /usr/bin/yq
+
+      - name: Update and Create PR for collection
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ARTIFACTORY_URL: "https://releases.jfrog.io/artifactory/ansible/collections/jfrog/platform/"
@@ -165,14 +165,27 @@ jobs:
             echo "Only whitespace changes detected, skipping commit"
             git reset HEAD "$COLLECTION_DIR"
           elif git commit -m "[ansible] JFrog Platform ${VERSION} release"; then
-              # Create and push tag
-              RAW_TAG="ansible-platform-${VERSION}"
-              TAG="${RAW_TAG//\//-}"
-              git tag "$TAG"
-              
-              # Push branch and tag
+              # Push the update branch
               git push origin "$BRANCH"
-              git push origin "$TAG"
+
+              # Generate full release notes (changelog delta, dependency
+              # version summary, official docs links) from releases.jfrog.io
+              # (the collection itself) and charts.jfrog.io (artifactory,
+              # xray, distribution).
+              TAG="ansible-platform-${VERSION}"
+              NOTES_FILE="$(mktemp)"
+              chmod +x .github/workflows/generate_ansible_release_notes.sh
+              .github/workflows/generate_ansible_release_notes.sh \
+                "$VERSION" "${{ needs.check-ansible-update.outputs.current-version }}" > "$NOTES_FILE"
+
+              # Create the GitHub release; this creates the tag at the
+              # branch commit. No standalone tag is pushed separately.
+              gh release create "$TAG" \
+                --target "$BRANCH" \
+                --title "[ansible] JFrog Platform ${VERSION}" \
+                --notes-file "$NOTES_FILE" \
+                || echo "::warning::Release for $TAG may already exist"
+              rm -f "$NOTES_FILE"
 
               # Create PR with detailed information
               TITLE="[ansible] JFrog Platform ${VERSION} release"
@@ -215,20 +228,3 @@ jobs:
 
           # Return to default branch
           git checkout "${{ github.event.repository.default_branch }}"
-
-
-      - name: Create GitHub Releases (if enabled)
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        if: ${{ inputs.create_release == 'true' }}
-        run: |
-          VERSION="${{ needs.check-ansible-update.outputs.latest-version }}"
-          TAG="platform-${VERSION}"
-          
-          gh release create "$TAG" \
-            --title "JFrog Platform Ansible Collection ${VERSION}" \
-            --notes "Release for JFrog Platform Ansible Collection ${VERSION}
-            
-            Changes in this release:
-            ${needs.check-ansible-update.outputs.update-summary}" \
-            || echo "Release already exists"
