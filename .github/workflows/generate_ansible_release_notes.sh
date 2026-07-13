@@ -45,13 +45,14 @@ capitalize() {
     echo "$1" | awk '{print toupper(substr($0,1,1)) substr($0,2)}'
 }
 
-# "Full changelog" link straight to the PR carrying this update, e.g.
+# "Full Changelog" line straight to the PR carrying this update, e.g.
 # https://github.com/jfrog/JFrog-Cloud-Installers/pull/512/files — the PR is
 # the actual reviewable unit of change, so this links there rather than to a
-# generic tag compare view. Appended inline to the Changelog heading line.
-full_changelog_link_text() {
+# generic tag compare view. Printed at the very end of the notes.
+emit_full_changelog_line() {
     local pr_number="$1"
-    printf '<sub>Full changes refer [here](https://github.com/%s/pull/%s/files)</sub>' "$GITHUB_REPO" "$pr_number"
+    echo ""
+    printf 'Full Changelog: https://github.com/%s/pull/%s/files\n' "$GITHUB_REPO" "$pr_number"
 }
 
 # ---------------------------------------------------------------------------
@@ -243,7 +244,7 @@ printf '| **Collection Version** | `%s` | `%s` | :arrows_counterclockwise: Updat
 echo ""
 
 if [[ -n "$OLD_VERSION" ]]; then
-    echo "## Changelog (\`$OLD_VERSION\` → \`$NEW_VERSION\`) $(full_changelog_link_text "$PR_NUMBER")"
+    echo "## Changelog (\`$OLD_VERSION\` → \`$NEW_VERSION\`)"
 else
     echo "## Changelog"
 fi
@@ -289,6 +290,7 @@ echo ""
 
 if [[ "${#CHANGED_ROLES[@]}" -eq 0 ]]; then
     echo "_No dependency version changes detected._"
+    emit_full_changelog_line "$PR_NUMBER"
     exit 0
 fi
 
@@ -303,3 +305,5 @@ for role in "${CHANGED_ROLES[@]}"; do
     echo "Updated from \`$old_v\` to \`$new_v\`."
     echo ""
 done
+
+emit_full_changelog_line "$PR_NUMBER"
