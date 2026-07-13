@@ -314,7 +314,7 @@ fi
 echo ""
 
 if [[ -z "$OLD_VERSION" ]]; then
-    echo "## Dependency Changes"
+    echo "## Collection Changes"
     echo ""
     echo "_No previous collection version found — unable to compute dependency diffs._"
     exit 0
@@ -322,11 +322,11 @@ fi
 
 OLD_COLLECTION_DIR=$(fetch_collection "$OLD_VERSION")
 
-# ---- dependency version summary ----
-echo "## Dependency Version Summary"
+# ---- collection version summary ----
+echo "## Collection Version Summary"
 echo ""
-echo "| Dependency | Previous | New | Status |"
-echo "|------------|----------|-----|--------|"
+echo "| Role | Previous | New | Status |"
+echo "|------|----------|-----|--------|"
 
 declare -a CHANGED_ROLES=()
 for role in "${ROLES[@]}"; do
@@ -341,7 +341,7 @@ for role in "${ROLES[@]}"; do
 done
 echo ""
 
-echo "## Dependency Changes"
+echo "## Collection Changes"
 echo ""
 
 if [[ "${#CHANGED_ROLES[@]}" -eq 0 ]]; then
