@@ -51,7 +51,7 @@ capitalize() {
 # generic tag compare view. Appended inline to the Changelog heading line.
 full_changelog_link_text() {
     local pr_number="$1"
-    printf 'Full changelog [here](https://github.com/%s/pull/%s/files)' "$GITHUB_REPO" "$pr_number"
+    printf '<sub>Full changes refer [here](https://github.com/%s/pull/%s/files)</sub>' "$GITHUB_REPO" "$pr_number"
 }
 
 # ---------------------------------------------------------------------------
@@ -299,5 +299,7 @@ for role in "${CHANGED_ROLES[@]}"; do
     echo "---"
     echo ""
     echo "### $(capitalize "$role") (\`$old_v\` → \`$new_v\`)$(release_notes_suffix "$role" "$new_v")"
+    echo ""
+    echo "Updated from \`$old_v\` to \`$new_v\`."
     echo ""
 done
