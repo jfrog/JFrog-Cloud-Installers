@@ -302,8 +302,6 @@ for role in "${CHANGED_ROLES[@]}"; do
     echo ""
     echo "### $(capitalize "$role") (\`$old_v\` → \`$new_v\`)$(release_notes_suffix "$role" "$new_v")"
     echo ""
-    echo "Updated from \`$old_v\` to \`$new_v\`."
-    echo ""
 done
 
 emit_full_changelog_line "$PR_NUMBER"
