@@ -1,4 +1,4 @@
-# JFrog Platform Ansible Collection.
+# JFrog Platform Ansible Collection
 
 This Ansible directory consists of the following directories that support the JFrog Platform collection.
 
