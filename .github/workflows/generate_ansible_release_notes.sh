@@ -38,12 +38,23 @@ set -euo pipefail
 COLLECTION_INDEX_URL="https://releases.jfrog.io/artifactory/ansible/collections/jfrog/platform/"
 HELM_INDEX_URL="https://charts.jfrog.io/index.yaml"
 ROLES=(artifactory xray distribution)
+GITHUB_REPO="jfrog/JFrog-Cloud-Installers"
+TAG_PREFIX="ansible-platform-"
 
 NEW_VERSION="${1:?Usage: $0 NEW_VERSION [OLD_VERSION]}"
 OLD_VERSION="${2:-}"
 
 capitalize() {
     echo "$1" | awk '{print toupper(substr($0,1,1)) substr($0,2)}'
+}
+
+# GitHub's standard "Full Changelog: tag...tag" compare link, e.g. the one
+# auto-generated on https://github.com/jfrog/frogbot/releases.
+emit_full_changelog_link() {
+    local old_version="$1" new_version="$2"
+    echo ""
+    printf '**Full Changelog**: https://github.com/%s/compare/%s%s...%s%s\n' \
+        "$GITHUB_REPO" "$TAG_PREFIX" "$old_version" "$TAG_PREFIX" "$new_version"
 }
 
 # ---------------------------------------------------------------------------
@@ -346,6 +357,7 @@ echo ""
 
 if [[ "${#CHANGED_ROLES[@]}" -eq 0 ]]; then
     echo "_No dependency version changes detected._"
+    emit_full_changelog_link "$OLD_VERSION" "$NEW_VERSION"
     exit 0
 fi
 
@@ -367,3 +379,5 @@ for role in "${CHANGED_ROLES[@]}"; do
     echo "</details>"
     echo ""
 done
+
+emit_full_changelog_link "$OLD_VERSION" "$NEW_VERSION"
