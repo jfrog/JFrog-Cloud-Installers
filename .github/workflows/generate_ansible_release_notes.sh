@@ -2,21 +2,15 @@
 # generate_ansible_release_notes.sh
 #
 # Generates structured GitHub Release notes for the JFrog Platform Ansible
-# Collection, in the same style as charts-internal/charts'
-# generate_release_notes.sh for Helm charts.
+# Collection.
 #
-# releases.jfrog.io is the single source of truth for both the collection
-# itself and its dependencies:
-#   - https://releases.jfrog.io/artifactory/ansible/collections/jfrog/platform/
-#     lists every published collection version and its .tar.gz, which
-#     contains the collection's own CHANGELOG.md and each role's
-#     defaults/main.yml (where artifactory_version/xray_version/
-#     distribution_version are pinned).
-#   - https://charts.jfrog.io (the Helm repo) is used for each dependency's
-#     changelog and official docs link, by deterministically mapping the
-#     pinned app version to its matching Helm chart version — the chart
-#     major is always the app major + 100 (e.g. artifactory_version
-#     7.146.22 -> chart 107.146.22), which is what's published there.
+# releases.jfrog.io is the single source of truth:
+# https://releases.jfrog.io/artifactory/ansible/collections/jfrog/platform/
+# lists every published collection version and its .tar.gz, which contains
+# the collection's own CHANGELOG.md and each role's defaults/main.yml (where
+# artifactory_version/xray_version/distribution_version are pinned). Each
+# role's official release notes are linked from docs.jfrog.com using its
+# pinned app version.
 #
 # Nothing is read from git history/tags — this repo's checkout is not
 # consulted at all.
@@ -40,7 +34,6 @@
 set -euo pipefail
 
 COLLECTION_INDEX_URL="https://releases.jfrog.io/artifactory/ansible/collections/jfrog/platform/"
-HELM_INDEX_URL="https://charts.jfrog.io/index.yaml"
 ROLES=(artifactory xray distribution)
 GITHUB_REPO="jfrog/JFrog-Cloud-Installers"
 
@@ -52,31 +45,21 @@ capitalize() {
     echo "$1" | awk '{print toupper(substr($0,1,1)) substr($0,2)}'
 }
 
-# "Full Changelog" link straight to the PR carrying this update, e.g.
+# "Full changelog" link straight to the PR carrying this update, e.g.
 # https://github.com/jfrog/JFrog-Cloud-Installers/pull/512/files — the PR is
 # the actual reviewable unit of change, so this links there rather than to a
-# generic tag compare view.
-emit_full_changelog_link() {
+# generic tag compare view. Appended inline to the Changelog heading line.
+full_changelog_link_text() {
     local pr_number="$1"
-    echo ""
-    printf '**Full Changelog**: https://github.com/%s/pull/%s/files\n' "$GITHUB_REPO" "$pr_number"
+    printf 'Full changelog [here](https://github.com/%s/pull/%s/files)' "$GITHUB_REPO" "$pr_number"
 }
 
 # ---------------------------------------------------------------------------
-# Working files (downloaded archives, changelogs, Helm index), cleaned up on
-# exit
+# Working files (downloaded archives, changelogs), cleaned up on exit
 # ---------------------------------------------------------------------------
 
 WORK_DIR="$(mktemp -d)"
-HELM_INDEX_FILE="${WORK_DIR}/helm-index.yaml"
 trap 'rm -rf "$WORK_DIR"' EXIT
-
-download_helm_index() {
-    if ! curl -sSL --max-time 120 "$HELM_INDEX_URL" -o "$HELM_INDEX_FILE"; then
-        echo "::error::Failed to download ${HELM_INDEX_URL}" >&2
-        exit 1
-    fi
-}
 
 # ---------------------------------------------------------------------------
 # Version comparison using sort -V
@@ -84,14 +67,6 @@ download_helm_index() {
 
 version_gt() {
     [[ "$1" != "$2" ]] && [[ "$(printf '%s\n%s' "$1" "$2" | sort -V | tail -1)" == "$1" ]]
-}
-
-# The matching Helm chart version for an app version pinned by an Ansible
-# role: chart major is app major + 100 (e.g. 7.146.22 -> 107.146.22).
-app_to_chart_version() {
-    local av="$1"
-    local major="${av%%.*}" rest="${av#*.}"
-    echo "$(( major + 100 )).${rest}"
 }
 
 # ---------------------------------------------------------------------------
@@ -150,48 +125,14 @@ role_version_in_collection() {
 }
 
 # ---------------------------------------------------------------------------
-# charts.jfrog.io (Helm) index.yaml lookups — for dependency changelogs/links
-# ---------------------------------------------------------------------------
-
-idx_tgz_url() {
-    local url
-    url=$(yq ".entries[\"$1\"][] | select(.version == \"$2\") | .urls[0]" "$HELM_INDEX_FILE" 2>/dev/null || true)
-    [[ "$url" == "null" ]] && url=""
-    echo "$url"
-}
-
-# Download a Helm chart version's .tgz and extract its CHANGELOG.md. Prints
-# the path to the extracted file (cached per chart+version), or empty if
-# unavailable.
-fetch_chart_changelog() {
-    local chart="$1" version="$2"
-    local out="${WORK_DIR}/${chart}-${version}-CHANGELOG.md"
-    [[ -f "$out" ]] && { echo "$out"; return; }
-
-    local url; url=$(idx_tgz_url "$chart" "$version")
-    [[ -z "$url" ]] && { echo ""; return; }
-
-    local tgz="${WORK_DIR}/${chart}-${version}.tgz"
-    if curl -sSL --max-time 120 "$url" -o "$tgz" 2>/dev/null; then
-        if tar -xzf "$tgz" -C "$WORK_DIR" "${chart}/CHANGELOG.md" 2>/dev/null; then
-            mv "${WORK_DIR}/${chart}/CHANGELOG.md" "$out"
-            rmdir "${WORK_DIR}/${chart}" 2>/dev/null || true
-        fi
-        rm -f "$tgz"
-    fi
-
-    [[ -f "$out" ]] && echo "$out" || echo ""
-}
-
-# ---------------------------------------------------------------------------
 # Official JFrog docs release-notes links
 # ---------------------------------------------------------------------------
 
 docs_release_url() {
-    local chart="$1" app_version="$2"
+    local product="$1" app_version="$2"
     local compact="${app_version//./}"
     local base="https://docs.jfrog.com/releases/docs"
-    case "$chart" in
+    case "$product" in
         artifactory)
             echo "${base}/artifactory-self-managed-releases#artifactory-${compact}-self-managed" ;;
         xray)
@@ -204,17 +145,16 @@ docs_release_url() {
 }
 
 release_notes_suffix() {
-    local chart="$1" app_version="$2" url
-    url=$(docs_release_url "$chart" "$app_version")
+    local product="$1" app_version="$2" url
+    url=$(docs_release_url "$product" "$app_version")
     [[ -z "$url" ]] && { echo ""; return; }
     printf '%s<sub>📖 Official release notes: [%s %s](%s)</sub>' \
         "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" \
-        "$chart" "$app_version" "$url"
+        "$product" "$app_version" "$url"
 }
 
 # ---------------------------------------------------------------------------
-# CHANGELOG parsing (shared by both the collection's own changelog and each
-# dependency's Helm chart changelog)
+# CHANGELOG parsing for the collection's own CHANGELOG.md
 # ---------------------------------------------------------------------------
 
 extract_changelog_section() {
@@ -233,9 +173,8 @@ extract_changelog_section() {
     ' "$file"
 }
 
-# Core true-delta algorithm shared by the collection changelog and each
-# dependency's Helm changelog: lines in NEW not present anywhere in OLD, with
-# a fallback (only surfacing genuinely different content) when the only
+# Core true-delta algorithm: lines in NEW not present anywhere in OLD, with a
+# fallback (only surfacing genuinely different content) when the only
 # difference is the version header itself.
 diff_changelog_content() {
     local old_file="$1" new_file="$2" old_version="$3" new_version="$4"
@@ -269,16 +208,6 @@ diff_changelog_content() {
     printf '%s\n' "$raw" | sed 's/^#\{1,\}[[:space:]]*\(\[.*\)/**\1**/'
 }
 
-# Changelog delta for a Helm chart dependency (artifactory/xray/distribution),
-# sourced from charts.jfrog.io.
-dependency_changelog_delta() {
-    local chart="$1" old_chart_version="$2" new_chart_version="$3"
-    local old_file new_file
-    old_file=$(fetch_chart_changelog "$chart" "$old_chart_version")
-    new_file=$(fetch_chart_changelog "$chart" "$new_chart_version")
-    diff_changelog_content "$old_file" "$new_file" "$old_chart_version" "$new_chart_version"
-}
-
 # Changelog delta for the collection's own CHANGELOG.md, sourced from
 # releases.jfrog.io.
 collection_changelog_delta() {
@@ -300,8 +229,6 @@ if [[ -z "$OLD_VERSION" ]]; then
     OLD_VERSION=$(resolve_prev_version "$NEW_VERSION")
 fi
 
-download_helm_index
-
 NEW_COLLECTION_DIR=$(fetch_collection "$NEW_VERSION")
 if [[ -z "$NEW_COLLECTION_DIR" ]]; then
     echo "::error::Collection version ${NEW_VERSION} not found on ${COLLECTION_INDEX_URL}" >&2
@@ -316,7 +243,7 @@ printf '| **Collection Version** | `%s` | `%s` | :arrows_counterclockwise: Updat
 echo ""
 
 if [[ -n "$OLD_VERSION" ]]; then
-    echo "## Changelog (\`$OLD_VERSION\` → \`$NEW_VERSION\`)"
+    echo "## Changelog (\`$OLD_VERSION\` → \`$NEW_VERSION\`) $(full_changelog_link_text "$PR_NUMBER")"
 else
     echo "## Changelog"
 fi
@@ -362,27 +289,15 @@ echo ""
 
 if [[ "${#CHANGED_ROLES[@]}" -eq 0 ]]; then
     echo "_No dependency version changes detected._"
-    emit_full_changelog_link "$PR_NUMBER"
     exit 0
 fi
 
 for role in "${CHANGED_ROLES[@]}"; do
     old_v=$(role_version_in_collection "$OLD_COLLECTION_DIR" "$role")
     new_v=$(role_version_in_collection "$NEW_COLLECTION_DIR" "$role")
-    old_chart_v=$(app_to_chart_version "$old_v")
-    new_chart_v=$(app_to_chart_version "$new_v")
 
     echo "---"
     echo ""
     echo "### $(capitalize "$role") (\`$old_v\` → \`$new_v\`)$(release_notes_suffix "$role" "$new_v")"
     echo ""
-    echo "<details open>"
-    echo "<summary><b>Changelog</b></summary>"
-    echo ""
-    dependency_changelog_delta "$role" "$old_chart_v" "$new_chart_v"
-    echo ""
-    echo "</details>"
-    echo ""
 done
-
-emit_full_changelog_link "$PR_NUMBER"

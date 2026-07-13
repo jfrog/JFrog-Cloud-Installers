@@ -194,7 +194,8 @@ jobs:
               # Generate full release notes (changelog delta, dependency
               # version summary, official docs links, Full Changelog link to
               # this PR's diff) from releases.jfrog.io (the collection
-              # itself) and charts.jfrog.io (artifactory, xray, distribution).
+              # itself) artifactory, xray,
+              # distribution).
               TAG="ansible-platform-${VERSION}"
               NOTES_FILE="$(mktemp)"
               chmod +x .github/workflows/generate_ansible_release_notes.sh
