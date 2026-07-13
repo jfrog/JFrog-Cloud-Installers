@@ -168,33 +168,16 @@ jobs:
               # Push the update branch
               git push origin "$BRANCH"
 
-              # Generate full release notes (changelog delta, dependency
-              # version summary, official docs links) from releases.jfrog.io
-              # (the collection itself) and charts.jfrog.io (artifactory,
-              # xray, distribution).
-              TAG="ansible-platform-${VERSION}"
-              NOTES_FILE="$(mktemp)"
-              chmod +x .github/workflows/generate_ansible_release_notes.sh
-              .github/workflows/generate_ansible_release_notes.sh \
-                "$VERSION" "${{ needs.check-ansible-update.outputs.current-version }}" > "$NOTES_FILE"
-
-              # Create the GitHub release; this creates the tag at the
-              # branch commit. No standalone tag is pushed separately.
-              gh release create "$TAG" \
-                --target "$BRANCH" \
-                --title "[ansible] JFrog Platform ${VERSION}" \
-                --notes-file "$NOTES_FILE" \
-                || echo "::warning::Release for $TAG may already exist"
-              rm -f "$NOTES_FILE"
-
-              # Create PR with detailed information
+              # Create PR with detailed information. Created before the
+              # release so its number can be linked from the release notes'
+              # "Full Changelog" line.
               TITLE="[ansible] JFrog Platform ${VERSION} release"
               BODY="## Ansible Collection Update Details
 
               🔄 Updating JFrog Platform Ansible Collection
               - Version: ${VERSION}
               - Previous Version: ${{ needs.check-ansible-update.outputs.current-version }}
-                            
+
               This is an automated update by the JFrog Ansible Collection update workflow."
 
               PR_URL=$(gh pr create \
@@ -204,8 +187,28 @@ jobs:
                 --head "$BRANCH" \
                 --label "automated" \
                 --label "ansible")
+              PR_NUMBER="${PR_URL##*/}"
 
               echo "Successfully created PR for Ansible Collection update: $PR_URL"
+
+              # Generate full release notes (changelog delta, dependency
+              # version summary, official docs links, Full Changelog link to
+              # this PR's diff) from releases.jfrog.io (the collection
+              # itself) and charts.jfrog.io (artifactory, xray, distribution).
+              TAG="ansible-platform-${VERSION}"
+              NOTES_FILE="$(mktemp)"
+              chmod +x .github/workflows/generate_ansible_release_notes.sh
+              .github/workflows/generate_ansible_release_notes.sh \
+                "$VERSION" "${{ needs.check-ansible-update.outputs.current-version }}" "$PR_NUMBER" > "$NOTES_FILE"
+
+              # Create the GitHub release; this creates the tag at the
+              # branch commit. No standalone tag is pushed separately.
+              gh release create "$TAG" \
+                --target "$BRANCH" \
+                --title "[ansible] JFrog Platform ${VERSION}" \
+                --notes-file "$NOTES_FILE" \
+                || echo "::warning::Release for $TAG may already exist"
+              rm -f "$NOTES_FILE"
 
               # Auto-merge only when the changelog has no GitHub references
               # (e.g. "GH-2177"). Those usually point at issues/PRs a human

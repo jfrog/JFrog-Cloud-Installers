@@ -22,13 +22,17 @@
 # consulted at all.
 #
 # Usage:
-#   ./generate_ansible_release_notes.sh NEW_VERSION [OLD_VERSION]
+#   ./generate_ansible_release_notes.sh NEW_VERSION [OLD_VERSION] PR_NUMBER
 #
 # Arguments:
 #   NEW_VERSION - Collection version being released (e.g. "11.5.7")
 #   OLD_VERSION - Previous collection version to diff against. If omitted,
 #                 resolved as the greatest published version strictly less
 #                 than NEW_VERSION.
+#   PR_NUMBER   - The pull request carrying this update. The workflow always
+#                 creates this PR before generating release notes, so its
+#                 number is available here; the "Full Changelog" line links
+#                 straight to that PR's /files diff.
 #
 # Requirements: curl, tar, yq, sort -V, awk, sed, grep
 # Compatible with bash 3.2+ (macOS default) and bash 4+/5+ (Linux/CI)
@@ -39,22 +43,23 @@ COLLECTION_INDEX_URL="https://releases.jfrog.io/artifactory/ansible/collections/
 HELM_INDEX_URL="https://charts.jfrog.io/index.yaml"
 ROLES=(artifactory xray distribution)
 GITHUB_REPO="jfrog/JFrog-Cloud-Installers"
-TAG_PREFIX="ansible-platform-"
 
-NEW_VERSION="${1:?Usage: $0 NEW_VERSION [OLD_VERSION]}"
+NEW_VERSION="${1:?Usage: $0 NEW_VERSION [OLD_VERSION] PR_NUMBER}"
 OLD_VERSION="${2:-}"
+PR_NUMBER="${3:?Usage: $0 NEW_VERSION [OLD_VERSION] PR_NUMBER}"
 
 capitalize() {
     echo "$1" | awk '{print toupper(substr($0,1,1)) substr($0,2)}'
 }
 
-# GitHub's standard "Full Changelog: tag...tag" compare link, e.g. the one
-# auto-generated on https://github.com/jfrog/frogbot/releases.
+# "Full Changelog" link straight to the PR carrying this update, e.g.
+# https://github.com/jfrog/JFrog-Cloud-Installers/pull/512/files — the PR is
+# the actual reviewable unit of change, so this links there rather than to a
+# generic tag compare view.
 emit_full_changelog_link() {
-    local old_version="$1" new_version="$2"
+    local pr_number="$1"
     echo ""
-    printf '**Full Changelog**: https://github.com/%s/compare/%s%s...%s%s\n' \
-        "$GITHUB_REPO" "$TAG_PREFIX" "$old_version" "$TAG_PREFIX" "$new_version"
+    printf '**Full Changelog**: https://github.com/%s/pull/%s/files\n' "$GITHUB_REPO" "$pr_number"
 }
 
 # ---------------------------------------------------------------------------
@@ -357,7 +362,7 @@ echo ""
 
 if [[ "${#CHANGED_ROLES[@]}" -eq 0 ]]; then
     echo "_No dependency version changes detected._"
-    emit_full_changelog_link "$OLD_VERSION" "$NEW_VERSION"
+    emit_full_changelog_link "$PR_NUMBER"
     exit 0
 fi
 
@@ -380,4 +385,4 @@ for role in "${CHANGED_ROLES[@]}"; do
     echo ""
 done
 
-emit_full_changelog_link "$OLD_VERSION" "$NEW_VERSION"
+emit_full_changelog_link "$PR_NUMBER"
