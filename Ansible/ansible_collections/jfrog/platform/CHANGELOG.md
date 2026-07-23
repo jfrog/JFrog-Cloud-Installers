@@ -35,6 +35,7 @@ All changes to this collection will be documented in this file.
 ## [11.5.3] - May 19, 2026
 * Update dependency artifactory version to 7.146.12
 * Update dependency xray version to 3.143.16
+* Artifactory NGINX - Added `artifactory_nginx_proxy_max_temp_file_size` to configure `proxy_max_temp_file_size` [GH-445](https://github.com/jfrog/JFrog-Cloud-Installers/issues/445)
 
 ## [11.5.2] - May 13, 2026
 * Update dependency artifactory version to 7.146.10
