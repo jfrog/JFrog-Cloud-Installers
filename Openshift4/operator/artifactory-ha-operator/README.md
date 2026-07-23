@@ -1,8 +1,8 @@
 # JFrog Artifactory Enterprise Operator
 
-This code base is intended to deploy Artifactory HA as an operator to an Openshift4 cluster. You can run the operator either through the operator-sdk, operator.yaml, or the Operatorhub.
+This code base is intended to deploy Artifactory HA as an operator to an OpenShift4 cluster. You can run the operator either through the operator-sdk, operator.yaml, or the Operatorhub.
 
-Openshift OperatorHub has the latest official supported Cluster Service Version (CSV) for the OLM catalog.
+OpenShift OperatorHub has the latest official supported Cluster Service Version (CSV) for the OLM catalog.
 
 
 ## Security Context Constraints
@@ -19,15 +19,15 @@ These instructions will get you a copy of the project up and running on your loc
 
 ## Prerequisites
 
-###### Openshift 4 Cluster
+###### OpenShift 4 Cluster
 
 Available on AWS, GCP, or Azure. Follow the Cloud installer guide available here:
 
-[Openshift 4 Installers](https://cloud.redhat.com/openshift/install)
+[OpenShift 4 Installers](https://cloud.redhat.com/openshift/install)
 
 Or run it locally using CodeReadyContainers.
 
-[Code Ready Container Installer](https://cloud.redhat.com/openshift/install/crc/installer-provisioned)
+[Code Ready Containers Installer](https://cloud.redhat.com/openshift/install/crc/installer-provisioned)
 
 Note if you are going to use CodeReadyContainers to test this Operator you will need to ensure:
 
@@ -35,16 +35,16 @@ Note if you are going to use CodeReadyContainers to test this Operator you will 
  - create at least one Persistent volume of 200Gi per Artifactory node used in HA configuration
 ```
 
-###### Openshift 4 Command Line Tools
+###### OpenShift 4 Command Line Tools
 
-Download and install the Openshift command line tool: oc
+Download and install the OpenShift command line tool: oc
 
 [Getting Started with CLI](https://docs.openshift.com/container-platform/4.2/cli_reference/openshift_cli/getting-started-cli.html)
 
 ## Cluster Setup
 ###### Security Context Constraints - Anyuid
 
-Openshift only allows statefulsets / pods to run in specific user and group id ranges.
+OpenShift only allows statefulsets / pods to run in specific user and group id ranges.
 Artifactory currently uses users outside of this allowed range.
 For this reason the service account for the operator in the jfrog-artifactory namespace must be granted anyuid privileges.
 
@@ -70,13 +70,13 @@ oc patch scc privileged --patch  '{"users":["system:admin","system:serviceaccoun
 
 Artifactory HA nodes by default request persistent volume claims 200 Gbs in size. 
 
-If your cluster does not already have existing persistent volumes that are 200Gi you will need to create new persistent volumes that are large enough to bound the claims to.
+If your cluster does not already have existing persistent volumes that are 200Gi you will need to create new persistent volumes that are large enough to bind the claims to.
 
 ## Installation types
 ###### OLM Catalog
-To install via the OLM catalog download the operator from the Operator hub and install it via the Openshift console GUI
+To install via the OLM catalog download the operator from the Operator hub and install it via the OpenShift console GUI
 
-To test OLM catalog installs you will need to deploy the lastest ClusterServiceVersion found at:
+To test OLM catalog installs you will need to deploy the latest ClusterServiceVersion found at:
 
 ```
 deploy/olm-catalog/artifactory-ha-operator/X.X.X/artifactory-ha-operator.vX.X.X.clusterserviceversion.yaml
@@ -99,11 +99,11 @@ This will deploy the operator into the cluster.
 
 ## Local Testing
 
-Please refer to cluster setup. Ensure all steps have been completed prior to local testing against code ready containers.
+Please refer to cluster setup. Ensure all steps have been completed prior to local testing against Code Ready Containers.
 
 Follow these steps:
 
-Install code ready containers if you do not already have it installed.
+Install Code Ready Containers if you do not already have it installed.
 
 Run your cluster with 2 cpus and 8192 MBs of memory at a minimum to support HA:
 
@@ -120,7 +120,7 @@ crc start -c 4 -m 16384
 Create file: 
 
 ```
-JFrog-Cloud-Installers/Openshift4/artifactory.cluster.license
+JFrog-Cloud-Installers/OpenShift4/artifactory.cluster.license
 ```
 
 Paste your license keys into this file for HA configuration of multiple nodes.
@@ -130,7 +130,7 @@ Paste your license keys into this file for HA configuration of multiple nodes.
 Run: 
 
 ```
-JFrog-Cloud-Installers/Openshift4/artifactory-ha-operator/setup.sh
+JFrog-Cloud-Installers/OpenShift4/artifactory-ha-operator/setup.sh
 ```
 
 ###### Operator-sdk local
@@ -138,12 +138,12 @@ JFrog-Cloud-Installers/Openshift4/artifactory-ha-operator/setup.sh
 Run: 
 
 ```
-cd JFrog-Cloud-Installers/Openshift4/artifactory-ha-operator
+cd JFrog-Cloud-Installers/OpenShift4/artifactory-ha-operator
 operator-sdk up local
 ```
 
 ## Contributing
-Please read [CONTRIBUTING.md](JFrog-Cloud-Installers/Openshift4/artifactory-ha-operator/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
+Please read [CONTRIBUTING.md](JFrog-Cloud-Installers/OpenShift4/artifactory-ha-operator/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
 ## Versioning
 We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/jfrog/JFrog-Cloud-Installers/tags).
