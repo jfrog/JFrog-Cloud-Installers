@@ -1,0 +1,15 @@
+# Debian < 13 / Ubuntu: previous apt_key behavior.
+- name: Import nginx signing key
+  become: true
+  ansible.builtin.apt_key:
+    url: "{{ nginx_upstream_repo_key }}"
+    state: present
+
+- name: Add nginx repo
+  become: true
+  ansible.builtin.copy:
+    dest: /etc/apt/sources.list.d/nginx.list
+    owner: root
+    group: root
+    mode: '0644'
+    content: deb {{ nginx_upstream_repo_baseurl }}/{{ ansible_distribution | lower }}/ {{ ansible_distribution_release }} nginx

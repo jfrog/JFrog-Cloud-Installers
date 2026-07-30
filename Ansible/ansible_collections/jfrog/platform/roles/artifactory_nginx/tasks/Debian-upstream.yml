@@ -1,20 +1,13 @@
-- name: Import nginx signing key
-  become: true
-  ansible.builtin.apt_key:
-    url: https://nginx.org/keys/nginx_signing.key
-    state: present
-
-- name: Add nginx repo
-  become: true
-  ansible.builtin.copy:
-    dest: /etc/apt/sources.list.d/nginx.list
-    owner: root
-    group: root
-    mode: '0644'
-    content: deb {{ nginx_upstream_repo_baseurl }}/{{ ansible_distribution | lower }}/ {{ ansible_distribution_release }} nginx
+# Debian 13+: apt-key is removed — use trusted.gpg.d.
+# Debian < 13 / Ubuntu: keep apt_key (previous behavior).
+# Only one of these two includes runs.
+- name: Configure nginx apt repository
+  ansible.builtin.include_tasks: "{{ nginx_debian_repo_tasks_file }}"
   vars:
-    distro_family: "{{ ansible_distribution | lower }}"
-    distro_codename: "{{ ansible_distribution_release }}"
+    nginx_debian_repo_tasks_file: >-
+      {{ 'Debian-upstream-keyring.yml'
+         if (ansible_distribution == 'Debian' and ansible_distribution_major_version | int >= 13)
+         else 'Debian-upstream-aptkey.yml' }}
 
 - name: Update apt cache
   become: true

@@ -1,0 +1,17 @@
+# Debian 13+: apt-key is removed. Place the signing key where apt trusts it.
+- name: Import nginx signing key
+  become: true
+  ansible.builtin.get_url:
+    url: "{{ nginx_upstream_repo_key }}"
+    dest: /etc/apt/trusted.gpg.d/nginx.asc
+    mode: "0644"
+    force: true
+
+- name: Add nginx repo
+  become: true
+  ansible.builtin.copy:
+    dest: /etc/apt/sources.list.d/nginx.list
+    owner: root
+    group: root
+    mode: '0644'
+    content: deb {{ nginx_upstream_repo_baseurl }}/{{ ansible_distribution | lower }}/ {{ ansible_distribution_release }} nginx

@@ -140,9 +140,10 @@ ansible-galaxy collection build
 The JFrog Platform Ansible Collection can be installed on the following operating systems:
 
 * Ubuntu LTS versions (20.04/22.04)
-* Centos/RHEL 8.x/9.x
-* Debian 11.x
+* Centos/RHEL 8.x/9.x; RHEL 10.x (except Xray)
+* Debian 11.x; Debian 13.x (except Xray)
 * Amazon Linux 3
+* SLES 15
 
 ## Note
 

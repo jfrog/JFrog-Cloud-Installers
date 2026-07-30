@@ -102,6 +102,7 @@ postgresql_external_pid_file: "{{ default_postgresql_external_pid_file }}"
 
 postgres_apt_key_id: "{{ default_postgres_apt_key_id }}"
 postgres_apt_key_url: "{{ default_postgres_apt_key_url }}"
+postgres_apt_keyring_path: "{{ default_postgres_apt_keyring_path }}"
 postgres_apt_repository_repo: "{{ default_postgres_apt_repository_repo }}"
 
 # This variable allows you to override the default PostgreSQL YUM repository

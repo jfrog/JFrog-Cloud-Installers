@@ -1,7 +1,7 @@
 - name: Install prerequisite packages
   become: true
   ansible.builtin.apt:
-    name: ['acl', 'apt-transport-https', 'locales', 'python3-psycopg2']
+    name: ['acl', 'apt-transport-https', 'ca-certificates', 'locales', 'python3-psycopg2']
     state: present
     update_cache: true
 
@@ -11,27 +11,16 @@
     name: en_US.UTF-8
     state: present
 
-- name: Import PostgreSQL repository key
-  become: true
-  ansible.builtin.apt_key:
-    url: "{{ postgres_apt_key_url }}"
-    id: "{{ postgres_apt_key_id }}"
-    state: present
-  register: download_postgresql_key
-  until: download_postgresql_key is success
-  retries: 3
-  delay: 3
-
-- name: Register PostgreSQL repository
-  become: true
-  ansible.builtin.apt_repository:
-    repo: "{{ postgres_apt_repository_repo }}"
-    state: present
-    filename: pgdg
-  register: download_postgresql_repo
-  until: download_postgresql_repo is success
-  retries: 3
-  delay: 3
+# Debian 13+: apt-key/gpg are absent — use /etc/apt/keyrings + sources.list copy.
+# Debian < 13 / Ubuntu: keep apt_key + apt_repository (previous behavior).
+# Only one include runs.
+- name: Configure PostgreSQL apt repository
+  ansible.builtin.include_tasks: "{{ postgres_debian_repo_tasks_file }}"
+  vars:
+    postgres_debian_repo_tasks_file: >-
+      {{ 'Debian-repo-keyring.yml'
+         if (ansible_distribution == 'Debian' and ansible_distribution_major_version | int >= 13)
+         else 'Debian-repo-aptkey.yml' }}
 
 - name: Install postgres packages
   become: true

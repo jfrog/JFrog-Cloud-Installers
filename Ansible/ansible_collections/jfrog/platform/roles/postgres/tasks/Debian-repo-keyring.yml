@@ -1,0 +1,30 @@
+# Debian 13+: apt-key and gpg are not available. Place the ASCII-armored PGDG key in
+# /etc/apt/keyrings and write the sources list with signed-by (do not use apt_repository).
+- name: Ensure apt keyrings directory exists
+  become: true
+  ansible.builtin.file:
+    path: "{{ postgres_apt_keyring_path | dirname }}"
+    state: directory
+    mode: "0755"
+
+- name: Import PostgreSQL repository key
+  become: true
+  ansible.builtin.get_url:
+    url: "{{ postgres_apt_key_url }}"
+    dest: "{{ postgres_apt_keyring_path }}"
+    mode: "0644"
+    force: true
+  register: download_postgresql_key
+  until: download_postgresql_key is success
+  retries: 3
+  delay: 3
+
+- name: Register PostgreSQL repository
+  become: true
+  ansible.builtin.copy:
+    dest: /etc/apt/sources.list.d/pgdg.list
+    owner: root
+    group: root
+    mode: "0644"
+    content: "{{ postgres_apt_repository_repo }}\n"
+  register: download_postgresql_repo

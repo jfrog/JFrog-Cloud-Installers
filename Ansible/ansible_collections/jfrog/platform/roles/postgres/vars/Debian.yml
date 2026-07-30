@@ -6,9 +6,12 @@ default_postgresql_external_pid_file: /var/run/postgresql/{{ postgres_version }}
 
 default_postgres_apt_key_id: '0x7FCC7D46ACCC4CF8'
 default_postgres_apt_key_url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+# Third-party keyring path (Debian 13+ / systems without apt-key). Prefer /etc/apt/keyrings
+# over trusted.gpg.d so trust is scoped via signed-by on the repo line.
+default_postgres_apt_keyring_path: /etc/apt/keyrings/pgdg.asc
 default_postgres_apt_repository_repo: >-
     {%- if ansible_distribution_release in ['bionic', 'focal'] -%}
-        deb https://apt-archive.postgresql.org/pub/repos/apt {{ ansible_distribution_release }}-pgdg main
+        deb [signed-by={{ postgres_apt_keyring_path }}] https://apt-archive.postgresql.org/pub/repos/apt {{ ansible_distribution_release }}-pgdg main
     {%- else -%}
-        deb https://apt.postgresql.org/pub/repos/apt/ {{ ansible_distribution_release }}-pgdg main
+        deb [signed-by={{ postgres_apt_keyring_path }}] https://apt.postgresql.org/pub/repos/apt/ {{ ansible_distribution_release }}-pgdg main
     {%- endif -%}

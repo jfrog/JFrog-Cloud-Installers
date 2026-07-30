@@ -1,6 +1,13 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [11.6.0] - July 29, 2026
+* Added SLES 15 (SUSE), RHEL 10 and Debian 13 (trixie) support
+* artifactory_nginx: fix `Check required variables` for ansible-core 2.19+ strict-boolean conditionals without requiring `ALLOW_BROKEN_CONDITIONALS`
+* Update dependency artifactory version to 7.161.15
+* Update dependency xray version to 3.150.17
+* Update dependency distribution version to 2.52.2
+
 ## [11.5.13] - July 29, 2026
 * Update dependency xray version to 3.143.34
 
@@ -8,20 +15,18 @@ All changes to this collection will be documented in this file.
 * Update dependency artifactory version to 7.146.34
 
 ## [11.5.11] - July 22, 2026
-* Update dependency artifactory chart version to 107.146.29
+* Update dependency artifactory version to 7.146.29
 
 ## [11.5.10] - July 21, 2026
-* Update dependency artifactory chart version to 107.146.28
-* Update dependency xray chart version to 103.143.31
-* Update dependency catalog chart version to 101.42.1
+* Update dependency artifactory version to 7.146.28
+* Update dependency xray version to 3.143.31
 
 ## [11.5.9] - July 16, 2026
-* Update dependency artifactory chart version to 107.146.27
-* Update dependency catalog chart version to 101.40.4
+* Update dependency artifactory version to 7.146.27
 
 ## [11.5.8] - July 11, 2026
-* Update dependency artifactory chart version to 107.146.25
-* Update dependency distribution chart version to 102.52.2
+* Update dependency artifactory version to 7.146.25
+* Update dependency distribution version to 2.52.2
 
 ## [11.5.7] - July 06, 2026
 * Update dependency xray version to 3.143.30
