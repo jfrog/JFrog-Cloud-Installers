@@ -1,0 +1,42 @@
+# Debian < 13 / Ubuntu: previous apt_key + apt_repository behavior.
+# Also place the keyring file so the shared repo line's signed-by= path resolves.
+- name: Ensure apt keyrings directory exists
+  become: true
+  ansible.builtin.file:
+    path: "{{ postgres_apt_keyring_path | dirname }}"
+    state: directory
+    mode: "0755"
+
+- name: Download PostgreSQL repository keyring
+  become: true
+  ansible.builtin.get_url:
+    url: "{{ postgres_apt_key_url }}"
+    dest: "{{ postgres_apt_keyring_path }}"
+    mode: "0644"
+    force: true
+  register: download_postgresql_keyring
+  until: download_postgresql_keyring is success
+  retries: 3
+  delay: 3
+
+- name: Import PostgreSQL repository key
+  become: true
+  ansible.builtin.apt_key:
+    url: "{{ postgres_apt_key_url }}"
+    id: "{{ postgres_apt_key_id }}"
+    state: present
+  register: download_postgresql_key
+  until: download_postgresql_key is success
+  retries: 3
+  delay: 3
+
+- name: Register PostgreSQL repository
+  become: true
+  ansible.builtin.apt_repository:
+    repo: "{{ postgres_apt_repository_repo }}"
+    state: present
+    filename: pgdg
+  register: download_postgresql_repo
+  until: download_postgresql_repo is success
+  retries: 3
+  delay: 3

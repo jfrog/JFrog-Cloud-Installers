@@ -1,0 +1,8 @@
+---
+# SUSE (SLE 15) prerequisites for Artifactory — the zypper analogue of tasks/RedHat.yml.
+- name: Install prerequisite packages
+  become: true
+  ansible.builtin.package:
+    name:
+      - net-tools
+    state: present

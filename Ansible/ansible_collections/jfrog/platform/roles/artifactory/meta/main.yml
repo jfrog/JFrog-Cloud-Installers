@@ -13,6 +13,7 @@ galaxy_info:
       versions:
         - 8
         - 9
+        - 10
     - name: Ubuntu
       versions:
         - focal
@@ -23,9 +24,13 @@ galaxy_info:
         - buster
         - bullseye
         - bookworm
+        - trixie
     - name: Amazon
       versions:
         - 3
+    - name: SLES
+      versions:
+        - '15'
   galaxy_tags:
     - artifactory
     - jfrog

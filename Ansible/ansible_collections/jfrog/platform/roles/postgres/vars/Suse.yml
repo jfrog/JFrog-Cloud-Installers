@@ -1,0 +1,18 @@
+---
+# SUSE (SLE 15) PostgreSQL layout.
+#
+# The PostgreSQL Global Development Group (PGDG) publishes a zypp repository for SLES whose
+# packages use the SAME on-disk layout as the RHEL PGDG builds (/usr/pgsql-<ver>/bin,
+# /var/lib/pgsql/<ver>/data, postgresql-<ver>.service). So these paths match vars/RedHat.yml;
+# only the package source differs (a zypp repo + the SLES GPG key instead of the yum repo RPM).
+default_postgresql_bin_path: /usr/pgsql-{{ postgres_version }}/bin
+default_postgresql_config_path: /var/lib/pgsql/{{ postgres_version }}/data
+default_postgresql_data_dir: /var/lib/pgsql/{{ postgres_version }}/data
+default_postgresql_daemon: postgresql-{{ postgres_version }}.service
+default_postgresql_external_pid_file: /var/run/postgresql/{{ postgres_version }}-main.pid
+
+# PGDG SLES signing key (per SLE major version), and the PGDG zypp repository base URL.
+default_postgres_rpmkey_url: >-
+  https://download.postgresql.org/pub/repos/zypp/keys/PGDG-RPM-GPG-KEY-SLES{{ ansible_distribution_major_version }}
+default_postgres_zypp_repository_repo: >-
+  https://download.postgresql.org/pub/repos/zypp/{{ postgres_version }}/suse/sles-{{ ansible_distribution_major_version }}-{{ ansible_architecture }}

@@ -1,9 +1,13 @@
 - name: Check required variables
   ansible.builtin.fail: msg="Variable '{{ item }}' is not defined, empty, or contains only placeholder text"
-  when: 
-    - (vars[item] is not defined) or (vars[item] | string | trim | length == 0) or (vars[item] | trim | regex_search('^#'))
-    - artifactory_nginx_ssl_enabled is defined
-    - artifactory_nginx_ssl_enabled | bool
+  # ansible-core 2.19 requires `when` to evaluate to a strict boolean and deprecates the
+  # internal `vars` dict. `regex_search` returns the match or None (not a bool), so the old
+  # expression could resolve to None -> "Conditional result ... derived from NoneType". Use the
+  # `vars` lookup (default '' also covers undefined) and make every operand boolean.
+  when:
+    - artifactory_nginx_ssl_enabled | default(false) | bool
+    - (lookup('vars', item, default='') | string | trim | length == 0)
+      or ((lookup('vars', item, default='') | string | trim | regex_search('^#')) is not none)
   loop:
     - ssl_certificate
     - ssl_certificate_key

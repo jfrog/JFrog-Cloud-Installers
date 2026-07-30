@@ -13,14 +13,14 @@
   ansible.builtin.yum:
     name: python3-psycopg2
     state: present
-  when: ansible_facts['distribution_major_version'] | int in [8, 9]
+  when: ansible_facts['distribution_major_version'] | int in [8, 9, 10]
 
 - name: Install python2-psycopg2
   become: true
   ansible.builtin.yum:
     name: python-psycopg2
     state: present
-  when: ansible_facts['distribution_major_version'] | int  == 7
+  when: ansible_facts['distribution_major_version'] | int == 7
 
 - name: Fixup some locale issues
   become: true
@@ -34,6 +34,11 @@
     - LANG=en_us.UTF-8
     - LANGUAGE=en_us.UTF-8
 
+# EL < 10: import with rpm_key (previous behavior).
+# EL 10+: ansible.builtin.rpm_key fails on OpenPGP v6 system keys (ansible/ansible#86246).
+# Skip the separate import and install the PGDG repo RPM with disable_gpg_check; that
+# package ships the signing key for later package installs (same approach as skipping
+# rpm_key rather than shelling out to rpm --import).
 - name: Import PostgreSQL GPG public key
   become: true
   ansible.builtin.rpm_key:
@@ -43,12 +48,14 @@
   until: download_postgresql_key is success
   retries: 3
   delay: 3
+  when: ansible_facts['distribution_major_version'] | int < 10
 
 - name: Install PostgreSQL repository
   become: true
   ansible.builtin.yum:
     name: "{{ postgres_yum_repository_repo }}"
     state: present
+    disable_gpg_check: "{{ ansible_facts['distribution_major_version'] | int >= 10 }}"
   register: download_postgresql_repo
   until: download_postgresql_repo is success
   retries: 3
@@ -69,7 +76,7 @@
       state=disabled
   when:
     - ansible_facts['os_family'] == 'RedHat'
-    - ansible_facts['distribution_major_version'] | int in [8, 9]
+    - ansible_facts['distribution_major_version'] | int in [8, 9, 10]
 
 - name: Install PostgreSQL packages
   become: true

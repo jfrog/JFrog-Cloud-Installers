@@ -1,0 +1,22 @@
+- name: Import nginx signing key
+  become: true
+  ansible.builtin.rpm_key:
+    key: "{{ nginx_upstream_repo_key }}"
+    state: present
+
+- name: Add nginx repo
+  become: true
+  community.general.zypper_repository:
+    name: nginx
+    description: nginx repo
+    # nginx.org ships a SLES zypp repo whose repodata lives at <baseurl>/sles/<major>
+    # (RPMs under sles/<major>/<arch>/RPMS). The generic "Install nginx" package task then
+    # pulls nginx from here — the SLES analogue of Debian-upstream.yml.
+    repo: "{{ nginx_upstream_repo_baseurl }}/sles/{{ ansible_distribution_major_version }}"
+    state: present
+    auto_import_keys: true
+    runrefresh: true
+  register: add_nginx_repo
+  retries: 5
+  delay: 60
+  until: add_nginx_repo is succeeded

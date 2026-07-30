@@ -1,0 +1,61 @@
+---
+# SUSE (SLE 15) PostgreSQL install — the zypper analogue of tasks/RedHat.yml. PostgreSQL comes
+# from the PGDG zypp repository (see vars/Suse.yml), which provides the same versions and layout
+# as PGDG RHEL. python3-psycopg2 (required by the postgresql_* modules) is in the SUSE repos.
+- name: Install prerequisite packages
+  become: true
+  ansible.builtin.package:
+    name:
+      - acl
+      - sudo
+      - wget
+      - perl
+      - python3-psycopg2
+    state: present
+
+- name: Fixup some locale issues
+  become: true
+  ansible.builtin.lineinfile:
+    dest: /etc/locale.conf
+    line: "{{ item }}"
+    state: present
+    create: true
+    mode: 0644
+  loop:
+    - LANG=en_us.UTF-8
+    - LANGUAGE=en_us.UTF-8
+
+- name: Import PostgreSQL GPG public key
+  become: true
+  ansible.builtin.rpm_key:
+    key: "{{ postgres_rpmkey_url }}"
+    state: present
+  register: download_postgresql_key
+  until: download_postgresql_key is success
+  retries: 3
+  delay: 3
+
+- name: Install PostgreSQL PGDG zypp repository
+  become: true
+  community.general.zypper_repository:
+    name: "pgdg-{{ postgres_version }}"
+    repo: "{{ default_postgres_zypp_repository_repo }}"
+    state: present
+    auto_import_keys: true
+    runrefresh: true
+  register: download_postgresql_repo
+  until: download_postgresql_repo is success
+  retries: 3
+  delay: 3
+
+- name: Install PostgreSQL packages
+  become: true
+  ansible.builtin.package:
+    name:
+      - postgresql{{ postgres_server_pkg_version }}-server
+      - postgresql{{ postgres_server_pkg_version }}-contrib
+    state: present
+  register: download_postgresql
+  until: download_postgresql is success
+  retries: 3
+  delay: 3

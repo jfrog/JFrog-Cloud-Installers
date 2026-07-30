@@ -1,8 +1,21 @@
+# EL < 10: import with rpm_key (previous behavior).
+# EL 10+: ansible.builtin.rpm_key fails on OpenPGP v6 system keys (ansible/ansible#86246).
+# Download the key and reference it via file:// so dnf/rpm imports it on first use
+# (librpm), without ansible.builtin.command or rpm_key.
 - name: Import nginx signing key
   become: true
   ansible.builtin.rpm_key:
     key: "{{ nginx_upstream_repo_key }}"
     state: present
+  when: ansible_facts['distribution_major_version'] | int < 10
+
+- name: Download nginx signing key
+  become: true
+  ansible.builtin.get_url:
+    url: "{{ nginx_upstream_repo_key }}"
+    dest: /etc/pki/rpm-gpg/nginx_signing.key
+    mode: "0644"
+  when: ansible_facts['distribution_major_version'] | int >= 10
 
 - name: Add nginx repo
   become: true
@@ -17,7 +30,7 @@
         baseurl={{ nginx_upstream_repo_baseurl }}/{{ (ansible_distribution == 'Amazon') | ternary('amzn','centos') }}/$releasever/$basearch/
         gpgcheck=1
         enabled=1
-        gpgkey="{{ nginx_upstream_repo_key }}"
+        gpgkey={{ (ansible_facts['distribution_major_version'] | int >= 10) | ternary('file:///etc/pki/rpm-gpg/nginx_signing.key', nginx_upstream_repo_key) }}
         module_hotfixes=1
 
 - name: Update yum cache
