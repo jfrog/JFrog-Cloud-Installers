@@ -93,14 +93,15 @@
     mode: 0644
   notify: Restart distribution
 
-- name: Update distribution permissions
+- name: Ensure files ownership are correct
   become: true
-  ansible.builtin.file:
-    path: "{{ distribution_home }}"
-    state: directory
-    recurse: true
-    owner: "{{ distribution_user }}"
-    group: "{{ distribution_group }}"
+  ansible.builtin.command:
+    cmd: >-
+      find "{{ distribution_home }}" -xdev
+      ( ! -user "{{ distribution_user }}" -o ! -group "{{ distribution_group }}" )
+      -print -exec chown -h "{{ distribution_user }}:{{ distribution_group }}" {} +
+  register: distribution_ownerships
+  changed_when: distribution_ownerships.stdout | length > 0
 
 - name: Allow using crontab
   ansible.builtin.lineinfile:
