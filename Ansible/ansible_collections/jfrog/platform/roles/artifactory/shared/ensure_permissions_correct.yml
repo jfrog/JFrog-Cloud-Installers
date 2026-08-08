@@ -1,12 +1,9 @@
-- name: Ensure permissions are correct
+- name: Ensure files ownership are correct
   become: true
-  block:
-    - name: Ensure user ownership
-      ansible.builtin.command: find {{ jfrog_home_directory }} ! -user {{ artifactory_user }} -print -exec chown {{ artifactory_user }} {} \;
-      register: user_ownerships
-      changed_when: user_ownerships.stdout_lines | length > 0
-
-    - name: Ensure group ownership
-      ansible.builtin.command: find {{ jfrog_home_directory }} ! -group {{ artifactory_group }} -print -exec chgrp {{ artifactory_group }} {} \;
-      register: group_ownerships
-      changed_when: user_ownerships.stdout_lines | length > 0
+  ansible.builtin.command:
+    cmd: >-
+      find "{{ jfrog_home_directory }}" -xdev
+      ( ! -user "{{ artifactory_user }}" -o ! -group "{{ artifactory_group }}" )
+      -print -exec chown -h "{{ artifactory_user }}:{{ artifactory_group }}" {} +
+  register: artifactory_ownerships
+  changed_when: artifactory_ownerships.stdout | length > 0
