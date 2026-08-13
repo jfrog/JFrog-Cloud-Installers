@@ -165,13 +165,7 @@
   notify: Restart xray
 
 - name: Ensure permissions are correct
-  become: true
-  ansible.builtin.file:
-    path: "{{ jfrog_home_directory }}"
-    state: directory
-    owner: "{{ xray_user }}"
-    group: "{{ xray_group }}"
-    recurse: true
+  ansible.builtin.include_tasks: shared/ensure_permissions_correct.yml
 
 - name: Install xray as a service
   become: true

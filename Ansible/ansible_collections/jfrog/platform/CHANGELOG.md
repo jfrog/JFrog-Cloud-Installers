@@ -1,6 +1,12 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [11.6.1] - August 13, 2026
+* Update dependency artifactory version to 7.161.16
+* Update dependency xray version to 3.150.23
+* Update dependency distribution version to 2.52.16
+* Artifactory/Xray/Distribution - Fix files ownership tasks to only chown paths with wrong owner/group [GH-527](https://github.com/jfrog/JFrog-Cloud-Installers/pull/527)
+
 ## [11.6.0] - July 29, 2026
 * Added SLES 15 (SUSE), RHEL 10 and Debian 13 (trixie) support
 * artifactory_nginx: fix `Check required variables` for ansible-core 2.19+ strict-boolean conditionals without requiring `ALLOW_BROKEN_CONDITIONALS`

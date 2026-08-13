@@ -82,7 +82,7 @@ mtls_ca_certificate_crt: |
 mtls_ca_certificate_key: |
 
 
-## Step: 2 - Arifactory Changes
+## Step: 2 - Artifactory Changes
 
 ### Enable mTLS Configuration
 Under `artifactory_access_config_patch`, add the configuration in the following location to enable mTLS:
