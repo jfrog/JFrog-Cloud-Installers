@@ -148,14 +148,8 @@
     mode: 0644
   notify: Restart distribution
 
-- name: Update distribution permissions
-  become: true
-  ansible.builtin.file:
-    path: "{{ distribution_home }}"
-    state: directory
-    recurse: true
-    owner: "{{ distribution_user }}"
-    group: "{{ distribution_group }}"
+- name: Ensure permissions are correct
+  ansible.builtin.include_tasks: shared/ensure_permissions_correct.yml
 
 - name: Install Distribution as a service
   become: true

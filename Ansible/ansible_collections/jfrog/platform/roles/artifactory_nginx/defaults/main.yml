@@ -1,7 +1,7 @@
 # defaults file for artifactory_nginx
 
 ## For production deployments,You SHOULD change it.
-server_name: arifactory.example.com
+server_name: artifactory.example.com
 
 nginx_daemon: nginx
 
