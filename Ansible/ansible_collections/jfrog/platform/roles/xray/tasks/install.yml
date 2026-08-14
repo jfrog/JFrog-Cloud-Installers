@@ -164,15 +164,8 @@
     - xray_systemyaml_override or (not systemyaml.stat.exists) or (xray_install_flag is succeeded )
   notify: Restart xray
 
-- name: Ensure files ownership are correct
-  become: true
-  ansible.builtin.command:
-    cmd: >-
-      find "{{ xray_home }}" -xdev
-      ( ! -user "{{ xray_user }}" -o ! -group "{{ xray_group }}" )
-      -print -exec chown -h "{{ xray_user }}:{{ xray_group }}" {} +
-  register: xray_ownerships
-  changed_when: xray_ownerships.stdout | length > 0
+- name: Ensure permissions are correct
+  ansible.builtin.include_tasks: shared/ensure_permissions_correct.yml
 
 - name: Install xray as a service
   become: true
