@@ -95,7 +95,7 @@
 
 - name: Ensure permissions are correct
   ansible.builtin.include_tasks: shared/ensure_permissions_correct.yml
-
+  
 - name: Allow using crontab
   ansible.builtin.lineinfile:
     path: /etc/cron.allow
