@@ -1,6 +1,11 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [11.6.2] - August 26, 2026
+* Update dependency artifactory version to 7.161.19
+* Update dependency xray version to 3.150.33
+* Artifactory/Xray/Distribution - Fix `$JFROG_HOME` being left owned by `root` after install/upgrade
+
 ## [11.6.1] - August 13, 2026
 * Update dependency artifactory version to 7.161.16
 * Update dependency xray version to 3.150.23
