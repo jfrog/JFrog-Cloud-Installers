@@ -2,7 +2,7 @@
   become: true
   ansible.builtin.command:
     cmd: >-
-      find "{{ xray_home }}" -xdev
+      find "{{ jfrog_home_directory }}" -xdev
       ( ! -user "{{ xray_user }}" -o ! -group "{{ xray_group }}" )
       -print -exec chown -h "{{ xray_user }}:{{ xray_group }}" {} +
   register: xray_ownerships
