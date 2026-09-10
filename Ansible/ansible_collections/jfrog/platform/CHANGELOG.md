@@ -1,6 +1,11 @@
 # JFrog Platform Ansible Collection Changelog
 All changes to this collection will be documented in this file.
 
+## [11.6.4] - September 10, 2026
+* **IMPORTANT:** This collection from 11.6.4 version does not ship default `join_key` / `master_key` values. Passing both is **mandatory** on install and upgrade (`MISSING MANDATORY KEYS`, `MISSING JOIN_KEY`, `MISSING MASTER_KEY`). The former published sample `join_key` fails with `INSECURE JOIN_KEY IS NOT ALLOWED`. Set keys in `group_vars`, or pass `--extra-vars` (see [Manage Keys](https://docs.jfrog.com/installation/docs/manage-keys)).
+* Update dependency artifactory version to 7.161.26
+* Update dependency xray version to 3.150.36
+
 ## [11.6.3] - August 28, 2026
 * Update dependency artifactory version to 7.161.20
 

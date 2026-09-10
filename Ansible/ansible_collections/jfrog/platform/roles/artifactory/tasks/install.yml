@@ -243,8 +243,8 @@
     status_code: 200
   register: result
   until: result is succeeded
-  retries: 25
-  delay: 5
+  retries: "{{ artifactory_health_retries }}"
+  delay: "{{ artifactory_health_delay }}"
   when:
     - not ansible_check_mode
     - artifactory_start_service | bool

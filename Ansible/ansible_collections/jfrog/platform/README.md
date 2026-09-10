@@ -43,13 +43,11 @@ ansible-galaxy collection install community.postgresql community.general ansible
  5. Then execute with the following command to provision the JFrog Platform with Ansible.
 
 ```bash
-ansible-playbook -vv platform.yml -i hosts.ini
+ansible-playbook -vv platform.yml -i hosts.ini --extra-vars "master_key=$MASTER_KEY_VALUE join_key=$JOIN_KEY_VALUE"
 ```
 
 ## Generating Master and Join Keys
-**Note** : If you don't provide these keys, they will be set to defaults (check groupvars/all/vars.yaml file)
-For production deployments,You may want to generate your master and join keys and apply it to all the nodes.
-**IMPORTANT** : Save below generated master and join keys for future upgrades
+This collection from **11.6.4** version does not ship default `join_key` / `master_key` values. Passing both is **mandatory** on install and upgrade. Install and upgrade fail unless both are set (`MISSING MANDATORY KEYS`, `MISSING JOIN_KEY`, or `MISSING MASTER_KEY`). The former published sample `join_key` fails with `INSECURE JOIN_KEY IS NOT ALLOWED`. Set keys in `group_vars`, or pass `--extra-vars`. Save the keys for future upgrades. See [Manage Keys](https://docs.jfrog.com/installation/docs/manage-keys).
 
 ```bash
 MASTER_KEY_VALUE=$(openssl rand -hex 32)

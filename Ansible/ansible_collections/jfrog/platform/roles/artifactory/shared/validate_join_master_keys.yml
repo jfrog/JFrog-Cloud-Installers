@@ -1,0 +1,98 @@
+---
+# join_key and master_key are mandatory on install and upgrade. Empty values
+# fail. The former published sample join_key is never accepted.
+# fail_msg is a list so the default callback prints one line per item
+# (a single string is JSON-escaped as \n and is unreadable).
+
+- name: Evaluate join_key and master_key
+  ansible.builtin.set_fact:
+    jfrog_key_fail: >-
+      {%- set j = join_key | default('', true) | trim -%}
+      {%- set m = master_key | default('', true) | trim -%}
+      {%- set insecure = (j == '83da88eaaa08dfed5b86888fcec85f19ace0c3ff8747bcefcec2c9769ad4043d') -%}
+      {%- set j_ok = (j | length > 0) and (not insecure) -%}
+      {%- set m_ok = m | length > 0 -%}
+      {{- 'insecure_join' if insecure else ('none' if j_ok and m_ok else ('master' if j_ok else ('join' if m_ok else 'both'))) -}}
+  no_log: true
+
+- name: Fail when join_key or master_key is invalid
+  ansible.builtin.assert:
+    that:
+      - false
+    quiet: true
+    fail_msg: "{{ _msgs[jfrog_key_fail] }}"
+  when: jfrog_key_fail != 'none'
+  vars:
+    _bar: "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    _msgs:
+      insecure_join:
+        - "{{ _bar }}"
+        - " ERROR: INSECURE JOIN_KEY IS NOT ALLOWED"
+        - "{{ _bar }}"
+        - "join_key is the former published sample and is not allowed."
+        - ""
+        - "Generate a unique join key:"
+        - "  export JOIN_KEY=$(openssl rand -hex 32)"
+        - ""
+        - "Set it in group_vars, or pass --extra-vars:"
+        - "  group_vars/all/vars.yml  →  join_key: \"<value>\""
+        - "  --extra-vars \"join_key=$JOIN_KEY\""
+        - ""
+        - "See https://docs.jfrog.com/installation/docs/manage-keys"
+        - "{{ _bar }}"
+      master:
+        - "{{ _bar }}"
+        - " ERROR: MISSING MASTER_KEY"
+        - "{{ _bar }}"
+        - "join_key is already provided; you still need master_key."
+        - ""
+        - "Install — generate a master key:"
+        - "  export MASTER_KEY=$(openssl rand -hex 32)"
+        - ""
+        - "Upgrade — keep the existing file (do not generate a new master key):"
+        - "  $JFROG_HOME/<product>/var/etc/security/master.key"
+        - ""
+        - "Set master_key in group_vars, or pass it with --extra-vars:"
+        - "  group_vars/all/vars.yml  →  master_key: \"<value>\""
+        - "  --extra-vars \"master_key=$MASTER_KEY\""
+        - ""
+        - "See https://docs.jfrog.com/installation/docs/manage-keys"
+        - "{{ _bar }}"
+      join:
+        - "{{ _bar }}"
+        - " ERROR: MISSING JOIN_KEY"
+        - "{{ _bar }}"
+        - "master_key is already provided; you still need join_key."
+        - ""
+        - "Install — generate a join key:"
+        - "  export JOIN_KEY=$(openssl rand -hex 32)"
+        - ""
+        - "Upgrade — pass a unique join_key (join keys can be replaced), or copy it"
+        - "from the UI: Administration -> Security -> General -> Connection Details."
+        - ""
+        - "Set join_key in group_vars, or pass it with --extra-vars:"
+        - "  group_vars/all/vars.yml  →  join_key: \"<value>\""
+        - "  --extra-vars \"join_key=$JOIN_KEY\""
+        - ""
+        - "See https://docs.jfrog.com/installation/docs/manage-keys"
+        - "{{ _bar }}"
+      both:
+        - "{{ _bar }}"
+        - " ERROR: MISSING MANDATORY KEYS"
+        - "{{ _bar }}"
+        - "join_key and master_key are required for install and upgrade."
+        - ""
+        - "Install — generate both:"
+        - "  export MASTER_KEY=$(openssl rand -hex 32)"
+        - "  export JOIN_KEY=$(openssl rand -hex 32)"
+        - ""
+        - "Upgrade — pass a unique join_key; keep the existing master.key:"
+        - "  $JFROG_HOME/<product>/var/etc/security/master.key"
+        - "Do not generate a new master_key."
+        - ""
+        - "Set master_key and join_key in group_vars, or pass them with --extra-vars:"
+        - "  group_vars/all/vars.yml  →  master_key / join_key"
+        - "  --extra-vars \"master_key=$MASTER_KEY join_key=$JOIN_KEY\""
+        - ""
+        - "See https://docs.jfrog.com/installation/docs/manage-keys"
+        - "{{ _bar }}"

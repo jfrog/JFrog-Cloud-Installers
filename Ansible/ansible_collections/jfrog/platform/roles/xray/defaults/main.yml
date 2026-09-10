@@ -1,7 +1,7 @@
 # Defaults file for xray
 
 # The version of xray to install
-xray_version: 3.150.33
+xray_version: 3.150.36
 # Whether to enable HA
 xray_ha_enabled: false
 xray_ha_node_type: master
@@ -45,11 +45,22 @@ xray_db_util_search_filter:
   ubuntu22:
     db5: 'db5.3-util.*dfsg.*ubuntu3.*amd64\.deb'
     db: 'db-util.*ubuntu.*all.deb'
+  # Noble changed the db5.3-util Debian revision again. Keep the pattern tied
+  # to the package name/architecture rather than a release-specific revision;
+  # these files come from Xray's own signed bundle, not an arbitrary directory.
+  ubuntu24:
+    db5: 'db5.3-util.*amd64\.deb'
+    db: 'db-util.*ubuntu.*all.deb'
+  # Debian has no bundled db5.3-util, so the 'db5' key is simply absent and the
+  # lookup is skipped. Its 'db' package is arch- and release-independent
+  # (db-util_<ver>+nmu1_all.deb), so every Debian release shares one pattern.
   debian10:
-    db5: 'TBD'
     db: 'db-util_([0-9]{1,3}\.?){3}.*nmu1_all\.deb'
   debian11:
-    db5: 'TBD'
+    db: 'db-util_([0-9]{1,3}\.?){3}.*nmu1_all\.deb'
+  debian12:
+    db: 'db-util_([0-9]{1,3}\.?){3}.*nmu1_all\.deb'
+  debian13:
     db: 'db-util_([0-9]{1,3}\.?){3}.*nmu1_all\.deb'
   redhat7:
     db: 'libdb-utils-5.3.*el7.x86_64.rpm'
@@ -60,13 +71,19 @@ yum_python_interpreter: >-
 
 
 
+
+
       /usr/bin/python3
   {%- elif linux_distro in ['centos7', 'redhat7'] -%}
 
 
 
+
+
       /usr/bin/python
   {%- else -%}
+
+
 
 
 
@@ -101,5 +118,9 @@ xray_systemyaml: |-
 # Note: xray_systemyaml_override is by default false,  if you want to change default xray_systemyaml
 xray_systemyaml_override: false
 xray_start_service: true
+# How long to wait for the router health endpoint after (re)starting the
+# service: xray_health_retries * xray_health_delay seconds.
+xray_health_retries: 25
+xray_health_delay: 5
 # Allow xray user to create crontab rules
 xray_allow_crontab: false

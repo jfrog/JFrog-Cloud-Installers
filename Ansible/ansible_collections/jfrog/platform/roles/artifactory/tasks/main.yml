@@ -1,3 +1,7 @@
+- name: Validate join and master keys
+  ansible.builtin.include_tasks: shared/validate_join_master_keys.yml
+  when: artifactory_enabled | bool
+
 - name: Perform installation
   ansible.builtin.include_tasks: "install.yml"
   when:

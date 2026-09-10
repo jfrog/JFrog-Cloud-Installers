@@ -1,7 +1,7 @@
 # Defaults file for artifactory
 
 # The version of artifactory to install
-artifactory_version: 7.161.20
+artifactory_version: 7.161.26
 # NGINX is enabled by default.
 # To completely disable NGINX (not recommended), set both `artifactory_nginx_enabled` and `artifactory_nginx_ssl_enabled` to false.
 artifactory_nginx_enabled: true
@@ -28,6 +28,14 @@ artifactory_mc_enabled: true
 jfrog_home_directory: /opt/jfrog
 # Whether to start Artifactory
 artifactory_start_service: true
+# Maximum time the service script waits for Tomcat during startup. First boot
+# performs database initialization and can exceed the product's 60-second
+# default, especially on cloud disks.
+artifactory_service_start_timeout: 600
+# How long to wait for the router health endpoint after (re)starting the
+# service: artifactory_health_retries * artifactory_health_delay seconds.
+artifactory_health_retries: 25
+artifactory_health_delay: 5
 artifactory_extra_java_opts: -server -Xms512m -Xmx4g -Xss256k -XX:+UseG1GC
 artifactory_system_yaml_template: system.yaml.j2
 artifactory_tar_file_name: jfrog-artifactory-pro-{{ artifactory_version }}-linux.tar.gz
@@ -62,6 +70,8 @@ artifactory_systemyaml: |-
   shared:
     security:
       joinKey: "{{ join_key }}"
+    script:
+      serviceStartTimeout: {{ artifactory_service_start_timeout }}
     extraJavaOpts: "{{ artifactory_extra_java_opts }}"
     node:
       id: {{ ansible_hostname }}
