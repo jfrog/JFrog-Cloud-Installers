@@ -23,6 +23,7 @@ The artifactory_nginx role installs and Optionally configures nginx for SSL.
 * _nginx_worker_processes_: The worker_processes configuration for nginx. Defaults to 1.
 * _artifactory_docker_registry_subdomain_: Whether to add a redirect directive to the nginx config for the use of docker
   subdomains.
+* _artifactory_nginx_proxy_max_temp_file_size_: Sets the NGINX `proxy_max_temp_file_size` directive in the Artifactory reverse proxy. Defaults to `1024m`; set to `0` to disable the limit.
 
 * _mtls_ca_certificate_install_: `false` - Enable mTLS by updating to `true`
 * _mtls_mtls_ca_certificate_crt_name_: This is the filename of the CA certificate for mTLS
