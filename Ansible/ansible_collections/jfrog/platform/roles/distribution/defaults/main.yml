@@ -12,6 +12,12 @@ distribution_tar_file_name: jfrog-distribution-{{ distribution_version }}-linux.
 distribution_tar: https://releases.jfrog.io/artifactory/jfrog-distribution/distribution-linux/{{ distribution_version }}/{{ distribution_tar_file_name }}
 # Timeout in seconds for URL request
 distribution_download_timeout: 10
+
+# How long to wait for the router health endpoint after (re)starting the
+# service: distribution_health_retries * distribution_health_delay seconds.
+distribution_health_retries: 40
+distribution_health_delay: 10
+
 # The distribution install directory
 distribution_untar_home: "{{ jfrog_home_directory }}/jfrog-distribution-{{ distribution_version }}-linux"
 distribution_home: "{{ jfrog_home_directory }}/distribution"
