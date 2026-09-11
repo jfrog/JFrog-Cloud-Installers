@@ -169,6 +169,6 @@
     status_code: 200
   register: result
   until: result is succeeded
-  retries: 40
-  delay: 10
+  retries: "{{ distribution_health_retries }}"
+  delay: "{{ distribution_health_delay }}"
   when: not ansible_check_mode

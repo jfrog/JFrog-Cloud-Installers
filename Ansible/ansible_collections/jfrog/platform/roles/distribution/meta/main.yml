@@ -16,12 +16,10 @@ galaxy_info:
         - 10
     - name: Ubuntu
       versions:
-        - focal
         - jammy
         - noble
     - name: Debian
       versions:
-        - buster
         - bullseye
         - bookworm
         - trixie
