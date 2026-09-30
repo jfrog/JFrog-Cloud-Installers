@@ -1,4 +1,0 @@
-dependencies:
-  - name: pipelines
-    version: 1.5.4
-    repository: https://charts.jfrog.io/
