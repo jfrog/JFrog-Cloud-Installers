@@ -138,6 +138,18 @@
     - artifactory_binarystore | length > 0
   notify: Restart artifactory
 
+- name: Restrict permissions on secret-bearing directories
+  become: true
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+    mode: "0750"
+  loop:
+    - "{{ artifactory_home }}/var/etc"
+    - "{{ artifactory_home }}/var/etc/security"
+
 - name: Check if system.yaml exists
   become: true
   ansible.builtin.stat:
@@ -149,13 +161,25 @@
   ansible.builtin.template:
     src: "{{ artifactory_system_yaml_template }}"
     dest: "{{ artifactory_home }}/var/etc/system.yaml"
-    mode: 0644
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+    mode: "0640"
   no_log: true
   when:
     - artifactory_systemyaml is defined
     - artifactory_systemyaml | length > 0
     - artifactory_systemyaml_override or (not systemyaml.stat.exists)
   notify: Restart artifactory
+
+- name: Enforce system.yaml permissions
+  become: true
+  ansible.builtin.file:
+    path: "{{ artifactory_home }}/var/etc/system.yaml"
+    owner: "{{ artifactory_user }}"
+    group: "{{ artifactory_group }}"
+    mode: "0640"
+  when: not ansible_check_mode
+  failed_when: false  # file may legitimately not exist when system.yaml is not rendered
 
 - name: Configure access config
   ansible.builtin.include_tasks: shared/access_configuration.yml

@@ -121,6 +121,18 @@
   register: distribution_install_flag
   when: install_wrapper_script.stat.exists
 
+- name: Restrict permissions on secret-bearing directories
+  become: true
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ distribution_user }}"
+    group: "{{ distribution_group }}"
+    mode: "0750"
+  loop:
+    - "{{ distribution_home }}/var/etc"
+    - "{{ distribution_home }}/var/etc/security"
+
 - name: Check if systemyaml exists
   become: true
   ansible.builtin.stat:
@@ -132,13 +144,25 @@
   ansible.builtin.template:
     src: "{{ distribution_system_yaml_template }}"
     dest: "{{ distribution_home }}/var/etc/system.yaml"
-    mode: 0644
+    owner: "{{ distribution_user }}"
+    group: "{{ distribution_group }}"
+    mode: "0640"
   no_log: true
   when:
     - distribution_systemyaml is defined
     - distribution_systemyaml | length > 0
     - distribution_systemyaml_override or (not systemyaml.stat.exists) or (distribution_install_flag is succeeded )
   notify: Restart distribution
+
+- name: Enforce system.yaml permissions
+  become: true
+  ansible.builtin.file:
+    path: "{{ distribution_home }}/var/etc/system.yaml"
+    owner: "{{ distribution_user }}"
+    group: "{{ distribution_group }}"
+    mode: "0640"
+  when: not ansible_check_mode
+  failed_when: false  # file may legitimately not exist when system.yaml is not rendered
 
 - name: Configure installer info
   become: true

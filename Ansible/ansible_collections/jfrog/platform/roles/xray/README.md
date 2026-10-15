@@ -5,6 +5,8 @@ The xray role will install Xray software onto the host. An Artifactory server an
 * _xray_upgrade_only_: Perform an software upgrade only. Default is false.
 
 Additional variables can be found in [defaults/main.yml](./defaults/main.yml).
+
+`system.yaml` and `rabbitmq.conf` are written mode 0640 and owned by the service user. `var/etc` and `var/etc/security` are mode 0750.
 ## Example Playbook
 ```
 ---

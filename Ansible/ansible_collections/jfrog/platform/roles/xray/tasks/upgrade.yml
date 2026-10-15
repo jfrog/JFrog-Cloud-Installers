@@ -83,10 +83,34 @@
   ansible.builtin.template:
     src: "rabbitmq.conf.j2"
     dest: "{{ xray_home }}/app/bin/rabbitmq/rabbitmq.conf"
-    mode: 0644
+    owner: "{{ xray_user }}"
+    group: "{{ xray_group }}"
+    mode: "0640"
   when:
     - download_xray is defined and (download_xray.changed | d(false))
   notify: Restart xray
+
+- name: Enforce rabbitmq.conf permissions
+  become: true
+  ansible.builtin.file:
+    path: "{{ xray_home }}/app/bin/rabbitmq/rabbitmq.conf"
+    owner: "{{ xray_user }}"
+    group: "{{ xray_group }}"
+    mode: "0640"
+  when: not ansible_check_mode
+  failed_when: false  # file may legitimately not exist when the secret file is not rendered
+
+- name: Restrict permissions on secret-bearing directories
+  become: true
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ xray_user }}"
+    group: "{{ xray_group }}"
+    mode: "0750"
+  loop:
+    - "{{ xray_home }}/var/etc"
+    - "{{ xray_home }}/var/etc/security"
 
 - name: Check if systemyaml exists
   become: true
@@ -99,13 +123,25 @@
   ansible.builtin.template:
     src: "{{ xray_system_yaml_template }}"
     dest: "{{ xray_home }}/var/etc/system.yaml"
-    mode: 0644
+    owner: "{{ xray_user }}"
+    group: "{{ xray_group }}"
+    mode: "0640"
   no_log: true
   when:
     - xray_systemyaml is defined
     - xray_systemyaml | length > 0
     - xray_systemyaml_override or (not systemyaml.stat.exists) or (xray_install_flag is succeeded )
   notify: Restart xray
+
+- name: Enforce system.yaml permissions
+  become: true
+  ansible.builtin.file:
+    path: "{{ xray_home }}/var/etc/system.yaml"
+    owner: "{{ xray_user }}"
+    group: "{{ xray_group }}"
+    mode: "0640"
+  when: not ansible_check_mode
+  failed_when: false  # file may legitimately not exist when the secret file is not rendered
 
 - name: Configure installer info
   become: true

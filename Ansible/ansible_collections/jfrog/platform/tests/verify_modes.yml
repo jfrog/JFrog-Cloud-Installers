@@ -1,0 +1,19 @@
+- hosts: artifactory:xray:distribution
+  become: true
+  vars:
+    p: "{{ 'artifactory' if 'artifactory' in group_names else ('xray' if 'xray' in group_names else 'distribution') }}"
+  tasks:
+    - ansible.builtin.stat: { path: "/opt/jfrog/{{ p }}/var/etc/system.yaml" }
+      register: sy
+    - ansible.builtin.stat: { path: "/opt/jfrog/{{ p }}/var/etc" }
+      register: etc
+    - ansible.builtin.assert:
+        that:
+          - not sy.stat.roth and not sy.stat.woth
+          - sy.stat.pw_name == p
+          - not etc.stat.xoth
+    - when: p == 'xray'
+      block:
+        - ansible.builtin.stat: { path: /opt/jfrog/xray/app/bin/rabbitmq/rabbitmq.conf }
+          register: mq
+        - ansible.builtin.assert: { that: [ "not mq.stat.roth", "mq.stat.pw_name == 'xray'" ] }

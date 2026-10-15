@@ -7,6 +7,8 @@ The artifactory role installs the Artifactory Pro software onto the host. Per th
 
 Additional variables can be found in [defaults/main.yml](./defaults/main.yml).
 
+`system.yaml` is written mode 0640 and owned by the service user. `var/etc` and `var/etc/security` are mode 0750.
+
 ## Example Playbook
 ```
 ---

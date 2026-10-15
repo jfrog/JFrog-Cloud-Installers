@@ -5,6 +5,8 @@ The Distribution role will install distribution software onto the host. An Artif
 * _distribution_upgrade_only_: Perform an software upgrade only. Default is false.
 
 Additional variables can be found in [defaults/main.yml](./defaults/main.yml).
+
+`system.yaml` is written mode 0640 and owned by the service user. `var/etc` and `var/etc/security` are mode 0750.
 ## Example Playbook
 ```
 ---
