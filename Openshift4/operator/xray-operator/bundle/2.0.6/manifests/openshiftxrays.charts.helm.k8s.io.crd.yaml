@@ -32,6 +32,72 @@ spec:
                 image:
                   type: string
                 replicas:
+                additionalResources:
+                  type: string
+                  maxLength: 0
+                xray:
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+                  properties:
+                    additionalResources:
+                      type: string
+                      maxLength: 0
+                    rbac:
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                      properties:
+                        role:
+                          type: object
+                          x-kubernetes-preserve-unknown-fields: true
+                          properties:
+                            rules:
+                              type: array
+                              maxItems: 0
+                              items:
+                                type: object
+                                x-kubernetes-preserve-unknown-fields: true
+                    rabbitmq:
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                      properties:
+                        extraDeploy:
+                          type: array
+                          maxItems: 0
+                          items:
+                            type: object
+                            x-kubernetes-preserve-unknown-fields: true
+                        rbac:
+                          type: object
+                          x-kubernetes-preserve-unknown-fields: true
+                          properties:
+                            rules:
+                              type: array
+                              maxItems: 0
+                              items:
+                                type: object
+                                x-kubernetes-preserve-unknown-fields: true
+                        migration:
+                          type: object
+                          x-kubernetes-preserve-unknown-fields: true
+                          properties:
+                            serviceAccount:
+                              type: object
+                              x-kubernetes-preserve-unknown-fields: true
+                              properties:
+                                rbac:
+                                  type: object
+                                  x-kubernetes-preserve-unknown-fields: true
+                                  properties:
+                                    role:
+                                      type: object
+                                      x-kubernetes-preserve-unknown-fields: true
+                                      properties:
+                                        rules:
+                                          type: array
+                                          maxItems: 0
+                                          items:
+                                            type: object
+                                            x-kubernetes-preserve-unknown-fields: true
 status:
   acceptedNames:
     kind: ''
