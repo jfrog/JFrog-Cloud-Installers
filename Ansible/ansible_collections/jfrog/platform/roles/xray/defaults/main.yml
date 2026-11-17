@@ -30,6 +30,8 @@ xray_rabbitmq_user: guest
 xray_rabbitmq_password: guest
 xray_rabbitmq_url: "amqp://localhost:5672/"
 xray_rabbitmq_default_cookie: "XRAY_RABBITMQ_COOKIE"
+xray_rabbitmq_max_log_size: "52428800"
+xray_rabbitmq_max_log_count: "5"
 # if this is an upgrade
 xray_upgrade_only: false
 xray_system_yaml_template: system.yaml.j2
