@@ -7,3 +7,5 @@ cluster_partition_handling = autoheal
 default_user = {{ xray_rabbitmq_user }}
 
 default_pass = {{ xray_rabbitmq_password }}
+log.file.rotation.size = {{ xray_rabbitmq_max_log_size }}
+log.file.rotation.count = {{ xray_rabbitmq_max_log_count }}
