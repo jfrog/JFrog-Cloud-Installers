@@ -9,7 +9,8 @@ distribution_ha_node_type: master
 jfrog_home_directory: /opt/jfrog
 # The remote distribution download file
 distribution_tar_file_name: jfrog-distribution-{{ distribution_version }}-linux.tar.gz
-distribution_tar: https://releases.jfrog.io/artifactory/jfrog-distribution/distribution-linux/{{ distribution_version }}/{{ distribution_tar_file_name }}
+# Set authenticated_release_token to download the archive from the authenticated repository.
+distribution_tar: "{{ distribution_release_url }}/distribution-linux/{{ distribution_version }}/{{ distribution_tar_file_name }}"
 # Timeout in seconds for URL request
 distribution_download_timeout: 10
 

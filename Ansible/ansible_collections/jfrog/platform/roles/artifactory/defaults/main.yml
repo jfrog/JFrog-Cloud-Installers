@@ -40,9 +40,7 @@ artifactory_extra_java_opts: -server -Xms512m -Xmx4g -Xss256k -XX:+UseG1GC
 artifactory_system_yaml_template: system.yaml.j2
 artifactory_tar_file_name: jfrog-artifactory-pro-{{ artifactory_version }}-linux.tar.gz
 artifactory_home: "{{ jfrog_home_directory }}/artifactory"
-# MyJFrog access token for authenticated release downloads
-authenticated_release_token: ""
-jfrog_authenticated_releases_url: https://releases.jfrog.io/artifactory/authenticated-releases
+# Set authenticated_release_token to download the archive from the authenticated repository.
 artifactory_tar: "{{ artifactory_release_url }}/org/artifactory/pro/jfrog-artifactory-pro/{{ artifactory_version }}/{{ artifactory_tar_file_name }}"
 artifactory_untar_home: "{{ jfrog_home_directory }}/artifactory-pro-{{ artifactory_version }}"
 # Timeout in seconds for URL request

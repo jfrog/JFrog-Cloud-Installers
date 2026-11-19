@@ -2,7 +2,7 @@
 All changes to this collection will be documented in this file.
 
 ## [Unreleased]
-* Support authenticated release downloads for Artifactory and Xray installs and upgrades
+* Support authenticated release downloads for Artifactory, Xray, and Distribution installs and upgrades
 
 ## [11.6.5] - September 11, 2026
 * Update dependency artifactory version to 7.161.26

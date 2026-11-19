@@ -10,11 +10,6 @@
 # exclude_paths:
 #   - .cache/
 
-########################
-# Make output parsable #
-########################
-parseable: false
-
 #######################
 # Set output to quiet #
 #######################
