@@ -9,7 +9,11 @@
   ansible.builtin.get_url:
     url: "{{ distribution_tar }}"
     timeout: "{{ distribution_download_timeout }}"
-    dest: "{{ jfrog_home_directory }}"
+    dest: "{{ jfrog_home_directory }}/{{ distribution_tar_file_name }}"
+    headers: "{{ {'Authorization': 'Bearer ' ~ authenticated_release_token} if distribution_download_authenticated else omit }}"
+    unredirected_headers: "{{ ['Authorization'] if distribution_download_authenticated else omit }}"
+    use_netrc: "{{ false if distribution_download_authenticated else omit }}"
+  no_log: "{{ distribution_download_authenticated }}"
   register: download_distribution
   until: download_distribution is succeeded
   retries: 3

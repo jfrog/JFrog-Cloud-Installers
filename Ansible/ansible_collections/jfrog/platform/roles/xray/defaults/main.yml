@@ -9,7 +9,8 @@ xray_ha_node_type: master
 jfrog_home_directory: /opt/jfrog
 # The remote xray download file
 xray_tar_file_name: jfrog-xray-{{ xray_version }}-linux.tar.gz
-xray_tar: https://releases.jfrog.io/artifactory/jfrog-xray/xray-linux/{{ xray_version }}/{{ xray_tar_file_name }}
+# Set authenticated_release_token to download the archive from the authenticated repository.
+xray_tar: "{{ xray_release_url }}/xray-linux/{{ xray_version }}/{{ xray_tar_file_name }}"
 # Timeout in seconds for URL request
 xray_download_timeout: 10
 # The xray install directory

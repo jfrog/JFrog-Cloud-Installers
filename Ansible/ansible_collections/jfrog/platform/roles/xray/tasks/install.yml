@@ -42,7 +42,11 @@
   ansible.builtin.get_url:
     url: "{{ xray_tar }}"
     timeout: "{{ xray_download_timeout }}"
-    dest: "{{ jfrog_home_directory }}"
+    dest: "{{ jfrog_home_directory }}/{{ xray_tar_file_name }}"
+    headers: "{{ {'Authorization': 'Bearer ' ~ authenticated_release_token} if xray_download_authenticated else omit }}"
+    unredirected_headers: "{{ ['Authorization'] if xray_download_authenticated else omit }}"
+    use_netrc: "{{ false if xray_download_authenticated else omit }}"
+  no_log: "{{ xray_download_authenticated }}"
   register: download_xray
   until: download_xray is succeeded
   retries: 3
