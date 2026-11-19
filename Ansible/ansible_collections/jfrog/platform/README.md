@@ -109,6 +109,23 @@ All JFrog product roles support software updates. To use a role to perform a sof
     - xray
 ```
 
+### Authenticated release downloads
+
+For an Artifactory or Xray release that requires authentication, set the product version and provide the MyJFrog access token. This example upgrades Artifactory using a token stored in Ansible Vault.
+
+```yaml
+vars:
+  artifactory_version: "7.161.42"
+  artifactory_upgrade_only: true
+  authenticated_release_token: "{{ vault_jfrog_release_token }}"
+```
+
+For an Xray upgrade, set `xray_version` and `xray_upgrade_only`. For a fresh install, omit the upgrade flag. Authenticated downloads require ansible-core 2.14 or later.
+
+With a token, the roles download from `jfrog_authenticated_releases_url`, which defaults to `https://releases.jfrog.io/artifactory/authenticated-releases`. With an empty token, they use the public product repository.
+
+Set `artifactory_tar` or `xray_tar` to use an exact archive URL. The roles send the token on HTTPS requests whose archive URL starts with the configured repository URL followed by `/`. Redirects omit the token. Override `jfrog_authenticated_releases_url` only for a server you trust with the token.
+
 ## Using External Database
 If an external database for one or more products is to be used, omit the `postgres` role from `platform.yml` and set `postgres_enabled: false` in `group_vars/all/vars.yml`.
 

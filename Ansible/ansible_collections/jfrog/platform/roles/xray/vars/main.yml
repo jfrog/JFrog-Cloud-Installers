@@ -2,3 +2,11 @@
 platform_collection_version: 11.6.5
 # indicates were this collection was downlaoded from (galaxy, automation_hub, standalone)
 ansible_marketplace: galaxy
+
+xray_release_url: >-
+  {{ jfrog_authenticated_releases_url.rstrip('/') if authenticated_release_token
+     else 'https://releases.jfrog.io/artifactory/jfrog-xray' }}
+xray_download_authenticated: >-
+  {{ authenticated_release_token | default('', true) | length > 0 and
+     (xray_tar | urlsplit('scheme')) == 'https' and
+     xray_tar.startswith(jfrog_authenticated_releases_url.rstrip('/') ~ '/') }}

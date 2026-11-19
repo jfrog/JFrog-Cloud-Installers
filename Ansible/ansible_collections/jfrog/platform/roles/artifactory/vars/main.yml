@@ -2,3 +2,11 @@
 platform_collection_version: 11.6.5
 # indicates where this collection was downloaded from (galaxy, automation_hub, standalone)
 ansible_marketplace: galaxy
+
+artifactory_release_url: >-
+  {{ jfrog_authenticated_releases_url.rstrip('/') if authenticated_release_token
+     else 'https://releases.jfrog.io/artifactory/artifactory-pro' }}
+artifactory_download_authenticated: >-
+  {{ authenticated_release_token | default('', true) | length > 0 and
+     (artifactory_tar | urlsplit('scheme')) == 'https' and
+     artifactory_tar.startswith(jfrog_authenticated_releases_url.rstrip('/') ~ '/') }}

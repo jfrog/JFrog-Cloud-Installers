@@ -58,7 +58,11 @@
   ansible.builtin.get_url:
     url: "{{ artifactory_tar }}"
     timeout: "{{ artifactory_download_timeout }}"
-    dest: "{{ jfrog_home_directory }}"
+    dest: "{{ jfrog_home_directory }}/{{ artifactory_tar_file_name }}"
+    headers: "{{ {'Authorization': 'Bearer ' ~ authenticated_release_token} if artifactory_download_authenticated else omit }}"
+    unredirected_headers: "{{ ['Authorization'] if artifactory_download_authenticated else omit }}"
+    use_netrc: "{{ false if artifactory_download_authenticated else omit }}"
+  no_log: "{{ artifactory_download_authenticated }}"
   register: download_artifactory
   until: download_artifactory is succeeded
   retries: 3
